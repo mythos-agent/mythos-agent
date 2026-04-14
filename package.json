@@ -51,7 +51,8 @@
     "glob": "^11.0.0",
     "inquirer": "^12.3.0",
     "js-yaml": "^4.1.0",
-    "ora": "^8.2.0"
+    "ora": "^8.2.0",
+    "web-tree-sitter": "^0.26.8"
   },
   "devDependencies": {
     "@types/js-yaml": "^4.0.9",
