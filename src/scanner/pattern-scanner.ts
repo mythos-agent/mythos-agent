@@ -8,6 +8,7 @@ import type {
   Severity,
 } from "../types/index.js";
 import { loadBuiltinRules } from "../rules/builtin-rules.js";
+import { loadFrameworkRules } from "../rules/framework-rules.js";
 import { loadCustomRules } from "../rules/custom-rules.js";
 import { ScanCache } from "../store/scan-cache.js";
 
@@ -36,6 +37,7 @@ export class PatternScanner {
   constructor(private config: SphinxConfig, customRulesPath?: string) {
     this.rules = [
       ...loadBuiltinRules(),
+      ...loadFrameworkRules(),
       ...loadCustomRules(customRulesPath),
     ];
   }

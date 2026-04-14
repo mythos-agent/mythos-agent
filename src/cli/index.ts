@@ -13,6 +13,8 @@ import { dashboardCommand } from "./commands/dashboard.js";
 import { toolsCheckCommand } from "./commands/tools.js";
 import { huntCommand } from "./commands/hunt.js";
 import { variantsCommand } from "./commands/variants.js";
+import { pentestCommand } from "./commands/pentest.js";
+import { ciCommand } from "./commands/ci.js";
 import {
   rulesSearchCommand,
   rulesInstallCommand,
@@ -182,6 +184,26 @@ program
   .option("--auto", "Auto-detect dependencies and scan for variants")
   .option("--json", "Output as JSON")
   .action(variantsCommand);
+
+program
+  .command("ci")
+  .description("CI/CD mode: scan + policy check + SARIF output (one command for pipelines)")
+  .option("-p, --path <path>", "Project path", ".")
+  .option("--fail-on <severity>", "Fail if findings at this severity or above (critical, high, medium, low, none)", "none")
+  .option("--sarif <path>", "Write SARIF output to file")
+  .option("--json", "Output summary as JSON")
+  .action(ciCommand);
+
+program
+  .command("pentest")
+  .description("Dynamic security test against a live target URL")
+  .argument("<url>", "Target URL (e.g., http://localhost:3000)")
+  .option("-p, --path <path>", "Source code path for endpoint discovery", ".")
+  .option("--no-smart", "Use payload library instead of AI-guided fuzzing")
+  .option("--no-nuclei", "Skip Nuclei template scan")
+  .option("--no-poc", "Skip PoC generation")
+  .option("--json", "Output as JSON")
+  .action(pentestCommand);
 
 program
   .command("tools")
