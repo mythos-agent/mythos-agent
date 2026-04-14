@@ -10,6 +10,8 @@ import { watchCommand } from "./commands/watch.js";
 import { taintCommand } from "./commands/taint.js";
 import { policyCheckCommand, policyInitCommand } from "./commands/policy.js";
 import { dashboardCommand } from "./commands/dashboard.js";
+import { toolsCheckCommand } from "./commands/tools.js";
+import { huntCommand } from "./commands/hunt.js";
 import {
   rulesSearchCommand,
   rulesInstallCommand,
@@ -163,5 +165,17 @@ rulesCmd
   .description("Scaffold a new rule pack for publishing")
   .argument("<name>", "Rule pack name")
   .action(rulesInitCommand);
+
+program
+  .command("hunt")
+  .description("Autonomous multi-agent security hunt (Recon → Analyze → Exploit)")
+  .argument("[path]", "Path to scan", ".")
+  .option("--json", "Output as JSON")
+  .action(huntCommand);
+
+program
+  .command("tools")
+  .description("Check which external security tools are installed")
+  .action(toolsCheckCommand);
 
 program.parse();
