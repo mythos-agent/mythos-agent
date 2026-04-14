@@ -1,0 +1,62 @@
+{
+  "name": "sphinx-agent",
+  "version": "0.1.0",
+  "description": "Agentic AI security scanner — Mythos for everyone. Finds vulnerabilities, chains them into attack paths, and generates patches.",
+  "type": "module",
+  "main": "dist/index.js",
+  "bin": {
+    "sphinx-agent": "dist/cli/index.js"
+  },
+  "files": [
+    "dist",
+    "LICENSE",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "start": "node dist/cli/index.js",
+    "lint": "eslint src/",
+    "format": "prettier --write src/",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "security",
+    "vulnerability",
+    "scanner",
+    "ai",
+    "claude",
+    "cybersecurity",
+    "owasp",
+    "sast",
+    "static-analysis",
+    "agentic"
+  ],
+  "author": "",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sphinx-agent/sphinx-agent.git"
+  },
+  "homepage": "https://github.com/sphinx-agent/sphinx-agent",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.52.0",
+    "chalk": "^5.4.0",
+    "commander": "^13.1.0",
+    "glob": "^11.0.0",
+    "inquirer": "^12.3.0",
+    "js-yaml": "^4.1.0",
+    "ora": "^8.2.0"
+  },
+  "devDependencies": {
+    "@types/js-yaml": "^4.0.9",
+    "@types/node": "^22.13.0",
+    "typescript": "^5.7.0",
+    "vitest": "^3.0.0"
+  }
+}

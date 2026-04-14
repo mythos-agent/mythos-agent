@@ -1,0 +1,97 @@
+name: "sphinx-agent Security Scan"
+description: "Agentic AI security scanner — Mythos for everyone. Finds vulnerabilities and chains them into attack paths."
+author: "sphinx-agent"
+
+branding:
+  icon: "shield"
+  color: "red"
+
+inputs:
+  path:
+    description: "Path to scan"
+    required: false
+    default: "."
+  api-key:
+    description: "Anthropic API key for AI-powered analysis"
+    required: false
+  severity:
+    description: "Minimum severity to report (critical, high, medium, low)"
+    required: false
+    default: "low"
+  no-ai:
+    description: "Skip AI analysis (pattern scan only)"
+    required: false
+    default: "false"
+  sarif:
+    description: "Upload SARIF results to GitHub Code Scanning"
+    required: false
+    default: "true"
+  fail-on:
+    description: "Fail the action if vulnerabilities at this severity or above are found (critical, high, medium, low, none)"
+    required: false
+    default: "none"
+
+outputs:
+  vulnerabilities:
+    description: "Number of vulnerabilities found"
+  chains:
+    description: "Number of attack chains found"
+  trust-score:
+    description: "Trust score (0-10)"
+  sarif-file:
+    description: "Path to SARIF output file"
+
+runs:
+  using: "composite"
+  steps:
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: "20"
+
+    - name: Install sphinx-agent
+      shell: bash
+      run: npm install -g sphinx-agent
+
+    - name: Run scan
+      shell: bash
+      env:
+        MYTHOH_API_KEY: ${{ inputs.api-key }}
+      run: |
+        ARGS="${{ inputs.path }}"
+        if [ "${{ inputs.no-ai }}" = "true" ]; then
+          ARGS="$ARGS --no-ai"
+        fi
+        ARGS="$ARGS --severity ${{ inputs.severity }}"
+        sphinx-agent scan $ARGS --json > .sphinx/scan-output.json 2>&1 || true
+        sphinx-agent report ${{ inputs.path }} --sarif 2>&1 || true
+
+        # Parse results for outputs
+        if [ -f .sphinx/scan-output.json ]; then
+          echo "vulnerabilities=$(jq '.summary.total_vulnerabilities' .sphinx/scan-output.json)" >> $GITHUB_OUTPUT
+          echo "chains=$(jq '.summary.attack_chains' .sphinx/scan-output.json)" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Upload SARIF
+      if: inputs.sarif == 'true' && hashFiles('.sphinx/results.sarif') != ''
+      uses: github/codeql-action/upload-sarif@v3
+      with:
+        sarif_file: .sphinx/results.sarif
+
+    - name: Check failure threshold
+      if: inputs.fail-on != 'none'
+      shell: bash
+      run: |
+        if [ -f .sphinx/scan-output.json ]; then
+          SEVERITY="${{ inputs.fail-on }}"
+          case "$SEVERITY" in
+            critical) COUNT=$(jq '.summary.by_severity.critical' .sphinx/scan-output.json) ;;
+            high) COUNT=$(jq '.summary.by_severity.critical + .summary.by_severity.high' .sphinx/scan-output.json) ;;
+            medium) COUNT=$(jq '.summary.by_severity.critical + .summary.by_severity.high + .summary.by_severity.medium' .sphinx/scan-output.json) ;;
+            low) COUNT=$(jq '.summary.by_severity.critical + .summary.by_severity.high + .summary.by_severity.medium + .summary.by_severity.low' .sphinx/scan-output.json) ;;
+          esac
+          if [ "$COUNT" -gt 0 ]; then
+            echo "::error::sphinx-agent found $COUNT vulnerabilities at $SEVERITY severity or above"
+            exit 1
+          fi
+        fi

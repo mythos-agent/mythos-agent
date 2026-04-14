@@ -1,0 +1,45 @@
+name: "sphinx-agent PR Review"
+description: "AI-powered security review for pull requests. Posts inline comments on vulnerable lines."
+author: "sphinx-agent"
+
+branding:
+  icon: "shield"
+  color: "red"
+
+inputs:
+  github-token:
+    description: "GitHub token for posting review comments"
+    required: true
+    default: ${{ github.token }}
+  api-key:
+    description: "Anthropic API key for AI-powered analysis (optional)"
+    required: false
+  fail-on:
+    description: "Fail if vulnerabilities at this severity or above (critical, high, medium, low, none)"
+    required: false
+    default: "none"
+
+runs:
+  using: "composite"
+  steps:
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: "20"
+
+    - name: Install sphinx-agent
+      shell: bash
+      run: npm install -g sphinx-agent typescript tsx
+
+    - name: Fetch PR base for diff
+      shell: bash
+      run: |
+        git fetch origin ${{ github.event.pull_request.base.ref }} --depth=1
+
+    - name: Run PR Review Bot
+      shell: bash
+      env:
+        GITHUB_TOKEN: ${{ inputs.github-token }}
+        MYTHOH_API_KEY: ${{ inputs.api-key }}
+        MYTHOH_FAIL_ON: ${{ inputs.fail-on }}
+      run: npx tsx ${{ github.action_path }}/pr-review.ts

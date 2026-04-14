@@ -1,0 +1,31 @@
+# Example: Add this as .github/workflows/sphinx-agent.yml in your repo
+name: Security Scan
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  security-events: write  # Required for SARIF upload
+
+jobs:
+  security-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Pattern-only scan (free, no API key)
+      - uses: sphinx-agent/sphinx-agent@main
+        with:
+          severity: medium
+          no-ai: "true"
+          fail-on: critical
+
+      # Full AI scan (requires API key)
+      # - uses: sphinx-agent/sphinx-agent@main
+      #   with:
+      #     api-key: ${{ secrets.ANTHROPIC_API_KEY }}
+      #     severity: low
+      #     fail-on: high

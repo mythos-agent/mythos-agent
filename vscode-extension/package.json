@@ -1,0 +1,91 @@
+{
+  "name": "sphinx-agent-vscode",
+  "displayName": "sphinx-agent — AI Security Scanner",
+  "description": "Find vulnerabilities, chain them into attack paths, and auto-fix with AI. Mythos for everyone.",
+  "version": "0.3.0",
+  "publisher": "sphinx-agent",
+  "icon": "icon.png",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Linters",
+    "Programming Languages",
+    "Other"
+  ],
+  "keywords": [
+    "security",
+    "vulnerability",
+    "scanner",
+    "ai",
+    "owasp",
+    "sast"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "sphinx-agent.scanFile",
+        "title": "sphinx-agent: Scan Current File"
+      },
+      {
+        "command": "sphinx-agent.scanWorkspace",
+        "title": "sphinx-agent: Scan Workspace"
+      },
+      {
+        "command": "sphinx-agent.fixVulnerability",
+        "title": "sphinx-agent: Fix Vulnerability with AI"
+      },
+      {
+        "command": "sphinx-agent.clearDiagnostics",
+        "title": "sphinx-agent: Clear All Diagnostics"
+      }
+    ],
+    "configuration": {
+      "title": "sphinx-agent",
+      "properties": {
+        "sphinx-agent.scanOnSave": {
+          "type": "boolean",
+          "default": true,
+          "description": "Automatically scan files for vulnerabilities on save"
+        },
+        "sphinx-agent.severity": {
+          "type": "string",
+          "default": "low",
+          "enum": ["critical", "high", "medium", "low"],
+          "description": "Minimum severity level to display"
+        },
+        "sphinx-agent.enableSecrets": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable secrets detection"
+        },
+        "sphinx-agent.enableAI": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable AI-powered deep analysis (requires API key)"
+        },
+        "sphinx-agent.apiKey": {
+          "type": "string",
+          "default": "",
+          "description": "Anthropic API key for AI features"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "build": "esbuild src/extension.ts --bundle --outfile=dist/extension.js --external:vscode --format=cjs --platform=node",
+    "watch": "npm run build -- --watch",
+    "package": "vsce package",
+    "publish": "vsce publish"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.85.0",
+    "esbuild": "^0.24.0",
+    "@vscode/vsce": "^3.0.0",
+    "typescript": "^5.7.0"
+  }
+}

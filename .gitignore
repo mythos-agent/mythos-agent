@@ -1,0 +1,8 @@
+node_modules/
+dist/
+.env
+.mythoh.yml
+*.tgz
+.DS_Store
+coverage/
+.sphinx/

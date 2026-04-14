@@ -1,0 +1,42 @@
+# Example custom rules for sphinx-agent
+# Place in .sphinx/rules/ or pass with --rules flag
+
+rules:
+  - id: no-console-log
+    title: Console.log in production code
+    description: Remove console.log statements before deploying to production.
+    severity: low
+    category: code-quality
+    languages: [typescript, javascript]
+    patterns:
+      - pattern: "console\\.log\\s*\\("
+
+  - id: no-todo-comments
+    title: TODO comment found
+    description: Unresolved TODO comments may indicate incomplete security implementations.
+    severity: info
+    category: code-quality
+    languages: ["*"]
+    patterns:
+      - pattern: "//\\s*TODO|//\\s*FIXME|//\\s*HACK|//\\s*XXX"
+
+  - id: no-cors-wildcard
+    title: Wildcard CORS Origin
+    description: "Using '*' as CORS origin allows any website to make requests to your API."
+    severity: medium
+    category: config
+    cwe: CWE-942
+    languages: [typescript, javascript]
+    patterns:
+      - pattern: "cors\\s*\\(\\s*\\{[^}]*origin\\s*:\\s*['\"]\\*['\"]"
+      - pattern: "Access-Control-Allow-Origin.*\\*"
+
+  - id: no-debug-mode
+    title: Debug mode enabled
+    description: Debug mode may expose sensitive information in production.
+    severity: medium
+    category: config
+    languages: ["*"]
+    patterns:
+      - pattern: "DEBUG\\s*[:=]\\s*(?:true|1|['\"]true['\"])"
+      - pattern: "debug\\s*:\\s*true"
