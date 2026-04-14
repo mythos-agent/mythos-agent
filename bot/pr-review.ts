@@ -10,7 +10,7 @@
  *   GITHUB_TOKEN          — GitHub token for posting comments
  *   GITHUB_REPOSITORY     — owner/repo
  *   GITHUB_EVENT_PATH     — path to event JSON
- *   MYTHOH_API_KEY        — (optional) Anthropic API key for AI analysis
+ *   SPHINX_API_KEY        — (optional) Anthropic API key for AI analysis
  */
 
 import fs from "node:fs";
@@ -137,7 +137,7 @@ async function main() {
   );
 
   // Exit with error if critical/high vulns found (configurable)
-  const failOn = process.env.MYTHOH_FAIL_ON || "none";
+  const failOn = process.env.SPHINX_FAIL_ON || "none";
   if (failOn !== "none") {
     const severityOrder = ["critical", "high", "medium", "low"];
     const threshold = severityOrder.indexOf(failOn);

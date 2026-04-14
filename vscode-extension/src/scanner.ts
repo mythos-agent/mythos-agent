@@ -1,7 +1,7 @@
 import * as vscode from "vscode";
 import { RULES, SECRET_RULES, type Rule } from "./rules";
 
-export class MythohScanner {
+export class SphinxScanner {
   constructor(
     private diagnosticCollection: vscode.DiagnosticCollection
   ) {}

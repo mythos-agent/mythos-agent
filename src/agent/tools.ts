@@ -150,11 +150,11 @@ function executeSearchCode(
     const relPath = path.relative(projectPath, file);
 
     for (let i = 0; i < lines.length; i++) {
+      regex.lastIndex = 0;
       if (regex.test(lines[i])) {
         results.push(`${relPath}:${i + 1}\t${lines[i].trim()}`);
         matchCount++;
         if (matchCount >= maxMatches) break;
-        regex.lastIndex = 0;
       }
     }
   }

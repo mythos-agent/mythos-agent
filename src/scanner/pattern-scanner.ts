@@ -2,7 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { glob } from "glob";
 import type {
-  MythohConfig,
+  SphinxConfig,
   Vulnerability,
   RuleDefinition,
   Severity,
@@ -33,7 +33,7 @@ const LANG_MAP: Record<string, string> = {
 export class PatternScanner {
   private rules: RuleDefinition[];
 
-  constructor(private config: MythohConfig, customRulesPath?: string) {
+  constructor(private config: SphinxConfig, customRulesPath?: string) {
     this.rules = [
       ...loadBuiltinRules(),
       ...loadCustomRules(customRulesPath),
@@ -81,6 +81,7 @@ export class PatternScanner {
           if (rulePattern.type === "regex") {
             const regex = new RegExp(rulePattern.pattern, "gi");
             for (let i = 0; i < lines.length; i++) {
+              regex.lastIndex = 0;
               if (regex.test(lines[i])) {
                 fileFindings.push({
                   id: `SPX-${String(idCounter++).padStart(4, "0")}`,
@@ -97,7 +98,6 @@ export class PatternScanner {
                     snippet: lines[i].trim(),
                   },
                 });
-                regex.lastIndex = 0;
               }
             }
           }

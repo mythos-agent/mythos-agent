@@ -1,14 +1,14 @@
 import * as vscode from "vscode";
-import { MythohScanner } from "./scanner";
+import { SphinxScanner } from "./scanner";
 
-let scanner: MythohScanner;
+let scanner: SphinxScanner;
 let diagnosticCollection: vscode.DiagnosticCollection;
 let statusBarItem: vscode.StatusBarItem;
 
 export function activate(context: vscode.ExtensionContext) {
   diagnosticCollection =
     vscode.languages.createDiagnosticCollection("sphinx-agent");
-  scanner = new MythohScanner(diagnosticCollection);
+  scanner = new SphinxScanner(diagnosticCollection);
 
   // Status bar
   statusBarItem = vscode.window.createStatusBarItem(
@@ -82,7 +82,7 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(
     vscode.languages.registerCodeActionsProvider(
       { scheme: "file" },
-      new MythohCodeActionProvider(),
+      new SphinxCodeActionProvider(),
       { providedCodeActionKinds: [vscode.CodeActionKind.QuickFix] }
     )
   );
@@ -143,7 +143,7 @@ function isSupportedFile(document: vscode.TextDocument): boolean {
   return supported.includes(document.languageId);
 }
 
-class MythohCodeActionProvider implements vscode.CodeActionProvider {
+class SphinxCodeActionProvider implements vscode.CodeActionProvider {
   provideCodeActions(
     document: vscode.TextDocument,
     range: vscode.Range,

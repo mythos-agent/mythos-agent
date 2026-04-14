@@ -1,5 +1,7 @@
-import { execSync } from "node:child_process";
+import { execSync, spawnSync } from "node:child_process";
 import path from "node:path";
+
+const GIT_REF_PATTERN = /^[a-zA-Z0-9_.\/\-~^@{}]+$/;
 
 export interface DiffFile {
   file: string;
@@ -22,11 +24,15 @@ export function getGitChangedFiles(
   const files: DiffFile[] = [];
 
   if (base) {
-    // Changes vs a branch/commit
-    const output = execSync(`git diff --name-status ${base}`, {
+    if (!GIT_REF_PATTERN.test(base)) {
+      throw new Error(`Invalid git ref: ${base}`);
+    }
+    // Changes vs a branch/commit — use spawnSync to avoid shell injection
+    const result = spawnSync("git", ["diff", "--name-status", base], {
       cwd,
       encoding: "utf-8",
     });
+    const output = result.stdout || "";
     files.push(...parseDiffOutput(output));
   } else {
     // Staged changes

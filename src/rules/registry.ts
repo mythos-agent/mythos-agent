@@ -1,8 +1,9 @@
 import fs from "node:fs";
 import path from "node:path";
-import { execSync } from "node:child_process";
+import { spawnSync } from "node:child_process";
 
 const REGISTRY_PREFIX = "sphinx-rules-";
+const SAFE_NAME_PATTERN = /^[a-z0-9@._\/-]+$/;
 const LOCAL_RULES_DIR = ".sphinx/rules";
 
 export interface RulePack {
@@ -20,11 +21,17 @@ export async function searchRulePacks(
     ? `${REGISTRY_PREFIX}${query}`
     : REGISTRY_PREFIX;
 
+  if (!SAFE_NAME_PATTERN.test(searchTerm)) {
+    return [];
+  }
+
   try {
-    const output = execSync(
-      `npm search ${searchTerm} --json --long 2>/dev/null`,
+    const result = spawnSync(
+      "npm",
+      ["search", searchTerm, "--json", "--long"],
       { encoding: "utf-8", timeout: 15000 }
     );
+    const output = result.stdout || "[]";
     const results = JSON.parse(output) as Array<{
       name: string;
       version: string;
@@ -64,12 +71,16 @@ export async function installRulePack(
   const tempDir = path.join(projectPath, ".sphinx", ".tmp");
   fs.mkdirSync(tempDir, { recursive: true });
 
+  if (!SAFE_NAME_PATTERN.test(packageName)) {
+    throw new Error(`Invalid package name: ${packageName}`);
+  }
+
   try {
-    execSync(`npm pack ${packageName} --pack-destination "${tempDir}"`, {
-      encoding: "utf-8",
-      timeout: 30000,
-      stdio: "pipe",
-    });
+    spawnSync(
+      "npm",
+      ["pack", packageName, "--pack-destination", tempDir],
+      { encoding: "utf-8", timeout: 30000, stdio: "pipe" }
+    );
 
     // Find the downloaded tarball
     const tarball = fs
@@ -78,8 +89,9 @@ export async function installRulePack(
     if (!tarball) throw new Error("Package download failed");
 
     // Extract rules from the tarball
-    execSync(
-      `tar -xzf "${path.join(tempDir, tarball)}" -C "${tempDir}"`,
+    spawnSync(
+      "tar",
+      ["-xzf", path.join(tempDir, tarball), "-C", tempDir],
       { stdio: "pipe" }
     );
 

@@ -19,11 +19,15 @@ interface YamlRule {
   }>;
 }
 
-export function loadCustomRules(rulesPath?: string): RuleDefinition[] {
+export function loadCustomRules(
+  rulesPath?: string,
+  projectPath?: string
+): RuleDefinition[] {
+  const base = projectPath || process.cwd();
   const searchPaths = [
     rulesPath,
-    ".sphinx/rules",
-    ".sphinx/rules.yml",
+    path.join(base, ".sphinx/rules"),
+    path.join(base, ".sphinx/rules.yml"),
   ].filter(Boolean) as string[];
 
   const rules: RuleDefinition[] = [];

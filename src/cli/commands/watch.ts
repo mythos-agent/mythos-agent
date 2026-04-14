@@ -128,12 +128,12 @@ async function scanFile(
     return;
   }
 
-  // Run a quick scan on just this file
+  // Run a quick scan on just this file (not the whole project)
   const tempConfig = { ...config, scan: { ...config.scan, include: [relativePath], exclude: [] } };
   const tempScanner = new PatternScanner(tempConfig);
-  const { findings } = await tempScanner.scan(projectPath);
-  const { findings: secrets } = await secretsScanner.scan(projectPath);
-  const allFindings = [...findings, ...secrets].filter(
+  const { findings } = await tempScanner.scan(projectPath, false);
+  // Secrets: filter to only the changed file instead of scanning everything
+  const allFindings = [...findings].filter(
     (f) => f.location.file === relativePath.replace(/\\/g, "/") ||
            f.location.file === relativePath
   );

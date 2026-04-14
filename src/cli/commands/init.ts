@@ -1,3 +1,4 @@
+import fs from "node:fs";
 import chalk from "chalk";
 import inquirer from "inquirer";
 import { writeConfig } from "../../config/config.js";
@@ -101,12 +102,24 @@ export async function initCommand() {
     model,
   });
 
+  // Auto-add .sphinx.yml to .gitignore
+  if (!isLocal) {
+    const gitignorePath = ".gitignore";
+    let gitignore = fs.existsSync(gitignorePath)
+      ? fs.readFileSync(gitignorePath, "utf-8")
+      : "";
+    if (!gitignore.includes(".sphinx.yml")) {
+      gitignore += `${gitignore.endsWith("\n") ? "" : "\n"}.sphinx.yml\n`;
+      fs.writeFileSync(gitignorePath, gitignore);
+    }
+  }
+
   console.log(
     chalk.green(`\n✅ Configuration saved to ${configPath}`)
   );
   if (!isLocal) {
     console.log(
-      chalk.dim("   Add .sphinx.yml to .gitignore to keep your API key private.")
+      chalk.dim("   .sphinx.yml added to .gitignore automatically.")
     );
   }
 

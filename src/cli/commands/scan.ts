@@ -1,7 +1,15 @@
 import path from "node:path";
+import { readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
 import chalk from "chalk";
 import ora from "ora";
 import { loadConfig } from "../../config/config.js";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const pkgJson = JSON.parse(
+  readFileSync(path.resolve(__dirname, "../../../package.json"), "utf-8")
+);
+const VERSION = pkgJson.version;
 import { saveResults } from "../../store/results-store.js";
 import { PatternScanner } from "../../scanner/pattern-scanner.js";
 import { AIAnalyzer } from "../../agent/analyzer.js";
@@ -53,7 +61,7 @@ export async function scanCommand(scanPath: string, options: ScanOptions) {
 
   if (outputFormat === "terminal") {
     console.log(
-      chalk.bold("\n🔐 sphinx-agent v1.0.0 — Agentic AI Security Scanner")
+      chalk.bold(`\n🔐 sphinx-agent v${VERSION} — Agentic AI Security Scanner`)
     );
     console.log(chalk.dim("━".repeat(50)));
     console.log(chalk.dim(`\n📁 Scanning: ${projectPath}\n`));
@@ -198,12 +206,17 @@ export async function scanCommand(scanPath: string, options: ScanOptions) {
       );
       const phase2Duration = ((Date.now() - phase2Start) / 1000).toFixed(1);
 
-      confirmed = aiResult.confirmed;
       phase2Findings = aiResult.discovered;
       dismissedCount = aiResult.dismissedCount;
 
-      // Merge discovered into confirmed
-      confirmed = [...confirmed, ...phase2Findings];
+      // AI only verifies phase1 findings — preserve secrets/dep/IaC findings
+      confirmed = [
+        ...aiResult.confirmed,
+        ...secretsFindings,
+        ...depFindings,
+        ...iacFindings,
+        ...phase2Findings,
+      ];
 
       if (aiSpinner) {
         aiSpinner.succeed(

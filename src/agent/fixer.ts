@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import Anthropic from "@anthropic-ai/sdk";
-import type { MythohConfig, Vulnerability } from "../types/index.js";
+import type { SphinxConfig, Vulnerability } from "../types/index.js";
 
 export interface Patch {
   vulnerabilityId: string;
@@ -43,7 +43,7 @@ export class AIFixer {
   private client: Anthropic;
   private model: string;
 
-  constructor(private config: MythohConfig) {
+  constructor(private config: SphinxConfig) {
     this.client = new Anthropic({ apiKey: config.apiKey });
     this.model = config.model;
   }
@@ -154,6 +154,8 @@ export function applyPatch(
   patch: Patch
 ): boolean {
   const absPath = path.resolve(projectPath, patch.file);
+  // Prevent path traversal — patch must stay within project
+  if (!absPath.startsWith(path.resolve(projectPath) + path.sep)) return false;
   if (!fs.existsSync(absPath)) return false;
 
   let content = fs.readFileSync(absPath, "utf-8");
@@ -187,7 +189,7 @@ export function applyPatch(
 
     if (!found) return false;
   } else {
-    content = content.replace(patch.original, patch.fixed);
+    content = content.replaceAll(patch.original, patch.fixed);
   }
 
   fs.writeFileSync(absPath, content, "utf-8");

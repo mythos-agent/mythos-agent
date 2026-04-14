@@ -60,7 +60,7 @@ export interface RulePattern {
   message?: string;
 }
 
-export interface MythohConfig {
+export interface SphinxConfig {
   apiKey?: string;
   model: string;
   provider: string; // "anthropic" | "openai" | "ollama" | "lmstudio" | "vllm" | custom
@@ -76,7 +76,7 @@ export interface MythohConfig {
   };
 }
 
-export const DEFAULT_CONFIG: MythohConfig = {
+export const DEFAULT_CONFIG: SphinxConfig = {
   model: "claude-sonnet-4-20250514",
   provider: "anthropic",
   rules: {

@@ -1,5 +1,5 @@
 import Anthropic from "@anthropic-ai/sdk";
-import type { MythohConfig } from "../types/index.js";
+import type { SphinxConfig } from "../types/index.js";
 import { createAgentTools, executeToolCall } from "./tools.js";
 
 const QUERY_SYSTEM_PROMPT = `You are sphinx-agent, an expert AI security analyst. The user is asking security questions about their codebase. You have access to tools to read files, search code, and list files.
@@ -26,13 +26,15 @@ Always cite specific files and line numbers. If you need to read more code to an
 
 const MAX_TURNS = 15;
 
+const MAX_HISTORY_TURNS = 10;
+
 export class QueryEngine {
   private client: Anthropic;
   private model: string;
   private conversationHistory: Anthropic.MessageParam[] = [];
 
   constructor(
-    private config: MythohConfig,
+    private config: SphinxConfig,
     private projectPath: string
   ) {
     this.client = new Anthropic({ apiKey: config.apiKey });
@@ -92,6 +94,12 @@ export class QueryEngine {
           role: "assistant",
           content: textBlock.text,
         });
+        // Trim history to avoid unbounded context growth
+        if (this.conversationHistory.length > MAX_HISTORY_TURNS * 2) {
+          this.conversationHistory = this.conversationHistory.slice(
+            -(MAX_HISTORY_TURNS * 2)
+          );
+        }
         return textBlock.text;
       }
 

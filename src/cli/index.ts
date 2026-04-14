@@ -25,7 +25,7 @@ program
   .description(
     "Agentic AI security scanner — Mythos for everyone.\nFinds vulnerabilities, chains them into attack paths, and generates patches."
   )
-  .version("0.2.0");
+  .version("1.0.0");
 
 program
   .command("scan")

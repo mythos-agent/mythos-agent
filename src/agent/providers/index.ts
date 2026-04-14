@@ -1,12 +1,12 @@
 import type { AIProvider } from "./base.js";
 import { AnthropicProvider } from "./anthropic.js";
 import { OpenAICompatibleProvider } from "./openai-compatible.js";
-import type { MythohConfig } from "../../types/index.js";
+import type { SphinxConfig } from "../../types/index.js";
 
 export type { AIProvider, UsageTracker } from "./base.js";
 export { createUsageTracker, trackUsage } from "./base.js";
 
-export function createProvider(config: MythohConfig): AIProvider {
+export function createProvider(config: SphinxConfig): AIProvider {
   const apiKey = config.apiKey;
   if (!apiKey) {
     throw new Error("API key required. Run 'sphinx-agent init' to configure.");

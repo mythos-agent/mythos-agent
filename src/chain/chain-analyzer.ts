@@ -1,6 +1,6 @@
 import Anthropic from "@anthropic-ai/sdk";
 import type {
-  MythohConfig,
+  SphinxConfig,
   Vulnerability,
   VulnChain,
   Severity,
@@ -45,7 +45,7 @@ export class ChainAnalyzer {
   private client: Anthropic;
   private model: string;
 
-  constructor(private config: MythohConfig) {
+  constructor(private config: SphinxConfig) {
     this.client = new Anthropic({ apiKey: config.apiKey });
     this.model = config.model;
   }
