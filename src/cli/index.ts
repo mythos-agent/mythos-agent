@@ -15,6 +15,8 @@ import { huntCommand } from "./commands/hunt.js";
 import { variantsCommand } from "./commands/variants.js";
 import { pentestCommand } from "./commands/pentest.js";
 import { ciCommand } from "./commands/ci.js";
+import { baselineSaveCommand, baselineCompareCommand } from "./commands/baseline.js";
+import { doctorCommand } from "./commands/doctor.js";
 import {
   rulesSearchCommand,
   rulesInstallCommand,
@@ -115,6 +117,7 @@ program
   .option("--json", "Output as JSON")
   .option("--html", "Output as HTML report")
   .option("--sarif", "Output as SARIF (GitHub Code Scanning)")
+  .option("--md", "Output as Markdown report")
   .action((scanPath: string, options: Record<string, unknown>) => {
     reportCommand({ ...options, path: scanPath } as any);
   });
@@ -204,6 +207,29 @@ program
   .option("--no-poc", "Skip PoC generation")
   .option("--json", "Output as JSON")
   .action(pentestCommand);
+
+const baselineCmd = program
+  .command("baseline")
+  .description("Track findings over time — save and compare baselines");
+
+baselineCmd
+  .command("save")
+  .description("Save current scan results as the baseline")
+  .option("-p, --path <path>", "Project path", ".")
+  .action(baselineSaveCommand);
+
+baselineCmd
+  .command("compare")
+  .description("Compare current results against saved baseline")
+  .option("-p, --path <path>", "Project path", ".")
+  .option("--json", "Output as JSON")
+  .action(baselineCompareCommand);
+
+program
+  .command("doctor")
+  .description("Health check: verify config, tools, and project security setup")
+  .option("-p, --path <path>", "Project path", ".")
+  .action(doctorCommand);
 
 program
   .command("tools")
