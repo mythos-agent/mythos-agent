@@ -58,15 +58,36 @@ export interface FinalReport {
   remediationPlan: string;
 }
 
+export interface HypothesisReport {
+  type: "hypothesis";
+  hypotheses: Array<{
+    id: string;
+    functionName: string;
+    file: string;
+    line: number;
+    hypothesis: string;
+    category: string;
+    estimatedSeverity: Severity;
+    reasoning: string;
+    investigationSteps: string[];
+  }>;
+}
+
+/**
+ * Confidence tiers for findings — only "confirmed" and "likely" are reported by default.
+ */
+export type ConfidenceTier = "confirmed" | "likely" | "possible" | "dismissed";
+
 export type AgentReport =
   | ReconReport
+  | HypothesisReport
   | AnalysisReport
   | ExploitReport
   | FinalReport;
 
 export interface AgentTask {
   id: string;
-  agent: "recon" | "analyzer" | "exploit" | "reporter";
+  agent: "recon" | "hypothesis" | "analyzer" | "exploit" | "reporter";
   description: string;
   input: Record<string, unknown>;
   dependsOn?: string[];

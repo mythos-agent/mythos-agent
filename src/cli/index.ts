@@ -12,6 +12,7 @@ import { policyCheckCommand, policyInitCommand } from "./commands/policy.js";
 import { dashboardCommand } from "./commands/dashboard.js";
 import { toolsCheckCommand } from "./commands/tools.js";
 import { huntCommand } from "./commands/hunt.js";
+import { variantsCommand } from "./commands/variants.js";
 import {
   rulesSearchCommand,
   rulesInstallCommand,
@@ -168,10 +169,19 @@ rulesCmd
 
 program
   .command("hunt")
-  .description("Autonomous multi-agent security hunt (Recon → Analyze → Exploit)")
+  .description("Autonomous multi-agent security hunt (Recon → Hypothesize → Analyze → Exploit)")
   .argument("[path]", "Path to scan", ".")
   .option("--json", "Output as JSON")
   .action(huntCommand);
+
+program
+  .command("variants")
+  .description("Find variants of known CVEs in your codebase (Big Sleep technique)")
+  .argument("[cve-id]", "CVE ID to search for variants of (e.g., CVE-2021-44228)")
+  .option("-p, --path <path>", "Project path", ".")
+  .option("--auto", "Auto-detect dependencies and scan for variants")
+  .option("--json", "Output as JSON")
+  .action(variantsCommand);
 
 program
   .command("tools")

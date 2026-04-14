@@ -63,6 +63,23 @@ export async function huntCommand(huntPath: string, options: HuntOptions) {
       )
     );
   } else {
+    // Show hypotheses
+    if (result.hypotheses.hypotheses.length > 0) {
+      console.log(chalk.bold("\n🧪 Security Hypotheses\n"));
+      for (const h of result.hypotheses.hypotheses) {
+        const color = h.estimatedSeverity === "critical" ? chalk.red : h.estimatedSeverity === "high" ? chalk.yellow : chalk.blue;
+        console.log(
+          `  ${color(`[${h.estimatedSeverity.toUpperCase()}]`)} ${chalk.bold(h.id)} — ${h.hypothesis.slice(0, 80)}`
+        );
+        console.log(chalk.dim(`    ${h.file}:${h.line} (${h.category})`));
+      }
+    }
+
+    // Show confidence summary
+    const cs = result.confidenceSummary;
+    console.log(chalk.bold("\n📊 Confidence Summary\n"));
+    console.log(`  ${chalk.green(`${cs.confirmed} confirmed`)} | ${chalk.yellow(`${cs.likely} likely`)} | ${chalk.blue(`${cs.possible} possible`)} | ${chalk.dim(`${cs.dismissed} dismissed`)}`);
+
     // Show AI insights
     if (result.analysis.aiInsights.length > 0) {
       console.log(chalk.bold("\n🧠 AI Insights\n"));
