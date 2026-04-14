@@ -130,7 +130,13 @@ function executeSearchCode(
 ): string {
   const pattern = input.pattern as string;
   const fileGlob = (input.file_glob as string) || "**/*.{ts,tsx,js,jsx,py}";
-  const regex = new RegExp(pattern, "gi");
+
+  let regex: RegExp;
+  try {
+    regex = new RegExp(pattern, "gi");
+  } catch (err) {
+    return `Error: Invalid regex pattern "${pattern}" — ${err instanceof Error ? err.message : "unknown error"}`;
+  }
 
   const files = glob.sync(fileGlob, {
     cwd: projectPath,

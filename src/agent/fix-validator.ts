@@ -162,16 +162,11 @@ function checkCompilation(projectPath: string): boolean {
 
   if (tscResult.status === 0) return true;
 
-  // Try Python syntax check
-  const pyResult = spawnSync("python", ["-m", "py_compile", "--"], {
-    cwd: projectPath,
-    encoding: "utf-8",
-    timeout: 10000,
-    stdio: "pipe",
-  });
+  // tsc found but compilation failed
+  if (!tscResult.error) return false;
 
-  // If neither applies, assume OK (we'll catch issues in tests)
-  return tscResult.error?.message?.includes("ENOENT") !== false;
+  // tsc not found (ENOENT) — not a TS project, assume OK
+  return true;
 }
 
 function runExistingTests(projectPath: string): boolean {

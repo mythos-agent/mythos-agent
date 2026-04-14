@@ -1,3 +1,7 @@
+import fs from "node:fs";
+import path from "node:path";
+import os from "node:os";
+import crypto from "node:crypto";
 import { runTool, checkTool } from "./tool-runner.js";
 import type { Vulnerability, Severity } from "../types/index.js";
 
@@ -70,8 +74,14 @@ export function runNucleiBulk(
   targets: string[],
   options: { severity?: string; tags?: string[] } = {}
 ): Vulnerability[] {
-  // Write targets to temp stdin
+  if (targets.length === 0) return [];
+
+  // Write targets to a temp file for Nuclei's -list flag
+  const listFile = path.join(os.tmpdir(), `sphinx-nuclei-${crypto.randomUUID()}.txt`);
+  fs.writeFileSync(listFile, targets.join("\n"), "utf-8");
+
   const args = [
+    "-list", listFile,
     "-jsonl",
     "-silent",
     "-no-color",
@@ -81,12 +91,16 @@ export function runNucleiBulk(
     args.push("-severity", options.severity);
   }
 
-  const result = runTool<NucleiResult[]>("nuclei", args, {
-    timeout: 600_000,
-  });
+  try {
+    const result = runTool<NucleiResult[]>("nuclei", args, {
+      timeout: 600_000,
+    });
 
-  if (!result.data) return [];
-  return normalizeFindings(result.data);
+    if (!result.data) return [];
+    return normalizeFindings(result.data);
+  } finally {
+    try { fs.unlinkSync(listFile); } catch { /* ignore */ }
+  }
 }
 
 function normalizeFindings(findings: NucleiResult[]): Vulnerability[] {

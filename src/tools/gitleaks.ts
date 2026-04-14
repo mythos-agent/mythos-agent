@@ -1,3 +1,7 @@
+import fs from "node:fs";
+import path from "node:path";
+import os from "node:os";
+import crypto from "node:crypto";
 import { runTool, checkTool } from "./tool-runner.js";
 import type { Vulnerability, Severity } from "../types/index.js";
 
@@ -18,22 +22,32 @@ export function isGitleaksInstalled(): boolean {
 }
 
 export function runGitleaks(projectPath: string): Vulnerability[] {
+  // Use temp file for report (cross-platform — /dev/stdout doesn't exist on Windows)
+  const reportPath = path.join(os.tmpdir(), `sphinx-gitleaks-${crypto.randomUUID()}.json`);
+
   const args = [
     "detect",
     "--source", projectPath,
     "--report-format", "json",
-    "--report-path", "/dev/stdout",
+    "--report-path", reportPath,
     "--no-git",
     "--exit-code", "0",
   ];
 
-  const result = runTool<GitleaksResult[]>("gitleaks", args, {
-    timeout: 120_000,
-  });
+  try {
+    runTool("gitleaks", args, { timeout: 120_000, parseJson: false });
 
-  if (!result.data) return [];
+    if (!fs.existsSync(reportPath)) return [];
+    const raw = fs.readFileSync(reportPath, "utf-8");
+    if (!raw.trim()) return [];
 
-  return normalizeFindings(result.data);
+    const data = JSON.parse(raw) as GitleaksResult[];
+    return normalizeFindings(data);
+  } catch {
+    return [];
+  } finally {
+    try { fs.unlinkSync(reportPath); } catch { /* ignore */ }
+  }
 }
 
 function normalizeFindings(findings: GitleaksResult[]): Vulnerability[] {

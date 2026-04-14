@@ -173,10 +173,11 @@ export function runTaintAnalysis(
     // For each source-sink pair, check if there's an unsanitized path
     for (const source of sources) {
       for (const sink of sinks) {
-        // Check if any sanitizer exists between source and sink
+        // Only check for sanitizers BETWEEN source and sink lines
+        if (sink.line <= source.line) continue; // sink must come after source
         const bodyBetween = lines.slice(
-          Math.min(source.line - 1, handlerStart),
-          Math.max(sink.line, handlerEnd)
+          source.line - 1,
+          sink.line
         ).join("\n");
 
         const sanitizer = SANITIZERS.find((s) => s.test(bodyBetween));
@@ -345,12 +346,12 @@ function findSinks(lines: string[], file: string, offset: number): SinkMatch[] {
 function findHandlerEnd(lines: string[], start: number): number {
   let depth = 0;
   let started = false;
-  for (let i = start; i < lines.length && i < start + 200; i++) {
+  for (let i = start; i < lines.length && i < start + 1000; i++) {
     for (const ch of lines[i]) {
       if (ch === "{") { depth++; started = true; }
       if (ch === "}") depth--;
     }
     if (started && depth === 0) return i + 1;
   }
-  return Math.min(start + 50, lines.length);
+  return Math.min(start + 200, lines.length);
 }

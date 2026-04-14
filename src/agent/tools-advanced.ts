@@ -13,22 +13,23 @@ import {
   assessEndpointSecurity,
 } from "../analysis/endpoint-mapper.js";
 
-let cachedMap: CodebaseMap | null = null;
-let cachedGraph: CallGraph | null = null;
-let cachedProjectPath: string | null = null;
+// Per-project cache to avoid re-parsing on repeated tool calls within a session
+const cache = new Map<string, { map: CodebaseMap; graph: CallGraph | null }>();
 
 async function getCodebaseMap(projectPath: string): Promise<CodebaseMap> {
-  if (cachedMap && cachedProjectPath === projectPath) return cachedMap;
-  cachedMap = await parseCodebase(projectPath);
-  cachedProjectPath = projectPath;
-  cachedGraph = null; // invalidate graph cache
-  return cachedMap;
+  const entry = cache.get(projectPath);
+  if (entry) return entry.map;
+  const map = await parseCodebase(projectPath);
+  cache.set(projectPath, { map, graph: null });
+  return map;
 }
 
 function getCallGraph(map: CodebaseMap, projectPath: string): CallGraph {
-  if (cachedGraph) return cachedGraph;
-  cachedGraph = buildCallGraph(map, projectPath);
-  return cachedGraph;
+  const entry = cache.get(projectPath);
+  if (entry?.graph) return entry.graph;
+  const graph = buildCallGraph(map, projectPath);
+  if (entry) entry.graph = graph;
+  return graph;
 }
 
 /**

@@ -189,7 +189,12 @@ export function applyPatch(
 
     if (!found) return false;
   } else {
-    content = content.replaceAll(patch.original, patch.fixed);
+    // Replace only the FIRST occurrence to avoid modifying unrelated code
+    const idx = content.indexOf(patch.original);
+    content =
+      content.slice(0, idx) +
+      patch.fixed +
+      content.slice(idx + patch.original.length);
   }
 
   fs.writeFileSync(absPath, content, "utf-8");

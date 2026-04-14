@@ -112,7 +112,9 @@ export function checkTool(name: string): ToolInfo {
     stdio: ["pipe", "pipe", "pipe"],
   });
 
-  const installed = result.status === 0 || !result.error;
+  // Tool is installed only if it ran successfully (status 0) or produced version output
+  // A crashed tool (status !== 0, no error) is NOT considered installed
+  const installed = result.status === 0;
   const version = (result.stdout || result.stderr || "")
     .trim()
     .split("\n")[0]
