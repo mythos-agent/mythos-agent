@@ -57,18 +57,8 @@ export function loadFrameworkRules(): RuleDefinition[] {
     },
 
     // === Express.js ===
-    {
-      id: "express-no-helmet",
-      title: "Express: Missing security headers (no Helmet)",
-      description: "Express app without Helmet middleware is missing critical security headers.",
-      severity: "medium",
-      category: "config",
-      cwe: "CWE-693",
-      languages: ["typescript", "javascript"],
-      patterns: [
-        { type: "regex", pattern: "express\\(\\)" },
-      ],
-    },
+    // Note: "missing Helmet" detection requires whole-file analysis (not regex)
+    // and is handled by the hypothesis agent instead.
     {
       id: "express-session-insecure",
       title: "Express: Session with insecure defaults",

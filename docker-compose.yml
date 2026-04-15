@@ -15,7 +15,6 @@ services:
       - SPHINX_MODEL=${SPHINX_MODEL:-claude-sonnet-4-20250514}
     command: ["serve", "--host", "0.0.0.0", "--port", "4041", "--path", "/project"]
     restart: unless-stopped
-    read_only: true
     tmpfs:
       - /tmp
     security_opt:

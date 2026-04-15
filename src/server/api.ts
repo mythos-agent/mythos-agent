@@ -37,6 +37,7 @@ function route(method: string, routePath: string, handler: RouteHandler) {
   routes.push({ method, path: routePath, handler });
 }
 
+// Module-level config set by createServer — single-instance only
 let serverConfig: ServerConfig;
 
 // === API Routes ===
@@ -89,9 +90,8 @@ route("GET", "/api/policy", async () => {
 
 route("POST", "/api/scan", async (_req, _params, body) => {
   const options = body ? JSON.parse(body) : {};
-  const projectPath = options.path
-    ? path.resolve(options.path)
-    : serverConfig.projectPath;
+  // Restrict scanning to the configured project path (prevent path traversal)
+  const projectPath = serverConfig.projectPath;
 
   const config = loadConfig(projectPath);
   const findings: Vulnerability[] = [];
@@ -165,15 +165,21 @@ route("GET", "/api/history", async () => {
 
 // === Server ===
 
+const MAX_BODY_SIZE = 1024 * 1024; // 1MB limit
+
 export function createServer(config: ServerConfig): http.Server {
   serverConfig = config;
+  const activeConfig = config;
 
   const server = http.createServer(async (req, res) => {
     const url = new URL(req.url || "/", `http://${req.headers.host}`);
     const method = req.method || "GET";
 
-    // CORS
-    res.setHeader("Access-Control-Allow-Origin", "http://localhost:*");
+    // CORS — restrict to localhost only
+    const origin = req.headers.origin || "";
+    if (origin.startsWith("http://localhost") || origin.startsWith("http://127.0.0.1")) {
+      res.setHeader("Access-Control-Allow-Origin", origin);
+    }
     res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
     res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
 
@@ -184,23 +190,39 @@ export function createServer(config: ServerConfig): http.Server {
     }
 
     // API key auth (optional)
-    if (config.apiKey) {
+    if (activeConfig.apiKey) {
       const authHeader = req.headers.authorization;
-      if (authHeader !== `Bearer ${config.apiKey}`) {
+      if (authHeader !== `Bearer ${activeConfig.apiKey}`) {
         res.writeHead(401, { "Content-Type": "application/json" });
         res.end(JSON.stringify({ error: "Unauthorized" }));
         return;
       }
     }
 
-    // Read body for POST
+    // Read body for POST with size limit
     let body = "";
     if (method === "POST") {
-      body = await new Promise<string>((resolve) => {
+      body = await new Promise<string>((resolve, reject) => {
         const chunks: Buffer[] = [];
-        req.on("data", (chunk) => chunks.push(chunk));
+        let totalSize = 0;
+        req.on("data", (chunk: Buffer) => {
+          totalSize += chunk.length;
+          if (totalSize > MAX_BODY_SIZE) {
+            req.destroy();
+            resolve("");
+            return;
+          }
+          chunks.push(chunk);
+        });
         req.on("end", () => resolve(Buffer.concat(chunks).toString()));
+        req.on("error", () => resolve(""));
       });
+
+      if (!body && req.destroyed) {
+        res.writeHead(413, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ error: "Request body too large" }));
+        return;
+      }
     }
 
     // Match route

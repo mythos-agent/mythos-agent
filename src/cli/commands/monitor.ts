@@ -120,8 +120,10 @@ async function monitorFile(filePath: string) {
     lastSize = newSize;
 
     const newLines = buffer.toString("utf-8").split("\n");
-    for (const line of newLines) {
-      if (line.trim()) checkLine(line, 0, filePath);
+    // Count total lines in file for approximate line number
+    const existingLines = fs.readFileSync(absPath, "utf-8").split("\n").length;
+    for (let i = 0; i < newLines.length; i++) {
+      if (newLines[i].trim()) checkLine(newLines[i], existingLines - newLines.length + i, filePath);
     }
   });
 }

@@ -75,15 +75,17 @@ export function filterSuppressed(
   projectPath: string
 ): { active: Vulnerability[]; suppressed: Vulnerability[] } {
   const suppressions = loadSuppressions(projectPath);
+  // Include line group in key so suppressing one finding doesn't silence
+  // unrelated matches of the same rule in the same file
   const suppressionKeys = new Set(
-    suppressions.map((s) => `${s.rule}:${s.file}`)
+    suppressions.map((s) => `${s.rule}:${s.file}:${Math.floor(s.line / 5) * 5}`)
   );
 
   const active: Vulnerability[] = [];
   const suppressed: Vulnerability[] = [];
 
   for (const f of findings) {
-    const key = `${f.rule}:${f.location.file}`;
+    const key = `${f.rule}:${f.location.file}:${Math.floor(f.location.line / 5) * 5}`;
 
     // Check suppression file
     if (suppressionKeys.has(key)) {

@@ -204,9 +204,14 @@ Generate your first round of test payloads.`,
       return true;
     }
 
-    // Check expected indicator
-    if (payload.expectedIndicator && new RegExp(payload.expectedIndicator, "i").test(result.body)) {
-      return true;
+    // Check expected indicator (safely — AI may provide invalid regex)
+    if (payload.expectedIndicator) {
+      try {
+        if (new RegExp(payload.expectedIndicator, "i").test(result.body)) return true;
+      } catch {
+        // Invalid regex from AI — fall back to string includes
+        if (result.body.toLowerCase().includes(payload.expectedIndicator.toLowerCase())) return true;
+      }
     }
 
     return false;

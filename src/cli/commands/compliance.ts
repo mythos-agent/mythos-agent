@@ -38,10 +38,9 @@ export async function complianceCommand(options: ComplianceOptions) {
     return;
   }
 
-  if (options.output || true) {
-    const outputPath = saveComplianceReport(result, selectedFrameworks, projectPath);
-    console.log(chalk.green(`\n✅ Compliance report saved to ${outputPath}\n`));
-  }
+  // Always save the report file
+  const outputPath = saveComplianceReport(result, selectedFrameworks, projectPath);
+  console.log(chalk.green(`\n✅ Compliance report saved to ${outputPath}\n`));
 
   // Terminal summary
   console.log(chalk.bold("\n📋 Compliance Summary\n"));
