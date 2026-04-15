@@ -42,6 +42,7 @@ import { benchmarkCommand } from "./commands/benchmark.js";
 import { summaryCommand } from "./commands/summary.js";
 import { importCommand } from "./commands/import.js";
 import { changelogCommand } from "./commands/changelog.js";
+import { completionCommand } from "./commands/completion.js";
 import { rotateCommand } from "./commands/rotate.js";
 import {
   rulesSearchCommand,
@@ -58,7 +59,7 @@ program
   .description(
     "Agentic AI security scanner — Mythos for everyone.\nFinds vulnerabilities, chains them into attack paths, and generates patches."
   )
-  .version("1.0.0");
+  .version("2.0.0");
 
 program
   .command("scan")
@@ -500,5 +501,11 @@ program
   .action((options: { path: string; last: string; md?: boolean }) => {
     changelogCommand({ ...options, last: parseInt(options.last) });
   });
+
+program
+  .command("completion")
+  .description("Generate shell completion scripts (bash, zsh, fish)")
+  .option("-s, --shell <shell>", "Shell type: bash, zsh, fish")
+  .action(completionCommand);
 
 program.parse();
