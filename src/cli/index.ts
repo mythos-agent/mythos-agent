@@ -25,6 +25,10 @@ import { serveCommand } from "./commands/serve.js";
 import { licenseCommand } from "./commands/license.js";
 import { compareCommand } from "./commands/compare.js";
 import { scoreCommand } from "./commands/score.js";
+import { generateCommand } from "./commands/generate.js";
+import { planCommand } from "./commands/plan.js";
+import { complianceCommand } from "./commands/compliance.js";
+import { mapCommand } from "./commands/map.js";
 import {
   rulesSearchCommand,
   rulesInstallCommand,
@@ -334,6 +338,37 @@ program
   .option("--badge", "Generate a shields.io badge for README")
   .option("--json", "Output as JSON")
   .action(scoreCommand);
+
+program
+  .command("generate")
+  .description("Auto-detect project type and generate optimal security config")
+  .option("-p, --path <path>", "Project path", ".")
+  .option("--force", "Overwrite existing config files")
+  .action(generateCommand);
+
+program
+  .command("plan")
+  .description("AI-generated prioritized remediation plan")
+  .option("-p, --path <path>", "Project path", ".")
+  .option("--json", "Output as JSON")
+  .action(planCommand);
+
+program
+  .command("compliance")
+  .description("Generate compliance evidence report")
+  .option("-p, --path <path>", "Project path", ".")
+  .option("-f, --frameworks <list>", "Frameworks: SOC2,HIPAA,PCI-DSS,OWASP", "SOC2,OWASP")
+  .option("--json", "Output as JSON")
+  .action(complianceCommand);
+
+program
+  .command("map")
+  .description("Interactive attack surface map visualization")
+  .option("-p, --path <path>", "Project path", ".")
+  .option("--port <port>", "Port number", "4042")
+  .action((options: { path: string; port: string }) => {
+    mapCommand({ ...options, port: parseInt(options.port) });
+  });
 
 program
   .command("tools")
