@@ -69,6 +69,9 @@ program
   .option("--no-secrets", "Skip secrets detection")
   .option("--no-deps", "Skip dependency vulnerability scanning")
   .option("--no-iac", "Skip infrastructure-as-code scanning")
+  .option("--no-llm", "Skip AI/LLM security scanning")
+  .option("--no-api-sec", "Skip API security scanning")
+  .option("--no-cloud", "Skip cloud misconfiguration scanning")
   .action(scanCommand);
 
 program

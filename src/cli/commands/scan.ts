@@ -21,6 +21,9 @@ import { getGitChangedFiles } from "../../scanner/diff-scanner.js";
 import { SecretsScanner } from "../../scanner/secrets-scanner.js";
 import { DepScanner } from "../../scanner/dep-scanner.js";
 import { IacScanner } from "../../scanner/iac-scanner.js";
+import { LlmSecurityScanner } from "../../scanner/llm-security-scanner.js";
+import { ApiSecurityScanner } from "../../scanner/api-security-scanner.js";
+import { CloudSecurityScanner } from "../../scanner/cloud-scanner.js";
 import type { ScanResult, Severity, Vulnerability } from "../../types/index.js";
 
 interface ScanOptions {
@@ -35,6 +38,9 @@ interface ScanOptions {
   secrets: boolean;
   deps: boolean;
   iac: boolean;
+  llm: boolean;
+  apiSec: boolean;
+  cloud: boolean;
 }
 
 export async function scanCommand(scanPath: string, options: ScanOptions) {
@@ -186,9 +192,66 @@ export async function scanCommand(scanPath: string, options: ScanOptions) {
     }
   }
 
+  // Phase 1e: AI/LLM Security Scan
+  let llmFindings: Vulnerability[] = [];
+  if (options.llm) {
+    const llmSpinner = outputFormat === "terminal" ? ora("Phase 1e: AI/LLM Security Scan").start() : null;
+    try {
+      const llmScanner = new LlmSecurityScanner();
+      const llmResult = await llmScanner.scan(projectPath);
+      llmFindings = llmResult.findings;
+      if (llmSpinner) {
+        llmSpinner.succeed(
+          `Phase 1e: AI/LLM Security ${chalk.dim(`—`)} ${llmFindings.length > 0 ? chalk.red.bold(`${llmFindings.length} LLM security issues`) : "clean"}`
+        );
+      }
+    } catch (err) {
+      if (llmSpinner) llmSpinner.warn(`Phase 1e: AI/LLM Security — skipped`);
+    }
+  }
+
+  // Phase 1f: API Security Scan
+  let apiSecFindings: Vulnerability[] = [];
+  if (options.apiSec) {
+    const apiSpinner = outputFormat === "terminal" ? ora("Phase 1f: API Security Scan").start() : null;
+    try {
+      const apiScanner = new ApiSecurityScanner();
+      const apiResult = await apiScanner.scan(projectPath);
+      apiSecFindings = apiResult.findings;
+      if (apiSpinner) {
+        apiSpinner.succeed(
+          `Phase 1f: API Security ${chalk.dim(`—`)} ${apiSecFindings.length > 0 ? chalk.red.bold(`${apiSecFindings.length} API issues`) : "clean"}`
+        );
+      }
+    } catch (err) {
+      if (apiSpinner) apiSpinner.warn(`Phase 1f: API Security — skipped`);
+    }
+  }
+
+  // Phase 1g: Cloud Misconfiguration Scan
+  let cloudFindings: Vulnerability[] = [];
+  if (options.cloud) {
+    const cloudSpinner = outputFormat === "terminal" ? ora("Phase 1g: Cloud Security Scan").start() : null;
+    try {
+      const cloudScanner = new CloudSecurityScanner();
+      const cloudResult = await cloudScanner.scan(projectPath);
+      cloudFindings = cloudResult.findings;
+      if (cloudSpinner) {
+        cloudSpinner.succeed(
+          `Phase 1g: Cloud Security ${chalk.dim(`—`)} ${cloudFindings.length > 0 ? chalk.red.bold(`${cloudFindings.length} cloud misconfigs`) : "clean"}`
+        );
+      }
+    } catch (err) {
+      if (cloudSpinner) cloudSpinner.warn(`Phase 1g: Cloud Security — skipped`);
+    }
+  }
+
   // Phase 2: AI Deep Analysis
   let phase2Findings: Vulnerability[] = [];
-  let confirmed: Vulnerability[] = [...phase1Findings, ...secretsFindings, ...depFindings, ...iacFindings];
+  let confirmed: Vulnerability[] = [
+    ...phase1Findings, ...secretsFindings, ...depFindings, ...iacFindings,
+    ...llmFindings, ...apiSecFindings, ...cloudFindings,
+  ];
   let dismissedCount = 0;
 
   if (options.ai && config.apiKey) {
