@@ -1,0 +1,45 @@
+<!--
+  JetBrains External Tools Configuration for sphinx-agent
+
+  Import: Settings → Tools → External Tools → Import
+
+  This adds sphinx-agent commands to the Tools menu in
+  IntelliJ IDEA, WebStorm, PyCharm, GoLand, and other JetBrains IDEs.
+-->
+<toolSet name="sphinx-agent">
+  <tool name="Scan Current File" description="Scan the current file for security vulnerabilities" showInMainMenu="true" showInEditor="true" showInProject="true" showInSearchPopup="true" disabled="false" useConsole="true" showConsoleOnStdOut="true" showConsoleOnStdErr="true" synchronizeAfterRun="false">
+    <exec>
+      <option name="COMMAND" value="npx" />
+      <option name="PARAMETERS" value="sphinx-agent scan $FileDir$ --no-ai --no-chain --no-deps --severity medium" />
+      <option name="WORKING_DIRECTORY" value="$ProjectFileDir$" />
+    </exec>
+  </tool>
+  <tool name="Full Security Scan" description="Run full security scan on the project" showInMainMenu="true" showInEditor="false" showInProject="true" showInSearchPopup="true" disabled="false" useConsole="true" showConsoleOnStdOut="true" showConsoleOnStdErr="true" synchronizeAfterRun="false">
+    <exec>
+      <option name="COMMAND" value="npx" />
+      <option name="PARAMETERS" value="sphinx-agent scan $ProjectFileDir$" />
+      <option name="WORKING_DIRECTORY" value="$ProjectFileDir$" />
+    </exec>
+  </tool>
+  <tool name="AI Security Hunt" description="Run autonomous multi-agent security hunt" showInMainMenu="true" showInEditor="false" showInProject="true" showInSearchPopup="true" disabled="false" useConsole="true" showConsoleOnStdOut="true" showConsoleOnStdErr="true" synchronizeAfterRun="false">
+    <exec>
+      <option name="COMMAND" value="npx" />
+      <option name="PARAMETERS" value="sphinx-agent hunt $ProjectFileDir$" />
+      <option name="WORKING_DIRECTORY" value="$ProjectFileDir$" />
+    </exec>
+  </tool>
+  <tool name="Auto-Fix Vulnerabilities" description="Generate AI patches for found vulnerabilities" showInMainMenu="true" showInEditor="false" showInProject="true" showInSearchPopup="true" disabled="false" useConsole="true" showConsoleOnStdOut="true" showConsoleOnStdErr="true" synchronizeAfterRun="true">
+    <exec>
+      <option name="COMMAND" value="npx" />
+      <option name="PARAMETERS" value="sphinx-agent fix $ProjectFileDir$ --apply" />
+      <option name="WORKING_DIRECTORY" value="$ProjectFileDir$" />
+    </exec>
+  </tool>
+  <tool name="Open Dashboard" description="Open sphinx-agent web dashboard" showInMainMenu="true" showInEditor="false" showInProject="true" showInSearchPopup="true" disabled="false" useConsole="true" showConsoleOnStdOut="true" showConsoleOnStdErr="true" synchronizeAfterRun="false">
+    <exec>
+      <option name="COMMAND" value="npx" />
+      <option name="PARAMETERS" value="sphinx-agent dashboard --path $ProjectFileDir$" />
+      <option name="WORKING_DIRECTORY" value="$ProjectFileDir$" />
+    </exec>
+  </tool>
+</toolSet>

@@ -1,0 +1,10 @@
+node_modules
+dist
+.git
+.sphinx
+.mythoh
+demo-vulnerable-app
+vscode-extension/node_modules
+vscode-extension/dist
+*.tgz
+coverage

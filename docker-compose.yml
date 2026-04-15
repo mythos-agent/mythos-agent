@@ -1,0 +1,37 @@
+version: "3.8"
+
+services:
+  sphinx-agent:
+    build: .
+    ports:
+      - "4041:4041"
+    volumes:
+      # Mount the project to scan
+      - ./:/project:ro
+      # Persist scan results
+      - sphinx-data:/app/.sphinx
+    environment:
+      - SPHINX_API_KEY=${SPHINX_API_KEY:-}
+      - SPHINX_MODEL=${SPHINX_MODEL:-claude-sonnet-4-20250514}
+    command: ["serve", "--host", "0.0.0.0", "--port", "4041", "--path", "/project"]
+    restart: unless-stopped
+    read_only: true
+    tmpfs:
+      - /tmp
+    security_opt:
+      - no-new-privileges:true
+
+  # Optional: scan on a schedule
+  sphinx-cron:
+    build: .
+    volumes:
+      - ./:/project:ro
+      - sphinx-data:/app/.sphinx
+    environment:
+      - SPHINX_API_KEY=${SPHINX_API_KEY:-}
+    command: ["ci", "--path", "/project", "--sarif", "/app/.sphinx/results.sarif"]
+    profiles:
+      - cron
+
+volumes:
+  sphinx-data:

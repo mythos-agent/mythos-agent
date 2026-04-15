@@ -23,6 +23,8 @@ import { notifyCommand } from "./commands/notify.js";
 import { sbomCommand } from "./commands/sbom.js";
 import { serveCommand } from "./commands/serve.js";
 import { licenseCommand } from "./commands/license.js";
+import { compareCommand } from "./commands/compare.js";
+import { scoreCommand } from "./commands/score.js";
 import {
   rulesSearchCommand,
   rulesInstallCommand,
@@ -316,6 +318,22 @@ program
   .action((options: { path: string; port: string; host: string; apiKey?: string }) => {
     serveCommand({ ...options, port: parseInt(options.port) });
   });
+
+program
+  .command("compare")
+  .description("Compare security posture of two projects or directories")
+  .argument("<pathA>", "First project path")
+  .argument("<pathB>", "Second project path")
+  .option("--json", "Output as JSON")
+  .action(compareCommand);
+
+program
+  .command("score")
+  .description("Security scorecard with grade and badge generation")
+  .option("-p, --path <path>", "Project path", ".")
+  .option("--badge", "Generate a shields.io badge for README")
+  .option("--json", "Output as JSON")
+  .action(scoreCommand);
 
 program
   .command("tools")
