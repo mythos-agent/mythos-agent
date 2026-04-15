@@ -37,6 +37,7 @@ import { exportCommand } from "./commands/export.js";
 import { depsCommand } from "./commands/deps.js";
 import { imageCommand } from "./commands/image.js";
 import { threatModelCommand } from "./commands/threat-model.js";
+import { historyScanCommand } from "./commands/history-scan.js";
 import { rotateCommand } from "./commands/rotate.js";
 import {
   rulesSearchCommand,
@@ -454,5 +455,15 @@ program
   .option("-p, --path <path>", "Project path", ".")
   .option("--json", "Output as JSON")
   .action(threatModelCommand);
+
+program
+  .command("history")
+  .description("Scan git history for secrets that were committed and later removed")
+  .option("-p, --path <path>", "Project path", ".")
+  .option("-d, --depth <n>", "Number of commits to scan", "100")
+  .option("--json", "Output as JSON")
+  .action((options: { path: string; depth: string; json?: boolean }) => {
+    historyScanCommand({ ...options, depth: parseInt(options.depth) });
+  });
 
 program.parse();
