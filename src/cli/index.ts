@@ -40,6 +40,7 @@ import { threatModelCommand } from "./commands/threat-model.js";
 import { historyScanCommand } from "./commands/history-scan.js";
 import { benchmarkCommand } from "./commands/benchmark.js";
 import { summaryCommand } from "./commands/summary.js";
+import { importCommand } from "./commands/import.js";
 import { rotateCommand } from "./commands/rotate.js";
 import {
   rulesSearchCommand,
@@ -480,5 +481,13 @@ program
   .description("One-page security overview: score, findings, trends, tools, policy")
   .option("-p, --path <path>", "Project path", ".")
   .action(summaryCommand);
+
+program
+  .command("import")
+  .description("Import findings from other tools (SARIF, Semgrep, Snyk, Trivy)")
+  .argument("<file>", "Path to findings file")
+  .option("-p, --path <path>", "Project path", ".")
+  .option("-f, --format <format>", "Format: sarif, semgrep, snyk, trivy (auto-detects if omitted)", "auto")
+  .action(importCommand);
 
 program.parse();
