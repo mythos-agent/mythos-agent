@@ -34,6 +34,9 @@ import { diffReportCommand } from "./commands/diff-report.js";
 import { monitorCommand } from "./commands/monitor.js";
 import { statsCommand } from "./commands/stats.js";
 import { exportCommand } from "./commands/export.js";
+import { depsCommand } from "./commands/deps.js";
+import { imageCommand } from "./commands/image.js";
+import { threatModelCommand } from "./commands/threat-model.js";
 import { rotateCommand } from "./commands/rotate.js";
 import {
   rulesSearchCommand,
@@ -426,5 +429,30 @@ program
   .option("-f, --format <format>", "Format: csv, jira, linear, github", "csv")
   .option("-o, --output <file>", "Output file path")
   .action(exportCommand);
+
+program
+  .command("deps")
+  .description("Interactive dependency graph with vulnerability overlay")
+  .option("-p, --path <path>", "Project path", ".")
+  .option("--port <port>", "Port for web view", "4043")
+  .option("--json", "Output as JSON")
+  .action((options: { path: string; port: string; json?: boolean }) => {
+    depsCommand({ ...options, port: parseInt(options.port) });
+  });
+
+program
+  .command("image")
+  .description("Scan a Docker container image for vulnerabilities")
+  .argument("<name>", "Image name (e.g., node:22, myapp:latest)")
+  .option("--json", "Output as JSON")
+  .option("-s, --severity <level>", "Minimum severity", "low")
+  .action(imageCommand);
+
+program
+  .command("threat-model")
+  .description("AI-generated STRIDE threat model from codebase architecture")
+  .option("-p, --path <path>", "Project path", ".")
+  .option("--json", "Output as JSON")
+  .action(threatModelCommand);
 
 program.parse();
