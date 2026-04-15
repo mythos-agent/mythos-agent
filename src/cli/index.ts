@@ -29,6 +29,10 @@ import { generateCommand } from "./commands/generate.js";
 import { planCommand } from "./commands/plan.js";
 import { complianceCommand } from "./commands/compliance.js";
 import { mapCommand } from "./commands/map.js";
+import { startMcpServer } from "../mcp/server.js";
+import { diffReportCommand } from "./commands/diff-report.js";
+import { monitorCommand } from "./commands/monitor.js";
+import { rotateCommand } from "./commands/rotate.js";
 import {
   rulesSearchCommand,
   rulesInstallCommand,
@@ -374,5 +378,34 @@ program
   .command("tools")
   .description("Check which external security tools are installed")
   .action(toolsCheckCommand);
+
+program
+  .command("mcp")
+  .description("Start MCP server (for Claude Code, Cursor, Copilot integration)")
+  .action(() => startMcpServer());
+
+program
+  .command("diff-report")
+  .description("Security report focused on changed files vs a branch")
+  .option("-p, --path <path>", "Project path", ".")
+  .option("-b, --base <ref>", "Base branch/commit to diff against", "main")
+  .option("--md", "Save as Markdown report")
+  .option("--json", "Output as JSON")
+  .action(diffReportCommand);
+
+program
+  .command("monitor")
+  .description("Watch application logs for runtime security events")
+  .option("-p, --path <path>", "Project path", ".")
+  .option("-l, --log-file <file>", "Log file to monitor")
+  .option("-f, --format <format>", "Log format: auto, json, text", "auto")
+  .action(monitorCommand);
+
+program
+  .command("rotate")
+  .description("Guide for rotating discovered hardcoded secrets")
+  .option("-p, --path <path>", "Project path", ".")
+  .option("--json", "Output as JSON")
+  .action(rotateCommand);
 
 program.parse();
