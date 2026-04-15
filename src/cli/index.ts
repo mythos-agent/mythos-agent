@@ -21,6 +21,8 @@ import { hooksInstallCommand, hooksUninstallCommand } from "./commands/hooks.js"
 import { suppressAddCommand, suppressRemoveCommand, suppressListCommand } from "./commands/suppress.js";
 import { notifyCommand } from "./commands/notify.js";
 import { sbomCommand } from "./commands/sbom.js";
+import { serveCommand } from "./commands/serve.js";
+import { licenseCommand } from "./commands/license.js";
 import {
   rulesSearchCommand,
   rulesInstallCommand,
@@ -295,6 +297,25 @@ program
   .option("-f, --format <format>", "Format: cyclonedx or spdx", "cyclonedx")
   .option("-o, --output <file>", "Output file path")
   .action(sbomCommand);
+
+program
+  .command("license")
+  .description("Check dependency licenses for compliance")
+  .option("-p, --path <path>", "Project path", ".")
+  .option("--json", "Output as JSON")
+  .option("--deny <licenses>", "Comma-separated licenses to deny (e.g., GPL-3.0,AGPL-3.0)")
+  .action(licenseCommand);
+
+program
+  .command("serve")
+  .description("Start REST API server for programmatic access")
+  .option("-p, --path <path>", "Project path", ".")
+  .option("--port <port>", "Port number", "4041")
+  .option("--host <host>", "Host to bind", "127.0.0.1")
+  .option("--api-key <key>", "Require Bearer token for authentication")
+  .action((options: { path: string; port: string; host: string; apiKey?: string }) => {
+    serveCommand({ ...options, port: parseInt(options.port) });
+  });
 
 program
   .command("tools")
