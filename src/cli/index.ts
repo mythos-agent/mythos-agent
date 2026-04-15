@@ -38,6 +38,8 @@ import { depsCommand } from "./commands/deps.js";
 import { imageCommand } from "./commands/image.js";
 import { threatModelCommand } from "./commands/threat-model.js";
 import { historyScanCommand } from "./commands/history-scan.js";
+import { benchmarkCommand } from "./commands/benchmark.js";
+import { summaryCommand } from "./commands/summary.js";
 import { rotateCommand } from "./commands/rotate.js";
 import {
   rulesSearchCommand,
@@ -465,5 +467,18 @@ program
   .action((options: { path: string; depth: string; json?: boolean }) => {
     historyScanCommand({ ...options, depth: parseInt(options.depth) });
   });
+
+program
+  .command("benchmark")
+  .description("Benchmark scan speed — time each scanner with breakdown")
+  .option("-p, --path <path>", "Project path", ".")
+  .option("--json", "Output as JSON")
+  .action(benchmarkCommand);
+
+program
+  .command("summary")
+  .description("One-page security overview: score, findings, trends, tools, policy")
+  .option("-p, --path <path>", "Project path", ".")
+  .action(summaryCommand);
 
 program.parse();
