@@ -33,6 +33,7 @@ import { startMcpServer } from "../mcp/server.js";
 import { diffReportCommand } from "./commands/diff-report.js";
 import { monitorCommand } from "./commands/monitor.js";
 import { statsCommand } from "./commands/stats.js";
+import { exportCommand } from "./commands/export.js";
 import { rotateCommand } from "./commands/rotate.js";
 import {
   rulesSearchCommand,
@@ -417,5 +418,13 @@ program
   .description("Show project security metrics and scan history")
   .option("-p, --path <path>", "Project path", ".")
   .action(statsCommand);
+
+program
+  .command("export")
+  .description("Export findings as CSV, Jira, Linear, or GitHub Issues")
+  .option("-p, --path <path>", "Project path", ".")
+  .option("-f, --format <format>", "Format: csv, jira, linear, github", "csv")
+  .option("-o, --output <file>", "Output file path")
+  .action(exportCommand);
 
 program.parse();
