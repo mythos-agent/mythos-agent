@@ -41,6 +41,7 @@ import { historyScanCommand } from "./commands/history-scan.js";
 import { benchmarkCommand } from "./commands/benchmark.js";
 import { summaryCommand } from "./commands/summary.js";
 import { importCommand } from "./commands/import.js";
+import { changelogCommand } from "./commands/changelog.js";
 import { rotateCommand } from "./commands/rotate.js";
 import {
   rulesSearchCommand,
@@ -489,5 +490,15 @@ program
   .option("-p, --path <path>", "Project path", ".")
   .option("-f, --format <format>", "Format: sarif, semgrep, snyk, trivy (auto-detects if omitted)", "auto")
   .action(importCommand);
+
+program
+  .command("changelog")
+  .description("Generate security changelog from scan history")
+  .option("-p, --path <path>", "Project path", ".")
+  .option("-n, --last <n>", "Number of scans to include", "10")
+  .option("--md", "Save as Markdown file")
+  .action((options: { path: string; last: string; md?: boolean }) => {
+    changelogCommand({ ...options, last: parseInt(options.last) });
+  });
 
 program.parse();
