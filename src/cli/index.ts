@@ -17,6 +17,10 @@ import { pentestCommand } from "./commands/pentest.js";
 import { ciCommand } from "./commands/ci.js";
 import { baselineSaveCommand, baselineCompareCommand } from "./commands/baseline.js";
 import { doctorCommand } from "./commands/doctor.js";
+import { hooksInstallCommand, hooksUninstallCommand } from "./commands/hooks.js";
+import { suppressAddCommand, suppressRemoveCommand, suppressListCommand } from "./commands/suppress.js";
+import { notifyCommand } from "./commands/notify.js";
+import { sbomCommand } from "./commands/sbom.js";
 import {
   rulesSearchCommand,
   rulesInstallCommand,
@@ -230,6 +234,67 @@ program
   .description("Health check: verify config, tools, and project security setup")
   .option("-p, --path <path>", "Project path", ".")
   .action(doctorCommand);
+
+const hooksCmd = program
+  .command("hooks")
+  .description("Manage git hooks for pre-commit/pre-push security scanning");
+
+hooksCmd
+  .command("install")
+  .description("Install git hooks")
+  .option("-p, --path <path>", "Project path", ".")
+  .option("--pre-commit", "Install only pre-commit hook")
+  .option("--pre-push", "Install only pre-push hook")
+  .action(hooksInstallCommand);
+
+hooksCmd
+  .command("uninstall")
+  .description("Remove sphinx-agent git hooks")
+  .option("-p, --path <path>", "Project path", ".")
+  .action(hooksUninstallCommand);
+
+const suppressCmd = program
+  .command("suppress")
+  .description("Manage suppressed findings (false positives, accepted risks)");
+
+suppressCmd
+  .command("add")
+  .description("Suppress a finding")
+  .argument("<id>", "Finding ID (e.g., SPX-0001)")
+  .option("-p, --path <path>", "Project path", ".")
+  .option("-r, --reason <reason>", "Reason for suppression")
+  .action(suppressAddCommand);
+
+suppressCmd
+  .command("remove")
+  .description("Unsuppress a finding")
+  .argument("<id>", "Finding ID")
+  .option("-p, --path <path>", "Project path", ".")
+  .action(suppressRemoveCommand);
+
+suppressCmd
+  .command("list")
+  .description("List all suppressions")
+  .option("-p, --path <path>", "Project path", ".")
+  .action(suppressListCommand);
+
+program
+  .command("notify")
+  .description("Send scan results to Slack, Discord, Teams, or webhook")
+  .option("-p, --path <path>", "Project path", ".")
+  .option("--slack <url>", "Slack webhook URL")
+  .option("--discord <url>", "Discord webhook URL")
+  .option("--teams <url>", "Teams webhook URL")
+  .option("--webhook <url>", "Custom webhook URL")
+  .action(notifyCommand);
+
+program
+  .command("sbom")
+  .description("Generate Software Bill of Materials (CycloneDX or SPDX)")
+  .option("-p, --path <path>", "Project path", ".")
+  .option("-f, --format <format>", "Format: cyclonedx or spdx", "cyclonedx")
+  .option("-o, --output <file>", "Output file path")
+  .action(sbomCommand);
 
 program
   .command("tools")
