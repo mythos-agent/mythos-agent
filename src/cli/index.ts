@@ -32,6 +32,7 @@ import { mapCommand } from "./commands/map.js";
 import { startMcpServer } from "../mcp/server.js";
 import { diffReportCommand } from "./commands/diff-report.js";
 import { monitorCommand } from "./commands/monitor.js";
+import { statsCommand } from "./commands/stats.js";
 import { rotateCommand } from "./commands/rotate.js";
 import {
   rulesSearchCommand,
@@ -410,5 +411,11 @@ program
   .option("-p, --path <path>", "Project path", ".")
   .option("--json", "Output as JSON")
   .action(rotateCommand);
+
+program
+  .command("stats")
+  .description("Show project security metrics and scan history")
+  .option("-p, --path <path>", "Project path", ".")
+  .action(statsCommand);
 
 program.parse();
