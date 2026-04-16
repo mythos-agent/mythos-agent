@@ -34,7 +34,7 @@
     "static-analysis",
     "agentic"
   ],
-  "author": "",
+  "author": "sphinx-agent contributors",
   "license": "MIT",
   "repository": {
     "type": "git",

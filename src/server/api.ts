@@ -89,7 +89,10 @@ route("GET", "/api/policy", async () => {
 });
 
 route("POST", "/api/scan", async (_req, _params, body) => {
-  const options = body ? JSON.parse(body) : {};
+  let options: Record<string, unknown> = {};
+  if (body) {
+    try { options = JSON.parse(body); } catch { return { status: 400, data: { error: "Invalid JSON body" } }; }
+  }
   // Restrict scanning to the configured project path (prevent path traversal)
   const projectPath = serverConfig.projectPath;
 

@@ -24,7 +24,7 @@ const SECRET_PATTERNS: SecretPattern[] = [
     id: "aws-secret-key",
     title: "AWS Secret Access Key",
     description: "AWS secret key found. Rotate immediately and use AWS Secrets Manager or environment variables.",
-    pattern: /(?<![A-Za-z0-9/+=])([0-9a-zA-Z/+=]{40})(?![A-Za-z0-9/+=])(?=.*(?:aws|secret|key))/i,
+    pattern: /(?:aws_secret_access_key|secret_access_key|AWS_SECRET)\s*[:=]\s*["']?([0-9a-zA-Z/+=]{40})["']?/i,
     severity: "critical",
   },
 
@@ -326,8 +326,8 @@ function isLikelyFalsePositive(line: string, filePath: string): boolean {
   if (trimmed.startsWith("//") && !trimmed.includes("=") && !trimmed.includes(":")) return true;
   if (trimmed.startsWith("#") && !trimmed.includes("=")) return true;
   if (trimmed.startsWith("*")) return true;
-  // Skip test fixtures / example patterns
-  if (filePath.includes("test") || filePath.includes("spec") || filePath.includes("mock")) return true;
+  // Skip test fixtures / example patterns (match directory segments, not substrings)
+  if (/(?:^|[\\/])(?:__tests__|test|tests|spec|specs|__mocks__|mocks|fixtures)(?:[\\/]|$)/i.test(filePath)) return true;
   // Skip documentation references
   if (filePath.endsWith(".md")) return true;
   return false;

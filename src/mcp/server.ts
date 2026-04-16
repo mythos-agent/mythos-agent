@@ -143,7 +143,7 @@ async function handleRequest(req: McpRequest): Promise<McpResponse> {
         result: {
           protocolVersion: "2024-11-05",
           capabilities: { tools: {} },
-          serverInfo: { name: "sphinx-agent", version: "1.0.0" },
+          serverInfo: { name: "sphinx-agent", version: "2.0.0" },
         },
       };
 

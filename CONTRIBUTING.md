@@ -51,7 +51,7 @@ src/
     tools-advanced.ts Advanced tools (call graph, endpoints)
     providers/        Multi-model support (Anthropic, OpenAI, Ollama)
 
-  cli/              CLI commands (15 total)
+  cli/              58 CLI commands
   dast/             Dynamic analysis
     fuzzer.ts         Basic payload fuzzer
     smart-fuzzer.ts   AI-guided fuzzer with feedback loop

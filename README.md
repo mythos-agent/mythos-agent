@@ -157,23 +157,34 @@ sphinx-agent variants --auto
 
 The variant analyzer extracts the **root cause pattern** from the CVE (not the surface syntax) and searches your codebase for structurally similar code.
 
-## Scanners
+## Scanners (49 categories, 329+ rules)
 
-| Scanner | What it finds | Source |
-|---------|-------------|--------|
-| Pattern rules | 25+ rules across 6 languages (SQLi, XSS, eval, etc.) | Built-in |
-| Secrets | 22 patterns (AWS, GitHub, Stripe, etc.) + Shannon entropy | Built-in |
-| Dependencies | Known CVEs in lockfiles (10 formats) | OSV API |
-| IaC | Docker, Terraform, Kubernetes misconfigs (13 rules) | Built-in |
-| Semgrep | 1000+ community rules, 30+ languages | External |
-| Gitleaks | 100+ secret patterns | External |
-| Trivy | SCA + containers + IaC + secrets | External |
-| Checkov | 1000+ IaC policies | External |
-| Nuclei | 9000+ DAST templates | External |
-| Taint engine | Source-to-sink data flow tracking | Built-in |
-| Hypothesis agent | AI-generated security hypotheses | AI |
-| Variant analyzer | CVE variant detection | AI |
-| Smart fuzzer | AI-guided payload generation with feedback loop | AI |
+| Category | What it finds | Rules |
+|----------|-------------|-------|
+| Code patterns | SQLi, XSS, command injection, eval, SSRF, etc. | 25+ |
+| Framework rules | React, Next.js, Express, Django, Flask, Spring, Go | 27 |
+| Secrets | AWS, GitHub, Stripe, API keys, DB URLs, private keys + entropy | 22 |
+| Dependencies (SCA) | Known CVEs via OSV API (10 lockfile formats) | OSV |
+| IaC | Docker, Terraform, Kubernetes misconfigurations | 13 |
+| AI/LLM Security | Prompt injection, unsafe eval of AI output, cost attacks | 13 |
+| API Security | OWASP API Top 10: BOLA, mass assignment, broken auth | 12 |
+| Cloud Misconfig | AWS/Azure/GCP: public storage, wildcard IAM, open firewalls | 14 |
+| Supply Chain | Typosquatting, dependency confusion, dangerous install scripts | 12 |
+| Crypto Audit | Weak hashes, ECB mode, hardcoded keys, deprecated TLS | 11 |
+| Zero Trust | Service trust, mTLS, network segmentation, IP-based auth | 8 |
+| Privacy/GDPR | PII handling, consent, data retention (GDPR article mapping) | 9 |
+| Race Conditions | TOCTOU, non-atomic ops, double-spend, missing transactions | 7 |
+| Security Headers | CSP, HSTS, X-Frame-Options, Referrer-Policy | 8 |
+| GraphQL | Introspection, depth limit, field auth, batching | 8 |
+| WebSocket | Auth, origin check, message validation, broadcast XSS | 7 |
+| JWT | Algorithm, expiry, storage, revocation, audience | 9 |
+| CORS | Origin reflection, credentials handling, substring bypass | 7 |
+| OAuth/OIDC | Missing state, no PKCE, implicit flow, client secret exposure | 7 |
+| SSTI | Jinja2, EJS, Handlebars, Pug, Nunjucks, Twig, Go templates | 7 |
+| Session | Fixation, expiry, cookie flags, localStorage tokens | 7 |
+| + 28 more | SQL injection deep, XSS deep, NoSQL, command injection, deserialization, upload, logging, error handling, ReDoS, memory safety, path traversal, open redirect, XXE, DNS rebinding, clickjacking, subdomain, email, cache, env variables, dep confusion, business logic, permissions, input validation, git history, taint engine, DAST fuzzer, hypothesis agent, variant analysis | 100+ |
+
+**External tool integrations:** Semgrep (30+ languages), Gitleaks (100+ patterns), Trivy (SCA + containers), Checkov (1000+ IaC policies), Nuclei (9000+ DAST templates)
 
 ## Integrations
 
