@@ -5,6 +5,15 @@
 </p>
 
 <p align="center">
+  <a href="https://github.com/zhijiewong/sphinx-agent/actions"><img src="https://github.com/zhijiewong/sphinx-agent/workflows/CI/badge.svg" alt="CI"></a>
+  <a href="https://www.npmjs.com/package/sphinx-agent"><img src="https://img.shields.io/npm/v/sphinx-agent" alt="npm"></a>
+  <a href="https://github.com/zhijiewong/sphinx-agent/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue" alt="License"></a>
+  <img src="https://img.shields.io/badge/node-%3E%3D18-green" alt="Node">
+  <img src="https://img.shields.io/badge/scanners-49-purple" alt="Scanners">
+  <img src="https://img.shields.io/badge/rules-329%2B-orange" alt="Rules">
+</p>
+
+<p align="center">
   <a href="#quick-start">Quick Start</a> &bull;
   <a href="#how-it-works">How It Works</a> &bull;
   <a href="#commands">Commands</a> &bull;
