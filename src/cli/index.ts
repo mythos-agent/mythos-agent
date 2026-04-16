@@ -43,6 +43,7 @@ import { summaryCommand } from "./commands/summary.js";
 import { importCommand } from "./commands/import.js";
 import { changelogCommand } from "./commands/changelog.js";
 import { completionCommand } from "./commands/completion.js";
+import { quickCommand } from "./commands/quick.js";
 import { rotateCommand } from "./commands/rotate.js";
 import {
   rulesSearchCommand,
@@ -507,5 +508,11 @@ program
   .description("Generate shell completion scripts (bash, zsh, fish)")
   .option("-s, --shell <shell>", "Shell type: bash, zsh, fish")
   .action(completionCommand);
+
+program
+  .command("quick")
+  .description("10-second security check: trust score + top 5 findings + suggested fix")
+  .option("-p, --path <path>", "Project path", ".")
+  .action(quickCommand);
 
 program.parse();
