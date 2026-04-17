@@ -14,14 +14,14 @@ export default defineConfig({
         "src/types/**",
         "dist/**",
       ],
-      // Starting thresholds reflect today's ~22% coverage. Raise these as
-      // test coverage grows. Consider aiming for 60/60/55/60 once the scanner
-      // test matrix is fleshed out.
+      // Thresholds are set slightly below current coverage so CI doesn't
+      // break from noise. Raise them as the scanner test matrix grows.
+      // Current baseline: lines 37% / branches 62% / functions 56%.
       thresholds: {
-        lines: 20,
-        functions: 30,
-        branches: 55,
-        statements: 20,
+        lines: 35,
+        functions: 50,
+        branches: 60,
+        statements: 35,
       },
     },
   },
