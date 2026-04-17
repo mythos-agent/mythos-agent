@@ -8,3 +8,4 @@ dist/
 coverage/
 .sphinx/
 .sphinx.yml
+.claude/
