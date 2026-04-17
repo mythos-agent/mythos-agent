@@ -34,9 +34,7 @@ describe("IacScanner", () => {
     const scanner = new IacScanner();
     const { findings } = await scanner.scan(DEMO_APP);
 
-    const secrets = findings.filter(
-      (f) => f.rule === "iac:docker-secret-in-env"
-    );
+    const secrets = findings.filter((f) => f.rule === "iac:docker-secret-in-env");
     expect(secrets.length).toBeGreaterThanOrEqual(2); // ARG + ENV
   });
 
@@ -44,9 +42,7 @@ describe("IacScanner", () => {
     const scanner = new IacScanner();
     const { findings } = await scanner.scan(DEMO_APP);
 
-    const publicAccess = findings.filter(
-      (f) => f.rule === "iac:tf-public-access"
-    );
+    const publicAccess = findings.filter((f) => f.rule === "iac:tf-public-access");
     expect(publicAccess.length).toBeGreaterThan(0);
     expect(publicAccess[0].severity).toBe("high");
   });
@@ -55,9 +51,7 @@ describe("IacScanner", () => {
     const scanner = new IacScanner();
     const { findings } = await scanner.scan(DEMO_APP);
 
-    const secrets = findings.filter(
-      (f) => f.rule === "iac:tf-hardcoded-secret"
-    );
+    const secrets = findings.filter((f) => f.rule === "iac:tf-hardcoded-secret");
     expect(secrets.length).toBeGreaterThan(0);
     expect(secrets[0].severity).toBe("critical");
   });

@@ -56,7 +56,9 @@ export async function scoreCommand(options: ScoreOptions) {
     const { findings: df } = await ds.scan(projectPath);
     findings.push(...df);
     depVulns = df.length;
-  } catch { /* optional */ }
+  } catch {
+    /* optional */
+  }
 
   if (spinner) spinner.stop();
 
@@ -95,14 +97,18 @@ export async function scoreCommand(options: ScoreOptions) {
 
   // Dependencies (20 points)
   const lockfiles = discoverLockfiles(projectPath);
-  let depScore = lockfiles.length > 0 ? (depVulns === 0 ? 20 : Math.max(0, 20 - depVulns * 3)) : 10;
+  const depScore =
+    lockfiles.length > 0 ? (depVulns === 0 ? 20 : Math.max(0, 20 - depVulns * 3)) : 10;
   breakdown.push({
     category: "Dependencies",
     score: depScore,
     maxScore: 20,
-    details: lockfiles.length > 0
-      ? (depVulns === 0 ? "All dependencies clean" : `${depVulns} vulnerable dependencies`)
-      : "No lockfile (partially scored)",
+    details:
+      lockfiles.length > 0
+        ? depVulns === 0
+          ? "All dependencies clean"
+          : `${depVulns} vulnerable dependencies`
+        : "No lockfile (partially scored)",
   });
 
   // Infrastructure (15 points)
@@ -136,7 +142,18 @@ export async function scoreCommand(options: ScoreOptions) {
   // Total
   const totalScore = breakdown.reduce((s, b) => s + b.score, 0);
   const maxScore = breakdown.reduce((s, b) => s + b.maxScore, 0);
-  const grade = totalScore >= 90 ? "A+" : totalScore >= 80 ? "A" : totalScore >= 70 ? "B" : totalScore >= 60 ? "C" : totalScore >= 50 ? "D" : "F";
+  const grade =
+    totalScore >= 90
+      ? "A+"
+      : totalScore >= 80
+        ? "A"
+        : totalScore >= 70
+          ? "B"
+          : totalScore >= 60
+            ? "C"
+            : totalScore >= 50
+              ? "D"
+              : "F";
 
   if (options.json) {
     console.log(JSON.stringify({ score: totalScore, maxScore, grade, breakdown }, null, 2));
@@ -161,8 +178,8 @@ export async function scoreCommand(options: ScoreOptions) {
   console.log("\n" + chalk.dim("━".repeat(50)));
   console.log(
     chalk.bold(`\n  Overall Score: `) +
-    gradeColor.bold(`${totalScore}/${maxScore} (${grade})`) +
-    "\n"
+      gradeColor.bold(`${totalScore}/${maxScore} (${grade})`) +
+      "\n"
   );
 
   // Badge

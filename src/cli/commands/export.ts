@@ -41,24 +41,56 @@ export async function exportCommand(options: ExportOptions) {
   if (options.output) {
     const outputPath = path.resolve(options.output);
     fs.writeFileSync(outputPath, output, "utf-8");
-    console.log(chalk.green(`\n✅ Exported ${vulns.length} findings as ${options.format.toUpperCase()} to ${outputPath}\n`));
+    console.log(
+      chalk.green(
+        `\n✅ Exported ${vulns.length} findings as ${options.format.toUpperCase()} to ${outputPath}\n`
+      )
+    );
   } else {
     console.log(output);
   }
 }
 
-function exportCsv(vulns: Array<{ id: string; severity: string; title: string; category: string; cwe?: string; location: { file: string; line: number; snippet?: string } }>): string {
+function exportCsv(
+  vulns: Array<{
+    id: string;
+    severity: string;
+    title: string;
+    category: string;
+    cwe?: string;
+    location: { file: string; line: number; snippet?: string };
+  }>
+): string {
   const header = "ID,Severity,Title,Category,CWE,File,Line,Snippet";
-  const rows = vulns.map((v) =>
-    `${v.id},${v.severity},"${v.title.replace(/"/g, '""')}",${v.category},${v.cwe || ""},${v.location.file},${v.location.line},"${(v.location.snippet || "").replace(/"/g, '""')}"`
+  const rows = vulns.map(
+    (v) =>
+      `${v.id},${v.severity},"${v.title.replace(/"/g, '""')}",${v.category},${v.cwe || ""},${v.location.file},${v.location.line},"${(v.location.snippet || "").replace(/"/g, '""')}"`
   );
   return [header, ...rows].join("\n");
 }
 
-function exportJira(vulns: Array<{ id: string; severity: string; title: string; description: string; category: string; cwe?: string; location: { file: string; line: number } }>): string {
-  return vulns.map((v) => {
-    const priority = v.severity === "critical" ? "Highest" : v.severity === "high" ? "High" : v.severity === "medium" ? "Medium" : "Low";
-    return `## ${v.id}: ${v.title}
+function exportJira(
+  vulns: Array<{
+    id: string;
+    severity: string;
+    title: string;
+    description: string;
+    category: string;
+    cwe?: string;
+    location: { file: string; line: number };
+  }>
+): string {
+  return vulns
+    .map((v) => {
+      const priority =
+        v.severity === "critical"
+          ? "Highest"
+          : v.severity === "high"
+            ? "High"
+            : v.severity === "medium"
+              ? "Medium"
+              : "Low";
+      return `## ${v.id}: ${v.title}
 
 **Priority:** ${priority}
 **Category:** ${v.category}
@@ -75,22 +107,48 @@ ${v.description}
 
 ---
 `;
-  }).join("\n");
+    })
+    .join("\n");
 }
 
-function exportLinear(vulns: Array<{ id: string; severity: string; title: string; description: string; location: { file: string; line: number } }>): string {
-  return JSON.stringify(vulns.map((v) => ({
-    title: `[Security] ${v.id}: ${v.title}`,
-    description: `**File:** \`${v.location.file}:${v.location.line}\`\n\n${v.description}\n\n*Found by sphinx-agent*`,
-    priority: v.severity === "critical" ? 1 : v.severity === "high" ? 2 : v.severity === "medium" ? 3 : 4,
-    labels: ["security", v.severity],
-  })), null, 2);
+function exportLinear(
+  vulns: Array<{
+    id: string;
+    severity: string;
+    title: string;
+    description: string;
+    location: { file: string; line: number };
+  }>
+): string {
+  return JSON.stringify(
+    vulns.map((v) => ({
+      title: `[Security] ${v.id}: ${v.title}`,
+      description: `**File:** \`${v.location.file}:${v.location.line}\`\n\n${v.description}\n\n*Found by sphinx-agent*`,
+      priority:
+        v.severity === "critical" ? 1 : v.severity === "high" ? 2 : v.severity === "medium" ? 3 : 4,
+      labels: ["security", v.severity],
+    })),
+    null,
+    2
+  );
 }
 
-function exportGitHubIssues(vulns: Array<{ id: string; severity: string; title: string; description: string; category: string; cwe?: string; location: { file: string; line: number } }>): string {
-  return vulns.map((v) => {
-    const label = v.severity === "critical" || v.severity === "high" ? "priority: high" : "priority: medium";
-    return `---
+function exportGitHubIssues(
+  vulns: Array<{
+    id: string;
+    severity: string;
+    title: string;
+    description: string;
+    category: string;
+    cwe?: string;
+    location: { file: string; line: number };
+  }>
+): string {
+  return vulns
+    .map((v) => {
+      const label =
+        v.severity === "critical" || v.severity === "high" ? "priority: high" : "priority: medium";
+      return `---
 title: "[Security] ${v.id}: ${v.title}"
 labels: [security, ${v.category}, ${label}]
 ---
@@ -115,5 +173,6 @@ ${v.description}
 
 *Found by [sphinx-agent](https://github.com/sphinx-agent/sphinx-agent)*
 `;
-  }).join("\n---\n\n");
+    })
+    .join("\n---\n\n");
 }

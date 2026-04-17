@@ -24,14 +24,10 @@ export async function watchCommand(options: WatchOptions) {
   const projectPath = path.resolve(options.path || ".");
   const config = loadConfig(projectPath);
 
-  console.log(
-    chalk.bold("\n👁️  sphinx-agent watch — Continuous Security Monitoring\n")
-  );
+  console.log(chalk.bold("\n👁️  sphinx-agent watch — Continuous Security Monitoring\n"));
   console.log(chalk.dim(`  Project: ${projectPath}`));
   console.log(chalk.dim(`  Severity: ${options.severity}+`));
-  console.log(
-    chalk.dim("  Press " + chalk.cyan("Ctrl+C") + " to stop.\n")
-  );
+  console.log(chalk.dim("  Press " + chalk.cyan("Ctrl+C") + " to stop.\n"));
   console.log(chalk.dim("─".repeat(50)) + "\n");
 
   const patternScanner = new PatternScanner(config);
@@ -44,38 +40,34 @@ export async function watchCommand(options: WatchOptions) {
   const pending = new Map<string, NodeJS.Timeout>();
 
   // Watch for file changes
-  const watcher = fs.watch(
-    projectPath,
-    { recursive: true },
-    (eventType, filename) => {
-      if (!filename) return;
-      const filePath = path.join(projectPath, filename);
+  const watcher = fs.watch(projectPath, { recursive: true }, (eventType, filename) => {
+    if (!filename) return;
+    const filePath = path.join(projectPath, filename);
 
-      // Skip irrelevant files
-      if (shouldIgnore(filename)) return;
+    // Skip irrelevant files
+    if (shouldIgnore(filename)) return;
 
-      // Debounce
-      const existing = pending.get(filePath);
-      if (existing) clearTimeout(existing);
+    // Debounce
+    const existing = pending.get(filePath);
+    if (existing) clearTimeout(existing);
 
-      pending.set(
-        filePath,
-        setTimeout(async () => {
-          pending.delete(filePath);
-          await scanFile(
-            filePath,
-            filename,
-            projectPath,
-            patternScanner,
-            secretsScanner,
-            config,
-            knownFindings,
-            options.severity
-          );
-        }, DEBOUNCE_MS)
-      );
-    }
-  );
+    pending.set(
+      filePath,
+      setTimeout(async () => {
+        pending.delete(filePath);
+        await scanFile(
+          filePath,
+          filename,
+          projectPath,
+          patternScanner,
+          secretsScanner,
+          config,
+          knownFindings,
+          options.severity
+        );
+      }, DEBOUNCE_MS)
+    );
+  });
 
   // Initial scan
   console.log(chalk.dim("  Running initial scan...\n"));
@@ -92,14 +84,10 @@ export async function watchCommand(options: WatchOptions) {
 
   const severityOrder: Severity[] = ["critical", "high", "medium", "low", "info"];
   const threshold = severityOrder.indexOf(options.severity);
-  const filtered = allFindings.filter(
-    (f) => severityOrder.indexOf(f.severity) <= threshold
-  );
+  const filtered = allFindings.filter((f) => severityOrder.indexOf(f.severity) <= threshold);
 
   if (filtered.length > 0) {
-    console.log(
-      chalk.dim(`  Found ${filtered.length} existing issues. Watching for changes...\n`)
-    );
+    console.log(chalk.dim(`  Found ${filtered.length} existing issues. Watching for changes...\n`));
   } else {
     console.log(chalk.green("  ✅ No issues found. Watching for changes...\n"));
   }
@@ -134,8 +122,7 @@ async function scanFile(
   const { findings } = await tempScanner.scan(projectPath, false);
   // Secrets: filter to only the changed file instead of scanning everything
   const allFindings = [...findings].filter(
-    (f) => f.location.file === relativePath.replace(/\\/g, "/") ||
-           f.location.file === relativePath
+    (f) => f.location.file === relativePath.replace(/\\/g, "/") || f.location.file === relativePath
   );
 
   const known = knownFindings.get(relativePath) || new Set();
@@ -153,10 +140,7 @@ async function scanFile(
   const resolved = [...known].filter((k) => !currentKeys.has(k));
 
   // Update known
-  knownFindings.set(
-    relativePath,
-    new Set(allFindings.map(findingKey))
-  );
+  knownFindings.set(relativePath, new Set(allFindings.map(findingKey)));
 
   // Report new findings
   const timestamp = new Date().toLocaleTimeString();
@@ -178,7 +162,9 @@ async function scanFile(
   if (resolved.length > 0) {
     console.log(
       chalk.dim(`  [${timestamp}]`) +
-        chalk.green(` ✅ ${resolved.length} issue${resolved.length > 1 ? "s" : ""} resolved in ${relativePath}`)
+        chalk.green(
+          ` ✅ ${resolved.length} issue${resolved.length > 1 ? "s" : ""} resolved in ${relativePath}`
+        )
     );
   }
 }

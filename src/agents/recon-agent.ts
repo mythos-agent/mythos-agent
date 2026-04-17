@@ -41,7 +41,8 @@ export class ReconAgent {
     const messages: Anthropic.MessageParam[] = [
       {
         role: "user",
-        content: "Map the attack surface of this project. List files first, then explore entry points, auth boundaries, and data stores.",
+        content:
+          "Map the attack surface of this project. List files first, then explore entry points, auth boundaries, and data stores.",
       },
     ];
 

@@ -1,10 +1,5 @@
 import Anthropic from "@anthropic-ai/sdk";
-import type {
-  SphinxConfig,
-  Vulnerability,
-  VulnChain,
-  Severity,
-} from "../types/index.js";
+import type { SphinxConfig, Vulnerability, VulnChain, Severity } from "../types/index.js";
 
 const CHAIN_PROMPT = `You are a security expert analyzing confirmed vulnerabilities in a codebase. Your job is to identify **vulnerability chains** — sequences of individually exploitable (or seemingly minor) vulnerabilities that, when combined, create a more severe attack path.
 
@@ -50,10 +45,7 @@ export class ChainAnalyzer {
     this.model = config.model;
   }
 
-  async analyzeChains(
-    vulnerabilities: Vulnerability[],
-    projectPath: string
-  ): Promise<VulnChain[]> {
+  async analyzeChains(vulnerabilities: Vulnerability[], projectPath: string): Promise<VulnChain[]> {
     if (!this.config.apiKey || vulnerabilities.length < 2) {
       return [];
     }
@@ -83,10 +75,7 @@ export class ChainAnalyzer {
     return this.parseChains(textBlock.text, vulnerabilities);
   }
 
-  private parseChains(
-    text: string,
-    vulnerabilities: Vulnerability[]
-  ): VulnChain[] {
+  private parseChains(text: string, vulnerabilities: Vulnerability[]): VulnChain[] {
     const jsonMatch = text.match(/\{[\s\S]*\}/);
     if (!jsonMatch) return [];
 

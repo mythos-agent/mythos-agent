@@ -69,23 +69,27 @@ export async function planCommand(options: PlanOptions) {
     const client = new Anthropic({ apiKey: config.apiKey });
     const vulnList = result.confirmedVulnerabilities
       .slice(0, 30)
-      .map((v) =>
-        `- ${v.id} [${v.severity.toUpperCase()}] ${v.title}\n  File: ${v.location.file}:${v.location.line}\n  Category: ${v.category} | CWE: ${v.cwe || "N/A"}`
+      .map(
+        (v) =>
+          `- ${v.id} [${v.severity.toUpperCase()}] ${v.title}\n  File: ${v.location.file}:${v.location.line}\n  Category: ${v.category} | CWE: ${v.cwe || "N/A"}`
       )
       .join("\n\n");
 
-    const chainInfo = result.chains.length > 0
-      ? `\n\nAttack chains:\n${result.chains.map((c) => `- ${c.title} (${c.severity}): ${c.vulnerabilities.map((v) => v.id).join(" → ")}`).join("\n")}`
-      : "";
+    const chainInfo =
+      result.chains.length > 0
+        ? `\n\nAttack chains:\n${result.chains.map((c) => `- ${c.title} (${c.severity}): ${c.vulnerabilities.map((v) => v.id).join(" → ")}`).join("\n")}`
+        : "";
 
     const response = await client.messages.create({
       model: config.model,
       max_tokens: 4096,
       system: PLAN_PROMPT,
-      messages: [{
-        role: "user",
-        content: `Create a remediation plan for these ${result.confirmedVulnerabilities.length} vulnerabilities:\n\n${vulnList}${chainInfo}`,
-      }],
+      messages: [
+        {
+          role: "user",
+          content: `Create a remediation plan for these ${result.confirmedVulnerabilities.length} vulnerabilities:\n\n${vulnList}${chainInfo}`,
+        },
+      ],
     });
 
     spinner.stop();
@@ -132,8 +136,11 @@ export async function planCommand(options: PlanOptions) {
       console.log(chalk.bold(`\n  Total estimated effort: ${plan.totalEstimate}\n`));
     }
 
-    console.log(chalk.dim("  Run ") + chalk.cyan("sphinx-agent fix --apply") + chalk.dim(" to auto-generate patches.\n"));
-
+    console.log(
+      chalk.dim("  Run ") +
+        chalk.cyan("sphinx-agent fix --apply") +
+        chalk.dim(" to auto-generate patches.\n")
+    );
   } catch (err) {
     spinner.fail(`Plan generation failed: ${err instanceof Error ? err.message : "error"}`);
     renderBasicPlan(result.confirmedVulnerabilities);

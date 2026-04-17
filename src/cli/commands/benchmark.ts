@@ -34,8 +34,17 @@ export async function benchmarkCommand(options: BenchmarkOptions) {
   const results: ScannerBench[] = [];
   const totalStart = Date.now();
 
-  const scanners: Array<{ name: string; run: () => Promise<{ findings: { length: number }; filesScanned?: number }> }> = [
-    { name: "patterns", run: async () => { const s = new PatternScanner(config); return s.scan(projectPath, false); } },
+  const scanners: Array<{
+    name: string;
+    run: () => Promise<{ findings: { length: number }; filesScanned?: number }>;
+  }> = [
+    {
+      name: "patterns",
+      run: async () => {
+        const s = new PatternScanner(config);
+        return s.scan(projectPath, false);
+      },
+    },
     { name: "secrets", run: async () => new SecretsScanner().scan(projectPath) },
     { name: "iac", run: async () => new IacScanner().scan(projectPath) },
     { name: "llm-security", run: async () => new LlmSecurityScanner().scan(projectPath) },
@@ -57,7 +66,12 @@ export async function benchmarkCommand(options: BenchmarkOptions) {
         filesScanned: (result as any).filesScanned || 0,
       });
     } catch {
-      results.push({ name: scanner.name, duration: Date.now() - start, findings: 0, filesScanned: 0 });
+      results.push({
+        name: scanner.name,
+        duration: Date.now() - start,
+        findings: 0,
+        filesScanned: 0,
+      });
     }
   }
 
@@ -72,7 +86,9 @@ export async function benchmarkCommand(options: BenchmarkOptions) {
   // Render benchmark table
   const maxName = Math.max(...results.map((r) => r.name.length));
 
-  console.log(chalk.dim(`  ${"Scanner".padEnd(maxName + 2)} ${"Time".padStart(8)} ${"Findings".padStart(10)}`));
+  console.log(
+    chalk.dim(`  ${"Scanner".padEnd(maxName + 2)} ${"Time".padStart(8)} ${"Findings".padStart(10)}`)
+  );
   console.log(chalk.dim("  " + "─".repeat(maxName + 24)));
 
   for (const r of results.sort((a, b) => b.duration - a.duration)) {
@@ -85,11 +101,23 @@ export async function benchmarkCommand(options: BenchmarkOptions) {
 
   console.log(chalk.dim("  " + "─".repeat(maxName + 24)));
   console.log(
-    chalk.bold(`  ${"TOTAL".padEnd(maxName + 2)} ${`${totalDuration}ms`.padStart(8)} ${String(totalFindings).padStart(10)}`)
+    chalk.bold(
+      `  ${"TOTAL".padEnd(maxName + 2)} ${`${totalDuration}ms`.padStart(8)} ${String(totalFindings).padStart(10)}`
+    )
   );
 
   // Performance grade
-  const grade = totalDuration < 500 ? "A" : totalDuration < 2000 ? "B" : totalDuration < 5000 ? "C" : "D";
-  const gradeColor = grade === "A" ? chalk.green : grade === "B" ? chalk.green : grade === "C" ? chalk.yellow : chalk.red;
-  console.log(chalk.bold(`\n  Performance: ${gradeColor(grade)} (${(totalDuration / 1000).toFixed(2)}s)\n`));
+  const grade =
+    totalDuration < 500 ? "A" : totalDuration < 2000 ? "B" : totalDuration < 5000 ? "C" : "D";
+  const gradeColor =
+    grade === "A"
+      ? chalk.green
+      : grade === "B"
+        ? chalk.green
+        : grade === "C"
+          ? chalk.yellow
+          : chalk.red;
+  console.log(
+    chalk.bold(`\n  Performance: ${gradeColor(grade)} (${(totalDuration / 1000).toFixed(2)}s)\n`)
+  );
 }

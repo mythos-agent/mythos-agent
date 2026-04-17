@@ -14,30 +14,18 @@ export async function toolsCheckCommand() {
         `  ${chalk.green("✓")} ${chalk.bold(name)} ${chalk.dim(tool.version || "installed")}`
       );
     } else {
-      console.log(
-        `  ${chalk.red("✗")} ${chalk.dim(name)} ${chalk.yellow("not installed")}`
-      );
+      console.log(`  ${chalk.red("✗")} ${chalk.dim(name)} ${chalk.yellow("not installed")}`);
     }
   }
 
   const installed = tools.filter((t) => t.installed).length;
   const total = tools.length;
 
-  console.log(
-    chalk.dim(`\n  ${installed}/${total} tools available.`)
-  );
+  console.log(chalk.dim(`\n  ${installed}/${total} tools available.`));
 
   if (installed < total) {
-    console.log(
-      chalk.dim(
-        "\n  sphinx-agent works without external tools (built-in rules)."
-      )
-    );
-    console.log(
-      chalk.dim(
-        "  Install tools for deeper analysis:\n"
-      )
-    );
+    console.log(chalk.dim("\n  sphinx-agent works without external tools (built-in rules)."));
+    console.log(chalk.dim("  Install tools for deeper analysis:\n"));
 
     const missing = tools.filter((t) => !t.installed);
     for (const t of missing) {

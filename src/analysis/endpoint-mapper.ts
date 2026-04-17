@@ -13,17 +13,45 @@ export interface Endpoint {
 }
 
 const AUTH_MIDDLEWARE_PATTERNS = [
-  "auth", "authenticate", "authorize", "requireAuth", "ensureAuth",
-  "verifyToken", "checkToken", "requireLogin", "isAuthenticated",
-  "passport", "jwt", "session", "apiKey", "bearer",
-  "login_required", "permission_required", "IsAuthenticated",
+  "auth",
+  "authenticate",
+  "authorize",
+  "requireAuth",
+  "ensureAuth",
+  "verifyToken",
+  "checkToken",
+  "requireLogin",
+  "isAuthenticated",
+  "passport",
+  "jwt",
+  "session",
+  "apiKey",
+  "bearer",
+  "login_required",
+  "permission_required",
+  "IsAuthenticated",
 ];
 
 const SENSITIVE_PATH_PATTERNS = [
-  /admin/i, /user/i, /account/i, /payment/i, /billing/i,
-  /password/i, /token/i, /secret/i, /api\/v\d/i, /internal/i,
-  /delete/i, /export/i, /import/i, /upload/i, /download/i,
-  /config/i, /setting/i, /role/i, /permission/i,
+  /admin/i,
+  /user/i,
+  /account/i,
+  /payment/i,
+  /billing/i,
+  /password/i,
+  /token/i,
+  /secret/i,
+  /api\/v\d/i,
+  /internal/i,
+  /delete/i,
+  /export/i,
+  /import/i,
+  /upload/i,
+  /download/i,
+  /config/i,
+  /setting/i,
+  /role/i,
+  /permission/i,
 ];
 
 /**
@@ -75,9 +103,7 @@ export function assessEndpointSecurity(endpoints: Endpoint[]): {
   const unauthenticated = endpoints.filter((e) => !e.hasAuth).length;
   const highRisk = endpoints.filter((e) => e.riskLevel === "high");
 
-  const authPct = endpoints.length > 0
-    ? Math.round((authenticated / endpoints.length) * 100)
-    : 100;
+  const authPct = endpoints.length > 0 ? Math.round((authenticated / endpoints.length) * 100) : 100;
 
   let summary: string;
   if (highRisk.length > 0) {
@@ -94,9 +120,7 @@ export function assessEndpointSecurity(endpoints: Endpoint[]): {
 function checkHasAuth(route: RouteDef): boolean {
   // Check if any middleware looks like auth
   return route.middleware.some((m) =>
-    AUTH_MIDDLEWARE_PATTERNS.some((pattern) =>
-      m.toLowerCase().includes(pattern.toLowerCase())
-    )
+    AUTH_MIDDLEWARE_PATTERNS.some((pattern) => m.toLowerCase().includes(pattern.toLowerCase()))
   );
 }
 
@@ -143,16 +167,31 @@ function assessRisk(
 
 function isLikelyPublic(routePath: string, method: string): boolean {
   const publicPaths = [
-    "/health", "/healthz", "/ready", "/readyz",
-    "/ping", "/status", "/version",
-    "/login", "/signup", "/register", "/auth",
-    "/public", "/static", "/assets",
-    "/docs", "/swagger", "/openapi",
-    "/favicon", "/robots.txt", "/sitemap",
-    "/", "/index",
+    "/health",
+    "/healthz",
+    "/ready",
+    "/readyz",
+    "/ping",
+    "/status",
+    "/version",
+    "/login",
+    "/signup",
+    "/register",
+    "/auth",
+    "/public",
+    "/static",
+    "/assets",
+    "/docs",
+    "/swagger",
+    "/openapi",
+    "/favicon",
+    "/robots.txt",
+    "/sitemap",
+    "/",
+    "/index",
   ];
 
-  return publicPaths.some((p) =>
-    routePath.toLowerCase() === p || routePath.toLowerCase().startsWith(p + "/")
+  return publicPaths.some(
+    (p) => routePath.toLowerCase() === p || routePath.toLowerCase().startsWith(p + "/")
   );
 }

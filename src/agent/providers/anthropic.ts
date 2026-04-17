@@ -47,9 +47,7 @@ export class AnthropicProvider implements AIProvider {
       max_tokens: maxTokens,
       system,
       messages: anthropicMessages,
-      ...(anthropicTools && anthropicTools.length > 0
-        ? { tools: anthropicTools }
-        : {}),
+      ...(anthropicTools && anthropicTools.length > 0 ? { tools: anthropicTools } : {}),
     });
 
     const toolCalls: ToolCall[] = [];
@@ -78,9 +76,7 @@ export class AnthropicProvider implements AIProvider {
     };
   }
 
-  private convertMessages(
-    messages: ProviderMessage[]
-  ): Anthropic.MessageParam[] {
+  private convertMessages(messages: ProviderMessage[]): Anthropic.MessageParam[] {
     const result: Anthropic.MessageParam[] = [];
 
     for (const msg of messages) {
@@ -91,9 +87,7 @@ export class AnthropicProvider implements AIProvider {
           result.push({ role: "assistant", content: msg.content });
         } else {
           // Tool calls from assistant
-          const blocks: Anthropic.ContentBlock[] = (
-            msg.content as ToolCall[]
-          ).map((tc) => ({
+          const blocks: Anthropic.ContentBlock[] = (msg.content as ToolCall[]).map((tc) => ({
             type: "tool_use" as const,
             id: tc.id,
             name: tc.name,

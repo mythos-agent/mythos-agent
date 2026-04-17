@@ -164,7 +164,12 @@ Be thorough — follow imports, function calls, and data transformations across 
       flows: Array<{
         source: { description: string; file: string; line: number; snippet: string };
         sink: { description: string; file: string; line: number; snippet: string };
-        intermediateSteps?: Array<{ description: string; file: string; line: number; snippet: string }>;
+        intermediateSteps?: Array<{
+          description: string;
+          file: string;
+          line: number;
+          snippet: string;
+        }>;
         severity: Severity;
         narrative: string;
       }>;

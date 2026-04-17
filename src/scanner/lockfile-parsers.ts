@@ -24,9 +24,7 @@ export function discoverLockfiles(projectPath: string): string[] {
     "build.gradle",
   ];
 
-  return lockfiles
-    .map((f) => path.join(projectPath, f))
-    .filter((f) => fs.existsSync(f));
+  return lockfiles.map((f) => path.join(projectPath, f)).filter((f) => fs.existsSync(f));
 }
 
 export function parseLockfile(filePath: string): Dependency[] {

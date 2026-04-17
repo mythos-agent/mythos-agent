@@ -17,7 +17,8 @@ const RACE_RULES: RaceRule[] = [
   {
     id: "race-toctou-fs",
     title: "Race Condition: TOCTOU in File Operations",
-    description: "File existence checked before use. Between check and use, the file could be modified or removed by another process.",
+    description:
+      "File existence checked before use. Between check and use, the file could be modified or removed by another process.",
     severity: "medium",
     cwe: "CWE-367",
     patterns: [
@@ -30,7 +31,8 @@ const RACE_RULES: RaceRule[] = [
   {
     id: "race-read-modify-write",
     title: "Race Condition: Non-Atomic Read-Modify-Write",
-    description: "Value read from database/storage, modified, then written back without locking. Concurrent requests can overwrite each other's changes.",
+    description:
+      "Value read from database/storage, modified, then written back without locking. Concurrent requests can overwrite each other's changes.",
     severity: "high",
     cwe: "CWE-362",
     patterns: [
@@ -45,7 +47,8 @@ const RACE_RULES: RaceRule[] = [
   {
     id: "race-no-transaction",
     title: "Race Condition: Multiple DB Operations Without Transaction",
-    description: "Multiple database operations that should be atomic are not wrapped in a transaction. Partial failures leave data inconsistent.",
+    description:
+      "Multiple database operations that should be atomic are not wrapped in a transaction. Partial failures leave data inconsistent.",
     severity: "high",
     cwe: "CWE-362",
     patterns: [
@@ -57,7 +60,8 @@ const RACE_RULES: RaceRule[] = [
   {
     id: "race-shared-state",
     title: "Race Condition: Shared Mutable State Without Synchronization",
-    description: "Global/shared variable modified in async handler without lock or atomic operation. Concurrent requests cause data corruption.",
+    description:
+      "Global/shared variable modified in async handler without lock or atomic operation. Concurrent requests cause data corruption.",
     severity: "medium",
     cwe: "CWE-362",
     patterns: [
@@ -69,7 +73,8 @@ const RACE_RULES: RaceRule[] = [
   {
     id: "race-double-spend",
     title: "Race Condition: No Idempotency Check",
-    description: "Payment or state-changing operation without idempotency key or duplicate check. Concurrent requests can process the same operation twice.",
+    description:
+      "Payment or state-changing operation without idempotency key or duplicate check. Concurrent requests can process the same operation twice.",
     severity: "high",
     cwe: "CWE-362",
     patterns: [
@@ -81,7 +86,8 @@ const RACE_RULES: RaceRule[] = [
   {
     id: "race-fire-forget",
     title: "Race Condition: Async Operation Without Await",
-    description: "Async database or API call without await. The response is sent before the operation completes, causing inconsistent state.",
+    description:
+      "Async database or API call without await. The response is sent before the operation completes, causing inconsistent state.",
     severity: "medium",
     cwe: "CWE-362",
     patterns: [
@@ -93,12 +99,11 @@ const RACE_RULES: RaceRule[] = [
   {
     id: "race-go-goroutine",
     title: "Race Condition: Goroutine Accessing Shared Variable",
-    description: "Variable accessed inside a goroutine without mutex or channel. Use sync.Mutex or pass by value.",
+    description:
+      "Variable accessed inside a goroutine without mutex or channel. Use sync.Mutex or pass by value.",
     severity: "high",
     cwe: "CWE-362",
-    patterns: [
-      /go\s+func\s*\(.*\)\s*\{[\s\S]{0,200}(?!.*(?:mu\.|Lock|Mutex|sync\.|chan\s))/gi,
-    ],
+    patterns: [/go\s+func\s*\(.*\)\s*\{[\s\S]{0,200}(?!.*(?:mu\.|Lock|Mutex|sync\.|chan\s))/gi],
   },
 ];
 
@@ -109,15 +114,12 @@ export interface RaceConditionScanResult {
 
 export class RaceConditionScanner {
   async scan(projectPath: string): Promise<RaceConditionScanResult> {
-    const files = await glob(
-      ["**/*.ts", "**/*.js", "**/*.py", "**/*.go", "**/*.java"],
-      {
-        cwd: projectPath,
-        absolute: true,
-        ignore: ["node_modules/**", "dist/**", ".git/**", ".sphinx/**", "**/*.test.*"],
-        nodir: true,
-      }
-    );
+    const files = await glob(["**/*.ts", "**/*.js", "**/*.py", "**/*.go", "**/*.java"], {
+      cwd: projectPath,
+      absolute: true,
+      ignore: ["node_modules/**", "dist/**", ".git/**", ".sphinx/**", "**/*.test.*"],
+      nodir: true,
+    });
 
     const findings: Vulnerability[] = [];
     let idCounter = 1;
@@ -128,7 +130,9 @@ export class RaceConditionScanner {
         const stats = fs.statSync(file);
         if (stats.size > 500_000) continue;
         content = fs.readFileSync(file, "utf-8");
-      } catch { continue; }
+      } catch {
+        continue;
+      }
 
       const lines = content.split("\n");
       const relativePath = path.relative(projectPath, file);

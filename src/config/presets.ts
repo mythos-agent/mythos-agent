@@ -17,8 +17,14 @@ export const PRESETS: Record<string, Preset> = {
       scan: {
         include: ["**/*.ts", "**/*.js", "**/*.json"],
         exclude: [
-          "node_modules/**", "dist/**", "build/**", ".git/**", ".sphinx/**",
-          "**/*.test.*", "**/*.spec.*", "coverage/**",
+          "node_modules/**",
+          "dist/**",
+          "build/**",
+          ".git/**",
+          ".sphinx/**",
+          "**/*.test.*",
+          "**/*.spec.*",
+          "coverage/**",
         ],
       },
     },
@@ -30,8 +36,14 @@ export const PRESETS: Record<string, Preset> = {
       scan: {
         include: ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx"],
         exclude: [
-          "node_modules/**", ".next/**", "out/**", ".git/**", ".sphinx/**",
-          "**/*.test.*", "**/*.spec.*", "public/**",
+          "node_modules/**",
+          ".next/**",
+          "out/**",
+          ".git/**",
+          ".sphinx/**",
+          "**/*.test.*",
+          "**/*.spec.*",
+          "public/**",
         ],
       },
     },
@@ -43,8 +55,14 @@ export const PRESETS: Record<string, Preset> = {
       scan: {
         include: ["**/*.py", "**/*.html", "**/*.yml", "**/*.yaml"],
         exclude: [
-          "venv/**", ".venv/**", "__pycache__/**", "*.pyc",
-          ".git/**", ".sphinx/**", "migrations/**", "static/**",
+          "venv/**",
+          ".venv/**",
+          "__pycache__/**",
+          "*.pyc",
+          ".git/**",
+          ".sphinx/**",
+          "migrations/**",
+          "static/**",
         ],
       },
     },
@@ -55,10 +73,7 @@ export const PRESETS: Record<string, Preset> = {
     config: {
       scan: {
         include: ["**/*.py", "**/*.html", "**/*.yml"],
-        exclude: [
-          "venv/**", ".venv/**", "__pycache__/**",
-          ".git/**", ".sphinx/**",
-        ],
+        exclude: ["venv/**", ".venv/**", "__pycache__/**", ".git/**", ".sphinx/**"],
       },
     },
   },
@@ -68,10 +83,7 @@ export const PRESETS: Record<string, Preset> = {
     config: {
       scan: {
         include: ["**/*.java", "**/*.xml", "**/*.yml", "**/*.yaml", "**/*.properties"],
-        exclude: [
-          "target/**", "build/**", ".gradle/**", ".git/**", ".sphinx/**",
-          "**/test/**",
-        ],
+        exclude: ["target/**", "build/**", ".gradle/**", ".git/**", ".sphinx/**", "**/test/**"],
       },
     },
   },
@@ -81,9 +93,7 @@ export const PRESETS: Record<string, Preset> = {
     config: {
       scan: {
         include: ["**/*.go", "**/*.yml", "**/*.yaml"],
-        exclude: [
-          "vendor/**", ".git/**", ".sphinx/**", "**/*_test.go",
-        ],
+        exclude: ["vendor/**", ".git/**", ".sphinx/**", "**/*_test.go"],
       },
     },
   },
@@ -94,8 +104,14 @@ export const PRESETS: Record<string, Preset> = {
       scan: {
         include: ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx"],
         exclude: [
-          "node_modules/**", "build/**", "dist/**", ".git/**", ".sphinx/**",
-          "**/*.test.*", "**/*.spec.*", "public/**",
+          "node_modules/**",
+          "build/**",
+          "dist/**",
+          ".git/**",
+          ".sphinx/**",
+          "**/*.test.*",
+          "**/*.spec.*",
+          "public/**",
         ],
       },
     },
@@ -106,14 +122,32 @@ export const PRESETS: Record<string, Preset> = {
     config: {
       scan: {
         include: [
-          "**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx", "**/*.py", "**/*.go",
-          "**/*.java", "**/*.php", "**/*.yml", "**/*.yaml",
-          "**/Dockerfile*", "**/*.tf",
+          "**/*.ts",
+          "**/*.tsx",
+          "**/*.js",
+          "**/*.jsx",
+          "**/*.py",
+          "**/*.go",
+          "**/*.java",
+          "**/*.php",
+          "**/*.yml",
+          "**/*.yaml",
+          "**/Dockerfile*",
+          "**/*.tf",
         ],
         exclude: [
-          "node_modules/**", "dist/**", "build/**", ".git/**", ".sphinx/**",
-          "vendor/**", "venv/**", "__pycache__/**", "target/**",
-          "**/*.test.*", "**/*.spec.*", "**/*.min.js",
+          "node_modules/**",
+          "dist/**",
+          "build/**",
+          ".git/**",
+          ".sphinx/**",
+          "vendor/**",
+          "venv/**",
+          "__pycache__/**",
+          "target/**",
+          "**/*.test.*",
+          "**/*.spec.*",
+          "**/*.min.js",
         ],
       },
     },

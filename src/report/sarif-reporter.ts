@@ -60,9 +60,7 @@ export function renderSarifReport(result: ScanResult): string {
   return JSON.stringify(sarif, null, 2);
 }
 
-function buildRules(
-  vulns: Vulnerability[]
-): Array<{
+function buildRules(vulns: Vulnerability[]): Array<{
   id: string;
   shortDescription: { text: string };
   fullDescription: { text: string };
@@ -88,11 +86,7 @@ function buildRules(
       fullDescription: { text: v.description },
       help: { text: v.description },
       properties: {
-        tags: [
-          v.category,
-          `severity:${v.severity}`,
-          ...(v.cwe ? [v.cwe] : []),
-        ],
+        tags: [v.category, `severity:${v.severity}`, ...(v.cwe ? [v.cwe] : [])],
       },
     });
   }

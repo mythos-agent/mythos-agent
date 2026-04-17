@@ -48,10 +48,7 @@ export class AIFixer {
     this.model = config.model;
   }
 
-  async generatePatches(
-    vulnerabilities: Vulnerability[],
-    projectPath: string
-  ): Promise<Patch[]> {
+  async generatePatches(vulnerabilities: Vulnerability[], projectPath: string): Promise<Patch[]> {
     // Group vulnerabilities by file to minimize API calls
     const byFile = new Map<string, Vulnerability[]>();
     for (const v of vulnerabilities) {
@@ -149,10 +146,7 @@ Generate patches for each vulnerability. The "original" field must contain the E
   }
 }
 
-export function applyPatch(
-  projectPath: string,
-  patch: Patch
-): boolean {
+export function applyPatch(projectPath: string, patch: Patch): boolean {
   const absPath = path.resolve(projectPath, patch.file);
   // Prevent path traversal — patch must stay within project
   if (!absPath.startsWith(path.resolve(projectPath) + path.sep)) return false;
@@ -191,10 +185,7 @@ export function applyPatch(
   } else {
     // Replace only the FIRST occurrence to avoid modifying unrelated code
     const idx = content.indexOf(patch.original);
-    content =
-      content.slice(0, idx) +
-      patch.fixed +
-      content.slice(idx + patch.original.length);
+    content = content.slice(0, idx) + patch.fixed + content.slice(idx + patch.original.length);
   }
 
   fs.writeFileSync(absPath, content, "utf-8");

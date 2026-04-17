@@ -33,10 +33,16 @@ export async function diffReportCommand(options: DiffReportOptions) {
 
   console.log(chalk.dim(`  ${changedFiles.length} changed file(s):\n`));
   for (const f of changedFiles.slice(0, 15)) {
-    const icon = f.status === "added" ? chalk.green("+") : f.status === "deleted" ? chalk.red("-") : chalk.yellow("~");
+    const icon =
+      f.status === "added"
+        ? chalk.green("+")
+        : f.status === "deleted"
+          ? chalk.red("-")
+          : chalk.yellow("~");
     console.log(`    ${icon} ${f.file}`);
   }
-  if (changedFiles.length > 15) console.log(chalk.dim(`    ...and ${changedFiles.length - 15} more`));
+  if (changedFiles.length > 15)
+    console.log(chalk.dim(`    ...and ${changedFiles.length - 15} more`));
   console.log();
 
   // Scan only changed files
@@ -81,18 +87,24 @@ export async function diffReportCommand(options: DiffReportOptions) {
   };
 
   if (options.json) {
-    console.log(JSON.stringify({
-      base: options.base,
-      changedFiles: changedFiles.length,
-      findings: findings.length,
-      vulnerabilities: findings.map((f) => ({
-        id: f.id,
-        severity: f.severity,
-        title: f.title,
-        file: f.location.file,
-        line: f.location.line,
-      })),
-    }, null, 2));
+    console.log(
+      JSON.stringify(
+        {
+          base: options.base,
+          changedFiles: changedFiles.length,
+          findings: findings.length,
+          vulnerabilities: findings.map((f) => ({
+            id: f.id,
+            severity: f.severity,
+            title: f.title,
+            file: f.location.file,
+            line: f.location.line,
+          })),
+        },
+        null,
+        2
+      )
+    );
     return;
   }
 
@@ -115,7 +127,14 @@ export async function diffReportCommand(options: DiffReportOptions) {
     const group = bySeverity.get(severity);
     if (!group || group.length === 0) continue;
 
-    const color = severity === "critical" ? chalk.red : severity === "high" ? chalk.yellow : severity === "medium" ? chalk.blue : chalk.dim;
+    const color =
+      severity === "critical"
+        ? chalk.red
+        : severity === "high"
+          ? chalk.yellow
+          : severity === "medium"
+            ? chalk.blue
+            : chalk.dim;
     console.log(color.bold(`  ${severity.toUpperCase()} (${group.length})\n`));
 
     for (const f of group) {

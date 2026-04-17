@@ -16,7 +16,8 @@ const WS_RULES: WsRule[] = [
   {
     id: "ws-no-auth",
     title: "WebSocket: No Authentication on Connection",
-    description: "WebSocket connection established without verifying user identity. Authenticate via token in handshake or first message.",
+    description:
+      "WebSocket connection established without verifying user identity. Authenticate via token in handshake or first message.",
     severity: "high",
     cwe: "CWE-306",
     patterns: [
@@ -27,7 +28,8 @@ const WS_RULES: WsRule[] = [
   {
     id: "ws-no-origin-check",
     title: "WebSocket: No Origin Validation",
-    description: "WebSocket server does not validate the Origin header. Any website can connect, enabling CSWSH (Cross-Site WebSocket Hijacking).",
+    description:
+      "WebSocket server does not validate the Origin header. Any website can connect, enabling CSWSH (Cross-Site WebSocket Hijacking).",
     severity: "high",
     cwe: "CWE-346",
     patterns: [
@@ -37,7 +39,8 @@ const WS_RULES: WsRule[] = [
   {
     id: "ws-no-message-validation",
     title: "WebSocket: No Message Validation",
-    description: "WebSocket messages processed without schema validation or type checking. Malformed messages can cause errors or exploits.",
+    description:
+      "WebSocket messages processed without schema validation or type checking. Malformed messages can cause errors or exploits.",
     severity: "medium",
     cwe: "CWE-20",
     patterns: [
@@ -47,7 +50,8 @@ const WS_RULES: WsRule[] = [
   {
     id: "ws-no-size-limit",
     title: "WebSocket: No Message Size Limit",
-    description: "No maximum message size configured. Attackers can send huge messages to exhaust server memory.",
+    description:
+      "No maximum message size configured. Attackers can send huge messages to exhaust server memory.",
     severity: "medium",
     cwe: "CWE-770",
     patterns: [
@@ -57,7 +61,8 @@ const WS_RULES: WsRule[] = [
   {
     id: "ws-no-rate-limit",
     title: "WebSocket: No Message Rate Limiting",
-    description: "No rate limiting on WebSocket messages. Clients can flood the server with messages.",
+    description:
+      "No rate limiting on WebSocket messages. Clients can flood the server with messages.",
     severity: "medium",
     cwe: "CWE-799",
     patterns: [
@@ -67,7 +72,8 @@ const WS_RULES: WsRule[] = [
   {
     id: "ws-broadcast-unfiltered",
     title: "WebSocket: Broadcasting Unfiltered User Input",
-    description: "User message broadcast to all clients without sanitization. Can enable XSS or injection in other clients.",
+    description:
+      "User message broadcast to all clients without sanitization. Can enable XSS or injection in other clients.",
     severity: "high",
     cwe: "CWE-79",
     patterns: [
@@ -77,7 +83,8 @@ const WS_RULES: WsRule[] = [
   {
     id: "ws-eval-message",
     title: "WebSocket: Executing Received Message",
-    description: "WebSocket message content passed to eval or Function constructor. Remote code execution via WebSocket.",
+    description:
+      "WebSocket message content passed to eval or Function constructor. Remote code execution via WebSocket.",
     severity: "critical",
     cwe: "CWE-95",
     patterns: [
@@ -94,15 +101,12 @@ export interface WebsocketScanResult {
 
 export class WebsocketScanner {
   async scan(projectPath: string): Promise<WebsocketScanResult> {
-    const files = await glob(
-      ["**/*.ts", "**/*.js"],
-      {
-        cwd: projectPath,
-        absolute: true,
-        ignore: ["node_modules/**", "dist/**", ".git/**", ".sphinx/**"],
-        nodir: true,
-      }
-    );
+    const files = await glob(["**/*.ts", "**/*.js"], {
+      cwd: projectPath,
+      absolute: true,
+      ignore: ["node_modules/**", "dist/**", ".git/**", ".sphinx/**"],
+      nodir: true,
+    });
 
     const findings: Vulnerability[] = [];
     let idCounter = 1;
@@ -113,7 +117,9 @@ export class WebsocketScanner {
         const stats = fs.statSync(file);
         if (stats.size > 500_000) continue;
         content = fs.readFileSync(file, "utf-8");
-      } catch { continue; }
+      } catch {
+        continue;
+      }
 
       if (!/websocket|socket\.io|ws|wss|WebSocket/i.test(content)) continue;
 

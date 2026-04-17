@@ -25,7 +25,20 @@ export async function quickCommand(options: QuickOptions) {
   // Trust score
   let score = 10;
   for (const v of all) {
-    switch (v.severity) { case "critical": score -= 2; break; case "high": score -= 1; break; case "medium": score -= 0.5; break; case "low": score -= 0.2; break; }
+    switch (v.severity) {
+      case "critical":
+        score -= 2;
+        break;
+      case "high":
+        score -= 1;
+        break;
+      case "medium":
+        score -= 0.5;
+        break;
+      case "low":
+        score -= 0.2;
+        break;
+    }
   }
   score = Math.max(0, Math.min(10, score));
   const scoreColor = score >= 7 ? chalk.green : score >= 4 ? chalk.yellow : chalk.red;
@@ -40,14 +53,14 @@ export async function quickCommand(options: QuickOptions) {
   // One-line header
   console.log(
     chalk.bold(`\n🔐 `) +
-    scoreColor.bold(`${score.toFixed(1)}/10`) +
-    chalk.dim(` | `) +
-    (counts.critical > 0 ? chalk.red(`${counts.critical}C `) : "") +
-    (counts.high > 0 ? chalk.yellow(`${counts.high}H `) : "") +
-    (counts.medium > 0 ? chalk.blue(`${counts.medium}M `) : "") +
-    (counts.low > 0 ? chalk.dim(`${counts.low}L `) : "") +
-    (all.length === 0 ? chalk.green("Clean! ") : "") +
-    chalk.dim(`(${duration}ms)`)
+      scoreColor.bold(`${score.toFixed(1)}/10`) +
+      chalk.dim(` | `) +
+      (counts.critical > 0 ? chalk.red(`${counts.critical}C `) : "") +
+      (counts.high > 0 ? chalk.yellow(`${counts.high}H `) : "") +
+      (counts.medium > 0 ? chalk.blue(`${counts.medium}M `) : "") +
+      (counts.low > 0 ? chalk.dim(`${counts.low}L `) : "") +
+      (all.length === 0 ? chalk.green("Clean! ") : "") +
+      chalk.dim(`(${duration}ms)`)
   );
 
   if (all.length === 0) {
@@ -65,7 +78,14 @@ export async function quickCommand(options: QuickOptions) {
 
   console.log();
   for (const f of top) {
-    const icon = f.severity === "critical" ? "🔴" : f.severity === "high" ? "🟠" : f.severity === "medium" ? "🟡" : "🔵";
+    const icon =
+      f.severity === "critical"
+        ? "🔴"
+        : f.severity === "high"
+          ? "🟠"
+          : f.severity === "medium"
+            ? "🟡"
+            : "🔵";
     console.log(`  ${icon} ${f.title}`);
     console.log(chalk.dim(`     ${f.location.file}:${f.location.line}`));
   }

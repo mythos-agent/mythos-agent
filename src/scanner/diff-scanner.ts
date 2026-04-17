@@ -8,10 +8,7 @@ export interface DiffFile {
   status: "added" | "modified" | "deleted";
 }
 
-export function getGitChangedFiles(
-  projectPath: string,
-  base?: string
-): DiffFile[] {
+export function getGitChangedFiles(projectPath: string, base?: string): DiffFile[] {
   const cwd = path.resolve(projectPath);
 
   try {

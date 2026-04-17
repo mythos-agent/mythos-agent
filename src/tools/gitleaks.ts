@@ -27,11 +27,15 @@ export function runGitleaks(projectPath: string): Vulnerability[] {
 
   const args = [
     "detect",
-    "--source", projectPath,
-    "--report-format", "json",
-    "--report-path", reportPath,
+    "--source",
+    projectPath,
+    "--report-format",
+    "json",
+    "--report-path",
+    reportPath,
     "--no-git",
-    "--exit-code", "0",
+    "--exit-code",
+    "0",
   ];
 
   try {
@@ -46,7 +50,11 @@ export function runGitleaks(projectPath: string): Vulnerability[] {
   } catch {
     return [];
   } finally {
-    try { fs.unlinkSync(reportPath); } catch { /* ignore */ }
+    try {
+      fs.unlinkSync(reportPath);
+    } catch {
+      /* ignore */
+    }
   }
 }
 

@@ -25,18 +25,8 @@ export function isSemgrepInstalled(): boolean {
   return checkTool("semgrep").installed;
 }
 
-export function runSemgrep(
-  projectPath: string,
-  config?: string
-): Vulnerability[] {
-  const args = [
-    "--json",
-    "--quiet",
-    "--no-git-ignore",
-    "--config",
-    config || "auto",
-    projectPath,
-  ];
+export function runSemgrep(projectPath: string, config?: string): Vulnerability[] {
+  const args = ["--json", "--quiet", "--no-git-ignore", "--config", config || "auto", projectPath];
 
   const result = runTool<SemgrepResult>("semgrep", args, {
     timeout: 300_000, // 5 min
@@ -73,9 +63,13 @@ function normalizeFindings(data: SemgrepResult): Vulnerability[] {
 
 function mapSeverity(s: string): Severity {
   switch (s.toUpperCase()) {
-    case "ERROR": return "high";
-    case "WARNING": return "medium";
-    case "INFO": return "low";
-    default: return "medium";
+    case "ERROR":
+      return "high";
+    case "WARNING":
+      return "medium";
+    case "INFO":
+      return "low";
+    default:
+      return "medium";
   }
 }

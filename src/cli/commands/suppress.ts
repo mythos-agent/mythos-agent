@@ -1,10 +1,6 @@
 import path from "node:path";
 import chalk from "chalk";
-import {
-  loadSuppressions,
-  addSuppression,
-  removeSuppression,
-} from "../../store/suppressions.js";
+import { loadSuppressions, addSuppression, removeSuppression } from "../../store/suppressions.js";
 import { loadResults } from "../../store/results-store.js";
 
 export async function suppressAddCommand(
@@ -31,16 +27,11 @@ export async function suppressAddCommand(
   const reason = options.reason || "Manually suppressed";
   addSuppression(projectPath, finding, reason);
 
-  console.log(
-    chalk.green(`\n  ✅ Suppressed ${finding.id}: ${finding.title}`)
-  );
+  console.log(chalk.green(`\n  ✅ Suppressed ${finding.id}: ${finding.title}`));
   console.log(chalk.dim(`     Reason: ${reason}\n`));
 }
 
-export async function suppressRemoveCommand(
-  findingId: string,
-  options: { path?: string }
-) {
+export async function suppressRemoveCommand(findingId: string, options: { path?: string }) {
   const projectPath = path.resolve(options.path || ".");
   const removed = removeSuppression(projectPath, findingId);
 
@@ -63,10 +54,10 @@ export async function suppressListCommand(options: { path?: string }) {
   console.log(chalk.bold(`\n  Suppressed findings (${suppressions.length}):\n`));
 
   for (const s of suppressions) {
+    console.log(`  ${chalk.dim(s.id)} ${s.rule} — ${chalk.dim(s.file)}:${s.line}`);
     console.log(
-      `  ${chalk.dim(s.id)} ${s.rule} — ${chalk.dim(s.file)}:${s.line}`
+      chalk.dim(`    Reason: ${s.reason} (${new Date(s.suppressedAt).toLocaleDateString()})`)
     );
-    console.log(chalk.dim(`    Reason: ${s.reason} (${new Date(s.suppressedAt).toLocaleDateString()})`));
   }
   console.log();
 }

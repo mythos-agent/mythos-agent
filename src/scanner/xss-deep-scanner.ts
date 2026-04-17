@@ -3,11 +3,19 @@ import path from "node:path";
 import { glob } from "glob";
 import type { Vulnerability, Severity } from "../types/index.js";
 
-const XSS_RULES: Array<{ id: string; title: string; description: string; severity: Severity; cwe: string; patterns: RegExp[] }> = [
+const XSS_RULES: Array<{
+  id: string;
+  title: string;
+  description: string;
+  severity: Severity;
+  cwe: string;
+  patterns: RegExp[];
+}> = [
   {
     id: "xss-dom-innerhtml",
     title: "XSS: innerHTML with User Input",
-    description: "User-controlled data assigned to innerHTML. Use textContent or a sanitizer like DOMPurify.",
+    description:
+      "User-controlled data assigned to innerHTML. Use textContent or a sanitizer like DOMPurify.",
     severity: "high",
     cwe: "CWE-79",
     patterns: [
@@ -17,7 +25,8 @@ const XSS_RULES: Array<{ id: string; title: string; description: string; severit
   {
     id: "xss-dom-document-write",
     title: "XSS: document.write with Dynamic Content",
-    description: "document.write() with user input enables DOM XSS. Use DOM APIs (createElement, textContent) instead.",
+    description:
+      "document.write() with user input enables DOM XSS. Use DOM APIs (createElement, textContent) instead.",
     severity: "high",
     cwe: "CWE-79",
     patterns: [
@@ -27,17 +36,17 @@ const XSS_RULES: Array<{ id: string; title: string; description: string; severit
   {
     id: "xss-react-dangerously",
     title: "XSS: React dangerouslySetInnerHTML",
-    description: "dangerouslySetInnerHTML renders raw HTML. If the content includes user input, XSS is possible.",
+    description:
+      "dangerouslySetInnerHTML renders raw HTML. If the content includes user input, XSS is possible.",
     severity: "high",
     cwe: "CWE-79",
-    patterns: [
-      /dangerouslySetInnerHTML\s*=\s*\{\s*\{\s*__html\s*:/gi,
-    ],
+    patterns: [/dangerouslySetInnerHTML\s*=\s*\{\s*\{\s*__html\s*:/gi],
   },
   {
     id: "xss-href-javascript",
     title: "XSS: javascript: Protocol in href",
-    description: "User input in href can execute JavaScript via javascript: protocol. Validate URLs start with http(s).",
+    description:
+      "User input in href can execute JavaScript via javascript: protocol. Validate URLs start with http(s).",
     severity: "high",
     cwe: "CWE-79",
     patterns: [
@@ -47,17 +56,17 @@ const XSS_RULES: Array<{ id: string; title: string; description: string; severit
   {
     id: "xss-eval-user",
     title: "XSS: eval() with User-Controlled String",
-    description: "eval() executes arbitrary JavaScript. User input reaching eval enables complete client-side compromise.",
+    description:
+      "eval() executes arbitrary JavaScript. User input reaching eval enables complete client-side compromise.",
     severity: "critical",
     cwe: "CWE-79",
-    patterns: [
-      /eval\s*\(\s*(?:.*(?:location|search|hash|input|user|data|query)|`[^`]*\$\{)/gi,
-    ],
+    patterns: [/eval\s*\(\s*(?:.*(?:location|search|hash|input|user|data|query)|`[^`]*\$\{)/gi],
   },
   {
     id: "xss-template-unescaped",
     title: "XSS: Unescaped Output in Template",
-    description: "Template renders unescaped HTML (<%- in EJS, |safe in Jinja2, {{{ in Handlebars, v-html in Vue).",
+    description:
+      "Template renders unescaped HTML (<%- in EJS, |safe in Jinja2, {{{ in Handlebars, v-html in Vue).",
     severity: "high",
     cwe: "CWE-79",
     patterns: [
@@ -70,7 +79,8 @@ const XSS_RULES: Array<{ id: string; title: string; description: string; severit
   {
     id: "xss-json-inject",
     title: "XSS: JSON Embedded in HTML Without Encoding",
-    description: "JSON data embedded in <script> tag without HTML entity encoding. A </script> in data breaks out.",
+    description:
+      "JSON data embedded in <script> tag without HTML entity encoding. A </script> in data breaks out.",
     severity: "medium",
     cwe: "CWE-79",
     patterns: [
@@ -81,7 +91,8 @@ const XSS_RULES: Array<{ id: string; title: string; description: string; severit
   {
     id: "xss-postmessage",
     title: "XSS: postMessage Data Used in DOM Without Sanitization",
-    description: "Data from postMessage event used in innerHTML or eval. Validate origin and sanitize data.",
+    description:
+      "Data from postMessage event used in innerHTML or eval. Validate origin and sanitize data.",
     severity: "high",
     cwe: "CWE-79",
     patterns: [
@@ -91,19 +102,33 @@ const XSS_RULES: Array<{ id: string; title: string; description: string; severit
   },
 ];
 
-export interface XssDeepScanResult { findings: Vulnerability[]; filesScanned: number; }
+export interface XssDeepScanResult {
+  findings: Vulnerability[];
+  filesScanned: number;
+}
 
 export class XssDeepScanner {
   async scan(projectPath: string): Promise<XssDeepScanResult> {
-    const files = await glob(["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx", "**/*.html", "**/*.ejs", "**/*.hbs"], {
-      cwd: projectPath, absolute: true,
-      ignore: ["node_modules/**", "dist/**", ".git/**", ".sphinx/**", "**/*.test.*"], nodir: true,
-    });
+    const files = await glob(
+      ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx", "**/*.html", "**/*.ejs", "**/*.hbs"],
+      {
+        cwd: projectPath,
+        absolute: true,
+        ignore: ["node_modules/**", "dist/**", ".git/**", ".sphinx/**", "**/*.test.*"],
+        nodir: true,
+      }
+    );
     const findings: Vulnerability[] = [];
     let id = 1;
     for (const file of files) {
       let content: string;
-      try { const s = fs.statSync(file); if (s.size > 500_000) continue; content = fs.readFileSync(file, "utf-8"); } catch { continue; }
+      try {
+        const s = fs.statSync(file);
+        if (s.size > 500_000) continue;
+        content = fs.readFileSync(file, "utf-8");
+      } catch {
+        continue;
+      }
       const lines = content.split("\n");
       const rel = path.relative(projectPath, file);
       for (const rule of XSS_RULES) {
@@ -112,7 +137,17 @@ export class XssDeepScanner {
           for (let i = 0; i < lines.length; i++) {
             p.lastIndex = 0;
             if (p.test(lines[i])) {
-              findings.push({ id: `XSS-${String(id++).padStart(4, "0")}`, rule: `xss:${rule.id}`, title: rule.title, description: rule.description, severity: rule.severity, category: "xss", cwe: rule.cwe, confidence: "high", location: { file: rel, line: i + 1, snippet: lines[i].trim() } });
+              findings.push({
+                id: `XSS-${String(id++).padStart(4, "0")}`,
+                rule: `xss:${rule.id}`,
+                title: rule.title,
+                description: rule.description,
+                severity: rule.severity,
+                category: "xss",
+                cwe: rule.cwe,
+                confidence: "high",
+                location: { file: rel, line: i + 1, snippet: lines[i].trim() },
+              });
             }
           }
         }

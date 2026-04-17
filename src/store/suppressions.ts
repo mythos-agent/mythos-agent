@@ -31,11 +31,7 @@ export function loadSuppressions(projectPath: string): Suppression[] {
   }
 }
 
-export function addSuppression(
-  projectPath: string,
-  vuln: Vulnerability,
-  reason: string
-): void {
+export function addSuppression(projectPath: string, vuln: Vulnerability, reason: string): void {
   const suppressions = loadSuppressions(projectPath);
 
   // Don't add duplicate
@@ -55,10 +51,7 @@ export function addSuppression(
   saveSuppressions(projectPath, suppressions);
 }
 
-export function removeSuppression(
-  projectPath: string,
-  findingId: string
-): boolean {
+export function removeSuppression(projectPath: string, findingId: string): boolean {
   const suppressions = loadSuppressions(projectPath);
   const filtered = suppressions.filter((s) => s.id !== findingId);
   if (filtered.length === suppressions.length) return false;
@@ -111,10 +104,7 @@ export function filterSuppressed(
   return { active, suppressed };
 }
 
-function hasInlineIgnore(
-  vuln: Vulnerability,
-  projectPath: string
-): boolean {
+function hasInlineIgnore(vuln: Vulnerability, projectPath: string): boolean {
   const absPath = path.resolve(projectPath, vuln.location.file);
   if (!fs.existsSync(absPath)) return false;
 
@@ -145,10 +135,7 @@ function hasInlineIgnore(
   return false;
 }
 
-function isIgnoredByFile(
-  vuln: Vulnerability,
-  projectPath: string
-): boolean {
+function isIgnoredByFile(vuln: Vulnerability, projectPath: string): boolean {
   const ignorePath = path.join(projectPath, ".sphinxignore");
   if (!fs.existsSync(ignorePath)) return false;
 
@@ -190,10 +177,7 @@ function isIgnoredByFile(
   return false;
 }
 
-function saveSuppressions(
-  projectPath: string,
-  suppressions: Suppression[]
-): void {
+function saveSuppressions(projectPath: string, suppressions: Suppression[]): void {
   const filePath = path.join(projectPath, SUPPRESSION_FILE);
   const dir = path.dirname(filePath);
   if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });

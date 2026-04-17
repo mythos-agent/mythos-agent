@@ -21,9 +21,7 @@ export async function fixCommand(fixPath: string, options: FixOptions) {
   if (!result) {
     console.log(
       chalk.yellow(
-        "\n⚠️  No scan results found. Run " +
-          chalk.cyan("sphinx-agent scan") +
-          " first.\n"
+        "\n⚠️  No scan results found. Run " + chalk.cyan("sphinx-agent scan") + " first.\n"
       )
     );
     return;
@@ -50,18 +48,14 @@ export async function fixCommand(fixPath: string, options: FixOptions) {
 
   const severityOrder: Severity[] = ["critical", "high", "medium", "low", "info"];
   const thresholdIdx = severityOrder.indexOf(options.severity);
-  vulns = vulns.filter(
-    (v) => severityOrder.indexOf(v.severity) <= thresholdIdx
-  );
+  vulns = vulns.filter((v) => severityOrder.indexOf(v.severity) <= thresholdIdx);
 
   if (vulns.length === 0) {
     console.log(chalk.green("\n✅ No vulnerabilities to fix.\n"));
     return;
   }
 
-  console.log(
-    chalk.bold("\n🔧 sphinx-agent fix — AI-Powered Patch Generation")
-  );
+  console.log(chalk.bold("\n🔧 sphinx-agent fix — AI-Powered Patch Generation"));
   console.log(chalk.dim("━".repeat(50)));
   console.log(
     chalk.dim(
@@ -97,10 +91,7 @@ export async function fixCommand(fixPath: string, options: FixOptions) {
     for (const patch of patches) {
       const success = applyPatch(projectPath, patch);
       if (success) {
-        console.log(
-          chalk.green(`  ✅ ${patch.vulnerabilityId}`) +
-            chalk.dim(` — ${patch.file}`)
-        );
+        console.log(chalk.green(`  ✅ ${patch.vulnerabilityId}`) + chalk.dim(` — ${patch.file}`));
         applied++;
       } else {
         console.log(
@@ -119,11 +110,7 @@ export async function fixCommand(fixPath: string, options: FixOptions) {
 
     if (applied > 0) {
       console.log(
-        chalk.dim(
-          "  Run " +
-            chalk.cyan("sphinx-agent scan") +
-            " again to verify fixes.\n"
-        )
+        chalk.dim("  Run " + chalk.cyan("sphinx-agent scan") + " again to verify fixes.\n")
       );
     }
   } else {
@@ -138,10 +125,7 @@ export async function fixCommand(fixPath: string, options: FixOptions) {
 }
 
 function renderPatch(patch: Patch): void {
-  console.log(
-    chalk.bold(`  ${patch.vulnerabilityId}`) +
-      chalk.dim(` — ${patch.file}`)
-  );
+  console.log(chalk.bold(`  ${patch.vulnerabilityId}`) + chalk.dim(` — ${patch.file}`));
   console.log(chalk.dim(`  ${patch.description}`));
   console.log();
 

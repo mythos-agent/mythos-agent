@@ -10,11 +10,7 @@ interface CompareOptions {
   json?: boolean;
 }
 
-export async function compareCommand(
-  pathA: string,
-  pathB: string,
-  options: CompareOptions
-) {
+export async function compareCommand(pathA: string, pathB: string, options: CompareOptions) {
   const dirA = path.resolve(pathA);
   const dirB = path.resolve(pathB);
   const nameA = path.basename(dirA);
@@ -27,10 +23,7 @@ export async function compareCommand(
   const spinner = ora("Scanning both targets...").start();
 
   // Scan both in parallel
-  const [resultA, resultB] = await Promise.all([
-    scanQuick(dirA),
-    scanQuick(dirB),
-  ]);
+  const [resultA, resultB] = await Promise.all([scanQuick(dirA), scanQuick(dirB)]);
 
   spinner.stop();
 
@@ -40,16 +33,22 @@ export async function compareCommand(
   const scoreB = trustScore(resultB);
 
   if (options.json) {
-    console.log(JSON.stringify({
-      a: { path: dirA, findings: resultA.length, ...countA, trustScore: scoreA },
-      b: { path: dirB, findings: resultB.length, ...countB, trustScore: scoreB },
-      delta: {
-        findings: resultB.length - resultA.length,
-        critical: countB.critical - countA.critical,
-        high: countB.high - countA.high,
-        trustScore: +(scoreB - scoreA).toFixed(1),
-      },
-    }, null, 2));
+    console.log(
+      JSON.stringify(
+        {
+          a: { path: dirA, findings: resultA.length, ...countA, trustScore: scoreA },
+          b: { path: dirB, findings: resultB.length, ...countB, trustScore: scoreB },
+          delta: {
+            findings: resultB.length - resultA.length,
+            critical: countB.critical - countA.critical,
+            high: countB.high - countA.high,
+            trustScore: +(scoreB - scoreA).toFixed(1),
+          },
+        },
+        null,
+        2
+      )
+    );
     return;
   }
 
@@ -63,12 +62,54 @@ export async function compareCommand(
   console.log(chalk.dim(header));
   console.log(chalk.dim("  " + "─".repeat(col1 + col2 * 3 + 3)));
 
-  printRow("Trust Score", fmtScore(scoreA), fmtScore(scoreB), fmtDelta(scoreB - scoreA, true), col1, col2);
-  printRow("Total Findings", String(resultA.length), String(resultB.length), fmtDelta(resultB.length - resultA.length, false), col1, col2);
-  printRow("Critical", String(countA.critical), String(countB.critical), fmtDelta(countB.critical - countA.critical, false), col1, col2);
-  printRow("High", String(countA.high), String(countB.high), fmtDelta(countB.high - countA.high, false), col1, col2);
-  printRow("Medium", String(countA.medium), String(countB.medium), fmtDelta(countB.medium - countA.medium, false), col1, col2);
-  printRow("Low", String(countA.low), String(countB.low), fmtDelta(countB.low - countA.low, false), col1, col2);
+  printRow(
+    "Trust Score",
+    fmtScore(scoreA),
+    fmtScore(scoreB),
+    fmtDelta(scoreB - scoreA, true),
+    col1,
+    col2
+  );
+  printRow(
+    "Total Findings",
+    String(resultA.length),
+    String(resultB.length),
+    fmtDelta(resultB.length - resultA.length, false),
+    col1,
+    col2
+  );
+  printRow(
+    "Critical",
+    String(countA.critical),
+    String(countB.critical),
+    fmtDelta(countB.critical - countA.critical, false),
+    col1,
+    col2
+  );
+  printRow(
+    "High",
+    String(countA.high),
+    String(countB.high),
+    fmtDelta(countB.high - countA.high, false),
+    col1,
+    col2
+  );
+  printRow(
+    "Medium",
+    String(countA.medium),
+    String(countB.medium),
+    fmtDelta(countB.medium - countA.medium, false),
+    col1,
+    col2
+  );
+  printRow(
+    "Low",
+    String(countA.low),
+    String(countB.low),
+    fmtDelta(countB.low - countA.low, false),
+    col1,
+    col2
+  );
 
   console.log();
 
@@ -82,7 +123,11 @@ export async function compareCommand(
   if (onlyInA.length > 0) {
     console.log(chalk.green(`  ✅ Only in ${nameA} (${onlyInA.length} — fixed in ${nameB}):\n`));
     for (const v of onlyInA.slice(0, 10)) {
-      console.log(chalk.dim(`    ${severityIcon(v.severity)} ${v.title} — ${v.location.file}:${v.location.line}`));
+      console.log(
+        chalk.dim(
+          `    ${severityIcon(v.severity)} ${v.title} — ${v.location.file}:${v.location.line}`
+        )
+      );
     }
     console.log();
   }
@@ -90,7 +135,11 @@ export async function compareCommand(
   if (onlyInB.length > 0) {
     console.log(chalk.red(`  🔺 Only in ${nameB} (${onlyInB.length} — new regressions):\n`));
     for (const v of onlyInB.slice(0, 10)) {
-      console.log(chalk.dim(`    ${severityIcon(v.severity)} ${v.title} — ${v.location.file}:${v.location.line}`));
+      console.log(
+        chalk.dim(
+          `    ${severityIcon(v.severity)} ${v.title} — ${v.location.file}:${v.location.line}`
+        )
+      );
     }
     console.log();
   }
@@ -136,7 +185,20 @@ function countBySeverity(vulns: Vulnerability[]) {
 function trustScore(vulns: Vulnerability[]): number {
   let s = 10;
   for (const v of vulns) {
-    switch (v.severity) { case "critical": s -= 2; break; case "high": s -= 1; break; case "medium": s -= 0.5; break; case "low": s -= 0.2; break; }
+    switch (v.severity) {
+      case "critical":
+        s -= 2;
+        break;
+      case "high":
+        s -= 1;
+        break;
+      case "medium":
+        s -= 0.5;
+        break;
+      case "low":
+        s -= 0.2;
+        break;
+    }
   }
   return Math.max(0, Math.min(10, s));
 }
@@ -157,9 +219,20 @@ function fmtDelta(d: number, higherIsBetter: boolean): string {
 }
 
 function printRow(label: string, a: string, b: string, delta: string, c1: number, c2: number) {
-  console.log(`  ${label.padEnd(c1)} ${a.padStart(c2)} ${b.padStart(c2)} ${delta.padStart(c2 + 10)}`);
+  console.log(
+    `  ${label.padEnd(c1)} ${a.padStart(c2)} ${b.padStart(c2)} ${delta.padStart(c2 + 10)}`
+  );
 }
 
 function severityIcon(s: string): string {
-  switch (s) { case "critical": return "🔴"; case "high": return "🟠"; case "medium": return "🟡"; default: return "🔵"; }
+  switch (s) {
+    case "critical":
+      return "🔴";
+    case "high":
+      return "🟠";
+    case "medium":
+      return "🟡";
+    default:
+      return "🔵";
+  }
 }

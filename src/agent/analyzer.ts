@@ -43,16 +43,11 @@ export class AIAnalyzer {
     this.model = config.model;
   }
 
-  async analyze(
-    projectPath: string,
-    phase1Findings: Vulnerability[]
-  ): Promise<AnalysisResult> {
+  async analyze(projectPath: string, phase1Findings: Vulnerability[]): Promise<AnalysisResult> {
     const tools = createAgentTools(projectPath);
     const userPrompt = buildAnalysisPrompt(phase1Findings, projectPath);
 
-    const messages: Anthropic.MessageParam[] = [
-      { role: "user", content: userPrompt },
-    ];
+    const messages: Anthropic.MessageParam[] = [{ role: "user", content: userPrompt }];
 
     // Agentic loop — let the AI call tools until it produces a final answer
     let turns = 0;
@@ -92,9 +87,7 @@ export class AIAnalyzer {
       }
 
       // Model produced a final answer — extract JSON
-      const textBlock = response.content.find(
-        (b) => b.type === "text"
-      );
+      const textBlock = response.content.find((b) => b.type === "text");
       if (textBlock && textBlock.type === "text") {
         return this.parseResponse(textBlock.text, phase1Findings);
       }
@@ -110,10 +103,7 @@ export class AIAnalyzer {
     };
   }
 
-  private parseResponse(
-    text: string,
-    phase1Findings: Vulnerability[]
-  ): AnalysisResult {
+  private parseResponse(text: string, phase1Findings: Vulnerability[]): AnalysisResult {
     // Extract JSON from the response (may be wrapped in markdown code blocks)
     const jsonMatch = text.match(/\{[\s\S]*\}/);
     if (!jsonMatch) {
@@ -139,9 +129,7 @@ export class AIAnalyzer {
     const confirmed: Vulnerability[] = [];
     let dismissedCount = 0;
 
-    const verifiedMap = new Map(
-      (output.verified || []).map((v) => [v.originalId, v])
-    );
+    const verifiedMap = new Map((output.verified || []).map((v) => [v.originalId, v]));
 
     for (const finding of phase1Findings) {
       const verification = verifiedMap.get(finding.id);
@@ -164,24 +152,22 @@ export class AIAnalyzer {
 
     // Process discovered findings
     let discoverCounter = phase1Findings.length + 1;
-    const discovered: Vulnerability[] = (output.discovered || []).map(
-      (d) => ({
-        id: `SPX-${String(discoverCounter++).padStart(4, "0")}`,
-        rule: "ai-discovered",
-        title: d.title,
-        description: d.description,
-        severity: d.severity,
-        category: d.category,
-        cwe: d.cwe,
-        confidence: "high" as const,
-        aiVerified: true,
-        location: {
-          file: d.file,
-          line: d.line,
-          snippet: d.snippet,
-        },
-      })
-    );
+    const discovered: Vulnerability[] = (output.discovered || []).map((d) => ({
+      id: `SPX-${String(discoverCounter++).padStart(4, "0")}`,
+      rule: "ai-discovered",
+      title: d.title,
+      description: d.description,
+      severity: d.severity,
+      category: d.category,
+      cwe: d.cwe,
+      confidence: "high" as const,
+      aiVerified: true,
+      location: {
+        file: d.file,
+        line: d.line,
+        snippet: d.snippet,
+      },
+    }));
 
     return { confirmed, discovered, dismissedCount };
   }

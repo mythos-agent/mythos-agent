@@ -24,16 +24,12 @@ export class AnalyzerAgent {
 
     // 1. Run built-in scanners (always available)
     const patternScanner = new PatternScanner(this.config);
-    const { findings: patternFindings } = await patternScanner.scan(
-      this.projectPath
-    );
+    const { findings: patternFindings } = await patternScanner.scan(this.projectPath);
     allFindings.push(...patternFindings);
     toolsUsed.push("built-in-patterns");
 
     const secretsScanner = new SecretsScanner();
-    const { findings: secretsFindings } = await secretsScanner.scan(
-      this.projectPath
-    );
+    const { findings: secretsFindings } = await secretsScanner.scan(this.projectPath);
     allFindings.push(...secretsFindings);
     if (secretsFindings.length > 0) toolsUsed.push("built-in-secrets");
 
@@ -52,8 +48,11 @@ export class AnalyzerAgent {
     }
 
     // 2. Run external tools (when installed)
-    const { findings: externalFindings, toolsRun, toolsSkipped } =
-      await runAllTools(this.projectPath);
+    const {
+      findings: externalFindings,
+      toolsRun,
+      toolsSkipped,
+    } = await runAllTools(this.projectPath);
     allFindings.push(...externalFindings);
     toolsUsed.push(...toolsRun);
 
@@ -77,11 +76,7 @@ export class AnalyzerAgent {
           (f) => f.category === "secrets" || f.category === "dependency"
         );
 
-        verified = [
-          ...aiResult.confirmed,
-          ...aiResult.discovered,
-          ...nonAiFindings,
-        ];
+        verified = [...aiResult.confirmed, ...aiResult.discovered, ...nonAiFindings];
         dismissedCount = aiResult.dismissedCount;
         toolsUsed.push("ai-analysis");
 
@@ -123,10 +118,7 @@ function deduplicateFindings(findings: Vulnerability[]): Vulnerability[] {
     } else {
       // Keep the higher-confidence / higher-severity finding
       const severityOrder = ["critical", "high", "medium", "low", "info"];
-      if (
-        severityOrder.indexOf(f.severity) <
-        severityOrder.indexOf(existing.severity)
-      ) {
+      if (severityOrder.indexOf(f.severity) < severityOrder.indexOf(existing.severity)) {
         seen.set(key, f);
       }
     }

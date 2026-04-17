@@ -18,7 +18,8 @@ const ZT_RULES: ZeroTrustRule[] = [
   {
     id: "zt-implicit-trust",
     title: "Zero Trust: Implicit Trust Between Services",
-    description: "Service-to-service communication without authentication. All requests should be verified regardless of network origin.",
+    description:
+      "Service-to-service communication without authentication. All requests should be verified regardless of network origin.",
     severity: "high",
     cwe: "CWE-287",
     filePatterns: ["**/*.ts", "**/*.js", "**/*.py", "**/*.go"],
@@ -33,7 +34,8 @@ const ZT_RULES: ZeroTrustRule[] = [
   {
     id: "zt-no-mtls",
     title: "Zero Trust: No Mutual TLS Between Services",
-    description: "Service communication over plain HTTP or TLS without client certificate verification. Use mTLS for service-to-service auth.",
+    description:
+      "Service communication over plain HTTP or TLS without client certificate verification. Use mTLS for service-to-service auth.",
     severity: "medium",
     cwe: "CWE-295",
     filePatterns: ["**/*.ts", "**/*.js", "**/*.py", "**/*.go", "**/*.yml", "**/*.yaml"],
@@ -49,7 +51,8 @@ const ZT_RULES: ZeroTrustRule[] = [
   {
     id: "zt-overprivileged-service",
     title: "Zero Trust: Overprivileged Service Account",
-    description: "Service running with admin/root privileges or wildcard permissions. Apply least-privilege principle.",
+    description:
+      "Service running with admin/root privileges or wildcard permissions. Apply least-privilege principle.",
     severity: "high",
     cwe: "CWE-250",
     filePatterns: ["**/*.yml", "**/*.yaml", "**/*.tf", "**/*.json"],
@@ -65,20 +68,20 @@ const ZT_RULES: ZeroTrustRule[] = [
   {
     id: "zt-no-network-policy",
     title: "Zero Trust: No Network Policy",
-    description: "Kubernetes deployment without NetworkPolicy. All pods can communicate freely, violating zero-trust principles.",
+    description:
+      "Kubernetes deployment without NetworkPolicy. All pods can communicate freely, violating zero-trust principles.",
     severity: "medium",
     cwe: "CWE-284",
     filePatterns: ["**/*.yml", "**/*.yaml"],
-    patterns: [
-      /kind:\s*Deployment(?![\s\S]{0,2000}NetworkPolicy)/gi,
-    ],
+    patterns: [/kind:\s*Deployment(?![\s\S]{0,2000}NetworkPolicy)/gi],
   },
 
   // Trust based on IP/network
   {
     id: "zt-ip-trust",
     title: "Zero Trust: IP-Based Trust Decision",
-    description: "Security decision based on IP address or network origin. IPs can be spoofed. Use identity-based verification.",
+    description:
+      "Security decision based on IP address or network origin. IPs can be spoofed. Use identity-based verification.",
     severity: "medium",
     cwe: "CWE-290",
     filePatterns: ["**/*.ts", "**/*.js", "**/*.py", "**/*.go"],
@@ -92,7 +95,8 @@ const ZT_RULES: ZeroTrustRule[] = [
   {
     id: "zt-no-service-auth",
     title: "Zero Trust: Internal API Without Service Authentication",
-    description: "Internal API endpoint without service-to-service authentication (API key, JWT, mTLS). Every request must be authenticated.",
+    description:
+      "Internal API endpoint without service-to-service authentication (API key, JWT, mTLS). Every request must be authenticated.",
     severity: "high",
     cwe: "CWE-306",
     filePatterns: ["**/*.ts", "**/*.js"],
@@ -106,20 +110,20 @@ const ZT_RULES: ZeroTrustRule[] = [
   {
     id: "zt-shared-secret",
     title: "Zero Trust: Shared Secret Between Services",
-    description: "Multiple services using the same secret/key. Compromise of one service compromises all. Use per-service credentials.",
+    description:
+      "Multiple services using the same secret/key. Compromise of one service compromises all. Use per-service credentials.",
     severity: "medium",
     cwe: "CWE-798",
     filePatterns: ["**/*.yml", "**/*.yaml", "**/*.env*"],
-    patterns: [
-      /SHARED_SECRET|COMMON_KEY|SERVICE_SECRET\s*[:=]/gi,
-    ],
+    patterns: [/SHARED_SECRET|COMMON_KEY|SERVICE_SECRET\s*[:=]/gi],
   },
 
   // No request signing
   {
     id: "zt-no-request-signing",
     title: "Zero Trust: Webhook/Callback Without Signature Verification",
-    description: "Incoming webhook or callback processed without verifying the sender's signature. Always verify webhook signatures.",
+    description:
+      "Incoming webhook or callback processed without verifying the sender's signature. Always verify webhook signatures.",
     severity: "high",
     cwe: "CWE-345",
     filePatterns: ["**/*.ts", "**/*.js", "**/*.py"],
@@ -153,7 +157,9 @@ export class ZeroTrustScanner {
         const stats = fs.statSync(file);
         if (stats.size > 500_000) continue;
         content = fs.readFileSync(file, "utf-8");
-      } catch { continue; }
+      } catch {
+        continue;
+      }
 
       const lines = content.split("\n");
       const relativePath = path.relative(projectPath, file);

@@ -2,10 +2,7 @@ import path from "node:path";
 import chalk from "chalk";
 import ora from "ora";
 import { loadConfig } from "../../config/config.js";
-import {
-  VariantAnalyzer,
-  variantsToVulnerabilities,
-} from "../../analysis/variant-analyzer.js";
+import { VariantAnalyzer, variantsToVulnerabilities } from "../../analysis/variant-analyzer.js";
 
 interface VariantsOptions {
   path?: string;
@@ -19,10 +16,7 @@ const SIMILARITY_COLORS: Record<string, (s: string) => string> = {
   low: chalk.blue,
 };
 
-export async function variantsCommand(
-  cveId: string | undefined,
-  options: VariantsOptions
-) {
+export async function variantsCommand(cveId: string | undefined, options: VariantsOptions) {
   const projectPath = path.resolve(options.path || ".");
   const config = loadConfig(projectPath);
 
@@ -37,18 +31,14 @@ export async function variantsCommand(
     return;
   }
 
-  console.log(
-    chalk.bold("\n🔬 sphinx-agent variants — CVE Variant Analysis\n")
-  );
+  console.log(chalk.bold("\n🔬 sphinx-agent variants — CVE Variant Analysis\n"));
   console.log(chalk.dim(`Project: ${projectPath}\n`));
 
   const analyzer = new VariantAnalyzer(config, projectPath);
 
   if (options.auto || !cveId) {
     // Auto mode: scan for common vulnerability variants
-    const spinner = ora(
-      "Running automatic variant analysis..."
-    ).start();
+    const spinner = ora("Running automatic variant analysis...").start();
 
     const results = await analyzer.autoScan();
     spinner.stop();
@@ -59,18 +49,12 @@ export async function variantsCommand(
     }
 
     for (const { cve, variants } of results) {
-      console.log(
-        chalk.bold(`\n  ${cve.id}: `) + chalk.dim(cve.description.slice(0, 80))
-      );
+      console.log(chalk.bold(`\n  ${cve.id}: `) + chalk.dim(cve.description.slice(0, 80)));
 
       for (const v of variants) {
         const color = SIMILARITY_COLORS[v.similarity] || chalk.dim;
-        console.log(
-          `\n    ${color(`[${v.similarity.toUpperCase()}]`)} ${chalk.bold(v.id)}`
-        );
-        console.log(
-          chalk.dim(`    ${v.file}:${v.line}`)
-        );
+        console.log(`\n    ${color(`[${v.similarity.toUpperCase()}]`)} ${chalk.bold(v.id)}`);
+        console.log(chalk.dim(`    ${v.file}:${v.line}`));
         console.log(`    ${v.explanation}`);
         if (v.code) {
           console.log(chalk.dim(`    > ${v.code.slice(0, 100)}`));
@@ -94,22 +78,15 @@ export async function variantsCommand(
   const variants = await analyzer.findVariants(cveId);
   spinner.stop();
 
-  console.log(
-    chalk.bold(`  ${cveInfo.id}`) +
-      chalk.dim(` [${cveInfo.severity.toUpperCase()}]`)
-  );
+  console.log(chalk.bold(`  ${cveInfo.id}`) + chalk.dim(` [${cveInfo.severity.toUpperCase()}]`));
   console.log(chalk.dim(`  ${cveInfo.description.slice(0, 120)}\n`));
 
   if (variants.length === 0) {
-    console.log(
-      chalk.green(`  ✅ No variants of ${cveId} found in this codebase.\n`)
-    );
+    console.log(chalk.green(`  ✅ No variants of ${cveId} found in this codebase.\n`));
     return;
   }
 
-  console.log(
-    chalk.red.bold(`  Found ${variants.length} variant(s):\n`)
-  );
+  console.log(chalk.red.bold(`  Found ${variants.length} variant(s):\n`));
 
   for (const v of variants) {
     const color = SIMILARITY_COLORS[v.similarity] || chalk.dim;

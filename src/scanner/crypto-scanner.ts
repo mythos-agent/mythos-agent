@@ -28,7 +28,8 @@ const CRYPTO_RULES: CryptoRule[] = [
   {
     id: "crypto-weak-cipher",
     title: "Crypto: Weak Cipher Algorithm",
-    description: "DES, RC4, and Blowfish are considered broken. Use AES-256-GCM or ChaCha20-Poly1305.",
+    description:
+      "DES, RC4, and Blowfish are considered broken. Use AES-256-GCM or ChaCha20-Poly1305.",
     severity: "high",
     cwe: "CWE-327",
     patterns: [
@@ -40,7 +41,8 @@ const CRYPTO_RULES: CryptoRule[] = [
   {
     id: "crypto-ecb-mode",
     title: "Crypto: ECB Block Cipher Mode",
-    description: "ECB mode does not provide semantic security — identical plaintext blocks produce identical ciphertext. Use GCM or CBC with HMAC.",
+    description:
+      "ECB mode does not provide semantic security — identical plaintext blocks produce identical ciphertext. Use GCM or CBC with HMAC.",
     severity: "high",
     cwe: "CWE-327",
     patterns: [
@@ -52,7 +54,8 @@ const CRYPTO_RULES: CryptoRule[] = [
   {
     id: "crypto-hardcoded-iv",
     title: "Crypto: Hardcoded Initialization Vector (IV)",
-    description: "IV/nonce must be unique and random for each encryption operation. Hardcoded IVs break confidentiality.",
+    description:
+      "IV/nonce must be unique and random for each encryption operation. Hardcoded IVs break confidentiality.",
     severity: "high",
     cwe: "CWE-329",
     patterns: [
@@ -63,7 +66,8 @@ const CRYPTO_RULES: CryptoRule[] = [
   {
     id: "crypto-hardcoded-key",
     title: "Crypto: Hardcoded Encryption Key",
-    description: "Encryption key is hardcoded in source code. Use a key management system or derive from secure storage.",
+    description:
+      "Encryption key is hardcoded in source code. Use a key management system or derive from secure storage.",
     severity: "critical",
     cwe: "CWE-321",
     patterns: [
@@ -74,7 +78,8 @@ const CRYPTO_RULES: CryptoRule[] = [
   {
     id: "crypto-weak-random",
     title: "Crypto: Insecure Random Number Generator",
-    description: "Math.random() / random() are not cryptographically secure. Use crypto.randomBytes() or secrets module.",
+    description:
+      "Math.random() / random() are not cryptographically secure. Use crypto.randomBytes() or secrets module.",
     severity: "high",
     cwe: "CWE-330",
     patterns: [
@@ -86,7 +91,8 @@ const CRYPTO_RULES: CryptoRule[] = [
   {
     id: "crypto-timing-attack",
     title: "Crypto: Timing-Vulnerable Comparison",
-    description: "Using === or == to compare secrets leaks information via timing. Use crypto.timingSafeEqual() or hmac.compare_digest().",
+    description:
+      "Using === or == to compare secrets leaks information via timing. Use crypto.timingSafeEqual() or hmac.compare_digest().",
     severity: "medium",
     cwe: "CWE-208",
     patterns: [
@@ -97,13 +103,11 @@ const CRYPTO_RULES: CryptoRule[] = [
   {
     id: "crypto-no-padding",
     title: "Crypto: Cipher Without Proper Padding",
-    description: "Using NoPadding with block ciphers may leak plaintext length or cause errors. Use PKCS7/OAEP padding.",
+    description:
+      "Using NoPadding with block ciphers may leak plaintext length or cause errors. Use PKCS7/OAEP padding.",
     severity: "medium",
     cwe: "CWE-327",
-    patterns: [
-      /NoPadding/gi,
-      /padding\s*[:=]\s*(?:false|0|["']none["'])/gi,
-    ],
+    patterns: [/NoPadding/gi, /padding\s*[:=]\s*(?:false|0|["']none["'])/gi],
   },
   {
     id: "crypto-deprecated-tls",
@@ -120,7 +124,8 @@ const CRYPTO_RULES: CryptoRule[] = [
   {
     id: "crypto-insecure-key-derivation",
     title: "Crypto: Insecure Key Derivation",
-    description: "Simple hashing for key derivation is insecure. Use PBKDF2, scrypt, or Argon2 with proper iteration count.",
+    description:
+      "Simple hashing for key derivation is insecure. Use PBKDF2, scrypt, or Argon2 with proper iteration count.",
     severity: "high",
     cwe: "CWE-916",
     patterns: [
@@ -131,7 +136,8 @@ const CRYPTO_RULES: CryptoRule[] = [
   {
     id: "crypto-small-key-size",
     title: "Crypto: Small Key Size",
-    description: "Key size is below recommended minimum. Use at least 2048 bits for RSA and 256 bits for symmetric.",
+    description:
+      "Key size is below recommended minimum. Use at least 2048 bits for RSA and 256 bits for symmetric.",
     severity: "medium",
     cwe: "CWE-326",
     patterns: [
@@ -167,10 +173,16 @@ export class CryptoScanner {
         const stats = fs.statSync(file);
         if (stats.size > 500_000) continue;
         content = fs.readFileSync(file, "utf-8");
-      } catch { continue; }
+      } catch {
+        continue;
+      }
 
       // Quick check
-      if (!/crypto|cipher|hash|encrypt|decrypt|hmac|sign|verify|ssl|tls|aes|rsa|pbkdf|scrypt|argon|bcrypt|random|Math\.random/i.test(content)) {
+      if (
+        !/crypto|cipher|hash|encrypt|decrypt|hmac|sign|verify|ssl|tls|aes|rsa|pbkdf|scrypt|argon|bcrypt|random|Math\.random/i.test(
+          content
+        )
+      ) {
         continue;
       }
 

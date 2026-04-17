@@ -2,10 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import type { ScanResult, Vulnerability, VulnChain, Severity } from "../types/index.js";
 
-export function renderHtmlReport(
-  result: ScanResult,
-  projectPath: string
-): string {
+export function renderHtmlReport(result: ScanResult, projectPath: string): string {
   const html = buildHtml(result);
   const outputDir = path.join(projectPath, ".sphinx");
   if (!fs.existsSync(outputDir)) {
@@ -138,22 +135,30 @@ function buildHtml(result: ScanResult): string {
 function renderChainsHtml(chains: VulnChain[]): string {
   return `<section>
     <h2>Attack Chains (${chains.length})</h2>
-    ${chains.map((chain) => `
+    ${chains
+      .map(
+        (chain) => `
     <div class="chain">
       <div class="chain-header">
         <span class="badge badge-${chain.severity}">${chain.severity}</span>
         <strong>${escapeHtml(chain.title)}</strong>
       </div>
       <div class="chain-steps">
-        ${chain.vulnerabilities.map((v) => `
+        ${chain.vulnerabilities
+          .map(
+            (v) => `
         <div class="chain-step">
           <code>${escapeHtml(v.location.file)}:${v.location.line}</code>
           <span style="color: #8b949e;"> — ${escapeHtml(v.title)}</span>
-        </div>`).join("")}
+        </div>`
+          )
+          .join("")}
       </div>
       <div class="chain-narrative">${escapeHtml(chain.narrative)}</div>
       <div class="chain-impact">Impact: ${escapeHtml(chain.impact)}</div>
-    </div>`).join("\n")}
+    </div>`
+      )
+      .join("\n")}
   </section>`;
 }
 
@@ -179,24 +184,34 @@ function escapeHtml(str: string): string {
     .replace(/"/g, "&quot;");
 }
 
-function calculateTrustScore(
-  vulns: Vulnerability[],
-  chains: VulnChain[]
-): number {
+function calculateTrustScore(vulns: Vulnerability[], chains: VulnChain[]): number {
   let score = 10;
   for (const v of vulns) {
     switch (v.severity) {
-      case "critical": score -= 2.0; break;
-      case "high": score -= 1.0; break;
-      case "medium": score -= 0.5; break;
-      case "low": score -= 0.2; break;
+      case "critical":
+        score -= 2.0;
+        break;
+      case "high":
+        score -= 1.0;
+        break;
+      case "medium":
+        score -= 0.5;
+        break;
+      case "low":
+        score -= 0.2;
+        break;
     }
   }
   for (const chain of chains) {
     switch (chain.severity) {
-      case "critical": score -= 1.5; break;
-      case "high": score -= 1.0; break;
-      default: score -= 0.5;
+      case "critical":
+        score -= 1.5;
+        break;
+      case "high":
+        score -= 1.0;
+        break;
+      default:
+        score -= 0.5;
     }
   }
   return Math.max(0, Math.min(10, score));

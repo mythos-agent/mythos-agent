@@ -16,15 +16,18 @@ const SECRET_PATTERNS: SecretPattern[] = [
   {
     id: "aws-access-key",
     title: "AWS Access Key ID",
-    description: "AWS access key found in source code. Rotate immediately and use environment variables.",
+    description:
+      "AWS access key found in source code. Rotate immediately and use environment variables.",
     pattern: /(?<![A-Za-z0-9/+=])(AKIA[0-9A-Z]{16})(?![A-Za-z0-9/+=])/,
     severity: "critical",
   },
   {
     id: "aws-secret-key",
     title: "AWS Secret Access Key",
-    description: "AWS secret key found. Rotate immediately and use AWS Secrets Manager or environment variables.",
-    pattern: /(?:aws_secret_access_key|secret_access_key|AWS_SECRET)\s*[:=]\s*["']?([0-9a-zA-Z/+=]{40})["']?/i,
+    description:
+      "AWS secret key found. Rotate immediately and use AWS Secrets Manager or environment variables.",
+    pattern:
+      /(?:aws_secret_access_key|secret_access_key|AWS_SECRET)\s*[:=]\s*["']?([0-9a-zA-Z/+=]{40})["']?/i,
     severity: "critical",
   },
 
@@ -32,7 +35,8 @@ const SECRET_PATTERNS: SecretPattern[] = [
   {
     id: "github-pat",
     title: "GitHub Personal Access Token",
-    description: "GitHub PAT found in source code. Revoke and regenerate using fine-grained tokens.",
+    description:
+      "GitHub PAT found in source code. Revoke and regenerate using fine-grained tokens.",
     pattern: /ghp_[0-9a-zA-Z]{36}/,
     severity: "critical",
   },
@@ -78,14 +82,16 @@ const SECRET_PATTERNS: SecretPattern[] = [
   {
     id: "stripe-secret-key",
     title: "Stripe Secret Key",
-    description: "Stripe secret API key found. Use environment variables and restrict key permissions.",
+    description:
+      "Stripe secret API key found. Use environment variables and restrict key permissions.",
     pattern: /sk_live_[0-9a-zA-Z]{24,}/,
     severity: "critical",
   },
   {
     id: "stripe-publishable-key",
     title: "Stripe Publishable Key",
-    description: "Stripe publishable key found in source. This is less sensitive but should still be managed properly.",
+    description:
+      "Stripe publishable key found in source. This is less sensitive but should still be managed properly.",
     pattern: /pk_live_[0-9a-zA-Z]{24,}/,
     severity: "medium",
   },
@@ -180,8 +186,10 @@ const SECRET_PATTERNS: SecretPattern[] = [
   {
     id: "generic-api-key",
     title: "Generic API Key Assignment",
-    description: "A variable named like an API key is assigned a long string value. Verify this isn't a real secret.",
-    pattern: /(?:api[_-]?key|api[_-]?secret|auth[_-]?token|access[_-]?token|secret[_-]?key)\s*[:=]\s*["'][0-9a-zA-Z\-_./+=]{20,}["']/i,
+    description:
+      "A variable named like an API key is assigned a long string value. Verify this isn't a real secret.",
+    pattern:
+      /(?:api[_-]?key|api[_-]?secret|auth[_-]?token|access[_-]?token|secret[_-]?key)\s*[:=]\s*["'][0-9a-zA-Z\-_./+=]{20,}["']/i,
     severity: "high",
   },
 
@@ -197,20 +205,42 @@ const SECRET_PATTERNS: SecretPattern[] = [
 
 // Files to always scan for secrets regardless of language
 const SECRET_FILE_PATTERNS = [
-  "**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx",
-  "**/*.py", "**/*.go", "**/*.java", "**/*.php",
-  "**/*.rb", "**/*.rs", "**/*.cs",
-  "**/*.yml", "**/*.yaml", "**/*.json",
-  "**/*.toml", "**/*.cfg", "**/*.conf", "**/*.ini",
-  "**/*.env", "**/*.env.*",
-  "**/*.sh", "**/*.bash",
-  "**/Dockerfile*", "**/docker-compose*",
+  "**/*.ts",
+  "**/*.tsx",
+  "**/*.js",
+  "**/*.jsx",
+  "**/*.py",
+  "**/*.go",
+  "**/*.java",
+  "**/*.php",
+  "**/*.rb",
+  "**/*.rs",
+  "**/*.cs",
+  "**/*.yml",
+  "**/*.yaml",
+  "**/*.json",
+  "**/*.toml",
+  "**/*.cfg",
+  "**/*.conf",
+  "**/*.ini",
+  "**/*.env",
+  "**/*.env.*",
+  "**/*.sh",
+  "**/*.bash",
+  "**/Dockerfile*",
+  "**/docker-compose*",
 ];
 
 const SECRET_EXCLUDE = [
-  "node_modules/**", "dist/**", "build/**", ".git/**",
-  ".sphinx/**", "**/*.min.js", "**/package-lock.json",
-  "**/yarn.lock", "**/*.map",
+  "node_modules/**",
+  "dist/**",
+  "build/**",
+  ".git/**",
+  ".sphinx/**",
+  "**/*.min.js",
+  "**/package-lock.json",
+  "**/yarn.lock",
+  "**/*.map",
 ];
 
 export interface SecretsResult {
@@ -294,7 +324,10 @@ export class SecretsScanner {
         if (eqIdx === -1) continue;
 
         const key = line.slice(0, eqIdx).trim();
-        const value = line.slice(eqIdx + 1).trim().replace(/^["']|["']$/g, "");
+        const value = line
+          .slice(eqIdx + 1)
+          .trim()
+          .replace(/^["']|["']$/g, "");
 
         if (value.length >= 8 && isHighEntropy(value) && looksLikeSecret(key)) {
           findings.push({
@@ -327,7 +360,12 @@ function isLikelyFalsePositive(line: string, filePath: string): boolean {
   if (trimmed.startsWith("#") && !trimmed.includes("=")) return true;
   if (trimmed.startsWith("*")) return true;
   // Skip test fixtures / example patterns (match directory segments, not substrings)
-  if (/(?:^|[\\/])(?:__tests__|test|tests|spec|specs|__mocks__|mocks|fixtures)(?:[\\/]|$)/i.test(filePath)) return true;
+  if (
+    /(?:^|[\\/])(?:__tests__|test|tests|spec|specs|__mocks__|mocks|fixtures)(?:[\\/]|$)/i.test(
+      filePath
+    )
+  )
+    return true;
   // Skip documentation references
   if (filePath.endsWith(".md")) return true;
   return false;
@@ -362,10 +400,27 @@ function isHighEntropy(str: string): boolean {
 function looksLikeSecret(key: string): boolean {
   const lower = key.toLowerCase();
   const secretWords = [
-    "key", "secret", "token", "password", "passwd", "pwd",
-    "auth", "credential", "api", "private", "signing",
-    "encryption", "database", "db_", "redis", "mongo",
-    "stripe", "twilio", "sendgrid", "slack", "webhook",
+    "key",
+    "secret",
+    "token",
+    "password",
+    "passwd",
+    "pwd",
+    "auth",
+    "credential",
+    "api",
+    "private",
+    "signing",
+    "encryption",
+    "database",
+    "db_",
+    "redis",
+    "mongo",
+    "stripe",
+    "twilio",
+    "sendgrid",
+    "slack",
+    "webhook",
   ];
   return secretWords.some((w) => lower.includes(w));
 }

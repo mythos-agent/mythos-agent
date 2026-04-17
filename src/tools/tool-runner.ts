@@ -73,7 +73,10 @@ export function runTool<T = unknown>(
       }
 
       // Try JSONL
-      const lines = stdout.trim().split("\n").filter((l) => l.trim());
+      const lines = stdout
+        .trim()
+        .split("\n")
+        .filter((l) => l.trim());
       const parsed = lines.map((l) => JSON.parse(l));
       return { success: true, data: parsed as T, raw: stdout, duration };
     } catch {
@@ -115,10 +118,7 @@ export function checkTool(name: string): ToolInfo {
   // Tool is installed only if it ran successfully (status 0) or produced version output
   // A crashed tool (status !== 0, no error) is NOT considered installed
   const installed = result.status === 0;
-  const version = (result.stdout || result.stderr || "")
-    .trim()
-    .split("\n")[0]
-    .slice(0, 100);
+  const version = (result.stdout || result.stderr || "").trim().split("\n")[0].slice(0, 100);
 
   return {
     name,

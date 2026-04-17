@@ -50,7 +50,8 @@ export class Orchestrator {
     const reconSpinner = this.spinner("Phase 1: Reconnaissance — mapping attack surface");
     const reconAgent = new ReconAgent(this.config, this.projectPath);
     const recon = await reconAgent.execute();
-    this.succeed(reconSpinner,
+    this.succeed(
+      reconSpinner,
       `Reconnaissance — ${recon.entryPoints.length} entry points, ${recon.techStack.join(", ") || "detected"}`
     );
 
@@ -61,13 +62,15 @@ export class Orchestrator {
       try {
         const hypothesisAgent = new HypothesisAgent(this.config, this.projectPath);
         hypotheses = await hypothesisAgent.execute(recon);
-        this.succeed(hypoSpinner,
+        this.succeed(
+          hypoSpinner,
           `Hypothesis — ${hypotheses.hypotheses.length} security hypotheses generated`
         );
       } catch (err) {
-        if (hypoSpinner) hypoSpinner.warn(
-          `Hypothesis — skipped (${err instanceof Error ? err.message : "error"})`
-        );
+        if (hypoSpinner)
+          hypoSpinner.warn(
+            `Hypothesis — skipped (${err instanceof Error ? err.message : "error"})`
+          );
       }
     }
 
@@ -86,7 +89,8 @@ export class Orchestrator {
       );
     }
 
-    this.succeed(analysisSpinner,
+    this.succeed(
+      analysisSpinner,
       `Analysis — ${analysis.findings.length} findings (${analysis.toolsUsed.join(", ")}), ${analysis.falsePositivesDismissed} false positives dismissed`
     );
 
@@ -94,7 +98,8 @@ export class Orchestrator {
     const exploitSpinner = this.spinner("Phase 4: Exploitation — chaining and verifying");
     const exploitAgent = new ExploitAgent(this.config, this.projectPath);
     const exploit = await exploitAgent.execute(analysis, recon);
-    this.succeed(exploitSpinner,
+    this.succeed(
+      exploitSpinner,
       `Exploitation — ${exploit.chains.length} attack chains, ${exploit.proofOfConcepts.length} PoCs`
     );
 

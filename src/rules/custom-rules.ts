@@ -19,10 +19,7 @@ interface YamlRule {
   }>;
 }
 
-export function loadCustomRules(
-  rulesPath?: string,
-  projectPath?: string
-): RuleDefinition[] {
+export function loadCustomRules(rulesPath?: string, projectPath?: string): RuleDefinition[] {
   const base = projectPath || process.cwd();
   const searchPaths = [
     rulesPath,

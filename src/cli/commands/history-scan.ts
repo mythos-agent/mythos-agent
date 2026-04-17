@@ -15,17 +15,46 @@ const SECRET_PATTERNS: Array<{ name: string; pattern: RegExp; severity: "critica
   { name: "GitHub PAT", pattern: /ghp_[0-9a-zA-Z]{36}/g, severity: "critical" },
   { name: "GitHub OAuth", pattern: /gho_[0-9a-zA-Z]{36}/g, severity: "critical" },
   { name: "Anthropic API Key", pattern: /sk-ant-api03-[0-9a-zA-Z\-_]{20,}/g, severity: "critical" },
-  { name: "OpenAI API Key", pattern: /sk-[0-9a-zA-Z]{20}T3BlbkFJ[0-9a-zA-Z]{20}/g, severity: "critical" },
+  {
+    name: "OpenAI API Key",
+    pattern: /sk-[0-9a-zA-Z]{20}T3BlbkFJ[0-9a-zA-Z]{20}/g,
+    severity: "critical",
+  },
   { name: "Stripe Secret Key", pattern: /sk_live_[0-9a-zA-Z]{24,}/g, severity: "critical" },
   { name: "Stripe Publishable", pattern: /pk_live_[0-9a-zA-Z]{24,}/g, severity: "high" },
-  { name: "Slack Bot Token", pattern: /xoxb-[0-9]{10,}-[0-9]{10,}-[0-9a-zA-Z]{24}/g, severity: "critical" },
-  { name: "Slack Webhook", pattern: /https:\/\/hooks\.slack\.com\/services\/T[0-9A-Z]{8,}\/B[0-9A-Z]{8,}\/[0-9a-zA-Z]{24}/g, severity: "high" },
-  { name: "Private Key", pattern: /-----BEGIN (?:RSA |EC |DSA |OPENSSH )?PRIVATE KEY-----/g, severity: "critical" },
+  {
+    name: "Slack Bot Token",
+    pattern: /xoxb-[0-9]{10,}-[0-9]{10,}-[0-9a-zA-Z]{24}/g,
+    severity: "critical",
+  },
+  {
+    name: "Slack Webhook",
+    pattern:
+      /https:\/\/hooks\.slack\.com\/services\/T[0-9A-Z]{8,}\/B[0-9A-Z]{8,}\/[0-9a-zA-Z]{24}/g,
+    severity: "high",
+  },
+  {
+    name: "Private Key",
+    pattern: /-----BEGIN (?:RSA |EC |DSA |OPENSSH )?PRIVATE KEY-----/g,
+    severity: "critical",
+  },
   { name: "Google API Key", pattern: /AIza[0-9A-Za-z\-_]{35}/g, severity: "high" },
   { name: "npm Token", pattern: /npm_[0-9a-zA-Z]{36}/g, severity: "critical" },
-  { name: "SendGrid Key", pattern: /SG\.[0-9a-zA-Z\-_]{22}\.[0-9a-zA-Z\-_]{43}/g, severity: "high" },
-  { name: "Database URL", pattern: /(?:postgres|mysql|mongodb|redis):\/\/[^:\s]+:[^@\s]+@[^\s"'`]+/g, severity: "critical" },
-  { name: "JWT Token", pattern: /eyJ[A-Za-z0-9_-]{10,}\.eyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}/g, severity: "high" },
+  {
+    name: "SendGrid Key",
+    pattern: /SG\.[0-9a-zA-Z\-_]{22}\.[0-9a-zA-Z\-_]{43}/g,
+    severity: "high",
+  },
+  {
+    name: "Database URL",
+    pattern: /(?:postgres|mysql|mongodb|redis):\/\/[^:\s]+:[^@\s]+@[^\s"'`]+/g,
+    severity: "critical",
+  },
+  {
+    name: "JWT Token",
+    pattern: /eyJ[A-Za-z0-9_-]{10,}\.eyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}/g,
+    severity: "high",
+  },
 ];
 
 export async function historyScanCommand(options: HistoryScanOptions) {
@@ -35,7 +64,9 @@ export async function historyScanCommand(options: HistoryScanOptions) {
 
   // Check if git repo
   const gitCheck = spawnSync("git", ["rev-parse", "--git-dir"], {
-    cwd: projectPath, encoding: "utf-8", stdio: "pipe",
+    cwd: projectPath,
+    encoding: "utf-8",
+    stdio: "pipe",
   });
   if (gitCheck.status !== 0) {
     console.log(chalk.yellow("  ⚠️  Not a git repository.\n"));
@@ -46,7 +77,8 @@ export async function historyScanCommand(options: HistoryScanOptions) {
 
   // Get commit hashes
   const logResult = spawnSync(
-    "git", ["log", `--max-count=${options.depth}`, "--pretty=format:%H|%an|%ai|%s"],
+    "git",
+    ["log", `--max-count=${options.depth}`, "--pretty=format:%H|%an|%ai|%s"],
     { cwd: projectPath, encoding: "utf-8", stdio: "pipe" }
   );
 
@@ -55,10 +87,13 @@ export async function historyScanCommand(options: HistoryScanOptions) {
     return;
   }
 
-  const commits = logResult.stdout.trim().split("\n").map((line) => {
-    const [hash, author, date, ...subject] = line.split("|");
-    return { hash, author, date, subject: subject.join("|") };
-  });
+  const commits = logResult.stdout
+    .trim()
+    .split("\n")
+    .map((line) => {
+      const [hash, author, date, ...subject] = line.split("|");
+      return { hash, author, date, subject: subject.join("|") };
+    });
 
   const findings: Vulnerability[] = [];
   let idCounter = 1;
@@ -66,10 +101,12 @@ export async function historyScanCommand(options: HistoryScanOptions) {
 
   for (const commit of commits) {
     // Get diff for this commit
-    const diffResult = spawnSync(
-      "git", ["diff-tree", "-p", commit.hash],
-      { cwd: projectPath, encoding: "utf-8", stdio: "pipe", maxBuffer: 10 * 1024 * 1024 }
-    );
+    const diffResult = spawnSync("git", ["diff-tree", "-p", commit.hash], {
+      cwd: projectPath,
+      encoding: "utf-8",
+      stdio: "pipe",
+      maxBuffer: 10 * 1024 * 1024,
+    });
 
     if (!diffResult.stdout) continue;
     commitsScanned++;
@@ -122,7 +159,9 @@ export async function historyScanCommand(options: HistoryScanOptions) {
   }
 
   if (options.json) {
-    console.log(JSON.stringify({ commitsScanned, findings: findings.length, secrets: findings }, null, 2));
+    console.log(
+      JSON.stringify({ commitsScanned, findings: findings.length, secrets: findings }, null, 2)
+    );
     return;
   }
 
@@ -139,6 +178,8 @@ export async function historyScanCommand(options: HistoryScanOptions) {
   console.log(chalk.bold("  Remediation:\n"));
   console.log(chalk.dim("    1. Rotate ALL found credentials immediately"));
   console.log(chalk.dim("    2. Run: sphinx-agent rotate — for rotation guides"));
-  console.log(chalk.dim("    3. Consider: git filter-branch or BFG Repo-Cleaner to remove from history"));
+  console.log(
+    chalk.dim("    3. Consider: git filter-branch or BFG Repo-Cleaner to remove from history")
+  );
   console.log(chalk.dim("    4. Force-push cleaned history (coordinate with team)\n"));
 }

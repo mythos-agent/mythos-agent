@@ -33,13 +33,7 @@ const TAINT_SOURCES: Record<string, RegExp[]> = {
     /document\.URL/g,
     /document\.referrer/g,
   ],
-  "user-input": [
-    /process\.argv/g,
-    /process\.stdin/g,
-    /readline/g,
-    /sys\.argv/g,
-    /os\.Args/g,
-  ],
+  "user-input": [/process\.argv/g, /process\.stdin/g, /readline/g, /sys\.argv/g, /os\.Args/g],
   "file-input": [
     /fs\.readFileSync\(/g,
     /fs\.readFile\(/g,
@@ -50,45 +44,103 @@ const TAINT_SOURCES: Record<string, RegExp[]> = {
 /**
  * Taint sinks — dangerous operations that should not receive unsanitized input.
  */
-const TAINT_SINKS: Record<string, { pattern: RegExp; severity: Severity; cwe: string; title: string }[]> = {
+const TAINT_SINKS: Record<
+  string,
+  { pattern: RegExp; severity: Severity; cwe: string; title: string }[]
+> = {
   "sql-injection": [
     { pattern: /\.query\s*\(/g, severity: "critical", cwe: "CWE-89", title: "SQL Injection Sink" },
-    { pattern: /\.execute\s*\(/g, severity: "critical", cwe: "CWE-89", title: "SQL Execution Sink" },
+    {
+      pattern: /\.execute\s*\(/g,
+      severity: "critical",
+      cwe: "CWE-89",
+      title: "SQL Execution Sink",
+    },
     { pattern: /\.raw\s*\(/g, severity: "critical", cwe: "CWE-89", title: "Raw SQL Sink" },
   ],
   "command-injection": [
     { pattern: /exec\s*\(/g, severity: "critical", cwe: "CWE-78", title: "Command Execution Sink" },
-    { pattern: /execSync\s*\(/g, severity: "critical", cwe: "CWE-78", title: "Sync Command Execution Sink" },
+    {
+      pattern: /execSync\s*\(/g,
+      severity: "critical",
+      cwe: "CWE-78",
+      title: "Sync Command Execution Sink",
+    },
     { pattern: /spawn\s*\(/g, severity: "high", cwe: "CWE-78", title: "Process Spawn Sink" },
     { pattern: /child_process/g, severity: "critical", cwe: "CWE-78", title: "Child Process Sink" },
-    { pattern: /os\.system\s*\(/g, severity: "critical", cwe: "CWE-78", title: "OS System Call Sink" },
+    {
+      pattern: /os\.system\s*\(/g,
+      severity: "critical",
+      cwe: "CWE-78",
+      title: "OS System Call Sink",
+    },
     { pattern: /subprocess/g, severity: "critical", cwe: "CWE-78", title: "Subprocess Sink" },
   ],
-  "xss": [
-    { pattern: /innerHTML\s*=/g, severity: "high", cwe: "CWE-79", title: "innerHTML Assignment Sink" },
-    { pattern: /dangerouslySetInnerHTML/g, severity: "high", cwe: "CWE-79", title: "React Unsafe HTML Sink" },
-    { pattern: /document\.write\s*\(/g, severity: "high", cwe: "CWE-79", title: "Document Write Sink" },
+  xss: [
+    {
+      pattern: /innerHTML\s*=/g,
+      severity: "high",
+      cwe: "CWE-79",
+      title: "innerHTML Assignment Sink",
+    },
+    {
+      pattern: /dangerouslySetInnerHTML/g,
+      severity: "high",
+      cwe: "CWE-79",
+      title: "React Unsafe HTML Sink",
+    },
+    {
+      pattern: /document\.write\s*\(/g,
+      severity: "high",
+      cwe: "CWE-79",
+      title: "Document Write Sink",
+    },
     { pattern: /\.html\s*\(/g, severity: "medium", cwe: "CWE-79", title: "HTML Render Sink" },
   ],
   "path-traversal": [
     { pattern: /readFileSync\s*\(/g, severity: "high", cwe: "CWE-22", title: "File Read Sink" },
     { pattern: /writeFileSync\s*\(/g, severity: "high", cwe: "CWE-22", title: "File Write Sink" },
-    { pattern: /createReadStream\s*\(/g, severity: "high", cwe: "CWE-22", title: "Read Stream Sink" },
-    { pattern: /path\.join\s*\(/g, severity: "medium", cwe: "CWE-22", title: "Path Join (potential sink)" },
+    {
+      pattern: /createReadStream\s*\(/g,
+      severity: "high",
+      cwe: "CWE-22",
+      title: "Read Stream Sink",
+    },
+    {
+      pattern: /path\.join\s*\(/g,
+      severity: "medium",
+      cwe: "CWE-22",
+      title: "Path Join (potential sink)",
+    },
   ],
-  "ssrf": [
+  ssrf: [
     { pattern: /fetch\s*\(/g, severity: "high", cwe: "CWE-918", title: "HTTP Fetch Sink" },
     { pattern: /axios\s*[.(]/g, severity: "high", cwe: "CWE-918", title: "Axios Request Sink" },
     { pattern: /http\.get\s*\(/g, severity: "high", cwe: "CWE-918", title: "HTTP Get Sink" },
-    { pattern: /requests\.get\s*\(/g, severity: "high", cwe: "CWE-918", title: "Python Requests Sink" },
+    {
+      pattern: /requests\.get\s*\(/g,
+      severity: "high",
+      cwe: "CWE-918",
+      title: "Python Requests Sink",
+    },
   ],
-  "eval": [
+  eval: [
     { pattern: /\beval\s*\(/g, severity: "critical", cwe: "CWE-95", title: "Eval Sink" },
-    { pattern: /new\s+Function\s*\(/g, severity: "critical", cwe: "CWE-95", title: "Dynamic Function Sink" },
+    {
+      pattern: /new\s+Function\s*\(/g,
+      severity: "critical",
+      cwe: "CWE-95",
+      title: "Dynamic Function Sink",
+    },
   ],
-  "redirect": [
+  redirect: [
     { pattern: /\.redirect\s*\(/g, severity: "medium", cwe: "CWE-601", title: "Redirect Sink" },
-    { pattern: /location\s*=/g, severity: "medium", cwe: "CWE-601", title: "Location Assignment Sink" },
+    {
+      pattern: /location\s*=/g,
+      severity: "medium",
+      cwe: "CWE-601",
+      title: "Location Assignment Sink",
+    },
   ],
 };
 
@@ -175,10 +227,7 @@ export function runTaintAnalysis(
       for (const sink of sinks) {
         // Only check for sanitizers BETWEEN source and sink lines
         if (sink.line <= source.line) continue; // sink must come after source
-        const bodyBetween = lines.slice(
-          source.line - 1,
-          sink.line
-        ).join("\n");
+        const bodyBetween = lines.slice(source.line - 1, sink.line).join("\n");
 
         const sanitizer = SANITIZERS.find((s) => s.test(bodyBetween));
         const sanitized = !!sanitizer;
@@ -245,12 +294,14 @@ export function runTaintAnalysis(
                 cwe: sink.cwe,
                 title: sink.title,
               },
-              hops: [{
-                file: func.file,
-                line: func.line,
-                code: `function ${func.name}(${func.params.join(", ")})`,
-                description: `Data passed through ${func.name}`,
-              }],
+              hops: [
+                {
+                  file: func.file,
+                  line: func.line,
+                  code: `function ${func.name}(${func.params.join(", ")})`,
+                  description: `Data passed through ${func.name}`,
+                },
+              ],
               sanitized: !!sanitizer,
               sanitizer: sanitizer?.source,
             });
@@ -348,7 +399,10 @@ function findHandlerEnd(lines: string[], start: number): number {
   let started = false;
   for (let i = start; i < lines.length && i < start + 1000; i++) {
     for (const ch of lines[i]) {
-      if (ch === "{") { depth++; started = true; }
+      if (ch === "{") {
+        depth++;
+        started = true;
+      }
       if (ch === "}") depth--;
     }
     if (started && depth === 0) return i + 1;

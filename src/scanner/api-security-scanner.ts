@@ -18,7 +18,8 @@ const API_RULES: ApiRule[] = [
   {
     id: "api-bola-idor",
     title: "API: Broken Object Level Authorization (BOLA/IDOR)",
-    description: "Object accessed by user-supplied ID without ownership verification. An attacker can access other users' data by changing the ID.",
+    description:
+      "Object accessed by user-supplied ID without ownership verification. An attacker can access other users' data by changing the ID.",
     severity: "critical",
     cwe: "CWE-639",
     owasp: "API1:2023",
@@ -33,7 +34,8 @@ const API_RULES: ApiRule[] = [
   {
     id: "api-broken-auth",
     title: "API: Broken Authentication",
-    description: "JWT or session configuration missing security settings (expiry, rotation, or secure flags).",
+    description:
+      "JWT or session configuration missing security settings (expiry, rotation, or secure flags).",
     severity: "high",
     cwe: "CWE-287",
     owasp: "API2:2023",
@@ -48,7 +50,8 @@ const API_RULES: ApiRule[] = [
   {
     id: "api-data-exposure",
     title: "API: Excessive Data Exposure",
-    description: "Full database object returned in API response. May leak sensitive fields (password, internal IDs, tokens).",
+    description:
+      "Full database object returned in API response. May leak sensitive fields (password, internal IDs, tokens).",
     severity: "high",
     cwe: "CWE-213",
     owasp: "API3:2023",
@@ -63,7 +66,8 @@ const API_RULES: ApiRule[] = [
   {
     id: "api-mass-assignment",
     title: "API: Mass Assignment",
-    description: "Request body passed directly to database create/update. Attacker can set admin flags, IDs, or other protected fields.",
+    description:
+      "Request body passed directly to database create/update. Attacker can set admin flags, IDs, or other protected fields.",
     severity: "high",
     cwe: "CWE-915",
     owasp: "API6:2023",
@@ -80,7 +84,8 @@ const API_RULES: ApiRule[] = [
   {
     id: "api-no-rate-limit",
     title: "API: No Rate Limiting on Sensitive Endpoint",
-    description: "Login, registration, or password reset endpoint without rate limiting. Enables brute-force attacks.",
+    description:
+      "Login, registration, or password reset endpoint without rate limiting. Enables brute-force attacks.",
     severity: "medium",
     cwe: "CWE-307",
     owasp: "API4:2023",
@@ -93,7 +98,8 @@ const API_RULES: ApiRule[] = [
   {
     id: "api-no-validation",
     title: "API: No Input Validation Schema",
-    description: "API endpoint handler uses req.body without schema validation (joi, zod, yup). Unexpected input can cause errors or exploits.",
+    description:
+      "API endpoint handler uses req.body without schema validation (joi, zod, yup). Unexpected input can cause errors or exploits.",
     severity: "medium",
     cwe: "CWE-20",
     owasp: "API8:2023",
@@ -106,7 +112,8 @@ const API_RULES: ApiRule[] = [
   {
     id: "api-broken-function-auth",
     title: "API: Admin Endpoint Without Role Check",
-    description: "Endpoint with admin/management path does not appear to check user role or permissions.",
+    description:
+      "Endpoint with admin/management path does not appear to check user role or permissions.",
     severity: "high",
     cwe: "CWE-285",
     owasp: "API5:2023",
@@ -119,7 +126,8 @@ const API_RULES: ApiRule[] = [
   {
     id: "api-ssrf",
     title: "API: Server-Side Request Forgery via URL Parameter",
-    description: "User-supplied URL passed to server-side HTTP request. Attacker can probe internal services or cloud metadata.",
+    description:
+      "User-supplied URL passed to server-side HTTP request. Attacker can probe internal services or cloud metadata.",
     severity: "high",
     cwe: "CWE-918",
     owasp: "API10:2023",
@@ -133,7 +141,8 @@ const API_RULES: ApiRule[] = [
   {
     id: "api-log-sensitive",
     title: "API: Logging Sensitive Data",
-    description: "Request body or headers logged to console. May expose passwords, tokens, or PII in log files.",
+    description:
+      "Request body or headers logged to console. May expose passwords, tokens, or PII in log files.",
     severity: "medium",
     cwe: "CWE-532",
     patterns: [
@@ -148,7 +157,8 @@ const API_RULES: ApiRule[] = [
   {
     id: "api-no-pagination",
     title: "API: No Pagination on List Endpoint",
-    description: "Database query returns all records without limit. Enables data dumping and denial of service.",
+    description:
+      "Database query returns all records without limit. Enables data dumping and denial of service.",
     severity: "medium",
     cwe: "CWE-770",
     patterns: [
@@ -161,19 +171,19 @@ const API_RULES: ApiRule[] = [
   {
     id: "api-missing-headers",
     title: "API: Missing Security Headers",
-    description: "API does not set security headers. Use Helmet.js or manually set X-Content-Type-Options, X-Frame-Options, etc.",
+    description:
+      "API does not set security headers. Use Helmet.js or manually set X-Content-Type-Options, X-Frame-Options, etc.",
     severity: "low",
     cwe: "CWE-693",
-    patterns: [
-      /app\.use\s*\(\s*express\.json\s*\(\s*\)\s*\)(?![\s\S]{0,500}helmet)/gi,
-    ],
+    patterns: [/app\.use\s*\(\s*express\.json\s*\(\s*\)\s*\)(?![\s\S]{0,500}helmet)/gi],
   },
 
   // Missing CORS Configuration
   {
     id: "api-cors-wildcard",
     title: "API: CORS Allows All Origins",
-    description: "CORS configured with wildcard or 'true' origin. Any website can make authenticated requests to your API.",
+    description:
+      "CORS configured with wildcard or 'true' origin. Any website can make authenticated requests to your API.",
     severity: "medium",
     cwe: "CWE-942",
     patterns: [
@@ -195,7 +205,14 @@ export class ApiSecurityScanner {
       {
         cwd: projectPath,
         absolute: true,
-        ignore: ["node_modules/**", "dist/**", ".git/**", ".sphinx/**", "**/*.test.*", "**/*.spec.*"],
+        ignore: [
+          "node_modules/**",
+          "dist/**",
+          ".git/**",
+          ".sphinx/**",
+          "**/*.test.*",
+          "**/*.spec.*",
+        ],
         nodir: true,
       }
     );
@@ -214,7 +231,11 @@ export class ApiSecurityScanner {
       }
 
       // Quick check: skip files that don't look like API handlers
-      if (!/(?:app|router|server)\.|express|fastify|koa|hono|flask|gin|spring|req\.|request\./i.test(content)) {
+      if (
+        !/(?:app|router|server)\.|express|fastify|koa|hono|flask|gin|spring|req\.|request\./i.test(
+          content
+        )
+      ) {
         continue;
       }
 

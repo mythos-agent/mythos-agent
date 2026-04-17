@@ -27,7 +27,9 @@ export async function doctorCommand(options: DoctorOptions) {
     score += 1;
     console.log(chalk.green("  ✓ Config file found:") + chalk.dim(` ${configFile}`));
   } else {
-    console.log(chalk.yellow("  ✗ No .sphinx.yml config file") + chalk.dim(" — run: sphinx-agent init"));
+    console.log(
+      chalk.yellow("  ✗ No .sphinx.yml config file") + chalk.dim(" — run: sphinx-agent init")
+    );
   }
 
   // 2. API key
@@ -51,9 +53,14 @@ export async function doctorCommand(options: DoctorOptions) {
               ? { "x-api-key": config.apiKey, "anthropic-version": "2023-06-01" }
               : { Authorization: `Bearer ${config.apiKey}` }),
           },
-          body: config.provider === "anthropic"
-            ? JSON.stringify({ model: config.model, max_tokens: 1, messages: [{ role: "user", content: "hi" }] })
-            : undefined,
+          body:
+            config.provider === "anthropic"
+              ? JSON.stringify({
+                  model: config.model,
+                  max_tokens: 1,
+                  messages: [{ role: "user", content: "hi" }],
+                })
+              : undefined,
         }
       );
       if (testResponse.status === 200 || testResponse.status === 401) {
@@ -69,7 +76,10 @@ export async function doctorCommand(options: DoctorOptions) {
       console.log(chalk.yellow("  ✗ Could not verify API key") + chalk.dim(" — network error"));
     }
   } else {
-    console.log(chalk.yellow("  ✗ No API key configured") + chalk.dim(" — AI features disabled. Run: sphinx-agent init"));
+    console.log(
+      chalk.yellow("  ✗ No API key configured") +
+        chalk.dim(" — AI features disabled. Run: sphinx-agent init")
+    );
   }
 
   // 3. External tools
@@ -98,7 +108,10 @@ export async function doctorCommand(options: DoctorOptions) {
       score += 1;
       console.log(chalk.green("\n  ✓ .sphinx/ in .gitignore"));
     } else {
-      console.log(chalk.yellow("\n  ✗ .sphinx/ not in .gitignore") + chalk.dim(" — scan results may be committed"));
+      console.log(
+        chalk.yellow("\n  ✗ .sphinx/ not in .gitignore") +
+          chalk.dim(" — scan results may be committed")
+      );
     }
   } else {
     console.log(chalk.yellow("\n  ✗ No .gitignore file"));
@@ -109,7 +122,10 @@ export async function doctorCommand(options: DoctorOptions) {
   const lockfiles = discoverLockfiles(projectPath);
   if (lockfiles.length > 0) {
     score += 1;
-    console.log(chalk.green("  ✓ Lockfiles found:") + chalk.dim(` ${lockfiles.map((f) => path.basename(f)).join(", ")}`));
+    console.log(
+      chalk.green("  ✓ Lockfiles found:") +
+        chalk.dim(` ${lockfiles.map((f) => path.basename(f)).join(", ")}`)
+    );
   } else {
     console.log(chalk.dim("  ✗ No lockfiles found — dependency scanning unavailable"));
   }
@@ -125,12 +141,17 @@ export async function doctorCommand(options: DoctorOptions) {
   }
 
   // 7. IaC files
-  const hasDocker = fs.existsSync(path.join(projectPath, "Dockerfile")) ||
+  const hasDocker =
+    fs.existsSync(path.join(projectPath, "Dockerfile")) ||
     fs.existsSync(path.join(projectPath, "docker-compose.yml"));
   const hasTerraform = fs.readdirSync(projectPath).some((f) => f.endsWith(".tf"));
   if (hasDocker || hasTerraform) {
-    console.log(chalk.green("  ✓ IaC files detected:") +
-      chalk.dim(` ${[hasDocker ? "Docker" : "", hasTerraform ? "Terraform" : ""].filter(Boolean).join(", ")}`));
+    console.log(
+      chalk.green("  ✓ IaC files detected:") +
+        chalk.dim(
+          ` ${[hasDocker ? "Docker" : "", hasTerraform ? "Terraform" : ""].filter(Boolean).join(", ")}`
+        )
+    );
   }
 
   // Summary
@@ -149,8 +170,10 @@ export async function doctorCommand(options: DoctorOptions) {
   const recommendations: string[] = [];
   if (!configFile) recommendations.push("Run `sphinx-agent init` to create config");
   if (!config.apiKey) recommendations.push("Add API key for AI-powered analysis");
-  if (installedTools.length < 2) recommendations.push("Install Semgrep + Trivy for deeper scanning");
-  if (!fs.existsSync(policyPath)) recommendations.push("Run `sphinx-agent policy init` to enforce standards");
+  if (installedTools.length < 2)
+    recommendations.push("Install Semgrep + Trivy for deeper scanning");
+  if (!fs.existsSync(policyPath))
+    recommendations.push("Run `sphinx-agent policy init` to enforce standards");
 
   if (recommendations.length > 0) {
     console.log(chalk.bold("\n  Recommendations:\n"));

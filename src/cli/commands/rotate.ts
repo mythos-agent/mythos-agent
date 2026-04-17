@@ -20,11 +20,14 @@ interface RotationGuide {
   envVarName: string;
 }
 
-const SECRET_ROTATION_GUIDES: Record<string, {
-  steps: string[];
-  envVar: string;
-  generate: () => string;
-}> = {
+const SECRET_ROTATION_GUIDES: Record<
+  string,
+  {
+    steps: string[];
+    envVar: string;
+    generate: () => string;
+  }
+> = {
   "secret:aws-access-key": {
     steps: [
       "Go to AWS IAM Console → Users → Security credentials",
@@ -107,9 +110,7 @@ export async function rotateCommand(options: RotateOptions) {
     return;
   }
 
-  const secrets = result.confirmedVulnerabilities.filter(
-    (v) => v.category === "secrets"
-  );
+  const secrets = result.confirmedVulnerabilities.filter((v) => v.category === "secrets");
 
   if (secrets.length === 0) {
     console.log(chalk.green("\n✅ No hardcoded secrets found!\n"));
@@ -150,7 +151,9 @@ export async function rotateCommand(options: RotateOptions) {
   console.log(chalk.dim("    1. Rotate all secrets following the steps above"));
   console.log(chalk.dim("    2. Store new values in environment variables or a secrets manager"));
   console.log(chalk.dim("    3. Remove hardcoded values from source code"));
-  console.log(chalk.dim("    4. Run ") + chalk.cyan("sphinx-agent scan") + chalk.dim(" again to verify\n"));
+  console.log(
+    chalk.dim("    4. Run ") + chalk.cyan("sphinx-agent scan") + chalk.dim(" again to verify\n")
+  );
 }
 
 function buildRotationGuide(vuln: Vulnerability): RotationGuide {

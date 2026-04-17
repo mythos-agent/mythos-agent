@@ -173,9 +173,7 @@ Instructions:
 3. Search for code that shares the same root cause — same type of mistake, different location
 4. Report all variants found with similarity ratings`;
 
-    const messages: Anthropic.MessageParam[] = [
-      { role: "user", content: prompt },
-    ];
+    const messages: Anthropic.MessageParam[] = [{ role: "user", content: prompt }];
 
     let turns = 0;
     while (turns < MAX_TURNS) {
@@ -274,8 +272,7 @@ Instructions:
         const vuln = data.vulnerabilities?.[0]?.cve;
         if (vuln) {
           const desc = vuln.descriptions?.find((d) => d.lang === "en");
-          const score =
-            vuln.metrics?.cvssMetricV31?.[0]?.cvssData.baseScore || 5;
+          const score = vuln.metrics?.cvssMetricV31?.[0]?.cvssData.baseScore || 5;
           const severity: Severity =
             score >= 9 ? "critical" : score >= 7 ? "high" : score >= 4 ? "medium" : "low";
           const cwe = vuln.weaknesses?.[0]?.description?.[0]?.value;

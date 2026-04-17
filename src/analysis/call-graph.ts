@@ -20,10 +20,7 @@ export interface CallGraph {
  * Build a call graph from a parsed codebase map.
  * Resolves function calls to their definitions where possible.
  */
-export function buildCallGraph(
-  map: CodebaseMap,
-  projectPath: string
-): CallGraph {
+export function buildCallGraph(map: CodebaseMap, projectPath: string): CallGraph {
   const nodes = new Map<string, FunctionDef>();
   const edges: CallEdge[] = [];
 
@@ -67,12 +64,7 @@ export function buildCallGraph(
       if (isKeyword(calledName)) continue;
 
       // Try to resolve the call
-      const resolved = resolveCall(
-        calledName,
-        func.file,
-        funcByName,
-        importMap
-      );
+      const resolved = resolveCall(calledName, func.file, funcByName, importMap);
 
       edges.push({
         caller: `${func.file}:${func.name}`,
@@ -103,20 +95,14 @@ export function buildCallGraph(
 /**
  * Find all callers of a function (who calls this?).
  */
-export function findCallers(
-  graph: CallGraph,
-  functionKey: string
-): CallEdge[] {
+export function findCallers(graph: CallGraph, functionKey: string): CallEdge[] {
   return graph.callers.get(functionKey) || [];
 }
 
 /**
  * Find all callees of a function (what does this call?).
  */
-export function findCallees(
-  graph: CallGraph,
-  functionKey: string
-): CallEdge[] {
+export function findCallees(graph: CallGraph, functionKey: string): CallEdge[] {
   return graph.callees.get(functionKey) || [];
 }
 
@@ -184,14 +170,56 @@ function resolveCall(
 
 function isKeyword(name: string): boolean {
   const keywords = new Set([
-    "if", "else", "for", "while", "do", "switch", "case", "return",
-    "throw", "try", "catch", "finally", "new", "typeof", "instanceof",
-    "import", "export", "from", "require", "console", "process",
-    "Promise", "Array", "Object", "String", "Number", "Boolean",
-    "Map", "Set", "Error", "JSON", "Math", "Date", "RegExp",
-    "parseInt", "parseFloat", "setTimeout", "setInterval",
-    "print", "len", "range", "str", "int", "float", "list", "dict",
-    "fmt", "log", "make", "append",
+    "if",
+    "else",
+    "for",
+    "while",
+    "do",
+    "switch",
+    "case",
+    "return",
+    "throw",
+    "try",
+    "catch",
+    "finally",
+    "new",
+    "typeof",
+    "instanceof",
+    "import",
+    "export",
+    "from",
+    "require",
+    "console",
+    "process",
+    "Promise",
+    "Array",
+    "Object",
+    "String",
+    "Number",
+    "Boolean",
+    "Map",
+    "Set",
+    "Error",
+    "JSON",
+    "Math",
+    "Date",
+    "RegExp",
+    "parseInt",
+    "parseFloat",
+    "setTimeout",
+    "setInterval",
+    "print",
+    "len",
+    "range",
+    "str",
+    "int",
+    "float",
+    "list",
+    "dict",
+    "fmt",
+    "log",
+    "make",
+    "append",
   ]);
   return keywords.has(name);
 }

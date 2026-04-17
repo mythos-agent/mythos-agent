@@ -25,12 +25,7 @@ export function isCheckovInstalled(): boolean {
 }
 
 export function runCheckov(projectPath: string): Vulnerability[] {
-  const args = [
-    "-d", projectPath,
-    "-o", "json",
-    "--quiet",
-    "--compact",
-  ];
+  const args = ["-d", projectPath, "-o", "json", "--quiet", "--compact"];
 
   const result = runTool<CheckovResult>("checkov", args, {
     timeout: 300_000,
@@ -40,22 +35,20 @@ export function runCheckov(projectPath: string): Vulnerability[] {
   return normalizeFindings(result.data, projectPath);
 }
 
-function normalizeFindings(
-  data: CheckovResult,
-  projectPath: string
-): Vulnerability[] {
+function normalizeFindings(data: CheckovResult, projectPath: string): Vulnerability[] {
   const checks = data.results?.failed_checks || [];
 
   return checks.map((c, i) => {
-    const filePath = c.file_path.startsWith("/")
-      ? c.file_path.slice(1)
-      : c.file_path;
+    const filePath = c.file_path.startsWith("/") ? c.file_path.slice(1) : c.file_path;
 
     return {
       id: `CHKV-${String(i + 1).padStart(4, "0")}`,
       rule: `checkov:${c.check_id}`,
       title: c.short_description || c.check_id,
-      description: c.guideline || (c.description || []).join(" ") || `Failed check ${c.check_id} on ${c.resource}`,
+      description:
+        c.guideline ||
+        (c.description || []).join(" ") ||
+        `Failed check ${c.check_id} on ${c.resource}`,
       severity: mapSeverity(c.severity || c.check_result.result),
       category: "iac",
       confidence: "high" as const,
@@ -70,11 +63,17 @@ function normalizeFindings(
 
 function mapSeverity(s: string): Severity {
   switch (s.toUpperCase()) {
-    case "CRITICAL": return "critical";
-    case "HIGH": return "high";
-    case "MEDIUM": return "medium";
-    case "LOW": return "low";
-    case "FAILED": return "high";
-    default: return "medium";
+    case "CRITICAL":
+      return "critical";
+    case "HIGH":
+      return "high";
+    case "MEDIUM":
+      return "medium";
+    case "LOW":
+      return "low";
+    case "FAILED":
+      return "high";
+    default:
+      return "medium";
   }
 }

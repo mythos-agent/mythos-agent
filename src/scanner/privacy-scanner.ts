@@ -17,7 +17,8 @@ const PRIVACY_RULES: PrivacyRule[] = [
   {
     id: "privacy-pii-logging",
     title: "Privacy: PII Logged to Console/Files",
-    description: "Personal data (email, name, SSN, phone) is logged. This violates data minimization principles and GDPR Art. 5.",
+    description:
+      "Personal data (email, name, SSN, phone) is logged. This violates data minimization principles and GDPR Art. 5.",
     severity: "high",
     cwe: "CWE-532",
     gdpr: "Art. 5(1)(c)",
@@ -29,7 +30,8 @@ const PRIVACY_RULES: PrivacyRule[] = [
   {
     id: "privacy-pii-unencrypted",
     title: "Privacy: PII Stored Without Encryption",
-    description: "Personal data appears to be stored in a database without encryption. GDPR requires appropriate protection of personal data.",
+    description:
+      "Personal data appears to be stored in a database without encryption. GDPR requires appropriate protection of personal data.",
     severity: "high",
     cwe: "CWE-311",
     gdpr: "Art. 32",
@@ -40,7 +42,8 @@ const PRIVACY_RULES: PrivacyRule[] = [
   {
     id: "privacy-no-consent",
     title: "Privacy: Data Collection Without Consent Check",
-    description: "User data collected without checking for consent. GDPR requires lawful basis for processing personal data.",
+    description:
+      "User data collected without checking for consent. GDPR requires lawful basis for processing personal data.",
     severity: "medium",
     cwe: "CWE-359",
     gdpr: "Art. 6, Art. 7",
@@ -52,7 +55,8 @@ const PRIVACY_RULES: PrivacyRule[] = [
   {
     id: "privacy-no-deletion",
     title: "Privacy: No Data Deletion Mechanism",
-    description: "No delete/purge endpoint found for user data. GDPR Art. 17 requires the right to erasure.",
+    description:
+      "No delete/purge endpoint found for user data. GDPR Art. 17 requires the right to erasure.",
     severity: "medium",
     cwe: "CWE-359",
     gdpr: "Art. 17",
@@ -63,7 +67,8 @@ const PRIVACY_RULES: PrivacyRule[] = [
   {
     id: "privacy-third-party-data",
     title: "Privacy: User Data Sent to Third-Party",
-    description: "User data sent to external service without clear documentation. Requires Data Processing Agreement under GDPR.",
+    description:
+      "User data sent to external service without clear documentation. Requires Data Processing Agreement under GDPR.",
     severity: "medium",
     cwe: "CWE-359",
     gdpr: "Art. 28",
@@ -74,7 +79,8 @@ const PRIVACY_RULES: PrivacyRule[] = [
   {
     id: "privacy-excessive-collection",
     title: "Privacy: Excessive Data Collection",
-    description: "Form or API collects more data than needed (SSN, gender, ethnicity). Apply data minimization principle.",
+    description:
+      "Form or API collects more data than needed (SSN, gender, ethnicity). Apply data minimization principle.",
     severity: "low",
     cwe: "CWE-359",
     gdpr: "Art. 5(1)(c)",
@@ -85,7 +91,8 @@ const PRIVACY_RULES: PrivacyRule[] = [
   {
     id: "privacy-cookie-no-consent",
     title: "Privacy: Cookies Set Without Consent Banner",
-    description: "Cookies set on first page load without consent. EU ePrivacy Directive requires consent for non-essential cookies.",
+    description:
+      "Cookies set on first page load without consent. EU ePrivacy Directive requires consent for non-essential cookies.",
     severity: "medium",
     cwe: "CWE-359",
     gdpr: "ePrivacy Directive",
@@ -96,7 +103,8 @@ const PRIVACY_RULES: PrivacyRule[] = [
   {
     id: "privacy-password-plaintext",
     title: "Privacy: Password Stored Without Hashing",
-    description: "Password stored or compared in plaintext. Use bcrypt, scrypt, or Argon2 for password hashing.",
+    description:
+      "Password stored or compared in plaintext. Use bcrypt, scrypt, or Argon2 for password hashing.",
     severity: "critical",
     cwe: "CWE-256",
     gdpr: "Art. 32",
@@ -108,7 +116,8 @@ const PRIVACY_RULES: PrivacyRule[] = [
   {
     id: "privacy-data-retention",
     title: "Privacy: No Data Retention Policy",
-    description: "Data stored indefinitely without TTL or expiry. GDPR requires storage limitation — data should be kept only as long as necessary.",
+    description:
+      "Data stored indefinitely without TTL or expiry. GDPR requires storage limitation — data should be kept only as long as necessary.",
     severity: "low",
     cwe: "CWE-359",
     gdpr: "Art. 5(1)(e)",
@@ -125,15 +134,12 @@ export interface PrivacyScanResult {
 
 export class PrivacyScanner {
   async scan(projectPath: string): Promise<PrivacyScanResult> {
-    const files = await glob(
-      ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx", "**/*.py"],
-      {
-        cwd: projectPath,
-        absolute: true,
-        ignore: ["node_modules/**", "dist/**", ".git/**", ".sphinx/**", "**/*.test.*"],
-        nodir: true,
-      }
-    );
+    const files = await glob(["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx", "**/*.py"], {
+      cwd: projectPath,
+      absolute: true,
+      ignore: ["node_modules/**", "dist/**", ".git/**", ".sphinx/**", "**/*.test.*"],
+      nodir: true,
+    });
 
     const findings: Vulnerability[] = [];
     let idCounter = 1;
@@ -144,7 +150,9 @@ export class PrivacyScanner {
         const stats = fs.statSync(file);
         if (stats.size > 500_000) continue;
         content = fs.readFileSync(file, "utf-8");
-      } catch { continue; }
+      } catch {
+        continue;
+      }
 
       const lines = content.split("\n");
       const relativePath = path.relative(projectPath, file);

@@ -30,14 +30,10 @@ export async function taintCommand(taintPath: string, options: TaintOptions) {
     return;
   }
 
-  console.log(
-    chalk.bold("\n🔬 sphinx-agent taint — AI Data Flow Analysis\n")
-  );
+  console.log(chalk.bold("\n🔬 sphinx-agent taint — AI Data Flow Analysis\n"));
   console.log(chalk.dim(`Project: ${projectPath}\n`));
 
-  const spinner = ora(
-    "Tracing data flows from sources to sinks..."
-  ).start();
+  const spinner = ora("Tracing data flows from sources to sinks...").start();
 
   const tracker = new TaintTracker(config);
 
@@ -46,9 +42,7 @@ export async function taintCommand(taintPath: string, options: TaintOptions) {
     spinner.stop();
 
     if (flows.length === 0) {
-      console.log(
-        chalk.green("  ✅ No unsafe data flows detected.\n")
-      );
+      console.log(chalk.green("  ✅ No unsafe data flows detected.\n"));
       return;
     }
 
@@ -58,58 +52,40 @@ export async function taintCommand(taintPath: string, options: TaintOptions) {
     }
 
     console.log(
-      chalk.bold.red(
-        `  Found ${flows.length} tainted data flow${flows.length > 1 ? "s" : ""}:\n`
-      )
+      chalk.bold.red(`  Found ${flows.length} tainted data flow${flows.length > 1 ? "s" : ""}:\n`)
     );
 
     for (const flow of flows) {
       renderFlow(flow);
     }
   } catch (err) {
-    spinner.fail(
-      `Taint analysis failed: ${err instanceof Error ? err.message : "unknown error"}`
-    );
+    spinner.fail(`Taint analysis failed: ${err instanceof Error ? err.message : "unknown error"}`);
   }
 }
 
 function renderFlow(flow: TaintFlow): void {
   const color = SEVERITY_COLORS[flow.severity] || chalk.dim;
 
-  console.log(
-    `  ${color(` ${flow.severity.toUpperCase()} `)} ${chalk.bold(flow.id)}`
-  );
+  console.log(`  ${color(` ${flow.severity.toUpperCase()} `)} ${chalk.bold(flow.id)}`);
   console.log();
 
   // Source
-  console.log(
-    chalk.green("  ▶ SOURCE: ") + flow.source.description
-  );
-  console.log(
-    chalk.dim(`    ${flow.source.file}:${flow.source.line}`)
-  );
+  console.log(chalk.green("  ▶ SOURCE: ") + flow.source.description);
+  console.log(chalk.dim(`    ${flow.source.file}:${flow.source.line}`));
   console.log(chalk.dim(`    > ${flow.source.snippet}`));
   console.log();
 
   // Intermediate steps
   for (const step of flow.intermediateSteps) {
-    console.log(
-      chalk.yellow("  ↓ ") + chalk.dim(step.description)
-    );
-    console.log(
-      chalk.dim(`    ${step.file}:${step.line}`)
-    );
+    console.log(chalk.yellow("  ↓ ") + chalk.dim(step.description));
+    console.log(chalk.dim(`    ${step.file}:${step.line}`));
     console.log(chalk.dim(`    > ${step.snippet}`));
     console.log();
   }
 
   // Sink
-  console.log(
-    chalk.red("  ◆ SINK: ") + flow.sink.description
-  );
-  console.log(
-    chalk.dim(`    ${flow.sink.file}:${flow.sink.line}`)
-  );
+  console.log(chalk.red("  ◆ SINK: ") + flow.sink.description);
+  console.log(chalk.dim(`    ${flow.sink.file}:${flow.sink.line}`));
   console.log(chalk.dim(`    > ${flow.sink.snippet}`));
   console.log();
 

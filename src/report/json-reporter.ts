@@ -13,21 +13,11 @@ export function renderJsonReport(result: ScanResult): void {
       false_positives_dismissed: result.dismissedCount,
       attack_chains: result.chains.length,
       by_severity: {
-        critical: result.confirmedVulnerabilities.filter(
-          (v) => v.severity === "critical"
-        ).length,
-        high: result.confirmedVulnerabilities.filter(
-          (v) => v.severity === "high"
-        ).length,
-        medium: result.confirmedVulnerabilities.filter(
-          (v) => v.severity === "medium"
-        ).length,
-        low: result.confirmedVulnerabilities.filter(
-          (v) => v.severity === "low"
-        ).length,
-        info: result.confirmedVulnerabilities.filter(
-          (v) => v.severity === "info"
-        ).length,
+        critical: result.confirmedVulnerabilities.filter((v) => v.severity === "critical").length,
+        high: result.confirmedVulnerabilities.filter((v) => v.severity === "high").length,
+        medium: result.confirmedVulnerabilities.filter((v) => v.severity === "medium").length,
+        low: result.confirmedVulnerabilities.filter((v) => v.severity === "low").length,
+        info: result.confirmedVulnerabilities.filter((v) => v.severity === "info").length,
       },
     },
     chains: result.chains.map((chain) => ({

@@ -18,12 +18,7 @@ export interface PolicyRule {
 }
 
 export interface PolicyCondition {
-  type:
-    | "severity_threshold"
-    | "category_match"
-    | "rule_match"
-    | "count_threshold"
-    | "trust_score";
+  type: "severity_threshold" | "category_match" | "rule_match" | "count_threshold" | "trust_score";
   severity?: Severity;
   categories?: string[];
   rules?: string[];
@@ -48,35 +43,35 @@ export interface PolicyViolation {
 const DEFAULT_POLICY_PATH = ".sphinx/policy.yml";
 
 const COMPLIANCE_MAP: Record<string, Record<string, string>> = {
-  "SOC2": {
-    "injection": "CC6.1 — Logical and Physical Access Controls",
-    "xss": "CC6.1 — Logical and Physical Access Controls",
-    "secrets": "CC6.1 — Confidentiality of Information Assets",
-    "crypto": "CC6.1 — Cryptographic Key Management",
-    "auth": "CC6.1 — Authentication Mechanisms",
+  SOC2: {
+    injection: "CC6.1 — Logical and Physical Access Controls",
+    xss: "CC6.1 — Logical and Physical Access Controls",
+    secrets: "CC6.1 — Confidentiality of Information Assets",
+    crypto: "CC6.1 — Cryptographic Key Management",
+    auth: "CC6.1 — Authentication Mechanisms",
   },
-  "HIPAA": {
-    "injection": "§164.312(a)(1) — Access Control",
-    "secrets": "§164.312(a)(2)(iv) — Encryption and Decryption",
-    "crypto": "§164.312(e)(1) — Transmission Security",
-    "auth": "§164.312(d) — Person or Entity Authentication",
+  HIPAA: {
+    injection: "§164.312(a)(1) — Access Control",
+    secrets: "§164.312(a)(2)(iv) — Encryption and Decryption",
+    crypto: "§164.312(e)(1) — Transmission Security",
+    auth: "§164.312(d) — Person or Entity Authentication",
   },
   "PCI-DSS": {
-    "injection": "Req 6.5.1 — Injection Flaws",
-    "xss": "Req 6.5.7 — Cross-Site Scripting",
-    "secrets": "Req 3.4 — Render PAN Unreadable",
-    "crypto": "Req 4.1 — Strong Cryptography",
-    "auth": "Req 8.2 — Authentication Management",
+    injection: "Req 6.5.1 — Injection Flaws",
+    xss: "Req 6.5.7 — Cross-Site Scripting",
+    secrets: "Req 3.4 — Render PAN Unreadable",
+    crypto: "Req 4.1 — Strong Cryptography",
+    auth: "Req 8.2 — Authentication Management",
   },
-  "OWASP": {
-    "injection": "A03:2021 — Injection",
-    "xss": "A03:2021 — Injection",
-    "secrets": "A02:2021 — Cryptographic Failures",
-    "crypto": "A02:2021 — Cryptographic Failures",
-    "auth": "A07:2021 — Identification and Authentication Failures",
-    "ssrf": "A10:2021 — Server-Side Request Forgery",
-    "iac": "A05:2021 — Security Misconfiguration",
-    "dependency": "A06:2021 — Vulnerable and Outdated Components",
+  OWASP: {
+    injection: "A03:2021 — Injection",
+    xss: "A03:2021 — Injection",
+    secrets: "A02:2021 — Cryptographic Failures",
+    crypto: "A02:2021 — Cryptographic Failures",
+    auth: "A07:2021 — Identification and Authentication Failures",
+    ssrf: "A10:2021 — Server-Side Request Forgery",
+    iac: "A05:2021 — Security Misconfiguration",
+    dependency: "A06:2021 — Vulnerable and Outdated Components",
   },
 };
 
@@ -92,10 +87,7 @@ export function loadPolicy(projectPath: string): Policy | null {
   }
 }
 
-export function evaluatePolicy(
-  policy: Policy,
-  result: ScanResult
-): PolicyResult {
+export function evaluatePolicy(policy: Policy, result: ScanResult): PolicyResult {
   const violations: PolicyViolation[] = [];
   const warnings: PolicyViolation[] = [];
   const vulns = result.confirmedVulnerabilities;
@@ -136,21 +128,15 @@ function evaluateCondition(
   switch (condition.type) {
     case "severity_threshold": {
       const threshold = severityOrder.indexOf(condition.severity || "critical");
-      return vulns.filter(
-        (v) => severityOrder.indexOf(v.severity) <= threshold
-      );
+      return vulns.filter((v) => severityOrder.indexOf(v.severity) <= threshold);
     }
 
     case "category_match":
-      return vulns.filter((v) =>
-        (condition.categories || []).includes(v.category)
-      );
+      return vulns.filter((v) => (condition.categories || []).includes(v.category));
 
     case "rule_match":
       return vulns.filter((v) =>
-        (condition.rules || []).some(
-          (r) => v.rule === r || v.rule.startsWith(r)
-        )
+        (condition.rules || []).some((r) => v.rule === r || v.rule.startsWith(r))
       );
 
     case "count_threshold": {
@@ -169,33 +155,40 @@ function evaluateCondition(
   }
 }
 
-function calculateTrustScore(
-  vulns: Vulnerability[],
-  chains: ScanResult["chains"]
-): number {
+function calculateTrustScore(vulns: Vulnerability[], chains: ScanResult["chains"]): number {
   let score = 10;
   for (const v of vulns) {
     switch (v.severity) {
-      case "critical": score -= 2; break;
-      case "high": score -= 1; break;
-      case "medium": score -= 0.5; break;
-      case "low": score -= 0.2; break;
+      case "critical":
+        score -= 2;
+        break;
+      case "high":
+        score -= 1;
+        break;
+      case "medium":
+        score -= 0.5;
+        break;
+      case "low":
+        score -= 0.2;
+        break;
     }
   }
   for (const chain of chains) {
     switch (chain.severity) {
-      case "critical": score -= 1.5; break;
-      case "high": score -= 1; break;
-      default: score -= 0.5;
+      case "critical":
+        score -= 1.5;
+        break;
+      case "high":
+        score -= 1;
+        break;
+      default:
+        score -= 0.5;
     }
   }
   return Math.max(0, Math.min(10, score));
 }
 
-export function getComplianceMapping(
-  finding: Vulnerability,
-  frameworks: string[]
-): string[] {
+export function getComplianceMapping(finding: Vulnerability, frameworks: string[]): string[] {
   const mappings: string[] = [];
   for (const framework of frameworks) {
     const map = COMPLIANCE_MAP[framework];

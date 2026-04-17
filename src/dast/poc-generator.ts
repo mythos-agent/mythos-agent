@@ -39,10 +39,7 @@ export class PocGenerator {
     this.client = new Anthropic({ apiKey: config.apiKey });
   }
 
-  async generate(
-    vulnerability: Vulnerability,
-    targetUrl?: string
-  ): Promise<ProofOfConcept> {
+  async generate(vulnerability: Vulnerability, targetUrl?: string): Promise<ProofOfConcept> {
     const target = targetUrl || "http://localhost:3000";
 
     const response = await this.client.messages.create({

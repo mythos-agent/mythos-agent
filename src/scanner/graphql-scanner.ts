@@ -16,7 +16,8 @@ const GQL_RULES: GqlRule[] = [
   {
     id: "gql-introspection-enabled",
     title: "GraphQL: Introspection Enabled in Production",
-    description: "GraphQL introspection exposes your entire API schema. Disable it in production to prevent reconnaissance.",
+    description:
+      "GraphQL introspection exposes your entire API schema. Disable it in production to prevent reconnaissance.",
     severity: "medium",
     cwe: "CWE-200",
     patterns: [
@@ -27,7 +28,8 @@ const GQL_RULES: GqlRule[] = [
   {
     id: "gql-no-depth-limit",
     title: "GraphQL: No Query Depth Limiting",
-    description: "No query depth limit configured. Attackers can craft deeply nested queries to cause DoS.",
+    description:
+      "No query depth limit configured. Attackers can craft deeply nested queries to cause DoS.",
     severity: "high",
     cwe: "CWE-770",
     patterns: [
@@ -37,7 +39,8 @@ const GQL_RULES: GqlRule[] = [
   {
     id: "gql-no-cost-analysis",
     title: "GraphQL: No Query Cost/Complexity Analysis",
-    description: "No query cost limiting. Attackers can request expensive field combinations to exhaust server resources.",
+    description:
+      "No query cost limiting. Attackers can request expensive field combinations to exhaust server resources.",
     severity: "medium",
     cwe: "CWE-770",
     patterns: [
@@ -47,7 +50,8 @@ const GQL_RULES: GqlRule[] = [
   {
     id: "gql-no-rate-limit",
     title: "GraphQL: No Rate Limiting on Endpoint",
-    description: "GraphQL endpoint without rate limiting. Single endpoint handles all queries, making DoS easier.",
+    description:
+      "GraphQL endpoint without rate limiting. Single endpoint handles all queries, making DoS easier.",
     severity: "medium",
     cwe: "CWE-307",
     patterns: [
@@ -57,18 +61,17 @@ const GQL_RULES: GqlRule[] = [
   {
     id: "gql-batching-enabled",
     title: "GraphQL: Query Batching Enabled Without Limits",
-    description: "Query batching allows sending multiple operations in one request. Without limits, this amplifies other attacks.",
+    description:
+      "Query batching allows sending multiple operations in one request. Without limits, this amplifies other attacks.",
     severity: "low",
     cwe: "CWE-770",
-    patterns: [
-      /allowBatchedHttpRequests\s*:\s*true/gi,
-      /batching\s*:\s*true/gi,
-    ],
+    patterns: [/allowBatchedHttpRequests\s*:\s*true/gi, /batching\s*:\s*true/gi],
   },
   {
     id: "gql-no-field-auth",
     title: "GraphQL: Resolver Without Authorization Check",
-    description: "GraphQL resolver accesses data without checking user permissions. Each resolver should verify authorization.",
+    description:
+      "GraphQL resolver accesses data without checking user permissions. Each resolver should verify authorization.",
     severity: "high",
     cwe: "CWE-285",
     patterns: [
@@ -78,7 +81,8 @@ const GQL_RULES: GqlRule[] = [
   {
     id: "gql-debug-mode",
     title: "GraphQL: Debug Mode / Stack Trace Exposure",
-    description: "GraphQL server configured with debug or detailed error messages. This leaks internal information.",
+    description:
+      "GraphQL server configured with debug or detailed error messages. This leaks internal information.",
     severity: "medium",
     cwe: "CWE-209",
     patterns: [
@@ -90,12 +94,11 @@ const GQL_RULES: GqlRule[] = [
   {
     id: "gql-sql-in-resolver",
     title: "GraphQL: SQL Query in Resolver with User Input",
-    description: "Raw SQL query in GraphQL resolver using arguments directly. Use parameterized queries.",
+    description:
+      "Raw SQL query in GraphQL resolver using arguments directly. Use parameterized queries.",
     severity: "critical",
     cwe: "CWE-89",
-    patterns: [
-      /resolve.*args[\s\S]{0,100}(?:query|execute|raw)\s*\(.*(?:args\.|input\.)/gi,
-    ],
+    patterns: [/resolve.*args[\s\S]{0,100}(?:query|execute|raw)\s*\(.*(?:args\.|input\.)/gi],
   },
 ];
 
@@ -106,15 +109,12 @@ export interface GraphqlScanResult {
 
 export class GraphqlScanner {
   async scan(projectPath: string): Promise<GraphqlScanResult> {
-    const files = await glob(
-      ["**/*.ts", "**/*.js", "**/*.py"],
-      {
-        cwd: projectPath,
-        absolute: true,
-        ignore: ["node_modules/**", "dist/**", ".git/**", ".sphinx/**"],
-        nodir: true,
-      }
-    );
+    const files = await glob(["**/*.ts", "**/*.js", "**/*.py"], {
+      cwd: projectPath,
+      absolute: true,
+      ignore: ["node_modules/**", "dist/**", ".git/**", ".sphinx/**"],
+      nodir: true,
+    });
 
     const findings: Vulnerability[] = [];
     let idCounter = 1;
@@ -125,7 +125,9 @@ export class GraphqlScanner {
         const stats = fs.statSync(file);
         if (stats.size > 500_000) continue;
         content = fs.readFileSync(file, "utf-8");
-      } catch { continue; }
+      } catch {
+        continue;
+      }
 
       if (!/graphql|apollo|gql|schema|resolver|typeDefs|Query|Mutation/i.test(content)) continue;
 

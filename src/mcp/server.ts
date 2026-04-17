@@ -45,12 +45,17 @@ interface McpResponse {
 const TOOLS = [
   {
     name: "sphinx_scan",
-    description: "Scan a project for security vulnerabilities. Returns findings with severity, location, and description.",
+    description:
+      "Scan a project for security vulnerabilities. Returns findings with severity, location, and description.",
     inputSchema: {
       type: "object",
       properties: {
         path: { type: "string", description: "Project path to scan (default: current directory)" },
-        severity: { type: "string", description: "Minimum severity: critical, high, medium, low", default: "low" },
+        severity: {
+          type: "string",
+          description: "Minimum severity: critical, high, medium, low",
+          default: "low",
+        },
       },
     },
   },
@@ -66,7 +71,8 @@ const TOOLS = [
   },
   {
     name: "sphinx_endpoints",
-    description: "Discover all API endpoints in the codebase and assess their security (auth status, risk level).",
+    description:
+      "Discover all API endpoints in the codebase and assess their security (auth status, risk level).",
     inputSchema: {
       type: "object",
       properties: {
@@ -86,7 +92,8 @@ const TOOLS = [
   },
   {
     name: "sphinx_results",
-    description: "Get the latest scan results for a project. Returns all findings, chains, and trust score.",
+    description:
+      "Get the latest scan results for a project. Returns all findings, chains, and trust score.",
     inputSchema: {
       type: "object",
       properties: {
@@ -204,10 +211,14 @@ async function handleToolCall(req: McpRequest): Promise<McpResponse> {
         const endpoints = mapEndpoints(map);
         const assessment = assessEndpointSecurity(endpoints);
 
-        result = `Endpoints: ${assessment.total}\nAuthenticated: ${assessment.authenticated}\nUnauthenticated: ${assessment.unauthenticated}\nHigh Risk: ${assessment.highRisk.length}\n\n${assessment.summary}\n\n` +
-          endpoints.map((e) =>
-            `${e.method.padEnd(7)} ${e.path} — Auth: ${e.hasAuth ? "Yes" : "NO"} — Risk: ${e.riskLevel}`
-          ).join("\n");
+        result =
+          `Endpoints: ${assessment.total}\nAuthenticated: ${assessment.authenticated}\nUnauthenticated: ${assessment.unauthenticated}\nHigh Risk: ${assessment.highRisk.length}\n\n${assessment.summary}\n\n` +
+          endpoints
+            .map(
+              (e) =>
+                `${e.method.padEnd(7)} ${e.path} — Auth: ${e.hasAuth ? "Yes" : "NO"} — Risk: ${e.riskLevel}`
+            )
+            .join("\n");
         break;
       }
 
@@ -224,7 +235,8 @@ async function handleToolCall(req: McpRequest): Promise<McpResponse> {
           result = "No scan results found. Run `sphinx-agent scan` first.";
         } else {
           const vulns = scanResult.confirmedVulnerabilities;
-          result = `Last scan: ${scanResult.timestamp}\nFindings: ${vulns.length}\nChains: ${scanResult.chains.length}\n\n` +
+          result =
+            `Last scan: ${scanResult.timestamp}\nFindings: ${vulns.length}\nChains: ${scanResult.chains.length}\n\n` +
             formatFindings(vulns, scanResult.filesScanned);
         }
         break;
@@ -241,14 +253,33 @@ async function handleToolCall(req: McpRequest): Promise<McpResponse> {
         let score = 100;
         for (const f of all) {
           switch (f.severity) {
-            case "critical": score -= 20; break;
-            case "high": score -= 10; break;
-            case "medium": score -= 4; break;
-            case "low": score -= 1; break;
+            case "critical":
+              score -= 20;
+              break;
+            case "high":
+              score -= 10;
+              break;
+            case "medium":
+              score -= 4;
+              break;
+            case "low":
+              score -= 1;
+              break;
           }
         }
         score = Math.max(0, score);
-        const grade = score >= 90 ? "A+" : score >= 80 ? "A" : score >= 70 ? "B" : score >= 60 ? "C" : score >= 50 ? "D" : "F";
+        const grade =
+          score >= 90
+            ? "A+"
+            : score >= 80
+              ? "A"
+              : score >= 70
+                ? "B"
+                : score >= 60
+                  ? "C"
+                  : score >= 50
+                    ? "D"
+                    : "F";
 
         result = `Security Score: ${score}/100 (${grade})\nFindings: ${all.length} (${findings.length} code + ${sf.length} secrets)`;
         break;
@@ -266,7 +297,12 @@ async function handleToolCall(req: McpRequest): Promise<McpResponse> {
       jsonrpc: "2.0",
       id: req.id,
       result: {
-        content: [{ type: "text", text: typeof result === "string" ? result : JSON.stringify(result, null, 2) }],
+        content: [
+          {
+            type: "text",
+            text: typeof result === "string" ? result : JSON.stringify(result, null, 2),
+          },
+        ],
       },
     };
   } catch (err) {
@@ -274,7 +310,9 @@ async function handleToolCall(req: McpRequest): Promise<McpResponse> {
       jsonrpc: "2.0",
       id: req.id,
       result: {
-        content: [{ type: "text", text: `Error: ${err instanceof Error ? err.message : "unknown"}` }],
+        content: [
+          { type: "text", text: `Error: ${err instanceof Error ? err.message : "unknown"}` },
+        ],
         isError: true,
       },
     };
@@ -282,9 +320,10 @@ async function handleToolCall(req: McpRequest): Promise<McpResponse> {
 }
 
 function formatFindings(findings: Vulnerability[], filesScanned: number): string {
-  if (findings.length === 0) return filesScanned > 0
-    ? `Scanned ${filesScanned} files. No vulnerabilities found.`
-    : "No vulnerabilities found.";
+  if (findings.length === 0)
+    return filesScanned > 0
+      ? `Scanned ${filesScanned} files. No vulnerabilities found.`
+      : "No vulnerabilities found.";
 
   const counts = {
     critical: findings.filter((f) => f.severity === "critical").length,

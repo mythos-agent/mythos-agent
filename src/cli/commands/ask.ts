@@ -23,9 +23,7 @@ export async function askCommand(
     return;
   }
 
-  console.log(
-    chalk.bold("\n🔐 sphinx-agent ask — AI Security Analysis\n")
-  );
+  console.log(chalk.bold("\n🔐 sphinx-agent ask — AI Security Analysis\n"));
   console.log(chalk.dim(`Project: ${projectPath}\n`));
 
   const engine = new QueryEngine(config, projectPath);
@@ -39,9 +37,7 @@ export async function askCommand(
   // Interactive mode
   console.log(
     chalk.dim(
-      "Ask security questions about your codebase. Type " +
-        chalk.cyan("exit") +
-        " to quit.\n"
+      "Ask security questions about your codebase. Type " + chalk.cyan("exit") + " to quit.\n"
     )
   );
   console.log(chalk.dim("Examples:"));
@@ -94,8 +90,6 @@ async function executeQuery(engine: QueryEngine, question: string) {
     console.log(chalk.dim("─".repeat(50)));
     console.log();
   } catch (err) {
-    spinner.fail(
-      `Error: ${err instanceof Error ? err.message : "unknown error"}`
-    );
+    spinner.fail(`Error: ${err instanceof Error ? err.message : "unknown error"}`);
   }
 }

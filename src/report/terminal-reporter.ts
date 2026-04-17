@@ -36,20 +36,12 @@ export function renderTerminalReport(result: ScanResult): void {
 
     // Group by severity
     const bySeverity = groupBySeverity(vulns);
-    for (const severity of [
-      "critical",
-      "high",
-      "medium",
-      "low",
-      "info",
-    ] as Severity[]) {
+    for (const severity of ["critical", "high", "medium", "low", "info"] as Severity[]) {
       const group = bySeverity.get(severity);
       if (!group || group.length === 0) continue;
 
       console.log(
-        SEVERITY_COLORS[severity](
-          ` ${severity.toUpperCase()} (${group.length}) `
-        ) + "\n"
+        SEVERITY_COLORS[severity](` ${severity.toUpperCase()} (${group.length}) `) + "\n"
       );
 
       for (const vuln of group) {
@@ -65,11 +57,7 @@ export function renderTerminalReport(result: ScanResult): void {
 
 function renderChain(chain: VulnChain): void {
   const color = SEVERITY_COLORS[chain.severity];
-  console.log(
-    color(` ${chain.severity.toUpperCase()} `) +
-      " " +
-      chalk.bold(chain.title)
-  );
+  console.log(color(` ${chain.severity.toUpperCase()} `) + " " + chalk.bold(chain.title));
 
   for (let i = 0; i < chain.vulnerabilities.length; i++) {
     const v = chain.vulnerabilities[i];
@@ -82,21 +70,15 @@ function renderChain(chain: VulnChain): void {
   }
 
   console.log(chalk.dim("  →  ") + chalk.italic(chain.narrative));
-  console.log(
-    chalk.dim("  💥 Impact: ") + chain.impact
-  );
+  console.log(chalk.dim("  💥 Impact: ") + chain.impact);
   console.log();
 }
 
 function renderVulnerability(vuln: Vulnerability): void {
   const icon = vuln.aiVerified ? "✓" : "?";
-  const verified = vuln.aiVerified
-    ? chalk.green(" AI-verified")
-    : chalk.dim(" pattern-match");
+  const verified = vuln.aiVerified ? chalk.green(" AI-verified") : chalk.dim(" pattern-match");
 
-  console.log(
-    `  ${chalk.dim(vuln.id)} ${chalk.bold(vuln.title)}${verified}`
-  );
+  console.log(`  ${chalk.dim(vuln.id)} ${chalk.bold(vuln.title)}${verified}`);
   console.log(
     `    ${chalk.cyan(vuln.location.file)}:${chalk.yellow(String(vuln.location.line))}` +
       (vuln.cwe ? chalk.dim(` (${vuln.cwe})`) : "")
@@ -119,44 +101,32 @@ function renderSummary(result: ScanResult): void {
   };
 
   console.log(chalk.bold("\n📊 Summary\n"));
-  console.log(
-    `  Files scanned:  ${chalk.bold(String(result.filesScanned))}`
-  );
-  console.log(
-    `  Languages:      ${result.languages.join(", ") || "none detected"}`
-  );
+  console.log(`  Files scanned:  ${chalk.bold(String(result.filesScanned))}`);
+  console.log(`  Languages:      ${result.languages.join(", ") || "none detected"}`);
   console.log(`  Scan time:      ${duration}s`);
   console.log();
 
   console.log(
     `  Vulnerabilities: ${chalk.bold(String(vulns.length))}` +
-      (dismissedCount > 0
-        ? chalk.dim(` (${dismissedCount} false positives dismissed by AI)`)
-        : "")
+      (dismissedCount > 0 ? chalk.dim(` (${dismissedCount} false positives dismissed by AI)`) : "")
   );
 
   if (vulns.length > 0) {
     const parts: string[] = [];
-    if (counts.critical > 0)
-      parts.push(chalk.bgRed.white.bold(` ${counts.critical} CRITICAL `));
-    if (counts.high > 0)
-      parts.push(chalk.red.bold(`${counts.high} High`));
-    if (counts.medium > 0)
-      parts.push(chalk.yellow.bold(`${counts.medium} Medium`));
+    if (counts.critical > 0) parts.push(chalk.bgRed.white.bold(` ${counts.critical} CRITICAL `));
+    if (counts.high > 0) parts.push(chalk.red.bold(`${counts.high} High`));
+    if (counts.medium > 0) parts.push(chalk.yellow.bold(`${counts.medium} Medium`));
     if (counts.low > 0) parts.push(chalk.blue(`${counts.low} Low`));
     console.log(`  Breakdown:      ${parts.join("  ")}`);
   }
 
   if (chains.length > 0) {
-    console.log(
-      `  Attack chains:  ${chalk.red.bold(String(chains.length))}`
-    );
+    console.log(`  Attack chains:  ${chalk.red.bold(String(chains.length))}`);
   }
 
   // Trust score
   const score = calculateTrustScore(vulns, chains);
-  const scoreColor =
-    score >= 8 ? chalk.green : score >= 5 ? chalk.yellow : chalk.red;
+  const scoreColor = score >= 8 ? chalk.green : score >= 5 ? chalk.yellow : chalk.red;
   console.log(
     `\n  Trust Score:    ${scoreColor(`${score.toFixed(1)}/10`)}` +
       chalk.dim(
@@ -171,10 +141,7 @@ function renderSummary(result: ScanResult): void {
   console.log();
 }
 
-function calculateTrustScore(
-  vulns: Vulnerability[],
-  chains: VulnChain[]
-): number {
+function calculateTrustScore(vulns: Vulnerability[], chains: VulnChain[]): number {
   let score = 10;
 
   for (const v of vulns) {
@@ -211,9 +178,7 @@ function calculateTrustScore(
   return Math.max(0, Math.min(10, score));
 }
 
-function groupBySeverity(
-  vulns: Vulnerability[]
-): Map<Severity, Vulnerability[]> {
+function groupBySeverity(vulns: Vulnerability[]): Map<Severity, Vulnerability[]> {
   const map = new Map<Severity, Vulnerability[]>();
   for (const v of vulns) {
     const list = map.get(v.severity) || [];

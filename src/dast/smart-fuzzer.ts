@@ -96,8 +96,8 @@ Generate your first round of test payloads.`,
         const result = await this.sendPayload(url, method, payload);
         roundResults.push(
           `Payload: ${payload.param}=${payload.value.slice(0, 50)}\n` +
-          `  Status: ${result.status}, Time: ${result.time}ms\n` +
-          `  Body preview: ${result.body.slice(0, 200)}`
+            `  Status: ${result.status}, Time: ${result.time}ms\n` +
+            `  Body preview: ${result.body.slice(0, 200)}`
         );
 
         // Check if this is a finding
@@ -138,7 +138,10 @@ Generate your first round of test payloads.`,
     return {
       endpoint,
       method,
-      rounds: Math.min(MAX_ROUNDS, totalPayloads > 0 ? Math.ceil(totalPayloads / MAX_PAYLOADS_PER_ROUND) : 0),
+      rounds: Math.min(
+        MAX_ROUNDS,
+        totalPayloads > 0 ? Math.ceil(totalPayloads / MAX_PAYLOADS_PER_ROUND) : 0
+      ),
       findings,
       totalPayloadsSent: totalPayloads,
     };
@@ -152,9 +155,8 @@ Generate your first round of test payloads.`,
     const start = Date.now();
     const actualMethod = payload.method || method;
 
-    const targetUrl = actualMethod === "GET"
-      ? `${url}?${payload.param}=${encodeURIComponent(payload.value)}`
-      : url;
+    const targetUrl =
+      actualMethod === "GET" ? `${url}?${payload.param}=${encodeURIComponent(payload.value)}` : url;
 
     const body = ["POST", "PUT", "PATCH"].includes(actualMethod)
       ? JSON.stringify({ [payload.param]: payload.value })
@@ -195,7 +197,10 @@ Generate your first round of test payloads.`,
     }
 
     // Reflected XSS
-    if (result.body.includes(payload.value) && /<script|onload|onerror|onclick/i.test(payload.value)) {
+    if (
+      result.body.includes(payload.value) &&
+      /<script|onload|onerror|onclick/i.test(payload.value)
+    ) {
       return true;
     }
 
@@ -210,7 +215,8 @@ Generate your first round of test payloads.`,
         if (new RegExp(payload.expectedIndicator, "i").test(result.body)) return true;
       } catch {
         // Invalid regex from AI — fall back to string includes
-        if (result.body.toLowerCase().includes(payload.expectedIndicator.toLowerCase())) return true;
+        if (result.body.toLowerCase().includes(payload.expectedIndicator.toLowerCase()))
+          return true;
       }
     }
 

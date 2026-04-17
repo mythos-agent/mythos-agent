@@ -49,16 +49,12 @@ export async function sbomCommand(options: SbomOptions) {
   if (options.output) {
     const outputPath = path.resolve(options.output);
     fs.writeFileSync(outputPath, sbom, "utf-8");
-    console.log(
-      chalk.green(`\n✅ SBOM (${format.toUpperCase()}) saved to ${outputPath}`)
-    );
+    console.log(chalk.green(`\n✅ SBOM (${format.toUpperCase()}) saved to ${outputPath}`));
   } else {
     console.log(sbom);
   }
 
-  console.log(
-    chalk.dim(`\n  ${deps.length} components from ${lockfiles.length} lockfile(s)\n`)
-  );
+  console.log(chalk.dim(`\n  ${deps.length} components from ${lockfiles.length} lockfile(s)\n`));
 }
 
 function generateCycloneDx(deps: Dependency[], projectPath: string): string {
@@ -80,9 +76,7 @@ function generateCycloneDx(deps: Dependency[], projectPath: string): string {
       version: 1,
       metadata: {
         timestamp: new Date().toISOString(),
-        tools: [
-          { vendor: "sphinx-agent", name: "sphinx-agent", version: "1.0.0" },
-        ],
+        tools: [{ vendor: "sphinx-agent", name: "sphinx-agent", version: "1.0.0" }],
         component: {
           type: "application",
           name: projectName,

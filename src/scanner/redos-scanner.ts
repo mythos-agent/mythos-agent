@@ -51,15 +51,12 @@ export interface RedosScanResult {
 
 export class RedosScanner {
   async scan(projectPath: string): Promise<RedosScanResult> {
-    const files = await glob(
-      ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx", "**/*.py"],
-      {
-        cwd: projectPath,
-        absolute: true,
-        ignore: ["node_modules/**", "dist/**", ".git/**", ".sphinx/**"],
-        nodir: true,
-      }
-    );
+    const files = await glob(["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx", "**/*.py"], {
+      cwd: projectPath,
+      absolute: true,
+      ignore: ["node_modules/**", "dist/**", ".git/**", ".sphinx/**"],
+      nodir: true,
+    });
 
     const findings: Vulnerability[] = [];
     let idCounter = 1;
@@ -70,7 +67,9 @@ export class RedosScanner {
         const stats = fs.statSync(file);
         if (stats.size > 500_000) continue;
         content = fs.readFileSync(file, "utf-8");
-      } catch { continue; }
+      } catch {
+        continue;
+      }
 
       const lines = content.split("\n");
       const relativePath = path.relative(projectPath, file);
@@ -91,7 +90,10 @@ export class RedosScanner {
               if (indicator.pattern.test(regexStr)) {
                 // Check if this regex processes user input
                 const context = lines.slice(Math.max(0, i - 3), i + 4).join("\n");
-                const isUserFacing = /req\.|input|user|body|query|params|request|data|search|filter|match/i.test(context);
+                const isUserFacing =
+                  /req\.|input|user|body|query|params|request|data|search|filter|match/i.test(
+                    context
+                  );
 
                 findings.push({
                   id: `REDOS-${String(idCounter++).padStart(4, "0")}`,

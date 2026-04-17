@@ -28,11 +28,18 @@ export async function generateCommand(options: GenerateOptions) {
 
   if (detected.length === 0) {
     console.log(chalk.yellow("  Could not detect project type. Using fullstack preset.\n"));
-    detected.push({ framework: "Full Stack", preset: "fullstack", confidence: 50, indicators: ["fallback"] });
+    detected.push({
+      framework: "Full Stack",
+      preset: "fullstack",
+      confidence: 50,
+      indicators: ["fallback"],
+    });
   }
 
   const best = detected[0];
-  console.log(chalk.green(`  Detected: ${best.framework}`) + chalk.dim(` (${best.confidence}% confidence)`));
+  console.log(
+    chalk.green(`  Detected: ${best.framework}`) + chalk.dim(` (${best.confidence}% confidence)`)
+  );
   console.log(chalk.dim(`  Indicators: ${best.indicators.join(", ")}\n`));
 
   // Generate .sphinx.yml
@@ -90,9 +97,15 @@ export async function generateCommand(options: GenerateOptions) {
   }
 
   console.log(chalk.bold("\n  Next steps:\n"));
-  console.log(chalk.dim("    1. ") + chalk.cyan("sphinx-agent init") + chalk.dim(" — add your API key"));
-  console.log(chalk.dim("    2. ") + chalk.cyan("sphinx-agent scan") + chalk.dim(" — run your first scan"));
-  console.log(chalk.dim("    3. ") + chalk.cyan("sphinx-agent hooks install") + chalk.dim(" — add git hooks"));
+  console.log(
+    chalk.dim("    1. ") + chalk.cyan("sphinx-agent init") + chalk.dim(" — add your API key")
+  );
+  console.log(
+    chalk.dim("    2. ") + chalk.cyan("sphinx-agent scan") + chalk.dim(" — run your first scan")
+  );
+  console.log(
+    chalk.dim("    3. ") + chalk.cyan("sphinx-agent hooks install") + chalk.dim(" — add git hooks")
+  );
   console.log();
 }
 
@@ -134,7 +147,9 @@ async function detectProjectType(projectPath: string): Promise<DetectedStack[]> 
           indicators: ["react in dependencies"],
         });
       }
-    } catch { /* ignore */ }
+    } catch {
+      /* ignore */
+    }
   }
 
   // Django

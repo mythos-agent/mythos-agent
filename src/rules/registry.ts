@@ -14,23 +14,18 @@ export interface RulePack {
   author?: string;
 }
 
-export async function searchRulePacks(
-  query: string
-): Promise<RulePack[]> {
-  const searchTerm = query
-    ? `${REGISTRY_PREFIX}${query}`
-    : REGISTRY_PREFIX;
+export async function searchRulePacks(query: string): Promise<RulePack[]> {
+  const searchTerm = query ? `${REGISTRY_PREFIX}${query}` : REGISTRY_PREFIX;
 
   if (!SAFE_NAME_PATTERN.test(searchTerm)) {
     return [];
   }
 
   try {
-    const result = spawnSync(
-      "npm",
-      ["search", searchTerm, "--json", "--long"],
-      { encoding: "utf-8", timeout: 15000 }
-    );
+    const result = spawnSync("npm", ["search", searchTerm, "--json", "--long"], {
+      encoding: "utf-8",
+      timeout: 15000,
+    });
     const output = result.stdout || "[]";
     const results = JSON.parse(output) as Array<{
       name: string;
@@ -58,9 +53,7 @@ export async function installRulePack(
   name: string,
   projectPath: string
 ): Promise<{ rulesDir: string; ruleCount: number }> {
-  const packageName = name.startsWith(REGISTRY_PREFIX)
-    ? name
-    : `${REGISTRY_PREFIX}${name}`;
+  const packageName = name.startsWith(REGISTRY_PREFIX) ? name : `${REGISTRY_PREFIX}${name}`;
 
   const rulesDir = path.join(projectPath, LOCAL_RULES_DIR);
   if (!fs.existsSync(rulesDir)) {
@@ -76,24 +69,18 @@ export async function installRulePack(
   }
 
   try {
-    spawnSync(
-      "npm",
-      ["pack", packageName, "--pack-destination", tempDir],
-      { encoding: "utf-8", timeout: 30000, stdio: "pipe" }
-    );
+    spawnSync("npm", ["pack", packageName, "--pack-destination", tempDir], {
+      encoding: "utf-8",
+      timeout: 30000,
+      stdio: "pipe",
+    });
 
     // Find the downloaded tarball
-    const tarball = fs
-      .readdirSync(tempDir)
-      .find((f) => f.endsWith(".tgz"));
+    const tarball = fs.readdirSync(tempDir).find((f) => f.endsWith(".tgz"));
     if (!tarball) throw new Error("Package download failed");
 
     // Extract rules from the tarball
-    spawnSync(
-      "tar",
-      ["-xzf", path.join(tempDir, tarball), "-C", tempDir],
-      { stdio: "pipe" }
-    );
+    spawnSync("tar", ["-xzf", path.join(tempDir, tarball), "-C", tempDir], { stdio: "pipe" });
 
     // Copy rule files to local rules directory
     const packageDir = path.join(tempDir, "package");
@@ -101,10 +88,7 @@ export async function installRulePack(
     let ruleCount = 0;
 
     for (const ruleFile of ruleFiles) {
-      const dest = path.join(
-        rulesDir,
-        `${name}-${path.basename(ruleFile)}`
-      );
+      const dest = path.join(rulesDir, `${name}-${path.basename(ruleFile)}`);
       fs.copyFileSync(ruleFile, dest);
       ruleCount++;
     }
@@ -119,14 +103,8 @@ export async function installRulePack(
   }
 }
 
-export function listInstalledPacks(
-  projectPath: string
-): Array<{ name: string; package: string }> {
-  const trackFile = path.join(
-    projectPath,
-    LOCAL_RULES_DIR,
-    ".installed.json"
-  );
+export function listInstalledPacks(projectPath: string): Array<{ name: string; package: string }> {
+  const trackFile = path.join(projectPath, LOCAL_RULES_DIR, ".installed.json");
   if (!fs.existsSync(trackFile)) return [];
 
   try {
@@ -136,10 +114,7 @@ export function listInstalledPacks(
   }
 }
 
-export function uninstallRulePack(
-  name: string,
-  projectPath: string
-): number {
+export function uninstallRulePack(name: string, projectPath: string): number {
   const rulesDir = path.join(projectPath, LOCAL_RULES_DIR);
   if (!fs.existsSync(rulesDir)) return 0;
 
@@ -166,10 +141,7 @@ export function uninstallRulePack(
   return removed;
 }
 
-export function initRulePack(
-  name: string,
-  outputDir: string
-): string {
+export function initRulePack(name: string, outputDir: string): string {
   const packageName = `${REGISTRY_PREFIX}${name}`;
   const dir = path.join(outputDir, packageName);
   fs.mkdirSync(dir, { recursive: true });
@@ -184,10 +156,7 @@ export function initRulePack(
     files: ["*.yml"],
     license: "MIT",
   };
-  fs.writeFileSync(
-    path.join(dir, "package.json"),
-    JSON.stringify(pkg, null, 2)
-  );
+  fs.writeFileSync(path.join(dir, "package.json"), JSON.stringify(pkg, null, 2));
 
   // Create example rule file
   const exampleRules = `# ${name} — sphinx-agent custom rules
@@ -248,16 +217,8 @@ function findYamlFiles(dir: string): string[] {
   return results;
 }
 
-function trackInstalled(
-  projectPath: string,
-  name: string,
-  packageName: string
-): void {
-  const trackFile = path.join(
-    projectPath,
-    LOCAL_RULES_DIR,
-    ".installed.json"
-  );
+function trackInstalled(projectPath: string, name: string, packageName: string): void {
+  const trackFile = path.join(projectPath, LOCAL_RULES_DIR, ".installed.json");
   let installed: Array<{ name: string; package: string }> = [];
   if (fs.existsSync(trackFile)) {
     try {

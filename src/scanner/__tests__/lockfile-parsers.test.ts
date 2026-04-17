@@ -46,10 +46,7 @@ describe("parseLockfile — requirements.txt", () => {
   it("parses pinned Python dependencies", () => {
     const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "sphinx-test-"));
     const reqPath = path.join(tmpDir, "requirements.txt");
-    fs.writeFileSync(
-      reqPath,
-      "flask==3.0.0\nrequests==2.31.0\n# comment\nnumpy==1.26.0\n"
-    );
+    fs.writeFileSync(reqPath, "flask==3.0.0\nrequests==2.31.0\n# comment\nnumpy==1.26.0\n");
 
     const deps = parseLockfile(reqPath);
     expect(deps).toHaveLength(3);

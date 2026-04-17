@@ -15,10 +15,10 @@ describe("runTool", () => {
   });
 
   it("parses JSON output", () => {
-    const result = runTool<{ version: string }>(
-      "node",
-      ["-e", 'console.log(JSON.stringify({version:"1.0"}))'],
-    );
+    const result = runTool<{ version: string }>("node", [
+      "-e",
+      'console.log(JSON.stringify({version:"1.0"}))',
+    ]);
     expect(result.success).toBe(true);
     expect(result.data).toEqual({ version: "1.0" });
   });
@@ -29,11 +29,10 @@ describe("runTool", () => {
   });
 
   it("respects timeout", () => {
-    const result = runTool(
-      "node",
-      ["-e", "setTimeout(() => {}, 60000)"],
-      { timeout: 500, parseJson: false }
-    );
+    const result = runTool("node", ["-e", "setTimeout(() => {}, 60000)"], {
+      timeout: 500,
+      parseJson: false,
+    });
     expect(result.success).toBe(false);
   });
 

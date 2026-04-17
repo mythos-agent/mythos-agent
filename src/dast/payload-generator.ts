@@ -33,7 +33,7 @@ export const SQL_INJECTION_PAYLOADS: TestPayload[] = [
     category: "sqli",
     name: "Time-based blind",
     value: "'; WAITFOR DELAY '0:0:5'--",
-    detectPattern: /./,  // detect via response time
+    detectPattern: /./, // detect via response time
     severity: "critical",
     cwe: "CWE-89",
   },
@@ -75,7 +75,7 @@ export const XSS_PAYLOADS: TestPayload[] = [
   {
     category: "xss",
     name: "Polyglot",
-    value: 'jaVasCript:/*-/*`/*\\`/*\'/*"/**/(/* */oNcliCk=alert() )//%0D%0A',
+    value: "jaVasCript:/*-/*`/*\\`/*'/*\"/**/(/* */oNcliCk=alert() )//%0D%0A",
     detectPattern: /javascript|onclick|alert/i,
     severity: "high",
     cwe: "CWE-79",
@@ -168,7 +168,7 @@ export const OPEN_REDIRECT_PAYLOADS: TestPayload[] = [
     category: "redirect",
     name: "External redirect",
     value: "https://evil.com",
-    detectPattern: /./,  // detect via Location header
+    detectPattern: /./, // detect via Location header
     severity: "medium",
     cwe: "CWE-601",
   },
@@ -204,9 +204,7 @@ export function getPayloads(category?: string): TestPayload[] {
 /**
  * Generate targeted payloads based on a static analysis finding.
  */
-export function generateTargetedPayloads(
-  vulnCategory: string
-): TestPayload[] {
+export function generateTargetedPayloads(vulnCategory: string): TestPayload[] {
   switch (vulnCategory) {
     case "injection":
     case "sql-injection":

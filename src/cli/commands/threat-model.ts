@@ -82,13 +82,14 @@ export async function threatModelCommand(options: ThreatModelOptions) {
     `Tech: ${[...new Set(codebase.imports.map((i) => i.source).filter((s) => !s.startsWith(".")))].slice(0, 15).join(", ")}`,
   ].join("\n");
 
-  const endpointList = endpoints.slice(0, 20).map((e) =>
-    `${e.method} ${e.path} — auth:${e.hasAuth} risk:${e.riskLevel}`
-  ).join("\n");
+  const endpointList = endpoints
+    .slice(0, 20)
+    .map((e) => `${e.method} ${e.path} — auth:${e.hasAuth} risk:${e.riskLevel}`)
+    .join("\n");
 
-  const serviceList = services.services.map((s) =>
-    `${s.name} (${s.type}) — ports:${s.ports.join(",") || "none"}`
-  ).join("\n");
+  const serviceList = services.services
+    .map((s) => `${s.name} (${s.type}) — ports:${s.ports.join(",") || "none"}`)
+    .join("\n");
 
   spinner.text = "Generating STRIDE threat model...";
 
@@ -105,10 +106,12 @@ export async function threatModelCommand(options: ThreatModelOptions) {
       model: config.model,
       max_tokens: 8192,
       system: STRIDE_SYSTEM,
-      messages: [{
-        role: "user",
-        content: `Generate a STRIDE threat model for this application:\n\n## Architecture\n${archSummary}\n\n## Endpoints\n${endpointList}\n\n## Services\n${serviceList || "No services detected (single application)"}`,
-      }],
+      messages: [
+        {
+          role: "user",
+          content: `Generate a STRIDE threat model for this application:\n\n## Architecture\n${archSummary}\n\n## Endpoints\n${endpointList}\n\n## Services\n${serviceList || "No services detected (single application)"}`,
+        },
+      ],
     });
 
     spinner.stop();
@@ -140,9 +143,21 @@ export async function threatModelCommand(options: ThreatModelOptions) {
       if (comp.description) console.log(chalk.dim(`     ${comp.description}`));
 
       for (const threat of comp.threats || []) {
-        const icons: Record<string, string> = { S: "🎭", T: "✏️", R: "📝", I: "👁️", D: "💥", E: "⬆️" };
+        const icons: Record<string, string> = {
+          S: "🎭",
+          T: "✏️",
+          R: "📝",
+          I: "👁️",
+          D: "💥",
+          E: "⬆️",
+        };
         const icon = icons[threat.category as string] || "⚠️";
-        const color = threat.impact === "high" ? chalk.red : threat.impact === "medium" ? chalk.yellow : chalk.blue;
+        const color =
+          threat.impact === "high"
+            ? chalk.red
+            : threat.impact === "medium"
+              ? chalk.yellow
+              : chalk.blue;
         console.log(`     ${icon} ${color(`[${threat.category}]`)} ${threat.threat}`);
         console.log(chalk.dim(`        Mitigation: ${threat.mitigation}`));
       }
@@ -164,23 +179,37 @@ export async function threatModelCommand(options: ThreatModelOptions) {
     if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
     fs.writeFileSync(outputPath, JSON.stringify(model, null, 2));
     console.log(chalk.dim(`  Saved to ${outputPath}\n`));
-
   } catch (err) {
     spinner.fail(`Threat model failed: ${err instanceof Error ? err.message : "error"}`);
     renderBasicThreatModel(endpoints, services, projectPath, options.json);
   }
 }
 
-function renderBasicThreatModel(endpoints: any[], services: any, projectPath: string, json?: boolean) {
+function renderBasicThreatModel(
+  endpoints: any[],
+  services: any,
+  projectPath: string,
+  json?: boolean
+) {
   const threats = [];
 
   // Auto-generate basic threats from endpoints
   for (const ep of endpoints) {
     if (!ep.hasAuth && ep.riskLevel === "high") {
-      threats.push({ category: "S", component: ep.path, threat: `Unauthenticated ${ep.method} endpoint`, impact: "high" });
+      threats.push({
+        category: "S",
+        component: ep.path,
+        threat: `Unauthenticated ${ep.method} endpoint`,
+        impact: "high",
+      });
     }
     if (ep.method === "POST" || ep.method === "PUT") {
-      threats.push({ category: "T", component: ep.path, threat: "Data tampering via API", impact: "medium" });
+      threats.push({
+        category: "T",
+        component: ep.path,
+        threat: "Data tampering via API",
+        impact: "medium",
+      });
     }
   }
 

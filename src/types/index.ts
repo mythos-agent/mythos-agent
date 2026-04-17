@@ -84,7 +84,16 @@ export const DEFAULT_CONFIG: SphinxConfig = {
     disabled: [],
   },
   scan: {
-    include: ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx", "**/*.py", "**/*.go", "**/*.java", "**/*.php"],
+    include: [
+      "**/*.ts",
+      "**/*.tsx",
+      "**/*.js",
+      "**/*.jsx",
+      "**/*.py",
+      "**/*.go",
+      "**/*.java",
+      "**/*.php",
+    ],
     exclude: [
       "node_modules/**",
       "dist/**",

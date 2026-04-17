@@ -3,7 +3,11 @@ import path from "node:path";
 import http from "node:http";
 import chalk from "chalk";
 import ora from "ora";
-import { discoverLockfiles, parseLockfile, type Dependency } from "../../scanner/lockfile-parsers.js";
+import {
+  discoverLockfiles,
+  parseLockfile,
+  type Dependency,
+} from "../../scanner/lockfile-parsers.js";
 import { DepScanner } from "../../scanner/dep-scanner.js";
 
 interface DepsOptions {
@@ -47,10 +51,16 @@ export async function depsCommand(options: DepsOptions) {
   }
 
   if (options.json) {
-    console.log(JSON.stringify(deps.map((d) => ({
-      ...d,
-      vulnerable: vulnDeps.has(`${d.name}@${d.version}`),
-    })), null, 2));
+    console.log(
+      JSON.stringify(
+        deps.map((d) => ({
+          ...d,
+          vulnerable: vulnDeps.has(`${d.name}@${d.version}`),
+        })),
+        null,
+        2
+      )
+    );
     return;
   }
 
@@ -62,7 +72,9 @@ export async function depsCommand(options: DepsOptions) {
   });
 
   server.listen(options.port, "127.0.0.1", () => {
-    console.log(chalk.bold(`\n📦 Dependency graph: ${chalk.cyan(`http://localhost:${options.port}`)}\n`));
+    console.log(
+      chalk.bold(`\n📦 Dependency graph: ${chalk.cyan(`http://localhost:${options.port}`)}\n`)
+    );
   });
 }
 
@@ -75,20 +87,24 @@ function buildDepsHtml(deps: Dependency[], vulnDeps: Set<string>, projectPath: s
     byEcosystem.set(d.ecosystem, list);
   }
 
-  const ecosystemSections = [...byEcosystem.entries()].map(([eco, ecoDeps]) => {
-    const rows = ecoDeps.map((d) => {
-      const isVuln = vulnDeps.has(`${d.name}@${d.version}`);
-      return `<tr class="${isVuln ? "vuln" : ""}">
+  const ecosystemSections = [...byEcosystem.entries()]
+    .map(([eco, ecoDeps]) => {
+      const rows = ecoDeps
+        .map((d) => {
+          const isVuln = vulnDeps.has(`${d.name}@${d.version}`);
+          return `<tr class="${isVuln ? "vuln" : ""}">
         <td>${isVuln ? "🔴" : "✅"}</td>
         <td><strong>${esc(d.name)}</strong></td>
         <td>${esc(d.version)}</td>
         <td>${esc(d.lockfile)}</td>
       </tr>`;
-    }).join("");
-    const vulnCount = ecoDeps.filter((d) => vulnDeps.has(`${d.name}@${d.version}`)).length;
-    return `<h2>${esc(eco)} (${ecoDeps.length} packages${vulnCount > 0 ? `, <span class="red">${vulnCount} vulnerable</span>` : ""})</h2>
+        })
+        .join("");
+      const vulnCount = ecoDeps.filter((d) => vulnDeps.has(`${d.name}@${d.version}`)).length;
+      return `<h2>${esc(eco)} (${ecoDeps.length} packages${vulnCount > 0 ? `, <span class="red">${vulnCount} vulnerable</span>` : ""})</h2>
     <table><thead><tr><th></th><th>Package</th><th>Version</th><th>Lockfile</th></tr></thead><tbody>${rows}</tbody></table>`;
-  }).join("");
+    })
+    .join("");
 
   return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Dependencies — ${esc(projectName)}</title>

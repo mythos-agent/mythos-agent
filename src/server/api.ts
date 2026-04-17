@@ -61,7 +61,10 @@ route("GET", "/api/results/sarif", async () => {
 route("GET", "/api/results/markdown", async () => {
   const result = loadResults(serverConfig.projectPath);
   if (!result) return { status: 404, data: { error: "No scan results" } };
-  return { status: 200, data: { markdown: renderMarkdownReport(result, serverConfig.projectPath) } };
+  return {
+    status: 200,
+    data: { markdown: renderMarkdownReport(result, serverConfig.projectPath) },
+  };
 });
 
 route("GET", "/api/baseline", async () => {
@@ -91,7 +94,11 @@ route("GET", "/api/policy", async () => {
 route("POST", "/api/scan", async (_req, _params, body) => {
   let options: Record<string, unknown> = {};
   if (body) {
-    try { options = JSON.parse(body); } catch { return { status: 400, data: { error: "Invalid JSON body" } }; }
+    try {
+      options = JSON.parse(body);
+    } catch {
+      return { status: 400, data: { error: "Invalid JSON body" } };
+    }
   }
   // Restrict scanning to the configured project path (prevent path traversal)
   const projectPath = serverConfig.projectPath;
@@ -117,7 +124,9 @@ route("POST", "/api/scan", async (_req, _params, body) => {
     const depScanner = new DepScanner();
     const { findings: deps } = await depScanner.scan(projectPath);
     findings.push(...deps);
-  } catch { /* optional */ }
+  } catch {
+    /* optional */
+  }
 
   // External tools
   const { findings: external, toolsRun } = await runAllTools(projectPath);
@@ -229,9 +238,7 @@ export function createServer(config: ServerConfig): http.Server {
     }
 
     // Match route
-    const matched = routes.find(
-      (r) => r.method === method && r.path === url.pathname
-    );
+    const matched = routes.find((r) => r.method === method && r.path === url.pathname);
 
     if (matched) {
       try {
@@ -240,13 +247,20 @@ export function createServer(config: ServerConfig): http.Server {
         res.end(JSON.stringify(result.data, null, 2));
       } catch (err) {
         res.writeHead(500, { "Content-Type": "application/json" });
-        res.end(JSON.stringify({
-          error: err instanceof Error ? err.message : "Internal server error",
-        }));
+        res.end(
+          JSON.stringify({
+            error: err instanceof Error ? err.message : "Internal server error",
+          })
+        );
       }
     } else {
       res.writeHead(404, { "Content-Type": "application/json" });
-      res.end(JSON.stringify({ error: "Not found", endpoints: routes.map((r) => `${r.method} ${r.path}`) }));
+      res.end(
+        JSON.stringify({
+          error: "Not found",
+          endpoints: routes.map((r) => `${r.method} ${r.path}`),
+        })
+      );
     }
   });
 

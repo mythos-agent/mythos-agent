@@ -14,18 +14,10 @@ export async function huntCommand(huntPath: string, options: HuntOptions) {
   const projectPath = path.resolve(huntPath);
   const config = loadConfig(projectPath);
 
-  console.log(
-    chalk.bold(
-      "\n🔐 sphinx-agent hunt — Autonomous Security Agent\n"
-    )
-  );
+  console.log(chalk.bold("\n🔐 sphinx-agent hunt — Autonomous Security Agent\n"));
   console.log(chalk.dim("━".repeat(50)));
   console.log(chalk.dim(`\nProject: ${projectPath}`));
-  console.log(
-    chalk.dim(
-      "Mode: Multi-agent swarm (Recon → Analyze → Exploit)\n"
-    )
-  );
+  console.log(chalk.dim("Mode: Multi-agent swarm (Recon → Analyze → Exploit)\n"));
 
   const orchestrator = new Orchestrator(config, projectPath);
   const result = await orchestrator.run();
@@ -67,7 +59,12 @@ export async function huntCommand(huntPath: string, options: HuntOptions) {
     if (result.hypotheses.hypotheses.length > 0) {
       console.log(chalk.bold("\n🧪 Security Hypotheses\n"));
       for (const h of result.hypotheses.hypotheses) {
-        const color = h.estimatedSeverity === "critical" ? chalk.red : h.estimatedSeverity === "high" ? chalk.yellow : chalk.blue;
+        const color =
+          h.estimatedSeverity === "critical"
+            ? chalk.red
+            : h.estimatedSeverity === "high"
+              ? chalk.yellow
+              : chalk.blue;
         console.log(
           `  ${color(`[${h.estimatedSeverity.toUpperCase()}]`)} ${chalk.bold(h.id)} — ${h.hypothesis.slice(0, 80)}`
         );
@@ -78,7 +75,9 @@ export async function huntCommand(huntPath: string, options: HuntOptions) {
     // Show confidence summary
     const cs = result.confidenceSummary;
     console.log(chalk.bold("\n📊 Confidence Summary\n"));
-    console.log(`  ${chalk.green(`${cs.confirmed} confirmed`)} | ${chalk.yellow(`${cs.likely} likely`)} | ${chalk.blue(`${cs.possible} possible`)} | ${chalk.dim(`${cs.dismissed} dismissed`)}`);
+    console.log(
+      `  ${chalk.green(`${cs.confirmed} confirmed`)} | ${chalk.yellow(`${cs.likely} likely`)} | ${chalk.blue(`${cs.possible} possible`)} | ${chalk.dim(`${cs.dismissed} dismissed`)}`
+    );
 
     // Show AI insights
     if (result.analysis.aiInsights.length > 0) {
@@ -92,9 +91,7 @@ export async function huntCommand(huntPath: string, options: HuntOptions) {
     if (result.exploit.proofOfConcepts.length > 0) {
       console.log(chalk.bold("\n💣 Proof of Concepts\n"));
       for (const poc of result.exploit.proofOfConcepts) {
-        console.log(
-          `  ${chalk.red(poc.vulnerabilityId)} — ${poc.description}`
-        );
+        console.log(`  ${chalk.red(poc.vulnerabilityId)} — ${poc.description}`);
         console.log(chalk.dim(`    Payload: ${poc.payload}`));
         console.log();
       }

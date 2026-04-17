@@ -40,7 +40,9 @@ export async function notifyCommand(options: NotifyOptions) {
   }
 
   if (sent === 0) {
-    console.log(chalk.yellow("\n⚠️  Specify a webhook: --slack, --discord, --teams, or --webhook <url>\n"));
+    console.log(
+      chalk.yellow("\n⚠️  Specify a webhook: --slack, --discord, --teams, or --webhook <url>\n")
+    );
     return;
   }
 
@@ -62,7 +64,8 @@ async function sendSlack(webhookUrl: string, result: ScanResult): Promise<void> 
       type: "section",
       text: {
         type: "mrkdwn",
-        text: `*Trust Score: ${trustScore.toFixed(1)}/10* ${trustScore >= 7 ? "✅" : trustScore >= 4 ? "⚠️" : "❌"}\n\n` +
+        text:
+          `*Trust Score: ${trustScore.toFixed(1)}/10* ${trustScore >= 7 ? "✅" : trustScore >= 4 ? "⚠️" : "❌"}\n\n` +
           `🔴 ${counts.critical} Critical  🟠 ${counts.high} High  🟡 ${counts.medium} Medium  🔵 ${counts.low} Low\n` +
           `⛓️ ${result.chains.length} Attack Chain(s)`,
       },
@@ -76,7 +79,8 @@ async function sendSlack(webhookUrl: string, result: ScanResult): Promise<void> 
       type: "section",
       text: {
         type: "mrkdwn",
-        text: "*Top findings:*\n" +
+        text:
+          "*Top findings:*\n" +
           top.map((v) => `• \`${v.location.file}:${v.location.line}\` ${v.title}`).join("\n"),
       },
     });
@@ -98,7 +102,10 @@ async function sendDiscord(webhookUrl: string, result: ScanResult): Promise<void
       { name: "Trust Score", value: `${trustScore.toFixed(1)}/10`, inline: true },
       { name: "Findings", value: `${vulns.length}`, inline: true },
       { name: "Chains", value: `${result.chains.length}`, inline: true },
-      { name: "Breakdown", value: `🔴 ${counts.critical} | 🟠 ${counts.high} | 🟡 ${counts.medium} | 🔵 ${counts.low}` },
+      {
+        name: "Breakdown",
+        value: `🔴 ${counts.critical} | 🟠 ${counts.high} | 🟡 ${counts.medium} | 🔵 ${counts.low}`,
+      },
     ],
     footer: { text: "sphinx-agent — AI security agent" },
     timestamp: result.timestamp,
@@ -119,7 +126,8 @@ async function sendTeams(webhookUrl: string, result: ScanResult): Promise<void> 
     themeColor: trustScore >= 7 ? "22c55e" : trustScore >= 4 ? "eab308" : "ef4444",
     summary: `sphinx-agent: ${vulns.length} findings in ${project}`,
     title: `🔐 sphinx-agent: ${project}`,
-    text: `**Trust Score: ${trustScore.toFixed(1)}/10**\n\n` +
+    text:
+      `**Trust Score: ${trustScore.toFixed(1)}/10**\n\n` +
       `🔴 ${counts.critical} Critical | 🟠 ${counts.high} High | 🟡 ${counts.medium} Medium | 🔵 ${counts.low} Low\n\n` +
       `⛓️ ${result.chains.length} Attack Chain(s)`,
   };
@@ -151,7 +159,9 @@ async function postJson(url: string, body: unknown): Promise<void> {
       body: JSON.stringify(body),
     });
   } catch (err) {
-    console.log(chalk.red(`  Failed to send to ${url}: ${err instanceof Error ? err.message : "error"}`));
+    console.log(
+      chalk.red(`  Failed to send to ${url}: ${err instanceof Error ? err.message : "error"}`)
+    );
   }
 }
 
@@ -167,7 +177,20 @@ function countBySeverity(vulns: Vulnerability[]) {
 function calcTrustScore(vulns: Vulnerability[]): number {
   let score = 10;
   for (const v of vulns) {
-    switch (v.severity) { case "critical": score -= 2; break; case "high": score -= 1; break; case "medium": score -= 0.5; break; case "low": score -= 0.2; break; }
+    switch (v.severity) {
+      case "critical":
+        score -= 2;
+        break;
+      case "high":
+        score -= 1;
+        break;
+      case "medium":
+        score -= 0.5;
+        break;
+      case "low":
+        score -= 0.2;
+        break;
+    }
   }
   return Math.max(0, Math.min(10, score));
 }

@@ -1,4 +1,10 @@
-export { runTool, checkTool, checkAllTools, type ToolInfo, type ToolResult } from "./tool-runner.js";
+export {
+  runTool,
+  checkTool,
+  checkAllTools,
+  type ToolInfo,
+  type ToolResult,
+} from "./tool-runner.js";
 export { runSemgrep, isSemgrepInstalled } from "./semgrep.js";
 export { runGitleaks, isGitleaksInstalled } from "./gitleaks.js";
 export { runTrivyFs, runTrivyImage, isTrivyInstalled } from "./trivy.js";

@@ -19,7 +19,8 @@ const CLOUD_RULES: CloudRule[] = [
   {
     id: "aws-s3-public",
     title: "AWS: S3 Bucket with Public Access",
-    description: "S3 bucket configured with public ACL. Data is accessible to anyone on the internet.",
+    description:
+      "S3 bucket configured with public ACL. Data is accessible to anyone on the internet.",
     severity: "critical",
     cwe: "CWE-284",
     provider: "aws",
@@ -33,7 +34,8 @@ const CLOUD_RULES: CloudRule[] = [
   {
     id: "aws-iam-wildcard",
     title: "AWS: IAM Policy with Wildcard Permissions",
-    description: "IAM policy grants '*' action on '*' resource. This is overprivileged and violates least privilege.",
+    description:
+      "IAM policy grants '*' action on '*' resource. This is overprivileged and violates least privilege.",
     severity: "critical",
     cwe: "CWE-250",
     provider: "aws",
@@ -74,7 +76,8 @@ const CLOUD_RULES: CloudRule[] = [
   {
     id: "aws-lambda-secrets",
     title: "AWS: Secrets in Lambda Environment Variables",
-    description: "Sensitive values hardcoded in Lambda environment configuration. Use Secrets Manager or SSM Parameter Store.",
+    description:
+      "Sensitive values hardcoded in Lambda environment configuration. Use Secrets Manager or SSM Parameter Store.",
     severity: "high",
     cwe: "CWE-798",
     provider: "aws",
@@ -88,15 +91,13 @@ const CLOUD_RULES: CloudRule[] = [
   {
     id: "azure-storage-public",
     title: "Azure: Storage Account with Public Blob Access",
-    description: "Azure storage account allows public blob access. Data can be accessed without authentication.",
+    description:
+      "Azure storage account allows public blob access. Data can be accessed without authentication.",
     severity: "critical",
     cwe: "CWE-284",
     provider: "azure",
     filePatterns: ["**/*.tf", "**/*.json", "**/*.yml"],
-    patterns: [
-      /allow_blob_public_access\s*=\s*true/gi,
-      /publicAccess.*(?:Blob|Container)/gi,
-    ],
+    patterns: [/allow_blob_public_access\s*=\s*true/gi, /publicAccess.*(?:Blob|Container)/gi],
   },
   {
     id: "azure-nsg-any",
@@ -114,21 +115,21 @@ const CLOUD_RULES: CloudRule[] = [
   {
     id: "azure-app-no-https",
     title: "Azure: App Service Without HTTPS Only",
-    description: "Azure App Service allows HTTP connections. Force HTTPS to protect data in transit.",
+    description:
+      "Azure App Service allows HTTP connections. Force HTTPS to protect data in transit.",
     severity: "medium",
     cwe: "CWE-319",
     provider: "azure",
     filePatterns: ["**/*.tf", "**/*.json"],
-    patterns: [
-      /https_only\s*=\s*false/gi,
-    ],
+    patterns: [/https_only\s*=\s*false/gi],
   },
 
   // === GCP ===
   {
     id: "gcp-bucket-public",
     title: "GCP: Cloud Storage Bucket with allUsers Access",
-    description: "GCP storage bucket grants access to allUsers or allAuthenticatedUsers. Data is publicly accessible.",
+    description:
+      "GCP storage bucket grants access to allUsers or allAuthenticatedUsers. Data is publicly accessible.",
     severity: "critical",
     cwe: "CWE-284",
     provider: "gcp",
@@ -147,28 +148,26 @@ const CLOUD_RULES: CloudRule[] = [
     cwe: "CWE-284",
     provider: "gcp",
     filePatterns: ["**/*.tf", "**/*.json"],
-    patterns: [
-      /source_ranges\s*[:=]\s*\[\s*["']0\.0\.0\.0\/0["']/gi,
-    ],
+    patterns: [/source_ranges\s*[:=]\s*\[\s*["']0\.0\.0\.0\/0["']/gi],
   },
   {
     id: "gcp-sql-no-ssl",
     title: "GCP: Cloud SQL Without SSL Enforcement",
-    description: "Cloud SQL instance does not require SSL connections. Data transmitted in cleartext.",
+    description:
+      "Cloud SQL instance does not require SSL connections. Data transmitted in cleartext.",
     severity: "high",
     cwe: "CWE-319",
     provider: "gcp",
     filePatterns: ["**/*.tf"],
-    patterns: [
-      /require_ssl\s*=\s*false/gi,
-    ],
+    patterns: [/require_ssl\s*=\s*false/gi],
   },
 
   // === General Cloud ===
   {
     id: "cloud-secrets-in-config",
     title: "Cloud: Secrets in Infrastructure Config",
-    description: "Credentials or secrets hardcoded in cloud configuration files. Use a secrets manager.",
+    description:
+      "Credentials or secrets hardcoded in cloud configuration files. Use a secrets manager.",
     severity: "critical",
     cwe: "CWE-798",
     provider: "general",
@@ -193,7 +192,8 @@ const CLOUD_RULES: CloudRule[] = [
   {
     id: "cloud-overprivileged",
     title: "Cloud: Overprivileged Service Role",
-    description: "Service or function role has admin/full-access permissions. Follow the principle of least privilege.",
+    description:
+      "Service or function role has admin/full-access permissions. Follow the principle of least privilege.",
     severity: "high",
     cwe: "CWE-250",
     provider: "general",
@@ -236,7 +236,11 @@ export class CloudSecurityScanner {
       }
 
       // Quick check: skip files without cloud references
-      if (!/aws|azure|gcp|google|terraform|cloudformation|pulumi|s3|iam|lambda|ec2|rds|storage|firewall/i.test(content)) {
+      if (
+        !/aws|azure|gcp|google|terraform|cloudformation|pulumi|s3|iam|lambda|ec2|rds|storage|firewall/i.test(
+          content
+        )
+      ) {
         continue;
       }
 

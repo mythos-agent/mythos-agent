@@ -8,20 +8,20 @@ export interface SupplyChainResult {
 
 // Known typosquatting patterns — popular package + common typos
 const TYPOSQUAT_TARGETS: Record<string, string[]> = {
-  "lodash": ["lodahs", "lodasah", "1odash", "l0dash"],
-  "express": ["expres", "expresss", "axpress", "expess"],
-  "react": ["raect", "recat", "reat", "reactt"],
-  "axios": ["axois", "axio", "axioss", "axos"],
-  "moment": ["momnet", "momet", "monment"],
-  "chalk": ["chalck", "chalks", "chak"],
-  "dotenv": ["dot-env", "dotnev", "dotenvv"],
-  "jsonwebtoken": ["json-webtoken", "jsonwebtokem", "jasonwebtoken"],
-  "bcrypt": ["bycrypt", "bcryot", "bcyrpt"],
-  "mongoose": ["mongose", "mongeese", "mongooes"],
-  "sequelize": ["seqelize", "sqeuelize", "sequlize"],
-  "passport": ["pasport", "passort", "passpoort"],
-  "helmet": ["helment", "helmett", "hemlet"],
-  "cors": ["coors", "corss"],
+  lodash: ["lodahs", "lodasah", "1odash", "l0dash"],
+  express: ["expres", "expresss", "axpress", "expess"],
+  react: ["raect", "recat", "reat", "reactt"],
+  axios: ["axois", "axio", "axioss", "axos"],
+  moment: ["momnet", "momet", "monment"],
+  chalk: ["chalck", "chalks", "chak"],
+  dotenv: ["dot-env", "dotnev", "dotenvv"],
+  jsonwebtoken: ["json-webtoken", "jsonwebtokem", "jasonwebtoken"],
+  bcrypt: ["bycrypt", "bcryot", "bcyrpt"],
+  mongoose: ["mongose", "mongeese", "mongooes"],
+  sequelize: ["seqelize", "sqeuelize", "sequlize"],
+  passport: ["pasport", "passort", "passpoort"],
+  helmet: ["helment", "helmett", "hemlet"],
+  cors: ["coors", "corss"],
 };
 
 export class SupplyChainScanner {
@@ -68,8 +68,12 @@ export class SupplyChainScanner {
           for (const [scriptName, scriptCmd] of Object.entries(pkg.scripts)) {
             const cmd = scriptCmd as string;
             if (
-              (scriptName === "preinstall" || scriptName === "postinstall" || scriptName === "prepare") &&
-              /(?:curl|wget|bash|sh|powershell|cmd|node\s+-e|eval|exec|child_process|http|https)/.test(cmd)
+              (scriptName === "preinstall" ||
+                scriptName === "postinstall" ||
+                scriptName === "prepare") &&
+              /(?:curl|wget|bash|sh|powershell|cmd|node\s+-e|eval|exec|child_process|http|https)/.test(
+                cmd
+              )
             ) {
               findings.push({
                 id: `SUPPLY-${String(idCounter++).padStart(4, "0")}`,
@@ -80,7 +84,11 @@ export class SupplyChainScanner {
                 category: "supply-chain",
                 cwe: "CWE-829",
                 confidence: "high",
-                location: { file: "package.json", line: 0, snippet: `"${scriptName}": "${cmd.slice(0, 80)}"` },
+                location: {
+                  file: "package.json",
+                  line: 0,
+                  snippet: `"${scriptName}": "${cmd.slice(0, 80)}"`,
+                },
               });
             }
           }
@@ -99,7 +107,11 @@ export class SupplyChainScanner {
               category: "supply-chain",
               cwe: "CWE-829",
               confidence: "medium",
-              location: { file: "package.json", line: 0, snippet: `"${depName}": "${v.slice(0, 60)}"` },
+              location: {
+                file: "package.json",
+                line: 0,
+                snippet: `"${depName}": "${v.slice(0, 60)}"`,
+              },
             });
           }
 
@@ -120,7 +132,8 @@ export class SupplyChainScanner {
         }
 
         // 6. No lockfile
-        const hasLockfile = fs.existsSync(path.join(projectPath, "package-lock.json")) ||
+        const hasLockfile =
+          fs.existsSync(path.join(projectPath, "package-lock.json")) ||
           fs.existsSync(path.join(projectPath, "yarn.lock")) ||
           fs.existsSync(path.join(projectPath, "pnpm-lock.yaml"));
         if (!hasLockfile && Object.keys(allDeps || {}).length > 0) {
@@ -128,7 +141,8 @@ export class SupplyChainScanner {
             id: `SUPPLY-${String(idCounter++).padStart(4, "0")}`,
             rule: "supply:no-lockfile",
             title: "Supply Chain: No lockfile found",
-            description: "No package-lock.json, yarn.lock, or pnpm-lock.yaml found. Without a lockfile, dependency versions aren't deterministic and integrity can't be verified.",
+            description:
+              "No package-lock.json, yarn.lock, or pnpm-lock.yaml found. Without a lockfile, dependency versions aren't deterministic and integrity can't be verified.",
             severity: "high",
             category: "supply-chain",
             cwe: "CWE-1104",
@@ -171,7 +185,8 @@ export class SupplyChainScanner {
             id: `SUPPLY-${String(idCounter++).padStart(4, "0")}`,
             rule: "supply:custom-index",
             title: "Supply Chain: Custom package index URL",
-            description: "Custom package index URL found. This could enable dependency confusion attacks where a malicious public package overrides an internal one.",
+            description:
+              "Custom package index URL found. This could enable dependency confusion attacks where a malicious public package overrides an internal one.",
             severity: "high",
             category: "supply-chain",
             cwe: "CWE-829",

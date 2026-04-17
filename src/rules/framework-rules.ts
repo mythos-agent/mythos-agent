@@ -27,9 +27,7 @@ export function loadFrameworkRules(): RuleDefinition[] {
       category: "secrets",
       cwe: "CWE-200",
       languages: ["typescript", "javascript"],
-      patterns: [
-        { type: "regex", pattern: "NEXT_PUBLIC_.*(?:SECRET|KEY|TOKEN|PASSWORD|PRIVATE)" },
-      ],
+      patterns: [{ type: "regex", pattern: "NEXT_PUBLIC_.*(?:SECRET|KEY|TOKEN|PASSWORD|PRIVATE)" }],
     },
     {
       id: "next-unsafe-redirect",
@@ -39,9 +37,7 @@ export function loadFrameworkRules(): RuleDefinition[] {
       category: "redirect",
       cwe: "CWE-601",
       languages: ["typescript", "javascript"],
-      patterns: [
-        { type: "regex", pattern: "redirect\\s*\\(.*(?:req|params|query|searchParams)" },
-      ],
+      patterns: [{ type: "regex", pattern: "redirect\\s*\\(.*(?:req|params|query|searchParams)" }],
     },
     {
       id: "react-ref-dom-xss",
@@ -51,9 +47,7 @@ export function loadFrameworkRules(): RuleDefinition[] {
       category: "xss",
       cwe: "CWE-79",
       languages: ["typescript", "javascript"],
-      patterns: [
-        { type: "regex", pattern: "ref\\.current\\.innerHTML\\s*=" },
-      ],
+      patterns: [{ type: "regex", pattern: "ref\\.current\\.innerHTML\\s*=" }],
     },
 
     // === Express.js ===
@@ -67,9 +61,7 @@ export function loadFrameworkRules(): RuleDefinition[] {
       category: "auth",
       cwe: "CWE-614",
       languages: ["typescript", "javascript"],
-      patterns: [
-        { type: "regex", pattern: "session\\(\\s*\\{[^}]*secret\\s*:" },
-      ],
+      patterns: [{ type: "regex", pattern: "session\\(\\s*\\{[^}]*secret\\s*:" }],
     },
     {
       id: "express-cors-wildcard",
@@ -91,9 +83,7 @@ export function loadFrameworkRules(): RuleDefinition[] {
       category: "config",
       cwe: "CWE-770",
       languages: ["typescript", "javascript"],
-      patterns: [
-        { type: "regex", pattern: "express\\.json\\(\\s*\\)" },
-      ],
+      patterns: [{ type: "regex", pattern: "express\\.json\\(\\s*\\)" }],
     },
 
     // === Django ===
@@ -114,14 +104,13 @@ export function loadFrameworkRules(): RuleDefinition[] {
     {
       id: "django-debug-true",
       title: "Django: DEBUG = True in production",
-      description: "DEBUG mode exposes sensitive error information and should be False in production.",
+      description:
+        "DEBUG mode exposes sensitive error information and should be False in production.",
       severity: "high",
       category: "config",
       cwe: "CWE-215",
       languages: ["python"],
-      patterns: [
-        { type: "regex", pattern: "DEBUG\\s*=\\s*True" },
-      ],
+      patterns: [{ type: "regex", pattern: "DEBUG\\s*=\\s*True" }],
     },
     {
       id: "django-csrf-exempt",
@@ -131,9 +120,7 @@ export function loadFrameworkRules(): RuleDefinition[] {
       category: "auth",
       cwe: "CWE-352",
       languages: ["python"],
-      patterns: [
-        { type: "regex", pattern: "@csrf_exempt" },
-      ],
+      patterns: [{ type: "regex", pattern: "@csrf_exempt" }],
     },
     {
       id: "django-mark-safe",
@@ -143,9 +130,7 @@ export function loadFrameworkRules(): RuleDefinition[] {
       category: "xss",
       cwe: "CWE-79",
       languages: ["python"],
-      patterns: [
-        { type: "regex", pattern: "mark_safe\\s*\\(.*(?:request|input|data|param)" },
-      ],
+      patterns: [{ type: "regex", pattern: "mark_safe\\s*\\(.*(?:request|input|data|param)" }],
     },
     {
       id: "django-secret-key-exposed",
@@ -155,28 +140,26 @@ export function loadFrameworkRules(): RuleDefinition[] {
       category: "secrets",
       cwe: "CWE-798",
       languages: ["python"],
-      patterns: [
-        { type: "regex", pattern: "SECRET_KEY\\s*=\\s*['\"][^'\"]{10,}['\"]" },
-      ],
+      patterns: [{ type: "regex", pattern: "SECRET_KEY\\s*=\\s*['\"][^'\"]{10,}['\"]" }],
     },
 
     // === Flask ===
     {
       id: "flask-debug-mode",
       title: "Flask: Debug mode enabled",
-      description: "Debug mode enables the interactive debugger which allows arbitrary code execution.",
+      description:
+        "Debug mode enables the interactive debugger which allows arbitrary code execution.",
       severity: "critical",
       category: "config",
       cwe: "CWE-215",
       languages: ["python"],
-      patterns: [
-        { type: "regex", pattern: "app\\.run\\(.*debug\\s*=\\s*True" },
-      ],
+      patterns: [{ type: "regex", pattern: "app\\.run\\(.*debug\\s*=\\s*True" }],
     },
     {
       id: "flask-render-string",
       title: "Flask: Server-Side Template Injection",
-      description: "render_template_string with user input enables SSTI — arbitrary code execution.",
+      description:
+        "render_template_string with user input enables SSTI — arbitrary code execution.",
       severity: "critical",
       category: "injection",
       cwe: "CWE-1336",
@@ -193,9 +176,7 @@ export function loadFrameworkRules(): RuleDefinition[] {
       category: "redirect",
       cwe: "CWE-601",
       languages: ["python"],
-      patterns: [
-        { type: "regex", pattern: "redirect\\s*\\(\\s*request\\.(?:args|form|values)" },
-      ],
+      patterns: [{ type: "regex", pattern: "redirect\\s*\\(\\s*request\\.(?:args|form|values)" }],
     },
 
     // === Spring Boot (Java) ===
@@ -207,9 +188,7 @@ export function loadFrameworkRules(): RuleDefinition[] {
       category: "injection",
       cwe: "CWE-89",
       languages: ["java"],
-      patterns: [
-        { type: "regex", pattern: "jdbcTemplate\\.query\\s*\\(.*\\+" },
-      ],
+      patterns: [{ type: "regex", pattern: "jdbcTemplate\\.query\\s*\\(.*\\+" }],
     },
     {
       id: "spring-el-injection",
@@ -231,9 +210,7 @@ export function loadFrameworkRules(): RuleDefinition[] {
       category: "auth",
       cwe: "CWE-352",
       languages: ["java"],
-      patterns: [
-        { type: "regex", pattern: "csrf\\(\\)\\.disable\\(\\)" },
-      ],
+      patterns: [{ type: "regex", pattern: "csrf\\(\\)\\.disable\\(\\)" }],
     },
     {
       id: "spring-cors-allow-all",
@@ -243,9 +220,7 @@ export function loadFrameworkRules(): RuleDefinition[] {
       category: "config",
       cwe: "CWE-942",
       languages: ["java"],
-      patterns: [
-        { type: "regex", pattern: 'allowedOrigins\\s*\\(\\s*"\\*"\\s*\\)' },
-      ],
+      patterns: [{ type: "regex", pattern: 'allowedOrigins\\s*\\(\\s*"\\*"\\s*\\)' }],
     },
 
     // === Go (Gin/Chi/Echo) ===
@@ -269,16 +244,15 @@ export function loadFrameworkRules(): RuleDefinition[] {
       category: "crypto",
       cwe: "CWE-295",
       languages: ["go"],
-      patterns: [
-        { type: "regex", pattern: "InsecureSkipVerify\\s*:\\s*true" },
-      ],
+      patterns: [{ type: "regex", pattern: "InsecureSkipVerify\\s*:\\s*true" }],
     },
 
     // === General / Cross-framework ===
     {
       id: "prototype-pollution",
       title: "Prototype Pollution via Object Merge",
-      description: "Merging user input into objects without sanitization can pollute Object.prototype.",
+      description:
+        "Merging user input into objects without sanitization can pollute Object.prototype.",
       severity: "high",
       category: "injection",
       cwe: "CWE-1321",
@@ -291,7 +265,8 @@ export function loadFrameworkRules(): RuleDefinition[] {
     {
       id: "mass-assignment",
       title: "Mass Assignment",
-      description: "Passing user input directly to create/update operations allows setting unintended fields.",
+      description:
+        "Passing user input directly to create/update operations allows setting unintended fields.",
       severity: "high",
       category: "access-control",
       cwe: "CWE-915",
@@ -305,7 +280,8 @@ export function loadFrameworkRules(): RuleDefinition[] {
     {
       id: "timing-attack",
       title: "Potential Timing Attack in Comparison",
-      description: "Using === for secret comparison leaks information via timing. Use crypto.timingSafeEqual().",
+      description:
+        "Using === for secret comparison leaks information via timing. Use crypto.timingSafeEqual().",
       severity: "medium",
       category: "crypto",
       cwe: "CWE-208",
@@ -322,9 +298,7 @@ export function loadFrameworkRules(): RuleDefinition[] {
       category: "error-handling",
       cwe: "CWE-755",
       languages: ["typescript", "javascript"],
-      patterns: [
-        { type: "regex", pattern: "async\\s+\\(.*\\)\\s*=>\\s*\\{(?!.*try)" },
-      ],
+      patterns: [{ type: "regex", pattern: "async\\s+\\(.*\\)\\s*=>\\s*\\{(?!.*try)" }],
     },
   ];
 }

@@ -68,8 +68,14 @@ export async function importCommand(filePath: string, options: ImportOptions) {
   };
 
   saveResults(projectPath, result);
-  console.log(chalk.green(`\n✅ Imported ${findings.length} findings from ${options.format || "auto-detected"} format.\n`));
-  console.log(chalk.dim("  Run sphinx-agent report to view, or sphinx-agent fix to generate patches.\n"));
+  console.log(
+    chalk.green(
+      `\n✅ Imported ${findings.length} findings from ${options.format || "auto-detected"} format.\n`
+    )
+  );
+  console.log(
+    chalk.dim("  Run sphinx-agent report to view, or sphinx-agent fix to generate patches.\n")
+  );
 }
 
 function importSarif(content: string): Vulnerability[] {
@@ -152,18 +158,26 @@ function importTrivy(content: string): Vulnerability[] {
 
 function sarifLevelToSeverity(level: string): Severity {
   switch (level) {
-    case "error": return "high";
-    case "warning": return "medium";
-    case "note": return "low";
-    default: return "medium";
+    case "error":
+      return "high";
+    case "warning":
+      return "medium";
+    case "note":
+      return "low";
+    default:
+      return "medium";
   }
 }
 
 function semgrepSeverity(s: string): Severity {
   switch (s?.toUpperCase()) {
-    case "ERROR": return "high";
-    case "WARNING": return "medium";
-    case "INFO": return "low";
-    default: return "medium";
+    case "ERROR":
+      return "high";
+    case "WARNING":
+      return "medium";
+    case "INFO":
+      return "low";
+    default:
+      return "medium";
   }
 }

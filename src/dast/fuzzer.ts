@@ -37,11 +37,7 @@ export async function fuzzEndpoints(
     targetedOnly?: boolean;
   } = {}
 ): Promise<FuzzReport> {
-  const {
-    timeout = 10000,
-    maxPayloadsPerEndpoint = 10,
-    targetedOnly = false,
-  } = options;
+  const { timeout = 10000, maxPayloadsPerEndpoint = 10, targetedOnly = false } = options;
 
   const start = Date.now();
   const results: FuzzResult[] = [];
@@ -83,9 +79,10 @@ async function sendPayload(
   const startTime = Date.now();
 
   // Inject payload into query params for GET, body for POST
-  const targetUrl = method === "GET"
-    ? `${url}?input=${encodeURIComponent(payload.value)}&q=${encodeURIComponent(payload.value)}`
-    : url;
+  const targetUrl =
+    method === "GET"
+      ? `${url}?input=${encodeURIComponent(payload.value)}&q=${encodeURIComponent(payload.value)}`
+      : url;
 
   const body = ["POST", "PUT", "PATCH"].includes(method)
     ? JSON.stringify({ input: payload.value, data: payload.value, q: payload.value })

@@ -96,9 +96,7 @@ export class QueryEngine {
         });
         // Trim history to avoid unbounded context growth
         if (this.conversationHistory.length > MAX_HISTORY_TURNS * 2) {
-          this.conversationHistory = this.conversationHistory.slice(
-            -(MAX_HISTORY_TURNS * 2)
-          );
+          this.conversationHistory = this.conversationHistory.slice(-(MAX_HISTORY_TURNS * 2));
         }
         return textBlock.text;
       }

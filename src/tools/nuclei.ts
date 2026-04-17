@@ -40,12 +40,7 @@ export function runNuclei(
     timeout?: number;
   } = {}
 ): Vulnerability[] {
-  const args = [
-    "-u", target,
-    "-jsonl",
-    "-silent",
-    "-no-color",
-  ];
+  const args = ["-u", target, "-jsonl", "-silent", "-no-color"];
 
   if (options.severity) {
     args.push("-severity", options.severity);
@@ -80,12 +75,7 @@ export function runNucleiBulk(
   const listFile = path.join(os.tmpdir(), `sphinx-nuclei-${crypto.randomUUID()}.txt`);
   fs.writeFileSync(listFile, targets.join("\n"), "utf-8");
 
-  const args = [
-    "-list", listFile,
-    "-jsonl",
-    "-silent",
-    "-no-color",
-  ];
+  const args = ["-list", listFile, "-jsonl", "-silent", "-no-color"];
 
   if (options.severity) {
     args.push("-severity", options.severity);
@@ -99,7 +89,11 @@ export function runNucleiBulk(
     if (!result.data) return [];
     return normalizeFindings(result.data);
   } finally {
-    try { fs.unlinkSync(listFile); } catch { /* ignore */ }
+    try {
+      fs.unlinkSync(listFile);
+    } catch {
+      /* ignore */
+    }
   }
 }
 
@@ -128,11 +122,17 @@ function normalizeFindings(findings: NucleiResult[]): Vulnerability[] {
 
 function mapSeverity(s: string): Severity {
   switch (s.toLowerCase()) {
-    case "critical": return "critical";
-    case "high": return "high";
-    case "medium": return "medium";
-    case "low": return "low";
-    case "info": return "info";
-    default: return "medium";
+    case "critical":
+      return "critical";
+    case "high":
+      return "high";
+    case "medium":
+      return "medium";
+    case "low":
+      return "low";
+    case "info":
+      return "info";
+    default:
+      return "medium";
   }
 }

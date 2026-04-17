@@ -28,17 +28,9 @@ export async function dashboardCommand(options: DashboardOptions) {
   });
 
   server.listen(port, "127.0.0.1", () => {
-    console.log(
-      chalk.bold("\n📊 sphinx-agent dashboard\n")
-    );
-    console.log(
-      `  ${chalk.green("➜")} Local:   ${chalk.cyan(`http://localhost:${port}`)}`
-    );
-    console.log(
-      chalk.dim(`  Project: ${projectPath}`)
-    );
-    console.log(
-      chalk.dim("\n  Press Ctrl+C to stop.\n")
-    );
+    console.log(chalk.bold("\n📊 sphinx-agent dashboard\n"));
+    console.log(`  ${chalk.green("➜")} Local:   ${chalk.cyan(`http://localhost:${port}`)}`);
+    console.log(chalk.dim(`  Project: ${projectPath}`));
+    console.log(chalk.dim("\n  Press Ctrl+C to stop.\n"));
   });
 }

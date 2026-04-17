@@ -26,7 +26,9 @@ export async function imageCommand(imageName: string, options: ImageOptions) {
     const findings = runTrivyImage(imageName);
     const duration = Date.now() - startTime;
 
-    spinner.succeed(`Scanned image in ${(duration / 1000).toFixed(1)}s — ${findings.length} findings`);
+    spinner.succeed(
+      `Scanned image in ${(duration / 1000).toFixed(1)}s — ${findings.length} findings`
+    );
 
     if (findings.length === 0) {
       console.log(chalk.green("\n  ✅ No vulnerabilities found in image.\n"));
@@ -55,14 +57,20 @@ export async function imageCommand(imageName: string, options: ImageOptions) {
     };
 
     if (options.json) {
-      console.log(JSON.stringify({
-        image: imageName,
-        findings: filtered.length,
-        critical: filtered.filter((f) => f.severity === "critical").length,
-        high: filtered.filter((f) => f.severity === "high").length,
-        medium: filtered.filter((f) => f.severity === "medium").length,
-        low: filtered.filter((f) => f.severity === "low").length,
-      }, null, 2));
+      console.log(
+        JSON.stringify(
+          {
+            image: imageName,
+            findings: filtered.length,
+            critical: filtered.filter((f) => f.severity === "critical").length,
+            high: filtered.filter((f) => f.severity === "high").length,
+            medium: filtered.filter((f) => f.severity === "medium").length,
+            low: filtered.filter((f) => f.severity === "low").length,
+          },
+          null,
+          2
+        )
+      );
     } else {
       renderTerminalReport(result);
     }

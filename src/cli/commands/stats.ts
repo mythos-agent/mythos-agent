@@ -32,7 +32,9 @@ export async function statsCommand(options: StatsOptions) {
     console.log(chalk.dim(`    Date: ${new Date(result.timestamp).toLocaleString()}`));
     console.log(chalk.dim(`    Duration: ${(result.duration / 1000).toFixed(1)}s`));
     console.log(chalk.dim(`    Files: ${result.filesScanned}`));
-    console.log(`    Findings: ${chalk.bold(String(vulns.length))} (${chalk.red(`${counts.critical}C`)} ${chalk.yellow(`${counts.high}H`)} ${chalk.blue(`${counts.medium}M`)} ${chalk.dim(`${counts.low}L`)})`);
+    console.log(
+      `    Findings: ${chalk.bold(String(vulns.length))} (${chalk.red(`${counts.critical}C`)} ${chalk.yellow(`${counts.high}H`)} ${chalk.blue(`${counts.medium}M`)} ${chalk.dim(`${counts.low}L`)})`
+    );
     console.log(`    Chains: ${result.chains.length}`);
     console.log(`    Dismissed: ${result.dismissedCount}`);
   } else {
@@ -50,8 +52,12 @@ export async function statsCommand(options: StatsOptions) {
     console.log(chalk.bold("\n  Scan History"));
     console.log(chalk.dim(`    Total scans: ${history.scans.length}`));
     console.log(chalk.dim(`    First scan: ${new Date(first.timestamp).toLocaleDateString()}`));
-    console.log(`    Trust score trend: ${first.trustScore.toFixed(1)} → ${latest.trustScore.toFixed(1)} (${scoreDelta >= 0 ? chalk.green(`+${scoreDelta.toFixed(1)}`) : chalk.red(scoreDelta.toFixed(1))})`);
-    console.log(`    Findings trend: ${first.total} → ${latest.total} (${findingsDelta <= 0 ? chalk.green(String(findingsDelta)) : chalk.red(`+${findingsDelta}`)})`);
+    console.log(
+      `    Trust score trend: ${first.trustScore.toFixed(1)} → ${latest.trustScore.toFixed(1)} (${scoreDelta >= 0 ? chalk.green(`+${scoreDelta.toFixed(1)}`) : chalk.red(scoreDelta.toFixed(1))})`
+    );
+    console.log(
+      `    Findings trend: ${first.total} → ${latest.total} (${findingsDelta <= 0 ? chalk.green(String(findingsDelta)) : chalk.red(`+${findingsDelta}`)})`
+    );
   }
 
   // Baseline
@@ -73,7 +79,11 @@ export async function statsCommand(options: StatsOptions) {
   const tools = checkAllTools();
   const installed = tools.filter((t) => t.installed);
   console.log(chalk.bold("\n  Tools"));
-  console.log(chalk.dim(`    Installed: ${installed.length}/${tools.length} (${installed.map((t) => t.name).join(", ") || "none"})`));
+  console.log(
+    chalk.dim(
+      `    Installed: ${installed.length}/${tools.length} (${installed.map((t) => t.name).join(", ") || "none"})`
+    )
+  );
 
   // Config
   const configFile = findConfigFile(projectPath);

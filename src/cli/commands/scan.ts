@@ -6,9 +6,7 @@ import ora from "ora";
 import { loadConfig } from "../../config/config.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const pkgJson = JSON.parse(
-  readFileSync(path.resolve(__dirname, "../../../package.json"), "utf-8")
-);
+const pkgJson = JSON.parse(readFileSync(path.resolve(__dirname, "../../../package.json"), "utf-8"));
 const VERSION = pkgJson.version;
 import { saveResults } from "../../store/results-store.js";
 import { PatternScanner } from "../../scanner/pattern-scanner.js";
@@ -66,23 +64,21 @@ export async function scanCommand(scanPath: string, options: ScanOptions) {
   const startTime = Date.now();
 
   if (outputFormat === "terminal") {
-    console.log(
-      chalk.bold(`\n🔐 sphinx-agent v${VERSION} — Agentic AI Security Scanner`)
-    );
+    console.log(chalk.bold(`\n🔐 sphinx-agent v${VERSION} — Agentic AI Security Scanner`));
     console.log(chalk.dim("━".repeat(50)));
     console.log(chalk.dim(`\n📁 Scanning: ${projectPath}\n`));
   }
 
   // Phase 1: Pattern Scan
-  const spinner =
-    outputFormat === "terminal"
-      ? ora("Phase 1: Pattern Scan").start()
-      : null;
+  const spinner = outputFormat === "terminal" ? ora("Phase 1: Pattern Scan").start() : null;
 
   const patternScanner = new PatternScanner(config);
   const phase1Start = Date.now();
-  const { findings: phase1Findings, filesScanned, languages } =
-    await patternScanner.scan(projectPath);
+  const {
+    findings: phase1Findings,
+    filesScanned,
+    languages,
+  } = await patternScanner.scan(projectPath);
   const phase1Duration = ((Date.now() - phase1Start) / 1000).toFixed(1);
 
   if (spinner) {
@@ -95,9 +91,7 @@ export async function scanCommand(scanPath: string, options: ScanOptions) {
   let secretsFindings: Vulnerability[] = [];
   if (options.secrets) {
     const secretsSpinner =
-      outputFormat === "terminal"
-        ? ora("Phase 1b: Secrets Detection").start()
-        : null;
+      outputFormat === "terminal" ? ora("Phase 1b: Secrets Detection").start() : null;
 
     const secretsScanner = new SecretsScanner();
     const secretsStart = Date.now();
@@ -122,9 +116,7 @@ export async function scanCommand(scanPath: string, options: ScanOptions) {
   let depFindings: Vulnerability[] = [];
   if (options.deps) {
     const depSpinner =
-      outputFormat === "terminal"
-        ? ora("Phase 1c: Dependency Scan (OSV)").start()
-        : null;
+      outputFormat === "terminal" ? ora("Phase 1c: Dependency Scan (OSV)").start() : null;
 
     try {
       const depScanner = new DepScanner();
@@ -157,9 +149,7 @@ export async function scanCommand(scanPath: string, options: ScanOptions) {
   let iacFindings: Vulnerability[] = [];
   if (options.iac) {
     const iacSpinner =
-      outputFormat === "terminal"
-        ? ora("Phase 1d: IaC Security Scan").start()
-        : null;
+      outputFormat === "terminal" ? ora("Phase 1d: IaC Security Scan").start() : null;
 
     try {
       const iacScanner = new IacScanner();
@@ -195,7 +185,8 @@ export async function scanCommand(scanPath: string, options: ScanOptions) {
   // Phase 1e: AI/LLM Security Scan
   let llmFindings: Vulnerability[] = [];
   if (options.llm) {
-    const llmSpinner = outputFormat === "terminal" ? ora("Phase 1e: AI/LLM Security Scan").start() : null;
+    const llmSpinner =
+      outputFormat === "terminal" ? ora("Phase 1e: AI/LLM Security Scan").start() : null;
     try {
       const llmScanner = new LlmSecurityScanner();
       const llmResult = await llmScanner.scan(projectPath);
@@ -213,7 +204,8 @@ export async function scanCommand(scanPath: string, options: ScanOptions) {
   // Phase 1f: API Security Scan
   let apiSecFindings: Vulnerability[] = [];
   if (options.apiSec) {
-    const apiSpinner = outputFormat === "terminal" ? ora("Phase 1f: API Security Scan").start() : null;
+    const apiSpinner =
+      outputFormat === "terminal" ? ora("Phase 1f: API Security Scan").start() : null;
     try {
       const apiScanner = new ApiSecurityScanner();
       const apiResult = await apiScanner.scan(projectPath);
@@ -231,7 +223,8 @@ export async function scanCommand(scanPath: string, options: ScanOptions) {
   // Phase 1g: Cloud Misconfiguration Scan
   let cloudFindings: Vulnerability[] = [];
   if (options.cloud) {
-    const cloudSpinner = outputFormat === "terminal" ? ora("Phase 1g: Cloud Security Scan").start() : null;
+    const cloudSpinner =
+      outputFormat === "terminal" ? ora("Phase 1g: Cloud Security Scan").start() : null;
     try {
       const cloudScanner = new CloudSecurityScanner();
       const cloudResult = await cloudScanner.scan(projectPath);
@@ -249,24 +242,23 @@ export async function scanCommand(scanPath: string, options: ScanOptions) {
   // Phase 2: AI Deep Analysis
   let phase2Findings: Vulnerability[] = [];
   let confirmed: Vulnerability[] = [
-    ...phase1Findings, ...secretsFindings, ...depFindings, ...iacFindings,
-    ...llmFindings, ...apiSecFindings, ...cloudFindings,
+    ...phase1Findings,
+    ...secretsFindings,
+    ...depFindings,
+    ...iacFindings,
+    ...llmFindings,
+    ...apiSecFindings,
+    ...cloudFindings,
   ];
   let dismissedCount = 0;
 
   if (options.ai && config.apiKey) {
-    const aiSpinner =
-      outputFormat === "terminal"
-        ? ora("Phase 2: AI Deep Analysis").start()
-        : null;
+    const aiSpinner = outputFormat === "terminal" ? ora("Phase 2: AI Deep Analysis").start() : null;
 
     try {
       const aiAnalyzer = new AIAnalyzer(config);
       const phase2Start = Date.now();
-      const aiResult = await aiAnalyzer.analyze(
-        projectPath,
-        phase1Findings
-      );
+      const aiResult = await aiAnalyzer.analyze(projectPath, phase1Findings);
       const phase2Duration = ((Date.now() - phase2Start) / 1000).toFixed(1);
 
       phase2Findings = aiResult.discovered;
@@ -310,9 +302,7 @@ export async function scanCommand(scanPath: string, options: ScanOptions) {
 
   if (options.chain && confirmed.length >= 2) {
     const chainSpinner =
-      outputFormat === "terminal"
-        ? ora("Phase 3: Vulnerability Chaining").start()
-        : null;
+      outputFormat === "terminal" ? ora("Phase 3: Vulnerability Chaining").start() : null;
 
     try {
       const chainAnalyzer = new ChainAnalyzer(config);
@@ -340,9 +330,7 @@ export async function scanCommand(scanPath: string, options: ScanOptions) {
     }
   } else if (options.chain && confirmed.length < 2) {
     if (outputFormat === "terminal") {
-      console.log(
-        chalk.dim("  ⏭ Phase 3 skipped: need 2+ vulnerabilities to chain")
-      );
+      console.log(chalk.dim("  ⏭ Phase 3 skipped: need 2+ vulnerabilities to chain"));
     }
   }
 
@@ -362,13 +350,7 @@ export async function scanCommand(scanPath: string, options: ScanOptions) {
   };
 
   // Filter by severity threshold
-  const severityOrder: Severity[] = [
-    "critical",
-    "high",
-    "medium",
-    "low",
-    "info",
-  ];
+  const severityOrder: Severity[] = ["critical", "high", "medium", "low", "info"];
   const thresholdIdx = severityOrder.indexOf(options.severity);
   result.confirmedVulnerabilities = result.confirmedVulnerabilities.filter(
     (v) => severityOrder.indexOf(v.severity) <= thresholdIdx

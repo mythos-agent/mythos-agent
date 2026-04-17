@@ -1,9 +1,5 @@
 import type { Vulnerability, Severity } from "../types/index.js";
-import {
-  discoverLockfiles,
-  parseLockfile,
-  type Dependency,
-} from "./lockfile-parsers.js";
+import { discoverLockfiles, parseLockfile, type Dependency } from "./lockfile-parsers.js";
 
 interface OsvVulnerability {
   id: string;

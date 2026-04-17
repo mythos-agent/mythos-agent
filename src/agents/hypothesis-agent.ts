@@ -91,9 +91,10 @@ export class HypothesisAgent {
       .map((ep) => `  - ${ep.method || "HANDLER"} ${ep.path} (${ep.file}:${ep.line})`)
       .join("\n");
 
-    const authInfo = recon.authBoundaries
-      .map((ab) => `  - ${ab.file}:${ab.line} — ${ab.description}`)
-      .join("\n") || "  No authentication boundaries detected";
+    const authInfo =
+      recon.authBoundaries
+        .map((ab) => `  - ${ab.file}:${ab.line} — ${ab.description}`)
+        .join("\n") || "  No authentication boundaries detected";
 
     const prompt = `Perform hypothesis-driven security analysis on this codebase.
 
@@ -115,9 +116,7 @@ ${authInfo}
 5. Prioritize hypotheses by severity and likelihood
 6. Output your hypotheses as JSON`;
 
-    const messages: Anthropic.MessageParam[] = [
-      { role: "user", content: prompt },
-    ];
+    const messages: Anthropic.MessageParam[] = [{ role: "user", content: prompt }];
 
     let turns = 0;
     while (turns < MAX_TURNS) {
@@ -187,19 +186,17 @@ ${authInfo}
 
     try {
       const data = JSON.parse(jsonMatch[0]);
-      const hypotheses: SecurityHypothesis[] = (data.hypotheses || []).map(
-        (h: any, i: number) => ({
-          id: `HYPO-${String(i + 1).padStart(3, "0")}`,
-          functionName: h.functionName || "unknown",
-          file: h.file || "",
-          line: h.line || 0,
-          hypothesis: h.hypothesis || "",
-          category: h.category || "unknown",
-          estimatedSeverity: (h.estimatedSeverity || "medium") as Severity,
-          reasoning: h.reasoning || "",
-          investigationSteps: h.investigationSteps || [],
-        })
-      );
+      const hypotheses: SecurityHypothesis[] = (data.hypotheses || []).map((h: any, i: number) => ({
+        id: `HYPO-${String(i + 1).padStart(3, "0")}`,
+        functionName: h.functionName || "unknown",
+        file: h.file || "",
+        line: h.line || 0,
+        hypothesis: h.hypothesis || "",
+        category: h.category || "unknown",
+        estimatedSeverity: (h.estimatedSeverity || "medium") as Severity,
+        reasoning: h.reasoning || "",
+        investigationSteps: h.investigationSteps || [],
+      }));
 
       return { type: "hypothesis", hypotheses };
     } catch {

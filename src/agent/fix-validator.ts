@@ -37,9 +37,7 @@ export class FixValidator {
   private client: Anthropic | null;
 
   constructor(private config: SphinxConfig) {
-    this.client = config.apiKey
-      ? new Anthropic({ apiKey: config.apiKey })
-      : null;
+    this.client = config.apiKey ? new Anthropic({ apiKey: config.apiKey }) : null;
   }
 
   /**
@@ -57,7 +55,14 @@ export class FixValidator {
     // Step 1: Create backup of original file
     const absPath = path.resolve(projectPath, patch.file);
     if (!fs.existsSync(absPath)) {
-      return makeResult(vulnerability, patch, "", false, false, false, "failed",
+      return makeResult(
+        vulnerability,
+        patch,
+        "",
+        false,
+        false,
+        false,
+        "failed",
         `File not found: ${patch.file}`
       );
     }
@@ -67,7 +72,14 @@ export class FixValidator {
     // Step 2: Apply patch
     const applied = applyPatch(projectPath, patch);
     if (!applied) {
-      return makeResult(vulnerability, patch, "", false, false, false, "failed",
+      return makeResult(
+        vulnerability,
+        patch,
+        "",
+        false,
+        false,
+        false,
+        "failed",
         "Patch could not be applied — code may have changed"
       );
     }
@@ -89,11 +101,8 @@ export class FixValidator {
         testCode = await this.generateTest(vulnerability, patch, fixedContent);
       }
 
-      const status = vulnGone && compileOk && testsOk
-        ? "verified"
-        : vulnGone
-          ? "partial"
-          : "failed";
+      const status =
+        vulnGone && compileOk && testsOk ? "verified" : vulnGone ? "partial" : "failed";
 
       const message = [
         vulnGone ? "Vulnerability pattern removed" : "Vulnerability pattern still present",
@@ -102,9 +111,14 @@ export class FixValidator {
       ].join(", ");
 
       return makeResult(
-        vulnerability, patch, testCode,
-        testsOk, vulnGone, testsOk && compileOk,
-        status, message
+        vulnerability,
+        patch,
+        testCode,
+        testsOk,
+        vulnGone,
+        testsOk && compileOk,
+        status,
+        message
       );
     } finally {
       // Restore original file

@@ -38,7 +38,11 @@ export async function mapCommand(options: MapOptions) {
   server.listen(options.port, "127.0.0.1", () => {
     console.log(chalk.bold("\n🗺️  sphinx-agent attack surface map\n"));
     console.log(`  ${chalk.green("➜")} ${chalk.cyan(`http://localhost:${options.port}`)}`);
-    console.log(chalk.dim(`\n  ${endpoints.length} endpoints, ${codebaseMap.functions.length} functions, ${services.services.length} services`));
+    console.log(
+      chalk.dim(
+        `\n  ${endpoints.length} endpoints, ${codebaseMap.functions.length} functions, ${services.services.length} services`
+      )
+    );
     console.log(chalk.dim("  Press Ctrl+C to stop.\n"));
   });
 }
@@ -54,9 +58,10 @@ function buildMapHtml(
   const vulns = scanResult?.confirmedVulnerabilities || [];
   const projectName = path.basename(projectPath);
 
-  const endpointRows = endpoints.map((ep: any) => {
-    const vulnCount = vulns.filter((v: any) => v.location.file === ep.file).length;
-    return `<tr>
+  const endpointRows = endpoints
+    .map((ep: any) => {
+      const vulnCount = vulns.filter((v: any) => v.location.file === ep.file).length;
+      return `<tr>
       <td><span class="method ${ep.method.toLowerCase()}">${ep.method}</span></td>
       <td><code>${esc(ep.path)}</code></td>
       <td>${ep.hasAuth ? `<span class="badge ok">${ep.authType || "Yes"}</span>` : '<span class="badge warn">No Auth</span>'}</td>
@@ -64,28 +69,40 @@ function buildMapHtml(
       <td>${vulnCount > 0 ? `<span class="badge high">${vulnCount}</span>` : "—"}</td>
       <td><code>${esc(ep.file)}:${ep.line}</code></td>
     </tr>`;
-  }).join("");
+    })
+    .join("");
 
-  const serviceNodes = services.services.map((s: any) => `{
+  const serviceNodes = services.services
+    .map(
+      (s: any) => `{
     id: "${esc(s.name)}",
     label: "${esc(s.name)}",
     type: "${s.type}",
     ports: [${s.ports.join(",")}]
-  }`).join(",\n    ");
+  }`
+    )
+    .join(",\n    ");
 
-  const serviceEdges = services.connections.map((c: any) => `{
+  const serviceEdges = services.connections
+    .map(
+      (c: any) => `{
     from: "${esc(c.from)}",
     to: "${esc(c.to)}",
     label: "${esc(c.protocol)}"
-  }`).join(",\n    ");
+  }`
+    )
+    .join(",\n    ");
 
-  const trustBoundaries = services.trustBoundaries.map((tb: any) =>
-    `<div class="boundary ${tb.exposure}">
+  const trustBoundaries = services.trustBoundaries
+    .map(
+      (tb: any) =>
+        `<div class="boundary ${tb.exposure}">
       <strong>${esc(tb.name)}</strong> (${tb.exposure})
       <div class="services">${tb.services.map((s: string) => `<span class="chip">${esc(s)}</span>`).join(" ")}</div>
       ${tb.risks.length > 0 ? `<div class="risks">${tb.risks.map((r: string) => `<span class="risk">⚠ ${esc(r)}</span>`).join("<br>")}</div>` : ""}
     </div>`
-  ).join("");
+    )
+    .join("");
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -158,5 +175,9 @@ function buildMapHtml(
 }
 
 function esc(s: string): string {
-  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+  return s
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
 }

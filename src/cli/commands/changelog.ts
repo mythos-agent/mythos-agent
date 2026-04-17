@@ -14,7 +14,11 @@ export async function changelogCommand(options: ChangelogOptions) {
   const history = loadHistory(projectPath);
 
   if (history.scans.length < 2) {
-    console.log(chalk.yellow("\n⚠️  Need at least 2 scans for a changelog. Run sphinx-agent scan multiple times.\n"));
+    console.log(
+      chalk.yellow(
+        "\n⚠️  Need at least 2 scans for a changelog. Run sphinx-agent scan multiple times.\n"
+      )
+    );
     return;
   }
 
@@ -45,7 +49,7 @@ export async function changelogCommand(options: ChangelogOptions) {
     console.log(chalk.bold(`\n  ${date}`));
     console.log(
       `    Findings: ${prev.total} → ${curr.total} (${delta <= 0 ? chalk.green(String(delta)) : chalk.red(`+${delta}`)})` +
-      `    Score: ${prev.trustScore.toFixed(1)} → ${curr.trustScore.toFixed(1)} (${scoreDelta >= 0 ? chalk.green(`+${scoreDelta.toFixed(1)}`) : chalk.red(scoreDelta.toFixed(1))})`
+        `    Score: ${prev.trustScore.toFixed(1)} → ${curr.trustScore.toFixed(1)} (${scoreDelta >= 0 ? chalk.green(`+${scoreDelta.toFixed(1)}`) : chalk.red(scoreDelta.toFixed(1))})`
     );
 
     if (delta < 0) {
@@ -64,7 +68,15 @@ export async function changelogCommand(options: ChangelogOptions) {
 }
 
 function generateMarkdownChangelog(
-  scans: Array<{ timestamp: string; total: number; critical: number; high: number; medium: number; low: number; trustScore: number }>,
+  scans: Array<{
+    timestamp: string;
+    total: number;
+    critical: number;
+    high: number;
+    medium: number;
+    low: number;
+    trustScore: number;
+  }>,
   projectName: string
 ): string {
   let md = `# Security Changelog — ${projectName}\n\n`;
@@ -73,7 +85,11 @@ function generateMarkdownChangelog(
   for (let i = scans.length - 1; i >= 1; i--) {
     const curr = scans[i];
     const prev = scans[i - 1];
-    const date = new Date(curr.timestamp).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
+    const date = new Date(curr.timestamp).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
     const delta = curr.total - prev.total;
     const scoreDelta = curr.trustScore - prev.trustScore;
 

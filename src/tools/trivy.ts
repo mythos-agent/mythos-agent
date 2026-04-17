@@ -49,8 +49,10 @@ export function isTrivyInstalled(): boolean {
 export function runTrivyFs(projectPath: string): Vulnerability[] {
   const args = [
     "fs",
-    "--format", "json",
-    "--scanners", "vuln,misconfig,secret",
+    "--format",
+    "json",
+    "--scanners",
+    "vuln,misconfig,secret",
     "--quiet",
     projectPath,
   ];
@@ -69,8 +71,10 @@ export function runTrivyFs(projectPath: string): Vulnerability[] {
 export function runTrivyImage(image: string): Vulnerability[] {
   const args = [
     "image",
-    "--format", "json",
-    "--scanners", "vuln,misconfig,secret",
+    "--format",
+    "json",
+    "--scanners",
+    "vuln,misconfig,secret",
     "--quiet",
     image,
   ];
@@ -150,11 +154,16 @@ function normalizeFindings(data: TrivyResult): Vulnerability[] {
 
 function mapSeverity(s: string): Severity {
   switch (s.toUpperCase()) {
-    case "CRITICAL": return "critical";
-    case "HIGH": return "high";
-    case "MEDIUM": return "medium";
-    case "LOW": return "low";
-    default: return "medium";
+    case "CRITICAL":
+      return "critical";
+    case "HIGH":
+      return "high";
+    case "MEDIUM":
+      return "medium";
+    case "LOW":
+      return "low";
+    default:
+      return "medium";
   }
 }
 

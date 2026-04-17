@@ -23,16 +23,13 @@ const IAC_RULES: IacRule[] = [
   {
     id: "docker-root-user",
     title: "Docker: Running as Root",
-    description:
-      "Container runs as root by default. Add 'USER nonroot' to reduce attack surface.",
+    description: "Container runs as root by default. Add 'USER nonroot' to reduce attack surface.",
     severity: "high",
     cwe: "CWE-250",
     filePatterns: ["**/Dockerfile*"],
     check: (content, lines) => {
       // Check if there's no USER instruction (other than root)
-      const hasUser = lines.some(
-        (l) => /^USER\s+(?!root)/i.test(l.trim())
-      );
+      const hasUser = lines.some((l) => /^USER\s+(?!root)/i.test(l.trim()));
       if (hasUser) return [];
       // Find the FROM line to attach the finding to
       for (let i = 0; i < lines.length; i++) {
@@ -46,15 +43,16 @@ const IAC_RULES: IacRule[] = [
   {
     id: "docker-latest-tag",
     title: "Docker: Using 'latest' Tag",
-    description:
-      "Using 'latest' tag makes builds non-reproducible. Pin to a specific version.",
+    description: "Using 'latest' tag makes builds non-reproducible. Pin to a specific version.",
     severity: "medium",
     filePatterns: ["**/Dockerfile*"],
     check: (_content, lines) => {
       const matches: IacMatch[] = [];
       for (let i = 0; i < lines.length; i++) {
-        if (/^FROM\s+\S+:latest/i.test(lines[i].trim()) ||
-            /^FROM\s+[^:@\s]+\s/i.test(lines[i].trim())) {
+        if (
+          /^FROM\s+\S+:latest/i.test(lines[i].trim()) ||
+          /^FROM\s+[^:@\s]+\s/i.test(lines[i].trim())
+        ) {
           // No tag or :latest
           if (!lines[i].includes(":") && !lines[i].includes("@")) {
             matches.push({ line: i + 1, snippet: lines[i].trim() });
@@ -131,8 +129,7 @@ const IAC_RULES: IacRule[] = [
   {
     id: "tf-public-access",
     title: "Terraform: Public Access Enabled",
-    description:
-      "Resource allows public access (0.0.0.0/0). Restrict to specific IP ranges.",
+    description: "Resource allows public access (0.0.0.0/0). Restrict to specific IP ranges.",
     severity: "high",
     cwe: "CWE-284",
     filePatterns: ["**/*.tf"],
@@ -168,8 +165,7 @@ const IAC_RULES: IacRule[] = [
   {
     id: "tf-unencrypted-storage",
     title: "Terraform: Unencrypted Storage",
-    description:
-      "Storage resource without encryption enabled. Enable encryption at rest.",
+    description: "Storage resource without encryption enabled. Enable encryption at rest.",
     severity: "high",
     filePatterns: ["**/*.tf"],
     check: (content, lines) => {
@@ -204,8 +200,10 @@ const IAC_RULES: IacRule[] = [
       const matches: IacMatch[] = [];
       for (let i = 0; i < lines.length; i++) {
         // protocol = "-1" means all traffic
-        if (/protocol\s*=\s*"-1"/.test(lines[i]) ||
-            /from_port\s*=\s*0.*to_port\s*=\s*65535/.test(lines[i])) {
+        if (
+          /protocol\s*=\s*"-1"/.test(lines[i]) ||
+          /from_port\s*=\s*0.*to_port\s*=\s*65535/.test(lines[i])
+        ) {
           matches.push({ line: i + 1, snippet: lines[i].trim() });
         }
       }
@@ -236,8 +234,7 @@ const IAC_RULES: IacRule[] = [
   {
     id: "k8s-run-as-root",
     title: "K8s: Running as Root",
-    description:
-      "Container can run as root. Set runAsNonRoot: true in securityContext.",
+    description: "Container can run as root. Set runAsNonRoot: true in securityContext.",
     severity: "high",
     cwe: "CWE-250",
     filePatterns: ["**/*.yml", "**/*.yaml"],
@@ -308,19 +305,12 @@ export interface IacScanResult {
 export class IacScanner {
   async scan(projectPath: string): Promise<IacScanResult> {
     // Collect all unique file patterns
-    const allPatterns = [
-      ...new Set(IAC_RULES.flatMap((r) => r.filePatterns)),
-    ];
+    const allPatterns = [...new Set(IAC_RULES.flatMap((r) => r.filePatterns))];
 
     const files = await glob(allPatterns, {
       cwd: projectPath,
       absolute: true,
-      ignore: [
-        "node_modules/**",
-        "dist/**",
-        ".git/**",
-        ".sphinx/**",
-      ],
+      ignore: ["node_modules/**", "dist/**", ".git/**", ".sphinx/**"],
       nodir: true,
     });
 
@@ -342,8 +332,7 @@ export class IacScanner {
         // Check if file matches rule patterns
         const matches = rule.filePatterns.some((p) => {
           const simplePattern = p.replace("**/", "").replace("*", "");
-          return relativePath.includes(simplePattern) ||
-            relativePath.endsWith(simplePattern);
+          return relativePath.includes(simplePattern) || relativePath.endsWith(simplePattern);
         });
         if (!matches) continue;
 

@@ -36,9 +36,7 @@ function getCallGraph(map: CodebaseMap, projectPath: string): CallGraph {
  * Create advanced analysis tools for the AI agent.
  * These give the agent deeper code understanding capabilities.
  */
-export function createAdvancedTools(
-  projectPath: string
-): Anthropic.Tool[] {
+export function createAdvancedTools(projectPath: string): Anthropic.Tool[] {
   return [
     {
       name: "list_functions",
@@ -206,11 +204,13 @@ export async function executeAdvancedToolCall(
       }
 
       if (callerEdges.length === 0) return `No callers found for '${name}'.`;
-      return `Callers of '${name}':\n` +
+      return (
+        `Callers of '${name}':\n` +
         callerEdges
           .slice(0, 30)
           .map((e) => `  ${e.caller} → ${e.callee}  (${e.file}:${e.line})`)
-          .join("\n");
+          .join("\n")
+      );
     }
 
     case "find_callees": {
@@ -229,11 +229,13 @@ export async function executeAdvancedToolCall(
       }
 
       if (calleeEdges.length === 0) return `No callees found for '${name}'.`;
-      return `Functions called by '${name}':\n` +
+      return (
+        `Functions called by '${name}':\n` +
         calleeEdges
           .slice(0, 30)
           .map((e) => `  ${e.caller} → ${e.callee}`)
-          .join("\n");
+          .join("\n")
+      );
     }
 
     case "trace_call_path": {
@@ -242,11 +244,13 @@ export async function executeAdvancedToolCall(
       const paths = traceCallPaths(graph, from, to);
 
       if (paths.length === 0) return `No call path found from '${from}' to '${to}'.`;
-      return `Found ${paths.length} path(s):\n` +
+      return (
+        `Found ${paths.length} path(s):\n` +
         paths
           .slice(0, 5)
           .map((p, i) => `  Path ${i + 1}: ${p.join(" → ")}`)
-          .join("\n");
+          .join("\n")
+      );
     }
 
     case "find_unprotected_endpoints": {
@@ -254,13 +258,15 @@ export async function executeAdvancedToolCall(
       const unprotected = findUnprotectedEndpoints(endpoints);
 
       if (unprotected.length === 0) return "No unprotected sensitive endpoints found.";
-      return `Found ${unprotected.length} unprotected endpoint(s):\n\n` +
+      return (
+        `Found ${unprotected.length} unprotected endpoint(s):\n\n` +
         unprotected
           .map(
             (e) =>
               `⚠️ ${e.method} ${e.path}\n  File: ${e.file}:${e.line}\n  Risk: ${e.riskLevel} — ${e.riskReason}`
           )
-          .join("\n\n");
+          .join("\n\n")
+      );
     }
 
     case "get_security_overview": {

@@ -17,7 +17,8 @@ const LLM_RULES: LlmRule[] = [
   {
     id: "llm-prompt-injection",
     title: "LLM Prompt Injection: User input in prompt",
-    description: "User-controlled input is concatenated into an LLM prompt without sanitization. An attacker can manipulate the AI's behavior via crafted input.",
+    description:
+      "User-controlled input is concatenated into an LLM prompt without sanitization. An attacker can manipulate the AI's behavior via crafted input.",
     severity: "critical",
     cwe: "CWE-77",
     patterns: [
@@ -32,7 +33,8 @@ const LLM_RULES: LlmRule[] = [
   {
     id: "llm-unsafe-eval",
     title: "LLM Output Execution: eval/exec on AI response",
-    description: "LLM output is passed to eval() or exec(). An attacker who controls the prompt can achieve arbitrary code execution.",
+    description:
+      "LLM output is passed to eval() or exec(). An attacker who controls the prompt can achieve arbitrary code execution.",
     severity: "critical",
     cwe: "CWE-95",
     patterns: [
@@ -47,7 +49,8 @@ const LLM_RULES: LlmRule[] = [
   {
     id: "llm-client-api-key",
     title: "LLM API Key in Client Code",
-    description: "LLM API key is used in client-side code. This exposes the key to all users and enables API abuse.",
+    description:
+      "LLM API key is used in client-side code. This exposes the key to all users and enables API abuse.",
     severity: "critical",
     cwe: "CWE-798",
     patterns: [
@@ -61,7 +64,8 @@ const LLM_RULES: LlmRule[] = [
   {
     id: "llm-xss-output",
     title: "XSS via LLM: AI response rendered without escaping",
-    description: "LLM output is rendered as HTML without sanitization. If the AI is manipulated to output script tags, XSS occurs.",
+    description:
+      "LLM output is rendered as HTML without sanitization. If the AI is manipulated to output script tags, XSS occurs.",
     severity: "high",
     cwe: "CWE-79",
     patterns: [
@@ -75,7 +79,8 @@ const LLM_RULES: LlmRule[] = [
   {
     id: "llm-no-token-limit",
     title: "LLM Cost Attack: No max_tokens limit",
-    description: "API call to LLM without max_tokens/maxTokens. An attacker could craft inputs that generate extremely long (expensive) responses.",
+    description:
+      "API call to LLM without max_tokens/maxTokens. An attacker could craft inputs that generate extremely long (expensive) responses.",
     severity: "medium",
     cwe: "CWE-770",
     patterns: [
@@ -87,7 +92,8 @@ const LLM_RULES: LlmRule[] = [
   {
     id: "llm-system-prompt-leak",
     title: "LLM System Prompt Leakage Risk",
-    description: "System prompt is stored in a client-accessible constant or sent to the frontend. Attackers can extract it to reverse-engineer the application.",
+    description:
+      "System prompt is stored in a client-accessible constant or sent to the frontend. Attackers can extract it to reverse-engineer the application.",
     severity: "medium",
     cwe: "CWE-200",
     patterns: [
@@ -100,7 +106,8 @@ const LLM_RULES: LlmRule[] = [
   {
     id: "llm-pii-exposure",
     title: "PII Sent to External LLM API",
-    description: "Personal or sensitive data may be sent to an external LLM API without filtering. This may violate privacy regulations.",
+    description:
+      "Personal or sensitive data may be sent to an external LLM API without filtering. This may violate privacy regulations.",
     severity: "high",
     cwe: "CWE-359",
     patterns: [
@@ -113,7 +120,8 @@ const LLM_RULES: LlmRule[] = [
   {
     id: "llm-insecure-tool-use",
     title: "LLM Insecure Tool Use: AI can execute system commands",
-    description: "The LLM is given tools/functions that execute shell commands or file operations. A compromised prompt could lead to system compromise.",
+    description:
+      "The LLM is given tools/functions that execute shell commands or file operations. A compromised prompt could lead to system compromise.",
     severity: "critical",
     cwe: "CWE-78",
     patterns: [
@@ -127,7 +135,8 @@ const LLM_RULES: LlmRule[] = [
   {
     id: "llm-response-injection",
     title: "LLM Response Used in SQL/Command Without Sanitization",
-    description: "LLM output is used in a SQL query or shell command. If the AI output is manipulated, this leads to injection.",
+    description:
+      "LLM output is used in a SQL query or shell command. If the AI output is manipulated, this leads to injection.",
     severity: "critical",
     cwe: "CWE-89",
     patterns: [
@@ -140,19 +149,19 @@ const LLM_RULES: LlmRule[] = [
   {
     id: "llm-no-content-filter",
     title: "LLM: No Content Filtering on Output",
-    description: "LLM output is used without content moderation or filtering. AI may generate harmful, biased, or inappropriate content.",
+    description:
+      "LLM output is used without content moderation or filtering. AI may generate harmful, biased, or inappropriate content.",
     severity: "medium",
     cwe: "CWE-20",
-    patterns: [
-      /(?:response|completion|result)\.(?:content|text|message)\s*(?:\.trim\(\))?$/gm,
-    ],
+    patterns: [/(?:response|completion|result)\.(?:content|text|message)\s*(?:\.trim\(\))?$/gm],
   },
 
   // Hardcoded model endpoints
   {
     id: "llm-hardcoded-endpoint",
     title: "LLM: Hardcoded API Endpoint",
-    description: "LLM API endpoint is hardcoded. Use configuration or environment variables for flexibility and to avoid leaking internal endpoints.",
+    description:
+      "LLM API endpoint is hardcoded. Use configuration or environment variables for flexibility and to avoid leaking internal endpoints.",
     severity: "low",
     cwe: "CWE-547",
     patterns: [
@@ -165,19 +174,19 @@ const LLM_RULES: LlmRule[] = [
   {
     id: "llm-model-exposure",
     title: "LLM Model Info Exposed to Users",
-    description: "The specific model name/version is sent to the client. This leaks implementation details attackers can use.",
+    description:
+      "The specific model name/version is sent to the client. This leaks implementation details attackers can use.",
     severity: "low",
     cwe: "CWE-200",
-    patterns: [
-      /res\.(?:json|send)\s*\(.*(?:model|modelName|model_version)/gi,
-    ],
+    patterns: [/res\.(?:json|send)\s*\(.*(?:model|modelName|model_version)/gi],
   },
 
   // Training on user data
   {
     id: "llm-training-data-risk",
     title: "LLM: User Data Used for Fine-Tuning",
-    description: "User data appears to be collected for model training/fine-tuning. Ensure user consent and data handling compliance.",
+    description:
+      "User data appears to be collected for model training/fine-tuning. Ensure user consent and data handling compliance.",
     severity: "high",
     cwe: "CWE-359",
     patterns: [
@@ -194,15 +203,12 @@ export interface LlmScanResult {
 
 export class LlmSecurityScanner {
   async scan(projectPath: string): Promise<LlmScanResult> {
-    const files = await glob(
-      ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx", "**/*.py"],
-      {
-        cwd: projectPath,
-        absolute: true,
-        ignore: ["node_modules/**", "dist/**", ".git/**", ".sphinx/**"],
-        nodir: true,
-      }
-    );
+    const files = await glob(["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx", "**/*.py"], {
+      cwd: projectPath,
+      absolute: true,
+      ignore: ["node_modules/**", "dist/**", ".git/**", ".sphinx/**"],
+      nodir: true,
+    });
 
     const findings: Vulnerability[] = [];
     let idCounter = 1;
@@ -218,7 +224,9 @@ export class LlmSecurityScanner {
       }
 
       // Quick check: skip files that don't reference LLM/AI
-      if (!/openai|anthropic|llm|gpt|claude|completion|chat.*api|langchain|llamaindex/i.test(content)) {
+      if (
+        !/openai|anthropic|llm|gpt|claude|completion|chat.*api|langchain|llamaindex/i.test(content)
+      ) {
         continue;
       }
 

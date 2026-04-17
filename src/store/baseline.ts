@@ -28,10 +28,7 @@ const BASELINE_FILE = ".sphinx/baseline.json";
 /**
  * Save current scan results as the baseline for future comparison.
  */
-export function saveBaseline(
-  projectPath: string,
-  result: ScanResult
-): string {
+export function saveBaseline(projectPath: string, result: ScanResult): string {
   const baselinePath = path.join(projectPath, BASELINE_FILE);
   const dir = path.dirname(baselinePath);
   if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
@@ -49,9 +46,7 @@ export function saveBaseline(
 /**
  * Load the saved baseline.
  */
-export function loadBaseline(
-  projectPath: string
-): BaselineData | null {
+export function loadBaseline(projectPath: string): BaselineData | null {
   const baselinePath = path.join(projectPath, BASELINE_FILE);
   if (!fs.existsSync(baselinePath)) return null;
 
@@ -67,16 +62,11 @@ export function loadBaseline(
  * Compare current scan results against the saved baseline.
  * Returns new findings (regressions) and fixed findings (improvements).
  */
-export function compareToBaseline(
-  projectPath: string,
-  current: ScanResult
-): BaselineDiff | null {
+export function compareToBaseline(projectPath: string, current: ScanResult): BaselineDiff | null {
   const baseline = loadBaseline(projectPath);
   if (!baseline) return null;
 
-  const baselineFingerprints = new Set(
-    baseline.findings.map((f) => f.fingerprint)
-  );
+  const baselineFingerprints = new Set(baseline.findings.map((f) => f.fingerprint));
 
   const currentFingerprints = new Map<string, Vulnerability>();
   for (const v of current.confirmedVulnerabilities) {
@@ -99,8 +89,7 @@ export function compareToBaseline(
     }
   }
 
-  const unchangedCount =
-    current.confirmedVulnerabilities.length - newFindings.length;
+  const unchangedCount = current.confirmedVulnerabilities.length - newFindings.length;
 
   return { newFindings, fixedFindings, unchangedCount };
 }

@@ -16,7 +16,8 @@ const ERROR_RULES: ErrorRule[] = [
   {
     id: "error-empty-catch",
     title: "Error Handling: Empty Catch Block",
-    description: "Catch block is empty or only has a comment. Swallowed errors hide bugs and security issues.",
+    description:
+      "Catch block is empty or only has a comment. Swallowed errors hide bugs and security issues.",
     severity: "medium",
     cwe: "CWE-390",
     patterns: [
@@ -28,7 +29,8 @@ const ERROR_RULES: ErrorRule[] = [
   {
     id: "error-stack-exposure",
     title: "Error Handling: Stack Trace Exposed to Users",
-    description: "Error stack trace sent in API response. This leaks internal paths, library versions, and code structure.",
+    description:
+      "Error stack trace sent in API response. This leaks internal paths, library versions, and code structure.",
     severity: "high",
     cwe: "CWE-209",
     patterns: [
@@ -40,7 +42,8 @@ const ERROR_RULES: ErrorRule[] = [
   {
     id: "error-verbose-message",
     title: "Error Handling: Verbose Error Message in Response",
-    description: "Detailed error message sent to client. Error messages may reveal database schema, file paths, or internal logic.",
+    description:
+      "Detailed error message sent to client. Error messages may reveal database schema, file paths, or internal logic.",
     severity: "medium",
     cwe: "CWE-209",
     patterns: [
@@ -51,7 +54,8 @@ const ERROR_RULES: ErrorRule[] = [
   {
     id: "error-generic-catch",
     title: "Error Handling: Catching All Exceptions",
-    description: "Broad catch-all exception handling may mask security-relevant errors like auth failures or injection attempts.",
+    description:
+      "Broad catch-all exception handling may mask security-relevant errors like auth failures or injection attempts.",
     severity: "low",
     cwe: "CWE-396",
     patterns: [
@@ -62,7 +66,8 @@ const ERROR_RULES: ErrorRule[] = [
   {
     id: "error-no-error-handler",
     title: "Error Handling: No Global Error Handler",
-    description: "Express app without error-handling middleware. Unhandled errors may crash the server or leak information.",
+    description:
+      "Express app without error-handling middleware. Unhandled errors may crash the server or leak information.",
     severity: "medium",
     cwe: "CWE-755",
     patterns: [
@@ -72,12 +77,11 @@ const ERROR_RULES: ErrorRule[] = [
   {
     id: "error-unhandled-rejection",
     title: "Error Handling: No Unhandled Promise Rejection Handler",
-    description: "No handler for unhandledRejection event. Unhandled promise rejections can crash Node.js.",
+    description:
+      "No handler for unhandledRejection event. Unhandled promise rejections can crash Node.js.",
     severity: "medium",
     cwe: "CWE-755",
-    patterns: [
-      /app\.listen\s*\((?![\s\S]{0,500}process\.on\s*\(\s*['"]unhandledRejection)/gi,
-    ],
+    patterns: [/app\.listen\s*\((?![\s\S]{0,500}process\.on\s*\(\s*['"]unhandledRejection)/gi],
   },
   {
     id: "error-debug-in-prod",
@@ -93,7 +97,8 @@ const ERROR_RULES: ErrorRule[] = [
   {
     id: "error-info-leak-header",
     title: "Error Handling: Server Version in Response Headers",
-    description: "Server software and version exposed via headers (X-Powered-By, Server). Remove these in production.",
+    description:
+      "Server software and version exposed via headers (X-Powered-By, Server). Remove these in production.",
     severity: "low",
     cwe: "CWE-200",
     patterns: [
@@ -110,15 +115,12 @@ export interface ErrorHandlingScanResult {
 
 export class ErrorHandlingScanner {
   async scan(projectPath: string): Promise<ErrorHandlingScanResult> {
-    const files = await glob(
-      ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx", "**/*.py"],
-      {
-        cwd: projectPath,
-        absolute: true,
-        ignore: ["node_modules/**", "dist/**", ".git/**", ".sphinx/**", "**/*.test.*"],
-        nodir: true,
-      }
-    );
+    const files = await glob(["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx", "**/*.py"], {
+      cwd: projectPath,
+      absolute: true,
+      ignore: ["node_modules/**", "dist/**", ".git/**", ".sphinx/**", "**/*.test.*"],
+      nodir: true,
+    });
 
     const findings: Vulnerability[] = [];
     let idCounter = 1;
@@ -129,7 +131,9 @@ export class ErrorHandlingScanner {
         const stats = fs.statSync(file);
         if (stats.size > 500_000) continue;
         content = fs.readFileSync(file, "utf-8");
-      } catch { continue; }
+      } catch {
+        continue;
+      }
 
       const lines = content.split("\n");
       const relativePath = path.relative(projectPath, file);

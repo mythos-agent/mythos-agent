@@ -25,18 +25,78 @@ const LOG_PATTERNS: Array<{
   severity: "critical" | "high" | "medium" | "low";
   description: string;
 }> = [
-  { pattern: /SQL\s*(?:syntax\s*)?error|ORA-\d+|PG::\w+Error/i, type: "sql-error", severity: "high", description: "Database error exposed — possible SQL injection attempt" },
-  { pattern: /stack\s*trace|at\s+\w+\s+\(.*:\d+:\d+\)/i, type: "stack-trace", severity: "medium", description: "Stack trace exposed in output" },
-  { pattern: /ECONNREFUSED|ETIMEDOUT.*(?:internal|169\.254|10\.|172\.(?:1[6-9]|2\d|3[01]))/i, type: "ssrf-attempt", severity: "high", description: "Connection to internal/metadata service — possible SSRF" },
-  { pattern: /unauthorized|401.*(?:bearer|token|jwt)/i, type: "auth-failure", severity: "medium", description: "Authentication failure" },
-  { pattern: /403.*forbidden|access\s*denied/i, type: "authz-failure", severity: "medium", description: "Authorization failure — access denied" },
-  { pattern: /\.\.\/|\.\.\\|path\s*traversal|directory\s*traversal/i, type: "path-traversal", severity: "high", description: "Path traversal pattern in request" },
-  { pattern: /<script|javascript:|on\w+\s*=|alert\s*\(/i, type: "xss-attempt", severity: "high", description: "Possible XSS payload in request" },
-  { pattern: /rate\s*limit|too\s*many\s*requests|429/i, type: "rate-limit", severity: "low", description: "Rate limit triggered" },
-  { pattern: /(?:password|secret|token|key)\s*[:=]\s*\S+/i, type: "secret-leak", severity: "critical", description: "Possible secret in log output" },
-  { pattern: /segfault|SIGSEGV|buffer\s*overflow|heap\s*corruption/i, type: "memory-error", severity: "critical", description: "Memory safety error — possible exploitation" },
-  { pattern: /exec|spawn|child_process.*(?:;|&&|\|\||`)/i, type: "cmd-injection", severity: "critical", description: "Possible command injection in execution" },
-  { pattern: /deserializ|unmarshal|pickle\.load|readObject/i, type: "deserialization", severity: "high", description: "Deserialization of untrusted data" },
+  {
+    pattern: /SQL\s*(?:syntax\s*)?error|ORA-\d+|PG::\w+Error/i,
+    type: "sql-error",
+    severity: "high",
+    description: "Database error exposed — possible SQL injection attempt",
+  },
+  {
+    pattern: /stack\s*trace|at\s+\w+\s+\(.*:\d+:\d+\)/i,
+    type: "stack-trace",
+    severity: "medium",
+    description: "Stack trace exposed in output",
+  },
+  {
+    pattern: /ECONNREFUSED|ETIMEDOUT.*(?:internal|169\.254|10\.|172\.(?:1[6-9]|2\d|3[01]))/i,
+    type: "ssrf-attempt",
+    severity: "high",
+    description: "Connection to internal/metadata service — possible SSRF",
+  },
+  {
+    pattern: /unauthorized|401.*(?:bearer|token|jwt)/i,
+    type: "auth-failure",
+    severity: "medium",
+    description: "Authentication failure",
+  },
+  {
+    pattern: /403.*forbidden|access\s*denied/i,
+    type: "authz-failure",
+    severity: "medium",
+    description: "Authorization failure — access denied",
+  },
+  {
+    pattern: /\.\.\/|\.\.\\|path\s*traversal|directory\s*traversal/i,
+    type: "path-traversal",
+    severity: "high",
+    description: "Path traversal pattern in request",
+  },
+  {
+    pattern: /<script|javascript:|on\w+\s*=|alert\s*\(/i,
+    type: "xss-attempt",
+    severity: "high",
+    description: "Possible XSS payload in request",
+  },
+  {
+    pattern: /rate\s*limit|too\s*many\s*requests|429/i,
+    type: "rate-limit",
+    severity: "low",
+    description: "Rate limit triggered",
+  },
+  {
+    pattern: /(?:password|secret|token|key)\s*[:=]\s*\S+/i,
+    type: "secret-leak",
+    severity: "critical",
+    description: "Possible secret in log output",
+  },
+  {
+    pattern: /segfault|SIGSEGV|buffer\s*overflow|heap\s*corruption/i,
+    type: "memory-error",
+    severity: "critical",
+    description: "Memory safety error — possible exploitation",
+  },
+  {
+    pattern: /exec|spawn|child_process.*(?:;|&&|\|\||`)/i,
+    type: "cmd-injection",
+    severity: "critical",
+    description: "Possible command injection in execution",
+  },
+  {
+    pattern: /deserializ|unmarshal|pickle\.load|readObject/i,
+    type: "deserialization",
+    severity: "high",
+    description: "Deserialization of untrusted data",
+  },
 ];
 
 export async function monitorCommand(options: MonitorOptions) {
@@ -132,16 +192,20 @@ function checkLine(line: string, lineNum: number, source: string): boolean {
   for (const p of LOG_PATTERNS) {
     if (p.pattern.test(line)) {
       const timestamp = new Date().toLocaleTimeString();
-      const color = p.severity === "critical" ? chalk.red
-        : p.severity === "high" ? chalk.yellow
-          : p.severity === "medium" ? chalk.blue
-            : chalk.dim;
+      const color =
+        p.severity === "critical"
+          ? chalk.red
+          : p.severity === "high"
+            ? chalk.yellow
+            : p.severity === "medium"
+              ? chalk.blue
+              : chalk.dim;
 
       console.log(
         chalk.dim(`  [${timestamp}]`) +
-        ` ${color(`[${p.severity.toUpperCase()}]`)} ` +
-        chalk.bold(p.type) +
-        chalk.dim(` — ${p.description}`)
+          ` ${color(`[${p.severity.toUpperCase()}]`)} ` +
+          chalk.bold(p.type) +
+          chalk.dim(` — ${p.description}`)
       );
       console.log(chalk.dim(`    ${line.trim().slice(0, 120)}`));
       return true;

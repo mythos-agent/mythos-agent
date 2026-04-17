@@ -23,7 +23,9 @@ export async function serveCommand(options: ServeOptions) {
     console.log(chalk.bold("\n🔐 sphinx-agent API server\n"));
     console.log(`  ${chalk.green("➜")} ${chalk.cyan(`http://${options.host}:${options.port}`)}`);
     console.log(chalk.dim(`  Project: ${projectPath}`));
-    console.log(chalk.dim(`  Auth: ${options.apiKey ? "Bearer token required" : "open (no auth)"}`));
+    console.log(
+      chalk.dim(`  Auth: ${options.apiKey ? "Bearer token required" : "open (no auth)"}`)
+    );
     console.log(chalk.dim("\n  Endpoints:"));
     console.log(chalk.dim("    GET  /api/health        — server health check"));
     console.log(chalk.dim("    GET  /api/results        — latest scan results"));

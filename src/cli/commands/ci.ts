@@ -48,7 +48,9 @@ export async function ciCommand(options: CiOptions) {
     const depScanner = new DepScanner();
     const { findings: deps } = await depScanner.scan(projectPath);
     allFindings.push(...deps);
-  } catch { /* optional */ }
+  } catch {
+    /* optional */
+  }
 
   const iacScanner = new IacScanner();
   const { findings: iac } = await iacScanner.scan(projectPath);
@@ -60,7 +62,7 @@ export async function ciCommand(options: CiOptions) {
 
   spinner.succeed(
     `Found ${allFindings.length} findings` +
-    (toolsRun.length > 0 ? ` (tools: ${toolsRun.join(", ")})` : "")
+      (toolsRun.length > 0 ? ` (tools: ${toolsRun.join(", ")})` : "")
   );
 
   const duration = Date.now() - startTime;
@@ -96,10 +98,16 @@ export async function ciCommand(options: CiOptions) {
     const policyResult = evaluatePolicy(policy, result);
     if (!policyResult.passed) {
       console.log(
-        chalk.red.bold(`\n  ❌ Policy "${policy.name}" FAILED — ${policyResult.violations.length} violation(s)\n`)
+        chalk.red.bold(
+          `\n  ❌ Policy "${policy.name}" FAILED — ${policyResult.violations.length} violation(s)\n`
+        )
       );
       for (const v of policyResult.violations) {
-        console.log(chalk.red(`    BLOCK ${v.ruleId}: ${v.description} (${v.matchedFindings.length} findings)`));
+        console.log(
+          chalk.red(
+            `    BLOCK ${v.ruleId}: ${v.description} (${v.matchedFindings.length} findings)`
+          )
+        );
       }
       process.exit(1);
     } else {
@@ -112,9 +120,7 @@ export async function ciCommand(options: CiOptions) {
   if (failOn !== "none") {
     const severityOrder: Severity[] = ["critical", "high", "medium", "low", "info"];
     const threshold = severityOrder.indexOf(failOn as Severity);
-    const failing = allFindings.filter(
-      (f) => severityOrder.indexOf(f.severity) <= threshold
-    );
+    const failing = allFindings.filter((f) => severityOrder.indexOf(f.severity) <= threshold);
     if (failing.length > 0) {
       const counts = {
         critical: failing.filter((f) => f.severity === "critical").length,
@@ -129,7 +135,9 @@ export async function ciCommand(options: CiOptions) {
       if (counts.low) parts.push(`${counts.low} low`);
 
       console.log(
-        chalk.red.bold(`\n  ❌ ${failing.length} findings at ${failOn} or above: ${parts.join(", ")}\n`)
+        chalk.red.bold(
+          `\n  ❌ ${failing.length} findings at ${failOn} or above: ${parts.join(", ")}\n`
+        )
       );
       process.exit(1);
     }
@@ -144,14 +152,18 @@ export async function ciCommand(options: CiOptions) {
   };
 
   console.log(
-    chalk.dim(`\n  ${counts.critical} critical, ${counts.high} high, ${counts.medium} medium, ${counts.low} low (${(duration / 1000).toFixed(1)}s)\n`)
+    chalk.dim(
+      `\n  ${counts.critical} critical, ${counts.high} high, ${counts.medium} medium, ${counts.low} low (${(duration / 1000).toFixed(1)}s)\n`
+    )
   );
 
   if (options.json) {
-    console.log(JSON.stringify({
-      findings: allFindings.length,
-      ...counts,
-      duration,
-    }));
+    console.log(
+      JSON.stringify({
+        findings: allFindings.length,
+        ...counts,
+        duration,
+      })
+    );
   }
 }

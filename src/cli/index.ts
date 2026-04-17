@@ -18,7 +18,11 @@ import { ciCommand } from "./commands/ci.js";
 import { baselineSaveCommand, baselineCompareCommand } from "./commands/baseline.js";
 import { doctorCommand } from "./commands/doctor.js";
 import { hooksInstallCommand, hooksUninstallCommand } from "./commands/hooks.js";
-import { suppressAddCommand, suppressRemoveCommand, suppressListCommand } from "./commands/suppress.js";
+import {
+  suppressAddCommand,
+  suppressRemoveCommand,
+  suppressListCommand,
+} from "./commands/suppress.js";
 import { notifyCommand } from "./commands/notify.js";
 import { sbomCommand } from "./commands/sbom.js";
 import { serveCommand } from "./commands/serve.js";
@@ -68,11 +72,7 @@ program
   .argument("[path]", "Path to scan", ".")
   .option("--no-ai", "Skip AI analysis (pattern scan only)")
   .option("--no-chain", "Skip vulnerability chaining")
-  .option(
-    "-s, --severity <level>",
-    "Minimum severity to report",
-    "low"
-  )
+  .option("-s, --severity <level>", "Minimum severity to report", "low")
   .option("-o, --output <format>", "Output format: terminal, json", "terminal")
   .option("--json", "Output as JSON (shorthand for -o json)")
   .option("-r, --rules <path>", "Path to custom rules directory")
@@ -93,17 +93,10 @@ program
   .option("--apply", "Automatically apply patches")
   .option("--dry-run", "Show patches without applying (default)")
   .option("-i, --id <ids...>", "Fix specific vulnerability IDs only")
-  .option(
-    "-s, --severity <level>",
-    "Fix vulnerabilities at or above this severity",
-    "low"
-  )
+  .option("-s, --severity <level>", "Fix vulnerabilities at or above this severity", "low")
   .action(fixCommand);
 
-program
-  .command("init")
-  .description("Initialize sphinx-agent configuration")
-  .action(initCommand);
+program.command("init").description("Initialize sphinx-agent configuration").action(initCommand);
 
 program
   .command("ask")
@@ -117,11 +110,7 @@ program
   .command("watch")
   .description("Watch for file changes and scan continuously")
   .option("-p, --path <path>", "Project path", ".")
-  .option(
-    "-s, --severity <level>",
-    "Minimum severity to report",
-    "low"
-  )
+  .option("-s, --severity <level>", "Minimum severity to report", "low")
   .action(watchCommand);
 
 program
@@ -170,9 +159,7 @@ policyCmd
   .option("-p, --path <path>", "Project path", ".")
   .action(policyInitCommand);
 
-const rulesCmd = program
-  .command("rules")
-  .description("Manage community rule packs");
+const rulesCmd = program.command("rules").description("Manage community rule packs");
 
 rulesCmd
   .command("search")
@@ -192,10 +179,7 @@ rulesCmd
   .argument("<name>", "Rule pack name")
   .action(rulesUninstallCommand);
 
-rulesCmd
-  .command("list")
-  .description("List installed rule packs")
-  .action(rulesListCommand);
+rulesCmd.command("list").description("List installed rule packs").action(rulesListCommand);
 
 rulesCmd
   .command("init")
@@ -223,7 +207,11 @@ program
   .command("ci")
   .description("CI/CD mode: scan + policy check + SARIF output (one command for pipelines)")
   .option("-p, --path <path>", "Project path", ".")
-  .option("--fail-on <severity>", "Fail if findings at this severity or above (critical, high, medium, low, none)", "none")
+  .option(
+    "--fail-on <severity>",
+    "Fail if findings at this severity or above (critical, high, medium, low, none)",
+    "none"
+  )
   .option("--sarif <path>", "Write SARIF output to file")
   .option("--json", "Output summary as JSON")
   .action(ciCommand);
@@ -490,7 +478,11 @@ program
   .description("Import findings from other tools (SARIF, Semgrep, Snyk, Trivy)")
   .argument("<file>", "Path to findings file")
   .option("-p, --path <path>", "Project path", ".")
-  .option("-f, --format <format>", "Format: sarif, semgrep, snyk, trivy (auto-detects if omitted)", "auto")
+  .option(
+    "-f, --format <format>",
+    "Format: sarif, semgrep, snyk, trivy (auto-detects if omitted)",
+    "auto"
+  )
   .action(importCommand);
 
 program

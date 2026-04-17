@@ -45,9 +45,7 @@ export interface CodebaseMap {
   exports: Array<{ name: string; file: string; line: number }>;
 }
 
-const SUPPORTED_EXTENSIONS = [
-  ".ts", ".tsx", ".js", ".jsx", ".py", ".go", ".java", ".php",
-];
+const SUPPORTED_EXTENSIONS = [".ts", ".tsx", ".js", ".jsx", ".py", ".go", ".java", ".php"];
 
 /**
  * Parse a codebase and extract structural information.
@@ -94,9 +92,7 @@ function parseJsTs(content: string, file: string, map: CodebaseMap): void {
     const line = lines[i];
 
     // Imports
-    const importMatch = line.match(
-      /import\s+(?:\{([^}]+)\}|(\w+))\s+from\s+['"]([^'"]+)['"]/
-    );
+    const importMatch = line.match(/import\s+(?:\{([^}]+)\}|(\w+))\s+from\s+['"]([^'"]+)['"]/);
     if (importMatch) {
       const specifiers = importMatch[1]
         ? importMatch[1].split(",").map((s) => s.trim().split(/\s+as\s+/)[0])
@@ -110,9 +106,7 @@ function parseJsTs(content: string, file: string, map: CodebaseMap): void {
     }
 
     // Function declarations
-    const funcMatch = line.match(
-      /^(export\s+)?(async\s+)?function\s+(\w+)\s*\(([^)]*)\)/
-    );
+    const funcMatch = line.match(/^(export\s+)?(async\s+)?function\s+(\w+)\s*\(([^)]*)\)/);
     if (funcMatch) {
       map.functions.push({
         name: funcMatch[3],
@@ -144,15 +138,11 @@ function parseJsTs(content: string, file: string, map: CodebaseMap): void {
     }
 
     // Class declarations
-    const classMatch = line.match(
-      /^(export\s+)?class\s+(\w+)(?:\s+extends\s+(\w+))?/
-    );
+    const classMatch = line.match(/^(export\s+)?class\s+(\w+)(?:\s+extends\s+(\w+))?/);
     if (classMatch) {
       const methods: string[] = [];
       for (let j = i + 1; j < lines.length && j < i + 200; j++) {
-        const methodMatch = lines[j].match(
-          /^\s+(async\s+)?(\w+)\s*\(/
-        );
+        const methodMatch = lines[j].match(/^\s+(async\s+)?(\w+)\s*\(/);
         if (methodMatch && methodMatch[2] !== "constructor") {
           methods.push(methodMatch[2]);
         }
@@ -176,9 +166,7 @@ function parseJsTs(content: string, file: string, map: CodebaseMap): void {
       // Look for middleware in the same line
       const middlewareMatch = line.match(/,\s*(\w+)\s*,/g);
       if (middlewareMatch) {
-        middleware.push(
-          ...middlewareMatch.map((m) => m.replace(/[, ]/g, ""))
-        );
+        middleware.push(...middlewareMatch.map((m) => m.replace(/[, ]/g, "")));
       }
       map.routes.push({
         method: routeMatch[1].toUpperCase(),
@@ -233,9 +221,7 @@ function parsePython(content: string, file: string, map: CodebaseMap): void {
     }
 
     // Function definitions
-    const funcMatch = line.match(
-      /^(async\s+)?def\s+(\w+)\s*\(([^)]*)\)/
-    );
+    const funcMatch = line.match(/^(async\s+)?def\s+(\w+)\s*\(([^)]*)\)/);
     if (funcMatch) {
       map.functions.push({
         name: funcMatch[2],
@@ -302,9 +288,7 @@ function parseGo(content: string, file: string, map: CodebaseMap): void {
     }
 
     // Function definitions
-    const funcMatch = line.match(
-      /^func\s+(?:\((\w+)\s+\*?(\w+)\)\s+)?(\w+)\s*\(([^)]*)\)/
-    );
+    const funcMatch = line.match(/^func\s+(?:\((\w+)\s+\*?(\w+)\)\s+)?(\w+)\s*\(([^)]*)\)/);
     if (funcMatch) {
       const name = funcMatch[3];
       map.functions.push({
@@ -341,7 +325,10 @@ function findBlockEnd(lines: string[], startLine: number): number {
   let started = false;
   for (let i = startLine; i < lines.length && i < startLine + 500; i++) {
     for (const ch of lines[i]) {
-      if (ch === "{") { depth++; started = true; }
+      if (ch === "{") {
+        depth++;
+        started = true;
+      }
       if (ch === "}") depth--;
     }
     if (started && depth === 0) return i + 1;
@@ -362,6 +349,11 @@ function parseParams(raw: string): string[] {
   if (!raw || !raw.trim()) return [];
   return raw
     .split(",")
-    .map((p) => p.trim().split(/[:\s=]/)[0].trim())
+    .map((p) =>
+      p
+        .trim()
+        .split(/[:\s=]/)[0]
+        .trim()
+    )
     .filter(Boolean);
 }

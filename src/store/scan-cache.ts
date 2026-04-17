@@ -49,11 +49,7 @@ export class ScanCache {
   /**
    * Store findings for a file along with its content hash.
    */
-  set(
-    filePath: string,
-    absPath: string,
-    findings: Vulnerability[]
-  ): void {
+  set(filePath: string, absPath: string, findings: Vulnerability[]): void {
     const hash = this.hashFile(absPath);
     if (!hash) return;
 
@@ -91,11 +87,7 @@ export class ScanCache {
       fs.mkdirSync(dir, { recursive: true });
     }
 
-    fs.writeFileSync(
-      this.cachePath,
-      JSON.stringify(this.data, null, 2),
-      "utf-8"
-    );
+    fs.writeFileSync(this.cachePath, JSON.stringify(this.data, null, 2), "utf-8");
     this.dirty = false;
   }
 
@@ -112,9 +104,7 @@ export class ScanCache {
     const entries = Object.values(this.data.entries);
     if (entries.length === 0) return { files: 0, age: null };
 
-    const oldest = entries.reduce((min, e) =>
-      e.timestamp < min.timestamp ? e : min
-    );
+    const oldest = entries.reduce((min, e) => (e.timestamp < min.timestamp ? e : min));
     return {
       files: entries.length,
       age: oldest.timestamp,

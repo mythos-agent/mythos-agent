@@ -81,9 +81,7 @@ export async function hooksInstallCommand(options: {
     installed++;
   }
 
-  console.log(
-    chalk.dim(`\n  ${installed} hook(s) installed to ${hooksDir}`)
-  );
+  console.log(chalk.dim(`\n  ${installed} hook(s) installed to ${hooksDir}`));
   console.log(chalk.dim("  Bypass with --no-verify when needed.\n"));
 }
 

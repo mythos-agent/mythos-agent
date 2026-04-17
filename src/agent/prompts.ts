@@ -48,10 +48,7 @@ Respond with a JSON object:
   ]
 }`;
 
-export function buildAnalysisPrompt(
-  findings: Vulnerability[],
-  projectPath: string
-): string {
+export function buildAnalysisPrompt(findings: Vulnerability[], projectPath: string): string {
   const findingsList = findings
     .map(
       (f) =>

@@ -33,10 +33,7 @@ function mockResult(vulns: Vulnerability[]): ScanResult {
 
 describe("evaluatePolicy", () => {
   it("passes when no rules match", () => {
-    const result = evaluatePolicy(
-      { name: "test", rules: [] },
-      mockResult([])
-    );
+    const result = evaluatePolicy({ name: "test", rules: [] }, mockResult([]));
     expect(result.passed).toBe(true);
     expect(result.violations).toHaveLength(0);
   });
@@ -139,9 +136,7 @@ describe("evaluatePolicy", () => {
   });
 
   it("evaluates count_threshold condition", () => {
-    const vulns = Array.from({ length: 5 }, (_, i) =>
-      mockVuln({ id: `SPX-${i}` })
-    );
+    const vulns = Array.from({ length: 5 }, (_, i) => mockVuln({ id: `SPX-${i}` }));
     const result = evaluatePolicy(
       {
         name: "test",

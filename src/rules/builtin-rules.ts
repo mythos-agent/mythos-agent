@@ -16,12 +16,11 @@ export function loadBuiltinRules(): RuleDefinition[] {
         {
           type: "regex",
           pattern:
-            '(?:query|execute|exec|raw)\\s*\\(\\s*[`"\']\\s*(?:SELECT|INSERT|UPDATE|DELETE|DROP|ALTER).*\\$\\{',
+            "(?:query|execute|exec|raw)\\s*\\(\\s*[`\"']\\s*(?:SELECT|INSERT|UPDATE|DELETE|DROP|ALTER).*\\$\\{",
         },
         {
           type: "regex",
-          pattern:
-            '(?:query|execute|exec|raw)\\s*\\(.*\\+.*(?:req\\.|params\\.|body\\.|query\\.)',
+          pattern: "(?:query|execute|exec|raw)\\s*\\(.*\\+.*(?:req\\.|params\\.|body\\.|query\\.)",
         },
         {
           type: "regex",
@@ -70,7 +69,7 @@ export function loadBuiltinRules(): RuleDefinition[] {
         {
           type: "regex",
           pattern:
-            '(?:exec|execSync|spawn|spawnSync)\\s*\\(.*(?:\\+|\\$\\{).*(?:req\\.|params\\.|body\\.|input|user)',
+            "(?:exec|execSync|spawn|spawnSync)\\s*\\(.*(?:\\+|\\$\\{).*(?:req\\.|params\\.|body\\.|input|user)",
         },
         {
           type: "regex",
@@ -79,7 +78,7 @@ export function loadBuiltinRules(): RuleDefinition[] {
         {
           type: "regex",
           pattern:
-            "(?:os\\.system|subprocess\\.call|subprocess\\.run|subprocess\\.Popen)\\s*\\(.*(?:f\"|\\+|format)",
+            '(?:os\\.system|subprocess\\.call|subprocess\\.run|subprocess\\.Popen)\\s*\\(.*(?:f"|\\+|format)',
         },
       ],
     },
@@ -102,13 +101,11 @@ export function loadBuiltinRules(): RuleDefinition[] {
         },
         {
           type: "regex",
-          pattern:
-            'path\\.(?:join|resolve)\\s*\\(.*(?:req\\.|params\\.|body\\.|query\\.)',
+          pattern: "path\\.(?:join|resolve)\\s*\\(.*(?:req\\.|params\\.|body\\.|query\\.)",
         },
         {
           type: "regex",
-          pattern:
-            "open\\s*\\(.*(?:request\\.|f\"|format).*(?:r|w|a|rb|wb)",
+          pattern: 'open\\s*\\(.*(?:request\\.|f"|format).*(?:r|w|a|rb|wb)',
         },
       ],
     },
@@ -127,12 +124,12 @@ export function loadBuiltinRules(): RuleDefinition[] {
         {
           type: "regex",
           pattern:
-            '(?:password|passwd|pwd|secret|api_?key|apikey|token|auth_?token)\\s*[:=]\\s*["\'][^"\'\\s]{8,}["\']',
+            "(?:password|passwd|pwd|secret|api_?key|apikey|token|auth_?token)\\s*[:=]\\s*[\"'][^\"'\\s]{8,}[\"']",
         },
         {
           type: "regex",
           pattern:
-            '(?:AWS_SECRET|PRIVATE_KEY|DATABASE_URL|MONGO_URI|REDIS_URL)\\s*[:=]\\s*["\'][^"\']+["\']',
+            "(?:AWS_SECRET|PRIVATE_KEY|DATABASE_URL|MONGO_URI|REDIS_URL)\\s*[:=]\\s*[\"'][^\"']+[\"']",
         },
       ],
     },
@@ -150,13 +147,11 @@ export function loadBuiltinRules(): RuleDefinition[] {
       patterns: [
         {
           type: "regex",
-          pattern:
-            "createHash\\s*\\(\\s*['\"](?:md5|sha1|md4)['\"]",
+          pattern: "createHash\\s*\\(\\s*['\"](?:md5|sha1|md4)['\"]",
         },
         {
           type: "regex",
-          pattern:
-            "(?:hashlib\\.md5|hashlib\\.sha1|DES\\.|RC4|Blowfish)",
+          pattern: "(?:hashlib\\.md5|hashlib\\.sha1|DES\\.|RC4|Blowfish)",
         },
       ],
     },
@@ -178,7 +173,7 @@ export function loadBuiltinRules(): RuleDefinition[] {
         },
         {
           type: "regex",
-          pattern: 'set-cookie.*(?!;\\s*httponly)(?!;\\s*secure)',
+          pattern: "set-cookie.*(?!;\\s*httponly)(?!;\\s*secure)",
         },
       ],
     },
@@ -209,8 +204,7 @@ export function loadBuiltinRules(): RuleDefinition[] {
     {
       id: "nosql-injection",
       title: "Potential NoSQL Injection",
-      description:
-        "User input passed directly to a NoSQL query. Use proper input validation.",
+      description: "User input passed directly to a NoSQL query. Use proper input validation.",
       severity: "high",
       category: "injection",
       cwe: "CWE-943",
@@ -218,13 +212,11 @@ export function loadBuiltinRules(): RuleDefinition[] {
       patterns: [
         {
           type: "regex",
-          pattern:
-            "\\.find\\s*\\(\\s*\\{.*(?:req\\.|params\\.|body\\.|query\\.)",
+          pattern: "\\.find\\s*\\(\\s*\\{.*(?:req\\.|params\\.|body\\.|query\\.)",
         },
         {
           type: "regex",
-          pattern:
-            "\\$where.*(?:req\\.|params\\.|body\\.|query\\.)",
+          pattern: "\\$where.*(?:req\\.|params\\.|body\\.|query\\.)",
         },
       ],
     },
@@ -261,8 +253,7 @@ export function loadBuiltinRules(): RuleDefinition[] {
       patterns: [
         {
           type: "regex",
-          pattern:
-            "(?:redirect|location)\\s*[=(].*(?:req\\.|params\\.|body\\.|query\\.)",
+          pattern: "(?:redirect|location)\\s*[=(].*(?:req\\.|params\\.|body\\.|query\\.)",
         },
       ],
     },
@@ -280,8 +271,7 @@ export function loadBuiltinRules(): RuleDefinition[] {
       patterns: [
         {
           type: "regex",
-          pattern:
-            "jwt\\.verify\\s*\\([^)]*\\{[^}]*algorithms\\s*:\\s*\\[.*['\"]none['\"]",
+          pattern: "jwt\\.verify\\s*\\([^)]*\\{[^}]*algorithms\\s*:\\s*\\[.*['\"]none['\"]",
         },
         {
           type: "regex",
@@ -365,7 +355,7 @@ export function loadBuiltinRules(): RuleDefinition[] {
         },
         {
           type: "regex",
-          pattern: 'Statement.*execute.*\\+.*(?:request|param|input|user)',
+          pattern: "Statement.*execute.*\\+.*(?:request|param|input|user)",
         },
       ],
     },
@@ -415,8 +405,7 @@ export function loadBuiltinRules(): RuleDefinition[] {
     {
       id: "java-weak-crypto",
       title: "Weak Cryptography (Java)",
-      description:
-        "Use of weak cryptographic algorithm. Use AES-256, SHA-256 or better.",
+      description: "Use of weak cryptographic algorithm. Use AES-256, SHA-256 or better.",
       severity: "medium",
       category: "crypto",
       cwe: "CWE-327",
@@ -438,8 +427,7 @@ export function loadBuiltinRules(): RuleDefinition[] {
     {
       id: "php-sql-injection",
       title: "Potential SQL Injection (PHP)",
-      description:
-        "User input in SQL query. Use prepared statements with PDO or mysqli.",
+      description: "User input in SQL query. Use prepared statements with PDO or mysqli.",
       severity: "critical",
       category: "injection",
       cwe: "CWE-89",
@@ -447,11 +435,11 @@ export function loadBuiltinRules(): RuleDefinition[] {
       patterns: [
         {
           type: "regex",
-          pattern: '(?:mysql_query|mysqli_query|pg_query)\\s*\\(.*\\$_(?:GET|POST|REQUEST|COOKIE)',
+          pattern: "(?:mysql_query|mysqli_query|pg_query)\\s*\\(.*\\$_(?:GET|POST|REQUEST|COOKIE)",
         },
         {
           type: "regex",
-          pattern: '\\$.*->query\\s*\\(.*\\$_(?:GET|POST|REQUEST)',
+          pattern: "\\$.*->query\\s*\\(.*\\$_(?:GET|POST|REQUEST)",
         },
       ],
     },
@@ -459,8 +447,7 @@ export function loadBuiltinRules(): RuleDefinition[] {
     {
       id: "php-xss",
       title: "Potential XSS (PHP)",
-      description:
-        "User input echoed without escaping. Use htmlspecialchars() or htmlentities().",
+      description: "User input echoed without escaping. Use htmlspecialchars() or htmlentities().",
       severity: "high",
       category: "xss",
       cwe: "CWE-79",
@@ -468,11 +455,11 @@ export function loadBuiltinRules(): RuleDefinition[] {
       patterns: [
         {
           type: "regex",
-          pattern: 'echo\\s+\\$_(?:GET|POST|REQUEST|COOKIE)',
+          pattern: "echo\\s+\\$_(?:GET|POST|REQUEST|COOKIE)",
         },
         {
           type: "regex",
-          pattern: 'print\\s+\\$_(?:GET|POST|REQUEST)',
+          pattern: "print\\s+\\$_(?:GET|POST|REQUEST)",
         },
       ],
     },
@@ -480,8 +467,7 @@ export function loadBuiltinRules(): RuleDefinition[] {
     {
       id: "php-command-injection",
       title: "Potential Command Injection (PHP)",
-      description:
-        "User input in shell command. Use escapeshellarg() and escapeshellcmd().",
+      description: "User input in shell command. Use escapeshellarg() and escapeshellcmd().",
       severity: "critical",
       category: "injection",
       cwe: "CWE-78",
@@ -489,11 +475,11 @@ export function loadBuiltinRules(): RuleDefinition[] {
       patterns: [
         {
           type: "regex",
-          pattern: '(?:exec|system|passthru|shell_exec|popen)\\s*\\(.*\\$_(?:GET|POST|REQUEST)',
+          pattern: "(?:exec|system|passthru|shell_exec|popen)\\s*\\(.*\\$_(?:GET|POST|REQUEST)",
         },
         {
           type: "regex",
-          pattern: '`.*\\$_(?:GET|POST|REQUEST)',
+          pattern: "`.*\\$_(?:GET|POST|REQUEST)",
         },
       ],
     },
@@ -501,8 +487,7 @@ export function loadBuiltinRules(): RuleDefinition[] {
     {
       id: "php-file-inclusion",
       title: "Potential File Inclusion (PHP)",
-      description:
-        "User input in include/require. This can lead to remote code execution.",
+      description: "User input in include/require. This can lead to remote code execution.",
       severity: "critical",
       category: "injection",
       cwe: "CWE-98",
@@ -510,7 +495,7 @@ export function loadBuiltinRules(): RuleDefinition[] {
       patterns: [
         {
           type: "regex",
-          pattern: '(?:include|require|include_once|require_once)\\s*\\(.*\\$_(?:GET|POST|REQUEST)',
+          pattern: "(?:include|require|include_once|require_once)\\s*\\(.*\\$_(?:GET|POST|REQUEST)",
         },
       ],
     },
@@ -527,7 +512,7 @@ export function loadBuiltinRules(): RuleDefinition[] {
       patterns: [
         {
           type: "regex",
-          pattern: 'eval\\s*\\(.*\\$',
+          pattern: "eval\\s*\\(.*\\$",
         },
       ],
     },

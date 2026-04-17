@@ -1,12 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { glob } from "glob";
-import type {
-  SphinxConfig,
-  Vulnerability,
-  RuleDefinition,
-  Severity,
-} from "../types/index.js";
+import type { SphinxConfig, Vulnerability, RuleDefinition, Severity } from "../types/index.js";
 import { loadBuiltinRules } from "../rules/builtin-rules.js";
 import { loadFrameworkRules } from "../rules/framework-rules.js";
 import { loadCustomRules } from "../rules/custom-rules.js";
@@ -34,7 +29,10 @@ const LANG_MAP: Record<string, string> = {
 export class PatternScanner {
   private rules: RuleDefinition[];
 
-  constructor(private config: SphinxConfig, customRulesPath?: string) {
+  constructor(
+    private config: SphinxConfig,
+    customRulesPath?: string
+  ) {
     this.rules = [
       ...loadBuiltinRules(),
       ...loadFrameworkRules(),
@@ -42,10 +40,7 @@ export class PatternScanner {
     ];
   }
 
-  async scan(
-    projectPath: string,
-    useCache = true
-  ): Promise<ScanOutput> {
+  async scan(projectPath: string, useCache = true): Promise<ScanOutput> {
     const files = await this.discoverFiles(projectPath);
     const languages = new Set<string>();
     const findings: Vulnerability[] = [];
@@ -76,8 +71,7 @@ export class PatternScanner {
       const fileFindings: Vulnerability[] = [];
 
       for (const rule of this.rules) {
-        if (lang && !rule.languages.includes(lang) && !rule.languages.includes("*"))
-          continue;
+        if (lang && !rule.languages.includes(lang) && !rule.languages.includes("*")) continue;
 
         for (const rulePattern of rule.patterns) {
           if (rulePattern.type === "regex") {
@@ -115,9 +109,7 @@ export class PatternScanner {
 
     // Save cache and prune stale entries
     if (cache) {
-      const existingFiles = new Set(
-        files.map((f) => path.relative(projectPath, f))
-      );
+      const existingFiles = new Set(files.map((f) => path.relative(projectPath, f)));
       cache.prune(existingFiles);
       cache.save();
     }

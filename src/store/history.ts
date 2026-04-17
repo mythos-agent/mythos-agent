@@ -34,10 +34,18 @@ export function recordScan(projectPath: string, result: ScanResult): void {
   let trustScore = 10;
   for (const v of vulns) {
     switch (v.severity) {
-      case "critical": trustScore -= 2; break;
-      case "high": trustScore -= 1; break;
-      case "medium": trustScore -= 0.5; break;
-      case "low": trustScore -= 0.2; break;
+      case "critical":
+        trustScore -= 2;
+        break;
+      case "high":
+        trustScore -= 1;
+        break;
+      case "medium":
+        trustScore -= 0.5;
+        break;
+      case "low":
+        trustScore -= 0.2;
+        break;
     }
   }
   trustScore = Math.max(0, Math.min(10, trustScore));

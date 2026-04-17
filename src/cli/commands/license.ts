@@ -1,7 +1,11 @@
 import fs from "node:fs";
 import path from "node:path";
 import chalk from "chalk";
-import { discoverLockfiles, parseLockfile, type Dependency } from "../../scanner/lockfile-parsers.js";
+import {
+  discoverLockfiles,
+  parseLockfile,
+  type Dependency,
+} from "../../scanner/lockfile-parsers.js";
 
 interface LicenseInfo {
   name: string;
@@ -17,16 +21,35 @@ interface LicenseOptions {
 }
 
 const COPYLEFT_LICENSES = [
-  "GPL-2.0", "GPL-3.0", "AGPL-3.0", "LGPL-2.1", "LGPL-3.0",
-  "GPL-2.0-only", "GPL-3.0-only", "AGPL-3.0-only",
-  "GPL-2.0-or-later", "GPL-3.0-or-later",
-  "EUPL-1.2", "MPL-2.0", "CPAL-1.0", "OSL-3.0",
+  "GPL-2.0",
+  "GPL-3.0",
+  "AGPL-3.0",
+  "LGPL-2.1",
+  "LGPL-3.0",
+  "GPL-2.0-only",
+  "GPL-3.0-only",
+  "AGPL-3.0-only",
+  "GPL-2.0-or-later",
+  "GPL-3.0-or-later",
+  "EUPL-1.2",
+  "MPL-2.0",
+  "CPAL-1.0",
+  "OSL-3.0",
 ];
 
 const PERMISSIVE_LICENSES = [
-  "MIT", "Apache-2.0", "BSD-2-Clause", "BSD-3-Clause", "ISC",
-  "0BSD", "CC0-1.0", "Unlicense", "WTFPL", "Zlib",
-  "BlueOak-1.0.0", "PSF-2.0",
+  "MIT",
+  "Apache-2.0",
+  "BSD-2-Clause",
+  "BSD-3-Clause",
+  "ISC",
+  "0BSD",
+  "CC0-1.0",
+  "Unlicense",
+  "WTFPL",
+  "Zlib",
+  "BlueOak-1.0.0",
+  "PSF-2.0",
 ];
 
 export async function licenseCommand(options: LicenseOptions) {
@@ -69,15 +92,16 @@ export async function licenseCommand(options: LicenseOptions) {
   // Summary
   const copyleft = licenses.filter((l) => l.risk === "copyleft");
   const unknown = licenses.filter((l) => l.risk === "unknown");
-  const denied = denyList.length > 0
-    ? licenses.filter((l) => denyList.some((d) => l.license.includes(d)))
-    : [];
+  const denied =
+    denyList.length > 0 ? licenses.filter((l) => denyList.some((d) => l.license.includes(d))) : [];
   const ok = licenses.filter((l) => l.risk === "ok");
 
   console.log(chalk.bold("\n📜 sphinx-agent license\n"));
   console.log(chalk.dim(`  ${licenses.length} dependencies analyzed\n`));
 
-  console.log(`  ${chalk.green(`${ok.length} permissive`)} | ${chalk.yellow(`${copyleft.length} copyleft`)} | ${chalk.red(`${unknown.length} unknown`)}${denied.length > 0 ? ` | ${chalk.bgRed.white(` ${denied.length} denied `)}` : ""}\n`);
+  console.log(
+    `  ${chalk.green(`${ok.length} permissive`)} | ${chalk.yellow(`${copyleft.length} copyleft`)} | ${chalk.red(`${unknown.length} unknown`)}${denied.length > 0 ? ` | ${chalk.bgRed.white(` ${denied.length} denied `)}` : ""}\n`
+  );
 
   // Show copyleft
   if (copyleft.length > 0) {
@@ -92,7 +116,9 @@ export async function licenseCommand(options: LicenseOptions) {
   if (unknown.length > 0) {
     console.log(chalk.red.bold("  Unknown licenses (review manually):\n"));
     for (const l of unknown.slice(0, 20)) {
-      console.log(`    ${chalk.red("?")} ${l.name}@${l.version} — ${chalk.red(l.license || "UNLICENSED")}`);
+      console.log(
+        `    ${chalk.red("?")} ${l.name}@${l.version} — ${chalk.red(l.license || "UNLICENSED")}`
+      );
     }
     if (unknown.length > 20) console.log(chalk.dim(`    ...and ${unknown.length - 20} more`));
     console.log();
@@ -118,9 +144,7 @@ function readLicense(dep: Dependency, projectPath: string): LicenseInfo {
   if (fs.existsSync(pkgPath)) {
     try {
       const pkg = JSON.parse(fs.readFileSync(pkgPath, "utf-8"));
-      license = typeof pkg.license === "string"
-        ? pkg.license
-        : pkg.license?.type || "UNKNOWN";
+      license = typeof pkg.license === "string" ? pkg.license : pkg.license?.type || "UNKNOWN";
     } catch {
       // parse error
     }
@@ -145,7 +169,13 @@ function classifyLicense(license: string): "ok" | "copyleft" | "unknown" | "rest
   if (COPYLEFT_LICENSES.some((l) => upper.includes(l.toUpperCase()))) return "copyleft";
 
   // Check common patterns
-  if (upper.includes("MIT") || upper.includes("BSD") || upper.includes("ISC") || upper.includes("APACHE")) return "ok";
+  if (
+    upper.includes("MIT") ||
+    upper.includes("BSD") ||
+    upper.includes("ISC") ||
+    upper.includes("APACHE")
+  )
+    return "ok";
   if (upper.includes("GPL") || upper.includes("AGPL")) return "copyleft";
 
   return "unknown";

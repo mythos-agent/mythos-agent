@@ -3,9 +3,7 @@ import path from "node:path";
 import { glob } from "glob";
 import type Anthropic from "@anthropic-ai/sdk";
 
-export function createAgentTools(
-  projectPath: string
-): Anthropic.Tool[] {
+export function createAgentTools(projectPath: string): Anthropic.Tool[] {
   return [
     {
       name: "read_file",
@@ -16,8 +14,7 @@ export function createAgentTools(
         properties: {
           file_path: {
             type: "string",
-            description:
-              "Relative path to the file from the project root",
+            description: "Relative path to the file from the project root",
           },
           start_line: {
             type: "number",
@@ -25,8 +22,7 @@ export function createAgentTools(
           },
           end_line: {
             type: "number",
-            description:
-              "Stop reading at this line (default: end of file, max 200 lines)",
+            description: "Stop reading at this line (default: end of file, max 200 lines)",
           },
         },
         required: ["file_path"],
@@ -45,8 +41,7 @@ export function createAgentTools(
           },
           file_glob: {
             type: "string",
-            description:
-              'File glob to limit search scope (e.g., "**/*.ts")',
+            description: 'File glob to limit search scope (e.g., "**/*.ts")',
           },
         },
         required: ["pattern"],
@@ -54,15 +49,13 @@ export function createAgentTools(
     },
     {
       name: "list_files",
-      description:
-        "List files in a directory of the project.",
+      description: "List files in a directory of the project.",
       input_schema: {
         type: "object" as const,
         properties: {
           directory: {
             type: "string",
-            description:
-              "Relative directory path (default: project root)",
+            description: "Relative directory path (default: project root)",
           },
           glob_pattern: {
             type: "string",
@@ -92,10 +85,7 @@ export function executeToolCall(
   }
 }
 
-function executeReadFile(
-  projectPath: string,
-  input: Record<string, unknown>
-): string {
+function executeReadFile(projectPath: string, input: Record<string, unknown>): string {
   const filePath = input.file_path as string;
   const absPath = path.resolve(projectPath, filePath);
 
@@ -124,10 +114,7 @@ function executeReadFile(
   return `File: ${filePath} (lines ${start}-${end} of ${lines.length})\n\n${numbered}`;
 }
 
-function executeSearchCode(
-  projectPath: string,
-  input: Record<string, unknown>
-): string {
+function executeSearchCode(projectPath: string, input: Record<string, unknown>): string {
   const pattern = input.pattern as string;
   const fileGlob = (input.file_glob as string) || "**/*.{ts,tsx,js,jsx,py}";
 
@@ -172,10 +159,7 @@ function executeSearchCode(
   return `Found ${results.length} matches:\n\n${results.join("\n")}`;
 }
 
-function executeListFiles(
-  projectPath: string,
-  input: Record<string, unknown>
-): string {
+function executeListFiles(projectPath: string, input: Record<string, unknown>): string {
   const dir = (input.directory as string) || ".";
   const globPattern = (input.glob_pattern as string) || "*";
   const absDir = path.resolve(projectPath, dir);

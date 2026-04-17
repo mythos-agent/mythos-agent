@@ -1,10 +1,7 @@
 import path from "node:path";
 import type { ScanResult, Vulnerability, VulnChain } from "../types/index.js";
 
-export function buildDashboardHtml(
-  result: ScanResult | null,
-  projectPath: string
-): string {
+export function buildDashboardHtml(result: ScanResult | null, projectPath: string): string {
   const projectName = path.basename(projectPath);
   const vulns = result?.confirmedVulnerabilities || [];
   const chains = result?.chains || [];
@@ -18,9 +15,7 @@ export function buildDashboardHtml(
 
   const trustScore = result ? calcTrustScore(vulns, chains) : 10;
   const categories = getCategoryCounts(vulns);
-  const timestamp = result?.timestamp
-    ? new Date(result.timestamp).toLocaleString()
-    : "No scan yet";
+  const timestamp = result?.timestamp ? new Date(result.timestamp).toLocaleString() : "No scan yet";
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -99,11 +94,11 @@ export function buildDashboardHtml(
         <svg viewBox="0 0 120 120">
           <circle class="bg" cx="60" cy="60" r="52"/>
           <circle class="fg" cx="60" cy="60" r="52"
-            stroke="${trustScore >= 7 ? '#22c55e' : trustScore >= 4 ? '#eab308' : '#ef4444'}"
+            stroke="${trustScore >= 7 ? "#22c55e" : trustScore >= 4 ? "#eab308" : "#ef4444"}"
             stroke-dasharray="${2 * Math.PI * 52}"
             stroke-dashoffset="${2 * Math.PI * 52 * (1 - trustScore / 10)}"/>
         </svg>
-        <div class="score-text ${trustScore >= 7 ? 'good-val' : trustScore >= 4 ? 'medium-val' : 'critical-val'}">${trustScore.toFixed(1)}</div>
+        <div class="score-text ${trustScore >= 7 ? "good-val" : trustScore >= 4 ? "medium-val" : "critical-val"}">${trustScore.toFixed(1)}</div>
       </div>
     </div>
     <div class="card">
@@ -124,37 +119,51 @@ export function buildDashboardHtml(
     </div>
   </div>
 
-  ${categories.length > 0 ? `
+  ${
+    categories.length > 0
+      ? `
   <div class="section">
     <h2>By Category</h2>
     <div class="bar-chart">
-      ${categories.map(c => {
-        const maxCount = Math.max(...categories.map(x => x.count));
-        const pct = maxCount > 0 ? (c.count / maxCount) * 100 : 0;
-        const sev = c.topSeverity;
-        return `<div class="bar-row">
+      ${categories
+        .map((c) => {
+          const maxCount = Math.max(...categories.map((x) => x.count));
+          const pct = maxCount > 0 ? (c.count / maxCount) * 100 : 0;
+          const sev = c.topSeverity;
+          return `<div class="bar-row">
           <div class="bar-label">${esc(c.category)}</div>
           <div class="bar-track">
             <div class="bar-fill ${sev}" style="width:${Math.max(pct, 8)}%">${c.count}</div>
           </div>
         </div>`;
-      }).join("")}
+        })
+        .join("")}
     </div>
-  </div>` : ""}
+  </div>`
+      : ""
+  }
 
-  ${chains.length > 0 ? `
+  ${
+    chains.length > 0
+      ? `
   <div class="section">
     <h2>Attack Chains (${chains.length})</h2>
-    ${chains.map(c => `
+    ${chains
+      .map(
+        (c) => `
     <div class="chain-card">
       <span class="badge badge-${c.severity}">${c.severity}</span>
       <span class="chain-title">${esc(c.title)}</span>
       <div class="chain-steps">
-        ${c.vulnerabilities.map(v => `<div class="chain-step"><code>${esc(v.location.file)}:${v.location.line}</code> — ${esc(v.title)}</div>`).join("")}
+        ${c.vulnerabilities.map((v) => `<div class="chain-step"><code>${esc(v.location.file)}:${v.location.line}</code> — ${esc(v.title)}</div>`).join("")}
       </div>
       <div class="chain-narrative">${esc(c.narrative)}</div>
-    </div>`).join("")}
-  </div>` : ""}
+    </div>`
+      )
+      .join("")}
+  </div>`
+      : ""
+  }
 
   <div class="section">
     <h2>All Findings (${vulns.length})</h2>
@@ -163,15 +172,19 @@ export function buildDashboardHtml(
         <tr><th>ID</th><th>Severity</th><th>Title</th><th>File</th><th>Line</th><th>AI</th></tr>
       </thead>
       <tbody>
-        ${vulns.map(v => `
+        ${vulns
+          .map(
+            (v) => `
         <tr>
           <td style="font-family:monospace;color:#64748b">${v.id}</td>
           <td><span class="badge badge-${v.severity}">${v.severity}</span></td>
           <td>${esc(v.title)}</td>
           <td style="font-family:monospace;color:#60a5fa">${esc(v.location.file)}</td>
           <td>${v.location.line}</td>
-          <td>${v.aiVerified ? '✓' : ''}</td>
-        </tr>`).join("")}
+          <td>${v.aiVerified ? "✓" : ""}</td>
+        </tr>`
+          )
+          .join("")}
       </tbody>
     </table>
   </div>
@@ -185,21 +198,49 @@ export function buildDashboardHtml(
 }
 
 function esc(str: string): string {
-  return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
 }
 
 function calcTrustScore(vulns: Vulnerability[], chains: VulnChain[]): number {
   let score = 10;
   for (const v of vulns) {
-    switch (v.severity) { case "critical": score -= 2; break; case "high": score -= 1; break; case "medium": score -= 0.5; break; case "low": score -= 0.2; break; }
+    switch (v.severity) {
+      case "critical":
+        score -= 2;
+        break;
+      case "high":
+        score -= 1;
+        break;
+      case "medium":
+        score -= 0.5;
+        break;
+      case "low":
+        score -= 0.2;
+        break;
+    }
   }
   for (const c of chains) {
-    switch (c.severity) { case "critical": score -= 1.5; break; case "high": score -= 1; break; default: score -= 0.5; }
+    switch (c.severity) {
+      case "critical":
+        score -= 1.5;
+        break;
+      case "high":
+        score -= 1;
+        break;
+      default:
+        score -= 0.5;
+    }
   }
   return Math.max(0, Math.min(10, score));
 }
 
-function getCategoryCounts(vulns: Vulnerability[]): Array<{ category: string; count: number; topSeverity: string }> {
+function getCategoryCounts(
+  vulns: Vulnerability[]
+): Array<{ category: string; count: number; topSeverity: string }> {
   const map = new Map<string, { count: number; topSeverity: string }>();
   const order = ["critical", "high", "medium", "low", "info"];
   for (const v of vulns) {

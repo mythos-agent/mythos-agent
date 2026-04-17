@@ -118,13 +118,11 @@ export class OpenAICompatibleProvider implements AIProvider {
     const data = (await response.json()) as OpenAIResponse;
     const choice = data.choices[0];
 
-    const toolCalls: ToolCall[] = (choice.message.tool_calls || []).map(
-      (tc) => ({
-        id: tc.id,
-        name: tc.function.name,
-        input: JSON.parse(tc.function.arguments),
-      })
-    );
+    const toolCalls: ToolCall[] = (choice.message.tool_calls || []).map((tc) => ({
+      id: tc.id,
+      name: tc.function.name,
+      input: JSON.parse(tc.function.arguments),
+    }));
 
     return {
       text: choice.message.content,

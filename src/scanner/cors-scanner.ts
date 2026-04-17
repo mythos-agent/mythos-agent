@@ -3,11 +3,19 @@ import path from "node:path";
 import { glob } from "glob";
 import type { Vulnerability, Severity } from "../types/index.js";
 
-const CORS_RULES: Array<{ id: string; title: string; description: string; severity: Severity; cwe: string; patterns: RegExp[] }> = [
+const CORS_RULES: Array<{
+  id: string;
+  title: string;
+  description: string;
+  severity: Severity;
+  cwe: string;
+  patterns: RegExp[];
+}> = [
   {
     id: "cors-wildcard-origin",
     title: "CORS: Wildcard Origin (*)",
-    description: "CORS allows any origin. Any website can make requests to your API, including reading responses.",
+    description:
+      "CORS allows any origin. Any website can make requests to your API, including reading responses.",
     severity: "high",
     cwe: "CWE-942",
     patterns: [
@@ -18,7 +26,8 @@ const CORS_RULES: Array<{ id: string; title: string; description: string; severi
   {
     id: "cors-reflect-origin",
     title: "CORS: Origin Reflected Without Validation",
-    description: "The Origin header is reflected as-is in Access-Control-Allow-Origin. This is equivalent to wildcard with credentials.",
+    description:
+      "The Origin header is reflected as-is in Access-Control-Allow-Origin. This is equivalent to wildcard with credentials.",
     severity: "critical",
     cwe: "CWE-942",
     patterns: [
@@ -30,7 +39,8 @@ const CORS_RULES: Array<{ id: string; title: string; description: string; severi
   {
     id: "cors-credentials-wildcard",
     title: "CORS: Credentials with Wildcard Origin",
-    description: "CORS allows credentials (cookies) with wildcard origin. Browsers block this, but misconfigured proxies may not.",
+    description:
+      "CORS allows credentials (cookies) with wildcard origin. Browsers block this, but misconfigured proxies may not.",
     severity: "high",
     cwe: "CWE-942",
     patterns: [
@@ -41,7 +51,8 @@ const CORS_RULES: Array<{ id: string; title: string; description: string; severi
   {
     id: "cors-null-origin",
     title: "CORS: Null Origin Allowed",
-    description: "CORS allows 'null' origin. Sandboxed iframes and file:// URLs send null origin, enabling exploitation.",
+    description:
+      "CORS allows 'null' origin. Sandboxed iframes and file:// URLs send null origin, enabling exploitation.",
     severity: "medium",
     cwe: "CWE-942",
     patterns: [
@@ -52,18 +63,17 @@ const CORS_RULES: Array<{ id: string; title: string; description: string; severi
   {
     id: "cors-substring-match",
     title: "CORS: Origin Validated with Substring Match",
-    description: "Origin checked with includes() or indexOf() instead of exact match. evil-example.com passes a check for example.com.",
+    description:
+      "Origin checked with includes() or indexOf() instead of exact match. evil-example.com passes a check for example.com.",
     severity: "high",
     cwe: "CWE-942",
-    patterns: [
-      /origin\.(?:includes|indexOf|endsWith)\s*\(/gi,
-      /origin.*\.match\s*\(\s*(?!\/\^)/gi,
-    ],
+    patterns: [/origin\.(?:includes|indexOf|endsWith)\s*\(/gi, /origin.*\.match\s*\(\s*(?!\/\^)/gi],
   },
   {
     id: "cors-preflight-cache-long",
     title: "CORS: Preflight Cache Too Long",
-    description: "Access-Control-Max-Age set very high (>86400). Changes to CORS policy won't take effect for cached clients.",
+    description:
+      "Access-Control-Max-Age set very high (>86400). Changes to CORS policy won't take effect for cached clients.",
     severity: "low",
     cwe: "CWE-693",
     patterns: [
@@ -74,7 +84,8 @@ const CORS_RULES: Array<{ id: string; title: string; description: string; severi
   {
     id: "cors-expose-all-headers",
     title: "CORS: Exposing All Response Headers",
-    description: "Access-Control-Expose-Headers set to * exposes all headers including potentially sensitive ones.",
+    description:
+      "Access-Control-Expose-Headers set to * exposes all headers including potentially sensitive ones.",
     severity: "medium",
     cwe: "CWE-200",
     patterns: [
@@ -84,19 +95,30 @@ const CORS_RULES: Array<{ id: string; title: string; description: string; severi
   },
 ];
 
-export interface CorsScanResult { findings: Vulnerability[]; filesScanned: number; }
+export interface CorsScanResult {
+  findings: Vulnerability[];
+  filesScanned: number;
+}
 
 export class CorsScanner {
   async scan(projectPath: string): Promise<CorsScanResult> {
     const files = await glob(["**/*.ts", "**/*.js", "**/*.py"], {
-      cwd: projectPath, absolute: true,
-      ignore: ["node_modules/**", "dist/**", ".git/**", ".sphinx/**", "**/*.test.*"], nodir: true,
+      cwd: projectPath,
+      absolute: true,
+      ignore: ["node_modules/**", "dist/**", ".git/**", ".sphinx/**", "**/*.test.*"],
+      nodir: true,
     });
     const findings: Vulnerability[] = [];
     let id = 1;
     for (const file of files) {
       let content: string;
-      try { const s = fs.statSync(file); if (s.size > 500_000) continue; content = fs.readFileSync(file, "utf-8"); } catch { continue; }
+      try {
+        const s = fs.statSync(file);
+        if (s.size > 500_000) continue;
+        content = fs.readFileSync(file, "utf-8");
+      } catch {
+        continue;
+      }
       if (!/cors|origin|Access-Control/i.test(content)) continue;
       const lines = content.split("\n");
       const rel = path.relative(projectPath, file);
@@ -106,7 +128,17 @@ export class CorsScanner {
           for (let i = 0; i < lines.length; i++) {
             p.lastIndex = 0;
             if (p.test(lines[i])) {
-              findings.push({ id: `CORS-${String(id++).padStart(4, "0")}`, rule: `cors:${rule.id}`, title: rule.title, description: rule.description, severity: rule.severity, category: "cors", cwe: rule.cwe, confidence: "high", location: { file: rel, line: i + 1, snippet: lines[i].trim() } });
+              findings.push({
+                id: `CORS-${String(id++).padStart(4, "0")}`,
+                rule: `cors:${rule.id}`,
+                title: rule.title,
+                description: rule.description,
+                severity: rule.severity,
+                category: "cors",
+                cwe: rule.cwe,
+                confidence: "high",
+                location: { file: rel, line: i + 1, snippet: lines[i].trim() },
+              });
             }
           }
         }

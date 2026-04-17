@@ -4,9 +4,7 @@ import inquirer from "inquirer";
 import { writeConfig } from "../../config/config.js";
 
 export async function initCommand() {
-  console.log(
-    chalk.bold("\n🔐 sphinx-agent — Agentic AI Security Scanner\n")
-  );
+  console.log(chalk.bold("\n🔐 sphinx-agent — Agentic AI Security Scanner\n"));
   console.log(chalk.dim("Let's set up your configuration.\n"));
 
   const { provider } = await inquirer.prompt({
@@ -28,11 +26,7 @@ export async function initCommand() {
   let apiKey = "";
   if (!isLocal) {
     const providerName =
-      provider === "anthropic"
-        ? "Anthropic"
-        : provider === "openai"
-          ? "OpenAI"
-          : "API";
+      provider === "anthropic" ? "Anthropic" : provider === "openai" ? "OpenAI" : "API";
 
     const result = await inquirer.prompt({
       type: "password",
@@ -46,10 +40,7 @@ export async function initCommand() {
     apiKey = "not-needed";
   }
 
-  const modelChoicesMap: Record<
-    string,
-    Array<{ name: string; value: string }>
-  > = {
+  const modelChoicesMap: Record<string, Array<{ name: string; value: string }>> = {
     anthropic: [
       { name: "Claude Sonnet 4 (fast, cost-effective)", value: "claude-sonnet-4-20250514" },
       { name: "Claude Opus 4.6 (most powerful)", value: "claude-opus-4-6-20260401" },
@@ -66,12 +57,8 @@ export async function initCommand() {
       { name: "deepseek-coder-v2 (coding)", value: "deepseek-coder-v2" },
       { name: "qwen2.5-coder (coding)", value: "qwen2.5-coder" },
     ],
-    lmstudio: [
-      { name: "Enter model name manually", value: "_custom" },
-    ],
-    custom: [
-      { name: "Enter model name manually", value: "_custom" },
-    ],
+    lmstudio: [{ name: "Enter model name manually", value: "_custom" }],
+    custom: [{ name: "Enter model name manually", value: "_custom" }],
   };
 
   const choices = modelChoicesMap[provider] || modelChoicesMap.custom;
@@ -105,27 +92,19 @@ export async function initCommand() {
   // Auto-add .sphinx.yml to .gitignore
   if (!isLocal) {
     const gitignorePath = ".gitignore";
-    let gitignore = fs.existsSync(gitignorePath)
-      ? fs.readFileSync(gitignorePath, "utf-8")
-      : "";
+    let gitignore = fs.existsSync(gitignorePath) ? fs.readFileSync(gitignorePath, "utf-8") : "";
     if (!gitignore.includes(".sphinx.yml")) {
       gitignore += `${gitignore.endsWith("\n") ? "" : "\n"}.sphinx.yml\n`;
       fs.writeFileSync(gitignorePath, gitignore);
     }
   }
 
-  console.log(
-    chalk.green(`\n✅ Configuration saved to ${configPath}`)
-  );
+  console.log(chalk.green(`\n✅ Configuration saved to ${configPath}`));
   if (!isLocal) {
-    console.log(
-      chalk.dim("   .sphinx.yml added to .gitignore automatically.")
-    );
+    console.log(chalk.dim("   .sphinx.yml added to .gitignore automatically."));
   }
 
-  const costNote = isLocal
-    ? chalk.green("   Using local model — no API costs!")
-    : "";
+  const costNote = isLocal ? chalk.green("   Using local model — no API costs!") : "";
   if (costNote) console.log(costNote);
 
   console.log(

@@ -51,10 +51,7 @@ export function loadConfig(projectPath: string): SphinxConfig {
   return config;
 }
 
-export function writeConfig(
-  dir: string,
-  config: Partial<SphinxConfig>
-): string {
+export function writeConfig(dir: string, config: Partial<SphinxConfig>): string {
   const configPath = path.join(dir, CONFIG_FILENAME);
   const content = yaml.dump(config, { lineWidth: 80, noRefs: true });
   fs.writeFileSync(configPath, content, "utf-8");

@@ -55,7 +55,13 @@ export async function mapServices(projectPath: string): Promise<ServiceMap> {
 
   // Parse Kubernetes manifests
   const k8sFiles = await glob(
-    ["k8s/**/*.yml", "k8s/**/*.yaml", "kubernetes/**/*.yml", "manifests/**/*.yml", "deploy/**/*.yml"],
+    [
+      "k8s/**/*.yml",
+      "k8s/**/*.yaml",
+      "kubernetes/**/*.yml",
+      "manifests/**/*.yml",
+      "deploy/**/*.yml",
+    ],
     { cwd: projectPath, absolute: true, ignore: ["node_modules/**"] }
   );
   for (const file of k8sFiles) {
@@ -73,9 +79,10 @@ export async function mapServices(projectPath: string): Promise<ServiceMap> {
   return { services, connections, trustBoundaries };
 }
 
-function parseDockerCompose(
-  filePath: string
-): { services: Service[]; connections: ServiceConnection[] } {
+function parseDockerCompose(filePath: string): {
+  services: Service[];
+  connections: ServiceConnection[];
+} {
   const services: Service[] = [];
   const connections: ServiceConnection[] = [];
   const relPath = path.basename(filePath);
@@ -105,7 +112,7 @@ function parseDockerCompose(
       }
 
       const dependsOn = Array.isArray(config.depends_on)
-        ? config.depends_on as string[]
+        ? (config.depends_on as string[])
         : typeof config.depends_on === "object" && config.depends_on
           ? Object.keys(config.depends_on)
           : [];
@@ -172,7 +179,7 @@ function parseK8sManifest(
           }
 
           services.push({
-            name: meta.name || container.name as string || "unknown",
+            name: meta.name || (container.name as string) || "unknown",
             type: "container",
             image: container.image as string | undefined,
             ports,
@@ -187,7 +194,7 @@ function parseK8sManifest(
       if (doc.kind === "Service") {
         const meta = (doc.metadata || {}) as Record<string, string>;
         const spec = (doc.spec || {}) as Record<string, unknown>;
-        const serviceType = spec.type as string || "ClusterIP";
+        const serviceType = (spec.type as string) || "ClusterIP";
         const servicePorts = (spec.ports || []) as Array<Record<string, number>>;
 
         for (const p of servicePorts) {
@@ -307,8 +314,8 @@ function buildTrustBoundaries(
       if (db.ports.length > 0) {
         risks.push(`${db.name} database port exposed publicly`);
       }
-      const hasDefaultPassword = Object.values(db.environment).some(
-        (v) => /password|123|admin|root|default/i.test(v)
+      const hasDefaultPassword = Object.values(db.environment).some((v) =>
+        /password|123|admin|root|default/i.test(v)
       );
       if (hasDefaultPassword) {
         risks.push(`${db.name} may have default/weak credentials`);

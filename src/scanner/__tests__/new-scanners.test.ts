@@ -32,7 +32,7 @@ describe("LlmSecurityScanner", () => {
   it("detects client-side LLM API key", async () => {
     const dir = createFixture({
       "config.ts": [
-        '// OpenAI client config',
+        "// OpenAI client config",
         'const NEXT_PUBLIC_OPENAI_API_KEY = "sk-test123";',
       ].join("\n"),
     });
@@ -46,9 +46,9 @@ describe("LlmSecurityScanner", () => {
   it("detects system prompt leakage", async () => {
     const dir = createFixture({
       "ai.ts": [
-        '// LLM chatbot config',
+        "// LLM chatbot config",
         'const SYSTEM_PROMPT = "You are a helpful assistant that...";',
-        'const openai = new OpenAI();',
+        "const openai = new OpenAI();",
       ].join("\n"),
     });
     const scanner = new LlmSecurityScanner();

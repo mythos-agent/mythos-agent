@@ -2,7 +2,9 @@ import fs from "node:fs";
 import path from "node:path";
 import type { Vulnerability } from "../types/index.js";
 
-export interface DepConfusionScanResult { findings: Vulnerability[]; }
+export interface DepConfusionScanResult {
+  findings: Vulnerability[];
+}
 
 export class DepConfusionScanner {
   async scan(projectPath: string): Promise<DepConfusionScanResult> {
@@ -36,9 +38,17 @@ export class DepConfusionScanner {
         }
 
         // Check if package itself is private but unscoped
-        if (pkg.private !== true && pkg.name && !pkg.name.startsWith("@") && !pkg.name.includes("/")) {
+        if (
+          pkg.private !== true &&
+          pkg.name &&
+          !pkg.name.startsWith("@") &&
+          !pkg.name.includes("/")
+        ) {
           // Check for internal-looking names
-          if (/^(?:internal|private|company|corp|org)-/.test(pkg.name) || pkg.publishConfig?.registry) {
+          if (
+            /^(?:internal|private|company|corp|org)-/.test(pkg.name) ||
+            pkg.publishConfig?.registry
+          ) {
             findings.push({
               id: `DEPCON-${String(id++).padStart(4, "0")}`,
               rule: "depcon:claimable-name",
@@ -52,7 +62,9 @@ export class DepConfusionScanner {
             });
           }
         }
-      } catch { /* parse error */ }
+      } catch {
+        /* parse error */
+      }
     }
 
     // Check .npmrc for risky config
@@ -65,12 +77,17 @@ export class DepConfusionScanner {
         const line = lines[i].trim();
 
         // Registry pointing to internal but no scope
-        if (line.startsWith("registry=") && !line.includes("npmjs.org") && !line.includes("npmjs.com")) {
+        if (
+          line.startsWith("registry=") &&
+          !line.includes("npmjs.org") &&
+          !line.includes("npmjs.com")
+        ) {
           findings.push({
             id: `DEPCON-${String(id++).padStart(4, "0")}`,
             rule: "depcon:global-private-registry",
             title: "Dep Confusion: Global registry set to private",
-            description: "Global npm registry points to a private server. Unscoped packages will be fetched from here, but scoped packages may still go to public npm. Use per-scope registry config instead.",
+            description:
+              "Global npm registry points to a private server. Unscoped packages will be fetched from here, but scoped packages may still go to public npm. Use per-scope registry config instead.",
             severity: "medium",
             category: "supply-chain",
             cwe: "CWE-427",
@@ -85,7 +102,8 @@ export class DepConfusionScanner {
             id: `DEPCON-${String(id++).padStart(4, "0")}`,
             rule: "depcon:auth-token-hardcoded",
             title: "Dep Confusion: Auth token hardcoded in .npmrc",
-            description: "NPM auth token hardcoded instead of using environment variable. Use ${NPM_TOKEN} placeholder.",
+            description:
+              "NPM auth token hardcoded instead of using environment variable. Use ${NPM_TOKEN} placeholder.",
             severity: "high",
             category: "secrets",
             cwe: "CWE-798",
@@ -106,7 +124,8 @@ export class DepConfusionScanner {
             id: `DEPCON-${String(id++).padStart(4, "0")}`,
             rule: "depcon:python-extra-index",
             title: "Dep Confusion: Python extra-index-url configured",
-            description: "pip configured with extra-index-url. Packages are searched on both public PyPI and the private index. An attacker can register a higher version on PyPI to hijack.",
+            description:
+              "pip configured with extra-index-url. Packages are searched on both public PyPI and the private index. An attacker can register a higher version on PyPI to hijack.",
             severity: "high",
             category: "supply-chain",
             cwe: "CWE-427",
