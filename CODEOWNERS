@@ -1,2 +1,42 @@
-# Default owner for all files
-* @zhijiewong
+# CODEOWNERS for sphinx-agent
+# Users listed here are automatically requested for review when PRs
+# touch matching paths. Syntax: https://docs.github.com/en/repositories/managing-your-repositories-settings-and-features/customizing-your-repository/about-code-owners
+
+# Default owner for everything not otherwise claimed
+*                       @zhijiewong
+
+# Core agent orchestration + AI integration
+/src/agents/            @zhijiewong
+/src/agent/             @zhijiewong
+
+# Static analysis engine
+/src/analysis/          @zhijiewong
+/src/scanner/           @zhijiewong
+/src/chain/             @zhijiewong
+
+# Dynamic analysis
+/src/dast/              @zhijiewong
+
+# Integrations (MCP, REST API, external tools)
+/src/mcp/               @zhijiewong
+/src/server/            @zhijiewong
+/src/tools/             @zhijiewong
+
+# Policy + rules
+/src/policy/            @zhijiewong
+/rules/                 @zhijiewong
+
+# CLI surface
+/src/cli/               @zhijiewong
+
+# Infrastructure
+/.github/               @zhijiewong
+/Dockerfile             @zhijiewong
+/docker-compose.yml     @zhijiewong
+
+# Docs and community
+/docs/                  @zhijiewong
+/README.md              @zhijiewong
+/CHANGELOG.md           @zhijiewong
+/GOVERNANCE.md          @zhijiewong
+/MAINTAINERS.md         @zhijiewong

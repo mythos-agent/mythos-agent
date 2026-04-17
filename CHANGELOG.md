@@ -1,6 +1,20 @@
 # Changelog
 
-All notable changes to sphinx-agent are documented here.
+All notable changes to sphinx-agent are documented here. The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). Starting with the next release, entries are generated automatically by [release-please](https://github.com/googleapis/release-please) from [Conventional Commits](https://www.conventionalcommits.org/).
+
+## [Unreleased]
+
+### Added
+- Open-source polish: `GOVERNANCE.md`, `SUPPORT.md`, `MAINTAINERS.md`, `ROADMAP.md` at repo root
+- Security workflows: CodeQL analysis and dependency review on PRs
+- Automated releases via release-please
+- Test coverage reporting (v8) with Codecov upload
+- Pre-commit hooks: `lint-staged` for format/lint, `commitlint` for Conventional Commits
+- `typecheck` npm script (`tsc --noEmit`)
+
+### Changed
+- `CODEOWNERS` expanded with per-directory ownership
+- `CHANGELOG.md` now managed by release-please from Conventional Commits
 
 ## [2.0.0] - 2026-04-16
 

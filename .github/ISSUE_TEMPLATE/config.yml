@@ -1,0 +1,14 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Question or usage help
+    url: https://github.com/sphinx-agent/sphinx-agent/discussions/categories/q-a
+    about: Please ask usage questions in Discussions — issues are reserved for confirmed bugs and feature requests.
+  - name: Idea or feature brainstorm
+    url: https://github.com/sphinx-agent/sphinx-agent/discussions/categories/ideas
+    about: For early-stage ideas, start a discussion first. Concrete feature requests should use the Feature Request template.
+  - name: Security vulnerability
+    url: https://github.com/sphinx-agent/sphinx-agent/security/policy
+    about: Do NOT file security issues here. See SECURITY.md for coordinated disclosure via email.
+  - name: Code of Conduct report
+    url: mailto:conduct@sphinx-agent.dev
+    about: Report Code of Conduct violations privately by email.
