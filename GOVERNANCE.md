@@ -32,6 +32,40 @@ Most decisions are made by **lazy consensus** on GitHub:
 
 For anything beyond a bug fix or minor feature, open a **Discussion** first to gather feedback before writing code. This avoids wasted effort and builds shared context.
 
+## Governance Evolution
+
+The governance model adapts as the project grows. Transitions are driven by **triggers**, not dates.
+
+### Phase 1 — Benevolent Maintainer (current)
+
+- Solo lead per [MAINTAINERS.md](./MAINTAINERS.md)
+- Lazy consensus on issues / PRs / Discussions
+- Final call on disagreement: lead maintainer
+- Valid while active maintainers count is < 3
+
+### Phase 2 — Multi-Maintainer (trigger: 3+ active maintainers)
+
+- Maintainers specialize by area (scanner / analysis / CLI / agents — matched to MAINTAINERS.md columns)
+- Lazy consensus continues; in-area decisions belong to the area maintainer
+- Cross-area decisions follow the existing 3–7 day window
+- Lead maintainer remains the tiebreaker; emeritus path opens
+- New CODEOWNERS structure reflects the area split
+
+### Phase 3 — Technical Steering Committee (trigger: 5+ active maintainers OR commercial posture declared)
+
+- TSC of 3–5 seats. Minimum allocation: ≥1 lead, ≥1 analysis-area, ≥1 scanner-area; remaining seats by lazy consensus of all active maintainers
+- TSC scope: roadmap direction, breaking changes, license posture, commercial-gate decisions, conflict resolution
+- Quarterly meeting notes published in `docs/tsc-meetings/`
+- TSC **cannot** unilaterally relicense the core; the existing 14-day consensus window plus the License Firewall (above) still bind
+- Public TSC nomination process: any active maintainer or any contributor with 10+ merged non-trivial PRs may nominate
+
+### Trademark and Project Identity
+
+- The `sphinx-agent` name and logo are currently held by the lead maintainer personally
+- A future transfer to a fiscal host (e.g., Open Source Collective) is on the table once Phase 2 is reached
+- Until then, commercial use of the name requires prior written permission from the lead maintainer
+- A trademark dispute or attempted brand capture by a sponsor is automatic grounds for an emergency RFC under the same 14-day consensus rule as a license change
+
 ## Becoming a Maintainer
 
 Maintainers are contributors who:
