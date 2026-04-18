@@ -112,7 +112,13 @@ export class OpenAICompatibleProvider implements AIProvider {
 
     if (!response.ok) {
       const text = await response.text();
-      throw new Error(`${this.name} API error (${response.status}): ${text}`);
+      // Strip any Bearer tokens a misbehaving provider / MITM might echo back.
+      // The error body is included for debuggability but capped and redacted.
+      const safe = text
+        .replace(/Bearer\s+[A-Za-z0-9._\-+/=]+/gi, "Bearer ***")
+        .replace(/"(api[_-]?key|authorization)"\s*:\s*"[^"]*"/gi, '"$1":"***"')
+        .slice(0, 500);
+      throw new Error(`${this.name} API error (${response.status}): ${safe}`);
     }
 
     const data = (await response.json()) as OpenAIResponse;

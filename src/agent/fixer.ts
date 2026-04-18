@@ -148,9 +148,22 @@ Generate patches for each vulnerability. The "original" field must contain the E
 
 export function applyPatch(projectPath: string, patch: Patch): boolean {
   const absPath = path.resolve(projectPath, patch.file);
-  // Prevent path traversal — patch must stay within project
+  // First pass: prevent `..` traversal in the lexical path.
   if (!absPath.startsWith(path.resolve(projectPath) + path.sep)) return false;
   if (!fs.existsSync(absPath)) return false;
+
+  // Second pass: dereference symlinks so a malicious repo can't ship a
+  // committed symlink (`src/foo → /etc/passwd`) and have the AI-suggested
+  // patch write through it. realpathSync resolves the full chain.
+  let realTarget: string;
+  let realProject: string;
+  try {
+    realTarget = fs.realpathSync(absPath);
+    realProject = fs.realpathSync(path.resolve(projectPath));
+  } catch {
+    return false;
+  }
+  if (realTarget !== realProject && !realTarget.startsWith(realProject + path.sep)) return false;
 
   let content = fs.readFileSync(absPath, "utf-8");
 
