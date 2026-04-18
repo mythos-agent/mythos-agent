@@ -59,7 +59,7 @@
   "dependencies": {
     "@anthropic-ai/sdk": "^0.52.0",
     "chalk": "^5.4.0",
-    "commander": "^13.1.0",
+    "commander": "^14.0.3",
     "glob": "^11.0.0",
     "inquirer": "^12.3.0",
     "js-yaml": "^4.1.0",
