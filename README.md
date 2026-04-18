@@ -31,7 +31,7 @@ sphinx-agent **reasons about your code like a security researcher** — generati
 
 > **For new contributors:** the active 6-month working plan is in the pinned issue **`[Roadmap] sphinx-agent H1 2026 Goals`**. Look for 🙋 markers — those are items where help is wanted. New here? See [CONTRIBUTING.md](CONTRIBUTING.md) for `good-first-issue` guidance.
 >
-> **For security teams and EU CRA-compliant downstream manufacturers:** see [SECURITY.md](SECURITY.md) for our vulnerability disclosure SLAs, [docs/security/cra-stance.md](docs/security/cra-stance.md) for our EU CRA role declaration, and [RELEASES.md](RELEASES.md) for our versioning, LTS, and EOL policy. OpenSSF Best Practices Badge (Passing) submission targeted Q3 2026.
+> **For security teams and EU CRA-compliant downstream manufacturers:** see [SECURITY.md](SECURITY.md) for our vulnerability disclosure SLAs, [docs/security/cra-stance.md](docs/security/cra-stance.md) for our EU CRA role declaration, [docs/security/threat-model.md](docs/security/threat-model.md) for our public threat model, and [RELEASES.md](RELEASES.md) for our versioning, LTS, and EOL policy. OpenSSF Best Practices Badge (Passing) submission targeted **June 2026**; releases are signed via [Sigstore](docs/security/sbom.md) and ship with [CycloneDX SBOMs](docs/security/sbom.md) for downstream Manufacturer compliance.
 
 ```bash
 npx sphinx-agent hunt

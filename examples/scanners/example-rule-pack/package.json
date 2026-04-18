@@ -20,7 +20,10 @@
   ],
   "main": "rules.yml",
   "scripts": {
-    "test": "npx --yes sphinx-agent rules test --pack ."
+    "test": "node test.js"
+  },
+  "devDependencies": {
+    "js-yaml": "^4.1.0"
   },
   "peerDependencies": {
     "sphinx-agent": ">=2.0.0"
