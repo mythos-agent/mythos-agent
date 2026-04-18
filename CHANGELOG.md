@@ -2,6 +2,22 @@
 
 All notable changes to sphinx-agent are documented here. The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). Starting with the next release, entries are generated automatically by [release-please](https://github.com/googleapis/release-please) from [Conventional Commits](https://www.conventionalcommits.org/).
 
+## [2.0.1](https://github.com/zhijiewong/sphinx-agent/compare/v2.0.0...v2.0.1) (2026-04-18)
+
+
+### Fixed
+
+* **examples:** rule-pack test.js stands alone; readme surfaces signing + sbom ([4d6d98a](https://github.com/zhijiewong/sphinx-agent/commit/4d6d98a307acc4b34ca3dc0f2f58e898cb09d4d8))
+
+
+### Documentation
+
+* add chaoss health metrics, research agenda, sphinx benchmark spec, dogfood rfc ([8244b7e](https://github.com/zhijiewong/sphinx-agent/commit/8244b7efd8a95cda722d7f0f895bdf013128b88f))
+* **community:** add pioneers leaderboard, scanner SDK spec, bounty draft, seed script ([5896a3c](https://github.com/zhijiewong/sphinx-agent/commit/5896a3c9f4cb9ac18418bd59da44282f7ca313bc))
+* **governance:** add tsc evolution, rfc process, maintainer area model, funding stack ([b9bbb3b](https://github.com/zhijiewong/sphinx-agent/commit/b9bbb3b39370e1434d8d727a4fad4e494887b863))
+* introduce VISION.md, refresh ROADMAP.md, add H1 2026 goals issue template ([7e2aeec](https://github.com/zhijiewong/sphinx-agent/commit/7e2aeec3d9e886b2c71055d9e038b6b19077bd2a))
+* **security:** add CRA stance, SECURITY SLAs, OpenSSF badge prep, RELEASES policy ([e3adeca](https://github.com/zhijiewong/sphinx-agent/commit/e3adeca57429daf416e3ab29023ad643bc526d43))
+
 ## [Unreleased]
 
 ### Added
