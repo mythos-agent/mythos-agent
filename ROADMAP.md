@@ -1,235 +1,209 @@
-# sphinx-agent Roadmap: From Scanner to Autonomous Security Agent
+# sphinx-agent Roadmap
 
-## Where We Are Today (v1.0)
+> The multi-year strategic frame for the **Sphinx Mythos** — see [VISION.md](VISION.md) for the north star.
+> The active 6-month working plan lives in the pinned GitHub Issue **`[Roadmap] sphinx-agent H1 2026 Goals`**.
+> This document is refreshed annually; material changes go through an [RFC](docs/rfcs/).
 
-sphinx-agent is an AI-powered security scanner with 10 CLI commands, 40+ source files, and 54 tests. It can:
-- Pattern scan code in 6 languages (25+ rules)
-- Detect 22 types of hardcoded secrets
-- Scan dependencies against OSV database (10 lockfile formats)
-- Scan Docker, Terraform, and Kubernetes IaC (13 rules)
-- Use Claude/OpenAI for AI deep analysis and vulnerability chaining
-- Trace taint flows from sources to sinks
-- Answer natural language security questions
-- Auto-generate patches for vulnerabilities
-- Watch files continuously, serve a web dashboard
-- Enforce policy-as-code with compliance mapping (SOC2/HIPAA/PCI/OWASP)
-
-## What Mythos Can Do (That We Can't Yet)
-
-Based on public information about Anthropic's Mythos model and Project Glasswing:
-
-1. **Autonomous zero-day discovery** — finds previously unknown vulnerabilities in production software (OS kernels, browsers, network stacks)
-2. **Multi-step exploit chain construction** — doesn't just find individual bugs, but constructs complete attack paths across system boundaries
-3. **Deep code understanding** — reasons about complex program state, concurrency, memory management, and type confusion
-4. **Cross-component analysis** — traces vulnerabilities across process boundaries, APIs, and system calls
-5. **Automated patch generation with validation** — generates fixes and verifies they don't break functionality
-
-## The Gap: What We Need to Build
-
-### Level 1: Deep Code Understanding (current → production-grade)
-**Goal:** Move from regex pattern matching to true semantic code analysis.
-
-| Capability | Current | Target |
-|-----------|---------|--------|
-| Pattern matching | Regex rules | Regex + Semgrep + tree-sitter AST |
-| Data flow | AI prompt-based taint tracking | Deterministic taint graphs + AI reasoning |
-| Cross-file analysis | AI reads files on demand | Pre-built dependency/call graphs |
-| Control flow | None | CFG construction per function |
-| Type understanding | None | Type-aware analysis (TS/Python types) |
-
-**What to build:**
-- `src/analysis/ast-parser.ts` — tree-sitter integration for multi-language AST parsing
-- `src/analysis/call-graph.ts` — build inter-procedural call graphs
-- `src/analysis/taint-graph.ts` — deterministic taint propagation (source → transform → sink)
-- `src/analysis/type-resolver.ts` — resolve types to understand what data reaches where
-- Integrate Semgrep as a library (spawn `semgrep --json`) for rule-based scanning alongside regex
-
-### Level 2: Autonomous Exploration Agent (new capability)
-**Goal:** Agent that navigates a codebase like a security researcher — forms hypotheses, investigates, and finds novel issues.
-
-| Capability | Current | Target |
-|-----------|---------|--------|
-| Agent strategy | Single prompt → scan | Multi-phase: recon → hypothesis → investigate → verify |
-| Code navigation | read_file, search_code | + AST navigation, jump-to-definition, find-references |
-| Memory | Per-session only | Persistent codebase knowledge graph |
-| Reasoning | Single Claude call per file | Multi-turn agentic loop with backtracking |
-
-**What to build:**
-- `src/agent/autonomous-scanner.ts` — multi-phase agentic scanner:
-  - Phase A: Reconnaissance — map entry points, auth boundaries, data stores
-  - Phase B: Hypothesis — generate vulnerability hypotheses from architecture
-  - Phase C: Investigation — deep-dive each hypothesis with tool use
-  - Phase D: Verification — confirm exploitability, assess severity
-- `src/agent/tools-advanced.ts` — enhanced agent tools:
-  - `jump_to_definition` — follow symbol to its declaration
-  - `find_references` — find all call sites of a function
-  - `get_ast` — return AST subtree for a function/class
-  - `get_call_graph` — show what calls what
-  - `run_test` — execute a test to verify behavior
-- `src/agent/knowledge-graph.ts` — persistent codebase knowledge:
-  - Entry points (API routes, event handlers, CLI commands)
-  - Authentication boundaries
-  - Data stores and their access patterns
-  - Trust boundaries between components
-
-### Level 3: Advanced Vulnerability Discovery (beyond patterns)
-**Goal:** Find vulnerability classes that pattern matching fundamentally cannot detect.
-
-| Vulnerability Class | How to Detect |
-|-------------------|---------------|
-| **Business logic flaws** | AI reasons about intended vs actual behavior using specs/comments |
-| **Race conditions / TOCTOU** | Static analysis of shared state + concurrent access patterns |
-| **Authentication bypasses** | Map all auth checks, find paths that skip them |
-| **Authorization flaws (IDOR)** | Trace object references from user input to data access |
-| **Cryptographic misuse** | Verify correct IV/nonce handling, key derivation, mode selection |
-| **Deserialization attacks** | Track untrusted data to deserialization sinks |
-| **Prototype pollution** | JS/TS-specific: track object merges with user input |
-| **Memory safety** | For C/C++/Rust unsafe: buffer overflows, use-after-free (via AI reasoning on pointer analysis) |
-
-**What to build:**
-- `src/scanner/business-logic-scanner.ts` — AI analyzes code comments, docs, and tests to understand intended behavior, then flags deviations
-- `src/scanner/concurrency-scanner.ts` — detect shared mutable state accessed without synchronization
-- `src/scanner/auth-scanner.ts` — map all auth/authz enforcement points, find bypass paths
-- `src/scanner/crypto-scanner.ts` — verify correct usage of crypto primitives (not just "uses MD5" but "uses AES-CBC without HMAC")
-- Expand built-in rules to 100+ covering all CWE Top 25
-
-### Level 4: Vulnerability Chaining Engine (upgrade)
-**Goal:** Move from AI-only chaining to a graph-based engine augmented by AI.
-
-| Capability | Current | Target |
-|-----------|---------|--------|
-| Chain detection | Single AI prompt | Graph traversal + AI verification |
-| Chain types | Source → Sink | Multi-step: Vuln A → enables Vuln B → leads to Impact C |
-| Scoring | AI-estimated severity | CVSS v4 vector calculation |
-| Visualization | Terminal text | Interactive HTML graph |
-
-**What to build:**
-- `src/chain/vuln-graph.ts` — directed graph of vulnerabilities with edges representing enablement
-- `src/chain/chain-solver.ts` — graph traversal algorithm to find all exploitable paths
-- `src/chain/cvss-calculator.ts` — compute CVSS v4 scores for individual and chained vulns
-- `src/report/chain-visualizer.ts` — interactive D3.js-based attack path visualization in HTML report
-
-### Level 5: Dynamic Analysis Integration (DAST)
-**Goal:** Combine static analysis with runtime testing for confirmation.
-
-| Capability | Current | Target |
-|-----------|---------|--------|
-| Analysis type | Static only | Static + Dynamic |
-| Confirmation | AI assessment | Proof-of-concept exploit generation |
-| Fuzzing | None | AI-guided fuzzing of suspicious inputs |
-| API testing | None | Auto-discover and test API endpoints |
-
-**What to build:**
-- `src/dast/endpoint-discoverer.ts` — parse route definitions to find all API endpoints
-- `src/dast/fuzzer.ts` — AI-guided fuzzing: generate targeted payloads based on static findings
-- `src/dast/exploit-generator.ts` — generate proof-of-concept requests that demonstrate vulnerabilities
-- `src/dast/api-tester.ts` — automated API security testing (auth checks, rate limits, input validation)
-- Integration: `sphinx-agent scan --dynamic` flag that starts the app and tests it
-
-### Level 6: Cross-System Analysis
-**Goal:** Analyze interactions between services, not just individual codebases.
-
-**What to build:**
-- `src/scanner/api-contract-scanner.ts` — analyze OpenAPI/GraphQL schemas for security issues
-- `src/scanner/microservice-mapper.ts` — map inter-service communication from docker-compose, K8s manifests, or code
-- `src/scanner/trust-boundary-analyzer.ts` — identify where trust boundaries should exist between services
-- Support for scanning monorepos with multiple services: `sphinx-agent scan --monorepo`
-
-### Level 7: Validated Auto-Remediation
-**Goal:** Generate patches that are verified to fix the vulnerability without breaking functionality.
-
-| Capability | Current | Target |
-|-----------|---------|--------|
-| Fix generation | AI writes patch | AI writes patch + generates test |
-| Validation | None (user reviews) | Auto-run tests, verify fix, check for regressions |
-| Fix types | Code changes only | Code + config + dependency updates |
-
-**What to build:**
-- `src/agent/fix-validator.ts` — after generating a fix:
-  1. Apply patch to temp branch
-  2. Run existing tests (if any)
-  3. Generate a new test that verifies the fix
-  4. Run the new test
-  5. Check that the vulnerability is no longer detected
-  6. Report: "Fix verified" or "Fix failed"
-- `src/agent/dependency-fixer.ts` — for vulnerable dependencies: find safe version, test upgrade compatibility
+**Status:** v2.0.0 launched April 2026 · MIT · TypeScript · single maintainer building toward a multi-maintainer team.
+**Reading time:** ~10 minutes for the full document. Section 1 alone gives you the gist.
 
 ---
 
-## Implementation Phases
+## 1. Vision in one paragraph
 
-### Phase 1: Foundation (4-6 weeks)
-**Make the static analysis production-grade.**
+sphinx-agent aims to be the open-source equivalent of an autonomous security research agent: a tool that reasons about a codebase the way a senior pentester would — generating hypotheses, navigating evidence, chaining individual findings into real attack paths, and proving exploitability. It is not a replacement for Semgrep, CodeQL, or Snyk; it integrates them where appropriate and competes on the axis those tools do not occupy: **autonomous reasoning on open code**. See [VISION.md](VISION.md) for the full framing and the capability arcs that define each year.
 
-1. Integrate tree-sitter for AST parsing (TS/JS/Python/Go)
-2. Integrate Semgrep as a scanning backend
-3. Build deterministic taint graph construction
-4. Build inter-procedural call graph
-5. Expand rules to 100+ (CWE Top 25 full coverage)
-6. Add CVSS v4 scoring
-7. Improve false positive rate to <10%
-
-### Phase 2: Autonomous Agent (4-6 weeks)
-**Build the multi-phase security research agent.**
-
-1. Implement the 4-phase autonomous scanner (recon → hypothesis → investigate → verify)
-2. Add advanced agent tools (jump-to-definition, find-references, get-ast)
-3. Build codebase knowledge graph
-4. Add business logic and auth/authz scanning
-5. Add crypto and concurrency analysis
-
-### Phase 3: Dynamic Analysis (4-6 weeks)
-**Add runtime testing capabilities.**
-
-1. Endpoint discovery from code
-2. AI-guided fuzzing
-3. Proof-of-concept exploit generation
-4. API security testing
-5. Static+Dynamic finding correlation
-
-### Phase 4: Chain Engine + Visualization (2-4 weeks)
-**Upgrade vulnerability chaining to graph-based.**
-
-1. Vulnerability graph construction
-2. Chain solver algorithm
-3. Interactive attack path visualization
-4. CVSS v4 chain scoring
-
-### Phase 5: Cross-System + Remediation (4-6 weeks)
-**Scale to multi-service architectures.**
-
-1. API contract scanning
-2. Microservice mapping
-3. Trust boundary analysis
-4. Validated auto-remediation with test generation
-5. Dependency auto-upgrade with compatibility testing
+| Axis | Semgrep | CodeQL | Snyk | Nuclei | sphinx-agent |
+|---|---|---|---|---|---|
+| Pattern matching | Best-in-class | Strong (manual queries) | Good | Template-based | Integrates Semgrep + adds AI reasoning |
+| Cross-file taint | Pro tier (paid) | Strong, complex setup | Limited | None | Deterministic graph + AI (in progress) |
+| Business logic | No | No | No | No | **Yes — AI hypothesis generation** |
+| Vuln chaining | No | No | No | No | **Yes — graph + AI** |
+| Dynamic analysis | No | No | No | Templates | **AI-guided fuzzing (early)** |
+| Validated remediation | Limited | No | Fix PRs | No | **In progress** |
+| Local LLMs | n/a | n/a | n/a | n/a | **Yes — Ollama / vLLM** |
 
 ---
 
-## Competitive Positioning
+## 2. Strategic bets
 
-| Capability | Semgrep | CodeQL | Snyk | Nuclei | sphinx-agent (target) |
-|-----------|---------|--------|------|--------|----------------------|
-| Pattern matching | Best-in-class | Good | Good | Template-based | Semgrep + custom |
-| Semantic analysis | Limited | Strong (manual queries) | ML-assisted | None | AI-native (autonomous) |
-| Cross-file taint | Pro only (paid) | Yes (complex setup) | Limited | None | Deterministic + AI |
-| Business logic | No | No | No | No | **Yes (AI reasoning)** |
-| Vuln chaining | No | No | No | No | **Yes (graph + AI)** |
-| Dynamic analysis | No | No | No | Yes (templates) | **AI-guided fuzzing** |
-| Auto-remediation | Limited | No | Fix PRs | No | **Validated patches** |
-| NL queries | No | No | No | No | **Yes (sphinx-agent ask)** |
-| Cross-service | No | No | No | No | **Yes (planned)** |
-| Local models | N/A | N/A | N/A | N/A | **Yes (Ollama/vLLM)** |
+Four multi-year bets that define the project's arc. Each survives replanning; each has a single success metric.
 
-## The Vision
+**B1 — Deterministic semantic core.** Move taint and call-graph construction out of AI prompts (currently `src/agent/taint-tracker.ts`) and into graph algorithms (`src/analysis/taint-engine.ts`, `src/analysis/call-graph.ts`). The AI then reasons *over* the graph rather than building it. **Success metric:** false-positive rate <10% on the published 500-vuln benchmark by end of 2026.
 
-sphinx-agent starts as a scanner. It becomes a **security research agent** — an autonomous system that:
+**B2 — Persistent codebase knowledge graph.** Cross-run memory of entry points, auth boundaries, data stores, trust boundaries, so multi-turn reasoning accumulates across scans. **Success metric:** the second scan of a repo runs 3× faster than the first and surfaces at least one cross-reference finding the first missed.
 
-1. **Understands** your codebase deeply (architecture, data flows, trust boundaries)
-2. **Hunts** for vulnerabilities like a senior penetration tester (hypothesize → investigate → verify)
-3. **Chains** individual findings into real attack paths
-4. **Proves** exploitability with generated proof-of-concepts
-5. **Fixes** vulnerabilities and verifies the fixes work
-6. **Guards** continuously — watching every commit, every PR, every deployment
+**B3 — Novel-vuln benchmark.** A curated, CC-BY-licensed dataset of 500 vulnerabilities (growing to 1000) for measuring scanner accuracy. Mix of CVE reproductions, intentional-vuln apps, and community-contributed cases. **Success metric:** cited in at least one external security research paper or blog post by end of 2027.
 
-Mythos does this for 40 organizations. sphinx-agent does it for everyone.
+**B4 — Validated remediation pipeline.** `src/agent/fix-validator.ts`: apply patch → generate test → run test → re-scan → report. **Success metric:** 70%+ of AI-generated fixes pass the validation pipeline in self-measurement by end of 2028.
+
+---
+
+## 3. Strategic themes
+
+Three multi-year themes. Themes are undated; stages advance when the work is ready.
+
+### Theme A — Foundation & Depth *(stage: in progress through H2 2026)*
+
+Deterministic taint and call graphs. Tests for every CLI command. CWE Top 25 coverage audited across all 49 scanners. Stub rules in `src/rules/registry.ts` and `CWE-XXX` placeholders in `src/agent/prompts.ts` resolved. Supply-chain hardening per Section 11. Quantified accuracy commitments published per release (see B3).
+
+**What a user gains as Theme A advances:** a scanner that can be trusted on real codebases — measurable false-positive rates, reproducible benchmarks, signed releases, SBOMs.
+
+### Theme B — Autonomy & Discovery *(stage: experimental through 2026, stabilizing 2027)*
+
+Persistent codebase knowledge graph. 4-phase agent (Recon → Hypothesis → Analyze → Exploit) with backtracking. Vulnerability chain engine upgraded from AI-only to graph + AI. Novel-vuln benchmark expanded to 1000 cases. Targeted detection for AI-misuse risks (prompt-injection sinks, unsafe LangChain patterns, MCP-server misconfig).
+
+**What a user gains as Theme B advances:** the ability to ask sphinx-agent to *hunt* — to investigate autonomously and report what it explored, not just what it matched.
+
+### Theme C — Ecosystem & Scale *(stage: 2027–2028 horizon)*
+
+Cross-system / monorepo / trust-boundary analysis. Validated remediation pipeline general availability (see B4). Scanner-plugin SDK published with cookie-cutter examples. Research partnerships and at least one academic collaboration. Governance transition to a Technical Steering Committee (see Section 6). Y2 sustainability decision gate resolved (see Section 9).
+
+**What a user gains as Theme C advances:** a tool that scales from a single service to a polyglot enterprise monorepo, and a community big enough to outlive any single maintainer.
+
+---
+
+## 4. Active 6-month plan
+
+The active working plan is the pinned GitHub Issue **`[Roadmap] sphinx-agent H1 2026 Goals`** (link added on issue creation). H1 2026 buckets, with concrete deliverables tied to file paths:
+
+| Bucket | Deliverable | Where |
+|---|---|---|
+| Core hardening | Deterministic taint graph v1 | `src/analysis/taint-engine.ts` |
+| Core hardening | 80% test coverage across all 44 CLI commands | `src/cli/commands/__tests__/` |
+| Core hardening | Resolve CWE-XXX placeholders | `src/agent/prompts.ts` |
+| Core hardening | Resolve stub patterns | `src/rules/registry.ts` |
+| Compliance | OpenSSF Best Practices Badge — Passing | bestpractices.dev |
+| Compliance | EU CRA stance published | `docs/security/cra-stance.md` |
+| Compliance | SECURITY.md SLAs (Checkov-style) | `SECURITY.md` |
+| Supply chain | Sigstore signing + SBOM per release | `.github/workflows/` |
+| Community | Sphinx Mythos Pioneers leaderboard | `docs/pioneers.md` |
+
+H2 2026 will be opened as a new pinned issue in July 2026 and will lead with knowledge-graph v1 and agent test harness. Items in the active issue use the 🙋 marker when a champion is wanted; this is the primary contributor on-ramp for high-leverage work.
+
+---
+
+## 5. Contributor on-ramp
+
+The full ramp lives in [CONTRIBUTING.md](CONTRIBUTING.md). Summary by entry point:
+
+- **`good-first-issue` — scanner rule.** Add a rule for a CWE not yet covered. Target file under `src/scanner/*-scanner.ts`.
+- **`good-first-issue` — test.** Pick one of the 44 CLI commands with no test yet, under `src/cli/commands/`. Templates and patterns live alongside existing scanner tests.
+- **`good-first-issue` — docs.** Tutorials, examples, fixes.
+- **`good-first-issue` — integration.** Wrap an additional external tool alongside the existing Semgrep / Gitleaks / Trivy / Checkov / Nuclei integrations in `src/tools/`.
+- **`help-wanted` — analysis.** Deterministic taint graph, call graph, type resolver. Requires dataflow background.
+- **`help-wanted` — agent.** Multi-turn reasoning, knowledge graph design. Requires LLM-application experience.
+- **🙋 in pinned Goals issue.** A specific in-flight item where a champion is wanted.
+
+The maintainer path stays at the existing 5+ non-trivial PRs threshold from [GOVERNANCE.md](GOVERNANCE.md), now mapped to areas (scanner / analysis / CLI / agents) so specialization is possible.
+
+Recognition layer: **[Sphinx Mythos Pioneers](docs/pioneers.md)** — auto-updated leaderboard; profile cards for top contributors; opt-in conference invite list. A cash-bounty program is *drafted but inactive* and activates on first corporate user OR $5K/month recurring sponsorship; see [docs/bounty.md](docs/bounty.md).
+
+---
+
+## 6. Governance evolution
+
+Three phases. Triggers — not dates — drive transitions. Full text appended to [GOVERNANCE.md](GOVERNANCE.md).
+
+- **Phase 1 — Benevolent maintainer (current).** Solo lead per [MAINTAINERS.md](MAINTAINERS.md). Valid while active maintainers <3.
+- **Phase 2 — Multi-maintainer.** Trigger: 3+ active maintainers. Area-specialized maintainers (scanner / analysis / CLI / agents). Lazy consensus continues.
+- **Phase 3 — Technical Steering Committee.** Trigger: 5+ active maintainers OR commercial posture declared. 3–5 seats: at minimum one lead, one analysis-area, one scanner-area; remaining seats by lazy consensus. Scope: roadmap direction, breaking changes, license posture, commercial gate decisions, conflict resolution. Quarterly meeting notes in `docs/tsc-meetings/`. The TSC cannot unilaterally relicense the core; the existing 14-day consensus window still binds.
+
+**License firewall.** Scanner code contributed under MIT remains MIT in perpetuity. Any future commercial differentiation will come from new code under a separate license, never from relicensing existing OSS code. This sentence is the primary protection against an Opengrep-style fork.
+
+**Trademark.** The `sphinx-agent` name is currently held by the lead maintainer personally. Future transfer to a fiscal host (such as Open Source Collective) is on the table once Phase 2 is reached.
+
+---
+
+## 7. Community & momentum metrics
+
+Measured quarterly via [docs/health-metrics.md](docs/health-metrics.md) using CHAOSS Starter Project Health metrics.
+
+| Metric | 2026 target | 2027 target | 2028 target |
+|---|---|---|---|
+| GitHub stars | 1,000 | 3,000 | 7,000 |
+| External contributors with merged PRs | 10 | 25 | 50 |
+| Active maintainers | 1 | 3 | 5 |
+| npm weekly downloads | 500 | 2,000 | 5,000 |
+| CWE Top 25 coverage | 100% | 100% | 100% |
+| FP rate on benchmark | <15% | <10% | <7% |
+| Conference talks / papers | — | 1 talk | 1 talk + 1 workshop paper |
+| CVEs disclosed by sphinx-agent users | — | 5 | 15 |
+
+Opt-in scan telemetry (count only, no content) lands per [docs/telemetry.md](docs/telemetry.md).
+
+---
+
+## 8. Research agenda
+
+Detailed in [docs/research-agenda.md](docs/research-agenda.md). Headline contributions sphinx-agent intends to make to the field:
+
+- **Benchmark dataset** (500 → 1,000 vulnerabilities, CC-BY).
+- **Prompt-engineering patterns for security reasoning** — `src/agent/prompts.ts` published as a documented reference, with empirical analysis of which patterns work.
+- **Hypothesis-driven agent architecture** — workshop paper on the 4-phase pipeline.
+- **Empirical study** on AI-augmented vs deterministic taint graphs.
+- **Multi-agent reasoning evaluation harness** — no comparator publishes one. Garak evaluates LLMs; Semgrep evaluates rules; nobody evaluates *agent pipelines for security tasks*. sphinx-agent will publish methodology and a public schema.
+- **Cross-tool reasoning-trace schema** — an OSV-Schema-equivalent for agent reasoning evidence, publishable CC0.
+
+Target venues: DEF CON AI Village (2027), Black Hat Arsenal (2027), USENIX Security WOOT (2027 or 2028), at least one academic collaboration offering the benchmark as shared resource.
+
+---
+
+## 9. Sustainability & commercial posture
+
+- **2026 — pure OSS.** [GitHub Sponsors](https://github.com/sponsors/zhijiewong). [Open Collective](https://opencollective.com) via Open Source Collective fiscal host. Apply Sovereign Tech Fund and NLnet NGI Zero (security-tooling tracks). Apply OSTIF for security audit grant once at Silver badge.
+
+- **2027 — decision gate.** Open-core is considered only if **all three** conditions are met:
+  1. 3,000+ GitHub stars
+  2. ≥3 production deployments reported
+  3. Maintainer team ≥3 people
+
+  Public commitment regardless of gate outcome: **the CLI and every scanner remain MIT forever.** Open-core, if pursued, would add hosted scanning, team dashboards with RBAC, SLA support — never relicense existing code.
+
+- **2028 — execute.** Whichever path the 2027 gate chose, scale it. Pure-OSS path: consider donation to a foundation (OpenSSF). Open-core path: separate company repo, clean product/project boundary.
+
+The plan defers open-core for at least 24 months because at single-maintainer scale and pre-PMF, splitting features into a paid tier fragments a community before it exists.
+
+---
+
+## 10. Compliance milestones
+
+| Target | Window | Why |
+|---|---|---|
+| **EU CRA stance published** | Q2 2026 | Reporting obligations for the broader regulation apply Sept 11, 2026; `docs/security/cra-stance.md` declares sphinx-agent's role (currently *not* an Open-Source Steward). |
+| **OpenSSF Best Practices Badge — Passing** | Q3 2026 | Free, mostly self-cert; required ≤14-day vuln response; unlocks downstream enterprise adoption. |
+| **OSPS Baseline L1 (Basic Hygiene)** | Q4 2026 | 40-control checklist aligned to EU CRA. Scorecard v6 produces machine-readable conformance evidence. |
+| **OpenSSF Best Practices Badge — Silver** | end 2027 | Adds 1-year roadmap, governance doc, signed releases, 80% test coverage, dependency monitoring. |
+| **OSPS Baseline L2 (Standardized)** | mid-2027 | Pre-condition for the Y2 sustainability decision gate. |
+| **OpenSSF Gold + first third-party security audit** | end 2028 | CNCF Sandbox application prerequisite if a foundation path is later chosen. |
+
+EU CRA full obligations apply Dec 11, 2027.
+
+---
+
+## 11. Risk register
+
+| # | Risk | Likelihood | Impact | Mitigation |
+|---|---|---|---|---|
+| 1 | **Supply-chain compromise of sphinx-agent itself** (Trivy was hit twice in 2025–2026) | Medium | Critical | All actions pinned to commit SHA, Sigstore release signing, npm provenance, SLSA L3 build provenance, 2FA mandatory, signed commits, reproducible builds, public threat model at `docs/security/threat-model.md`. |
+| 2 | **Solo-maintainer burnout / bus-factor** (Gitleaks → Betterleaks; ZAP → Checkmarx) | High | Critical | Active recruiting in 2026; named successor in `MAINTAINERS.md`; explicit Phase 2/3 governance triggers; emeritus path documented. |
+| 3 | **False-positive drift** | Medium | High | 500-vuln benchmark as regression gate; FP rate tracked per release in machine-readable JSON. |
+| 4 | **Anthropic API dependency** (provider risk) | Medium | High | Ollama / vLLM / OpenAI paths kept equal-class in `src/agent/providers/`. |
+| 5 | **Adversarial misuse** of an offensive-capable scanner | Medium | Medium | Responsible-use notice in `README.md`; ethics clause in `CONTRIBUTING.md`; defensive framing throughout marketing. |
+| 6 | **CVE-disclosure overload** as adoption grows | Low (2026), High (2028) | Medium | Formalize `SECURITY.md` triage process now; dedicated security-triage maintainer role at TSC phase. |
+| 7 | **tree-sitter grammar coverage gaps** | Medium | Medium | Pin grammar versions in `package.json`; test matrix per grammar; contribute upstream fixes. |
+| 8 | **Competing project absorbs community** | Medium | High | Differentiate on autonomy and reasoning, not rule count; maintain velocity on knowledge graph and agent work. |
+| 9 | **Trademark dispute over Mythos framing** | Low | Medium | Always *inspired by*, never parity claim; "Sphinx Mythos" treated as a self-contained compound; affiliation disclaimer in `VISION.md` and `README.md`. |
+| 10 | **Governance entanglement with a sponsor** (Gitleaks lesson) | Low | Critical | License firewall sentence in `GOVERNANCE.md`; trademark held personally until Phase 2; fiscal-host transfer requires consensus. |
+
+---
+
+## 12. How this roadmap evolves
+
+- **Refresh cadence.** Annually. Material changes (themes added or dropped, governance triggers changed, sustainability gate criteria changed) require an [RFC](docs/rfcs/).
+- **Active-plan cadence.** Every 6 months. Each new pinned Goals issue replaces the prior one and links forward.
+- **Verification.** Before any roadmap PR merges: link check, path-existence check, governance consistency check, contributor dry-run, metric specificity scan. Procedure in [docs/rfcs/0001-roadmap-2026-2028.md](docs/rfcs/0001-roadmap-2026-2028.md) (the dogfood RFC).
+
+---
+
+*Last refreshed: April 2026. Next refresh: April 2027 (or sooner if an RFC ships).*

@@ -1,7 +1,7 @@
 <p align="center">
   <h1 align="center">sphinx-agent</h1>
   <p align="center"><strong>The AI security agent that guards your code.</strong></p>
-  <p align="center">Open-source Mythos for everyone.</p>
+  <p align="center"><em>The Sphinx Mythos — an open-source autonomous security research agent.</em></p>
 </p>
 
 <p align="center">
@@ -20,14 +20,16 @@
   <a href="#hunt-mode">Hunt Mode</a> &bull;
   <a href="#variant-analysis">Variant Analysis</a> &bull;
   <a href="#integrations">Integrations</a> &bull;
-  <a href="#contributing">Contributing</a>
+  <a href="#contributing">Contributing</a> &bull;
+  <a href="VISION.md">Vision</a> &bull;
+  <a href="ROADMAP.md">Roadmap</a>
 </p>
 
 ---
 
-Anthropic's Mythos finds zero-day vulnerabilities for 40 elite organizations. **sphinx-agent** brings that capability to everyone.
+sphinx-agent **reasons about your code like a security researcher** — generating hypotheses about what could go wrong, finding variants of known CVEs, proving exploitability with PoC exploits, and auto-fixing what it finds. Inspired by the same research direction as Anthropic's proprietary Mythos security agent; not a clone, not affiliated. See [VISION.md](VISION.md) for the full framing.
 
-Unlike traditional scanners that match known patterns, sphinx-agent **reasons about your code like a security researcher** — generating hypotheses about what could go wrong, finding variants of known CVEs, proving exploitability with PoC exploits, and auto-fixing what it finds.
+> **For new contributors:** the active 6-month working plan is in the pinned issue **`[Roadmap] sphinx-agent H1 2026 Goals`**. Look for 🙋 markers — those are items where help is wanted. New here? See [CONTRIBUTING.md](CONTRIBUTING.md) for `good-first-issue` guidance.
 
 ```bash
 npx sphinx-agent hunt
