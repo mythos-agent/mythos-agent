@@ -63,6 +63,14 @@ jobs:
             "${{ steps.pack.outputs.tarball }}"
 
       - name: Generate SLSA L3 build provenance attestation
+        # actions/attest-build-provenance requires a public repo (or a paid
+        # GitHub plan) — "Feature not available for user-owned private
+        # repositories." The cosign signature above gives us keyless
+        # provenance even without this; we tolerate the failure here so the
+        # workflow keeps producing usable artifacts during the stealth
+        # period. Once the repo is public, this step starts succeeding and
+        # ships SLSA L3 attestations alongside the cosign signatures.
+        continue-on-error: true
         uses: actions/attest-build-provenance@v2
         with:
           subject-path: ${{ steps.pack.outputs.tarball }}
