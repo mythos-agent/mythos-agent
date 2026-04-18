@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+import { createRequire } from "node:module";
 import { Command } from "commander";
 import { scanCommand } from "./commands/scan.js";
 import { initCommand } from "./commands/init.js";
@@ -57,14 +58,17 @@ import {
   rulesInitCommand,
 } from "./commands/rules.js";
 
+const require = createRequire(import.meta.url);
+const pkg = require("../../package.json") as { version: string };
+
 const program = new Command();
 
 program
   .name("mythos-agent")
   .description(
-    "Agentic AI security scanner — Mythos for everyone.\nFinds vulnerabilities, chains them into attack paths, and generates patches."
+    "AI code-review assistant for application security. Flags likely vulnerabilities in source code with reasoning and suggested fixes."
   )
-  .version("2.0.0");
+  .version(pkg.version);
 
 program
   .command("scan")
