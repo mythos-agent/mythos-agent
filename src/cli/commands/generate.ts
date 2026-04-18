@@ -21,7 +21,7 @@ interface DetectedStack {
 export async function generateCommand(options: GenerateOptions) {
   const projectPath = path.resolve(options.path || ".");
 
-  console.log(chalk.bold("\n🔧 sphinx-agent generate — Auto-configure\n"));
+  console.log(chalk.bold("\n🔧 shedu generate — Auto-configure\n"));
 
   // Detect project type
   const detected = await detectProjectType(projectPath);
@@ -97,14 +97,12 @@ export async function generateCommand(options: GenerateOptions) {
   }
 
   console.log(chalk.bold("\n  Next steps:\n"));
+  console.log(chalk.dim("    1. ") + chalk.cyan("shedu init") + chalk.dim(" — add your API key"));
   console.log(
-    chalk.dim("    1. ") + chalk.cyan("sphinx-agent init") + chalk.dim(" — add your API key")
+    chalk.dim("    2. ") + chalk.cyan("shedu scan") + chalk.dim(" — run your first scan")
   );
   console.log(
-    chalk.dim("    2. ") + chalk.cyan("sphinx-agent scan") + chalk.dim(" — run your first scan")
-  );
-  console.log(
-    chalk.dim("    3. ") + chalk.cyan("sphinx-agent hooks install") + chalk.dim(" — add git hooks")
+    chalk.dim("    3. ") + chalk.cyan("shedu hooks install") + chalk.dim(" — add git hooks")
   );
   console.log();
 }
@@ -203,7 +201,7 @@ async function detectProjectType(projectPath: string): Promise<DetectedStack[]> 
 }
 
 function generateIgnoreFile(preset: string): string {
-  let content = `# sphinx-agent ignore rules
+  let content = `# shedu ignore rules
 # Suppress findings matching these patterns
 
 # Ignore test files (usually false positives)

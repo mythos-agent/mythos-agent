@@ -1,6 +1,6 @@
-name: "sphinx-agent Security Scan"
+name: "shedu Security Scan"
 description: "Agentic AI security scanner — Mythos for everyone. Finds vulnerabilities and chains them into attack paths."
-author: "sphinx-agent"
+author: "shedu"
 
 branding:
   icon: "shield"
@@ -49,9 +49,9 @@ runs:
       with:
         node-version: "20"
 
-    - name: Install sphinx-agent
+    - name: Install shedu
       shell: bash
-      run: npm install -g sphinx-agent
+      run: npm install -g shedu
 
     - name: Run scan
       shell: bash
@@ -63,8 +63,8 @@ runs:
           ARGS="$ARGS --no-ai"
         fi
         ARGS="$ARGS --severity ${{ inputs.severity }}"
-        sphinx-agent scan $ARGS --json > .sphinx/scan-output.json 2>&1 || true
-        sphinx-agent report ${{ inputs.path }} --sarif 2>&1 || true
+        shedu scan $ARGS --json > .sphinx/scan-output.json 2>&1 || true
+        shedu report ${{ inputs.path }} --sarif 2>&1 || true
 
         # Parse results for outputs
         if [ -f .sphinx/scan-output.json ]; then
@@ -91,7 +91,7 @@ runs:
             low) COUNT=$(jq '.summary.by_severity.critical + .summary.by_severity.high + .summary.by_severity.medium + .summary.by_severity.low' .sphinx/scan-output.json) ;;
           esac
           if [ "$COUNT" -gt 0 ]; then
-            echo "::error::sphinx-agent found $COUNT vulnerabilities at $SEVERITY severity or above"
+            echo "::error::shedu found $COUNT vulnerabilities at $SEVERITY severity or above"
             exit 1
           fi
         fi

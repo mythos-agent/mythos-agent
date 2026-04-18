@@ -1,6 +1,6 @@
-name: "sphinx-agent PR Review"
+name: "shedu PR Review"
 description: "AI-powered security review for pull requests. Posts inline comments on vulnerable lines."
-author: "sphinx-agent"
+author: "shedu"
 
 branding:
   icon: "shield"
@@ -27,9 +27,9 @@ runs:
       with:
         node-version: "20"
 
-    - name: Install sphinx-agent
+    - name: Install shedu
       shell: bash
-      run: npm install -g sphinx-agent typescript tsx
+      run: npm install -g shedu typescript tsx
 
     - name: Fetch PR base for diff
       shell: bash

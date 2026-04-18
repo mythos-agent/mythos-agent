@@ -1,12 +1,12 @@
 ---
 name: "Roadmap — H1 2026 Goals (template, paste once and pin)"
 about: "Template for the active 6-month working roadmap issue. Modeled on vLLM #26376."
-title: "[Roadmap] sphinx-agent H1 2026 Goals"
+title: "[Roadmap] shedu H1 2026 Goals"
 labels: ["roadmap"]
 assignees: []
 ---
 
-> **Active 6-month plan for sphinx-agent (April 2026 → September 2026).**
+> **Active 6-month plan for shedu (April 2026 → September 2026).**
 > Long-term vision lives in [VISION.md](../../blob/main/VISION.md); strategic frame in [ROADMAP.md](../../blob/main/ROADMAP.md). This issue is the *active* working plan and is replaced every six months.
 >
 > **Conventions:** 🙋 = champion wanted (claim by commenting). ✅ = shipped. 🟡 = in progress. ⚪ = not started. Stage labels: `experimental` → `preview` → `stable` → `deprecated`.
@@ -30,7 +30,7 @@ The biggest single lever on adopter trust. Theme A from the strategic roadmap.
 
 EU CRA reporting obligations apply September 11, 2026. This bucket must complete before that date.
 
-- [ ] ⚪ **EU CRA stance published** at `docs/security/cra-stance.md` (declares sphinx-agent is *not* an Open-Source Steward; manufacturer guidance)
+- [ ] ⚪ **EU CRA stance published** at `docs/security/cra-stance.md` (declares shedu is *not* an Open-Source Steward; manufacturer guidance)
 - [ ] ⚪ **SECURITY.md SLAs** updated to Checkov-style (5-day acknowledgment, 14-day triage, 14-day fix target)
 - [ ] ⚪ **OpenSSF Best Practices Badge — Passing** application at bestpractices.dev (67 self-cert criteria)
 - [ ] ⚪ **OSPS Baseline L1 (Basic Hygiene)** conformance — 40-control checklist
@@ -51,7 +51,7 @@ Trivy's GitHub Action was compromised twice in 2025–2026. For a security tool,
 
 - [ ] ⚪ **GitHub Sponsors** button enabled
 - [ ] ⚪ **Open Collective** via Open Source Collective fiscal host
-- [ ] ⚪ **Sphinx Mythos Pioneers leaderboard** — `docs/pioneers.md` + `.github/workflows/pioneers.yml`
+- [ ] ⚪ **Shedu Pioneers leaderboard** — `docs/pioneers.md` + `.github/workflows/pioneers.yml`
 - [ ] ⚪ **Scanner plugin SDK** documented at `docs/scanner-sdk.md` + cookie-cutter at `examples/scanners/example-scanner/`
 - [ ] ⚪ **RFC process live** — `docs/RFC-TEMPLATE.md` + `docs/rfcs/`
 - [ ] ⚪ **CONTRIBUTING.md** expanded with `good-first-issue` taxonomy

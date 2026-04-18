@@ -7,7 +7,7 @@
 ### How to report
 
 1. **Email:** [security@sphinx-agent.dev](mailto:security@sphinx-agent.dev)
-2. **GitHub private vulnerability reporting:** [Report here](https://github.com/zhijiewong/sphinx-agent/security/advisories/new)
+2. **GitHub private vulnerability reporting:** [Report here](https://github.com/zhijiewong/shedu/security/advisories/new)
 3. **PGP key:** A PGP public key for sensitive reports is published at `https://sphinx-agent.dev/.well-known/pgp-key.asc` (publication pending — until then, use GitHub's encrypted private reporting).
 
 ### What to include
@@ -35,9 +35,9 @@ If we cannot meet a target, we will tell the reporter why and propose an updated
 
 ## Scope
 
-This policy covers vulnerabilities **in sphinx-agent itself**:
+This policy covers vulnerabilities **in shedu itself**:
 
-- The sphinx-agent CLI (`src/`)
+- The shedu CLI (`src/`)
 - The VS Code extension (`vscode-extension/`)
 - The MCP server (`src/mcp/`)
 - The REST API server (`src/server/`)
@@ -47,14 +47,14 @@ This policy covers vulnerabilities **in sphinx-agent itself**:
 
 **Out of scope** (please use the indicated channel):
 
-- **Vulnerabilities discovered *by* sphinx-agent in code being scanned.** These are not vulnerabilities in sphinx-agent. Use community [Discussions](https://github.com/zhijiewong/sphinx-agent/discussions) or report directly to the affected upstream project.
+- **Vulnerabilities discovered *by* shedu in code being scanned.** These are not vulnerabilities in shedu. Use community [Discussions](https://github.com/zhijiewong/shedu/discussions) or report directly to the affected upstream project.
 - **Demo / intentionally-vulnerable code** (`demo-vulnerable-app/`) — by design.
 - **Third-party tools integrated via subprocess** (Semgrep, Trivy, Gitleaks, Checkov, Nuclei) — report to the respective maintainers.
 - **Vulnerabilities in dependencies** — report to the dependency maintainer; we will update once a fix is available upstream.
 
 ## Threat model
 
-A public threat model for sphinx-agent itself lives at [`docs/security/threat-model.md`](docs/security/threat-model.md) (publication scheduled in the H1 2026 supply-chain hardening session). Risk classes covered: supply-chain compromise, agent prompt injection, scanner output exfiltration, MCP-server misconfiguration, REST-server exposure.
+A public threat model for shedu itself lives at [`docs/security/threat-model.md`](docs/security/threat-model.md) (publication scheduled in the H1 2026 supply-chain hardening session). Risk classes covered: supply-chain compromise, agent prompt injection, scanner output exfiltration, MCP-server misconfiguration, REST-server exposure.
 
 ## Security measures in place
 
@@ -78,13 +78,13 @@ The H1 2026 roadmap adds: GitHub Actions pinned to commit SHA, Sigstore-signed r
 
 ## EU Cyber Resilience Act stance
 
-sphinx-agent is currently maintained by an unpaid individual contributor and is **not an Open-Source Steward** under the EU Cyber Resilience Act (Regulation (EU) 2024/2847). Manufacturers integrating sphinx-agent into commercial products retain full CRA responsibility for those products.
+shedu is currently maintained by an unpaid individual contributor and is **not an Open-Source Steward** under the EU Cyber Resilience Act (Regulation (EU) 2024/2847). Manufacturers integrating shedu into commercial products retain full CRA responsibility for those products.
 
 The full role declaration, manufacturer guidance, and reporting cooperation policy live at [`docs/security/cra-stance.md`](docs/security/cra-stance.md).
 
 ## Recognition
 
-Security researchers who help keep sphinx-agent safe are credited in:
+Security researchers who help keep shedu safe are credited in:
 
 - The CVE record and GitHub Security Advisory
 - The release notes for the fix release
@@ -94,4 +94,4 @@ If you would like to remain anonymous, say so in your report and we will respect
 
 ## Bug bounty
 
-sphinx-agent does not currently run a paid bug bounty program for vulnerabilities in the project itself. This may change once sustainable funding is in place; if it does, the program will be announced here and at `docs/bounty.md`. (A separate, unrelated program — paid contributions of *new scanner rules* — is drafted but inactive; see the [community on-ramp section of the roadmap](ROADMAP.md#5-contributor-on-ramp).)
+shedu does not currently run a paid bug bounty program for vulnerabilities in the project itself. This may change once sustainable funding is in place; if it does, the program will be announced here and at `docs/bounty.md`. (A separate, unrelated program — paid contributions of *new scanner rules* — is drafted but inactive; see the [community on-ramp section of the roadmap](ROADMAP.md#5-contributor-on-ramp).)

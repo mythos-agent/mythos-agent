@@ -4,46 +4,46 @@ import { spawnSync } from "node:child_process";
 import chalk from "chalk";
 
 const PRE_COMMIT_HOOK = `#!/bin/sh
-# sphinx-agent pre-commit hook
+# shedu pre-commit hook
 # Scans staged files for security vulnerabilities before allowing commit
 
-echo "🔐 sphinx-agent: scanning staged changes..."
+echo "🔐 shedu: scanning staged changes..."
 
-# Run sphinx-agent on staged files only
-npx sphinx-agent scan . --diff --no-ai --no-chain --no-deps --severity critical 2>/dev/null
+# Run shedu on staged files only
+npx shedu scan . --diff --no-ai --no-chain --no-deps --severity critical 2>/dev/null
 
 EXIT_CODE=$?
 
 if [ $EXIT_CODE -ne 0 ]; then
   echo ""
-  echo "❌ sphinx-agent found critical security issues."
+  echo "❌ shedu found critical security issues."
   echo "   Fix them before committing, or bypass with: git commit --no-verify"
   echo ""
   exit 1
 fi
 
-echo "✅ sphinx-agent: no critical issues found."
+echo "✅ shedu: no critical issues found."
 `;
 
 const PRE_PUSH_HOOK = `#!/bin/sh
-# sphinx-agent pre-push hook
+# shedu pre-push hook
 # Full security scan before pushing
 
-echo "🔐 sphinx-agent: running security scan before push..."
+echo "🔐 shedu: running security scan before push..."
 
-npx sphinx-agent ci --fail-on high 2>/dev/null
+npx shedu ci --fail-on high 2>/dev/null
 
 EXIT_CODE=$?
 
 if [ $EXIT_CODE -ne 0 ]; then
   echo ""
-  echo "❌ sphinx-agent found high/critical security issues."
+  echo "❌ shedu found high/critical security issues."
   echo "   Fix them before pushing, or bypass with: git push --no-verify"
   echo ""
   exit 1
 fi
 
-echo "✅ sphinx-agent: security check passed."
+echo "✅ shedu: security check passed."
 `;
 
 export async function hooksInstallCommand(options: {
@@ -94,7 +94,7 @@ export async function hooksUninstallCommand(options: { path?: string }) {
     const hookPath = path.join(hooksDir, hook);
     if (fs.existsSync(hookPath)) {
       const content = fs.readFileSync(hookPath, "utf-8");
-      if (content.includes("sphinx-agent")) {
+      if (content.includes("shedu")) {
         fs.unlinkSync(hookPath);
         console.log(chalk.dim(`  Removed ${hook} hook`));
         removed++;
@@ -103,7 +103,7 @@ export async function hooksUninstallCommand(options: { path?: string }) {
   }
 
   if (removed === 0) {
-    console.log(chalk.dim("\n  No sphinx-agent hooks found.\n"));
+    console.log(chalk.dim("\n  No shedu hooks found.\n"));
   } else {
     console.log(chalk.green(`\n  ✅ ${removed} hook(s) removed.\n`));
   }

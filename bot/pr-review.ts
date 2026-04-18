@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /**
- * sphinx-agent PR Review Bot
+ * shedu PR Review Bot
  *
  * Scans PR diffs for security vulnerabilities and posts review comments.
  * Designed to run as a GitHub Action step.
@@ -63,7 +63,7 @@ async function main() {
   const prNumber = event.pull_request.number;
   const baseSha = event.pull_request.base.sha;
 
-  console.log(`sphinx-agent: Scanning PR #${prNumber} in ${repo}`);
+  console.log(`shedu: Scanning PR #${prNumber} in ${repo}`);
 
   // Get changed files
   const diffOutput = execSync(
@@ -77,9 +77,9 @@ async function main() {
     return;
   }
 
-  // Run sphinx-agent scan
+  // Run shedu scan
   const scanOutput = execSync(
-    `npx sphinx-agent scan . --diff ${baseSha} --no-ai --no-chain --json`,
+    `npx shedu scan . --diff ${baseSha} --no-ai --no-chain --json`,
     { encoding: "utf-8", maxBuffer: 10 * 1024 * 1024 }
   );
 
@@ -133,7 +133,7 @@ async function main() {
   }
 
   console.log(
-    `sphinx-agent: Posted ${comments.length} inline comments + summary on PR #${prNumber}`
+    `shedu: Posted ${comments.length} inline comments + summary on PR #${prNumber}`
   );
 
   // Exit with error if critical/high vulns found (configurable)
@@ -146,7 +146,7 @@ async function main() {
     );
     if (failing.length > 0) {
       console.error(
-        `sphinx-agent: ${failing.length} findings at ${failOn} or above — failing`
+        `shedu: ${failing.length} findings at ${failOn} or above — failing`
       );
       process.exit(1);
     }
@@ -157,7 +157,7 @@ function formatComment(finding: ScanFinding): string {
   const emoji = SEVERITY_EMOJI[finding.severity] || "⚪";
   const cwe = finding.cwe ? ` ([${finding.cwe}](https://cwe.mitre.org/data/definitions/${finding.cwe.replace("CWE-", "")}.html))` : "";
 
-  return `${emoji} **sphinx-agent: ${finding.title}**${cwe}
+  return `${emoji} **shedu: ${finding.title}**${cwe}
 
 ${finding.description}
 
@@ -185,11 +185,11 @@ function buildSummaryComment(
   const total = prFindings.length;
 
   if (total === 0) {
-    return `## 🔐 sphinx-agent Security Scan
+    return `## 🔐 shedu Security Scan
 
 ✅ **No security issues found** in ${changedFilesCount} changed files.
 
-<sub>Powered by [sphinx-agent](https://github.com/sphinx-agent/sphinx-agent) — Agentic AI Security Scanner</sub>`;
+<sub>Powered by [shedu](https://github.com/zhijiewong/shedu) — Agentic AI Security Scanner</sub>`;
   }
 
   const parts: string[] = [];
@@ -209,7 +209,7 @@ function buildSummaryComment(
   }
   score = Math.max(0, Math.min(10, score));
 
-  return `## 🔐 sphinx-agent Security Scan
+  return `## 🔐 shedu Security Scan
 
 **${total} issue${total !== 1 ? "s" : ""} found** in ${changedFilesCount} changed files
 
@@ -231,11 +231,11 @@ ${total > 20 ? `\n*...and ${total - 20} more*` : ""}
 <details>
 <summary>How to fix</summary>
 
-Run \`sphinx-agent fix --apply\` to auto-generate AI patches, or review each finding inline above.
+Run \`shedu fix --apply\` to auto-generate AI patches, or review each finding inline above.
 
 </details>
 
-<sub>Powered by [sphinx-agent](https://github.com/sphinx-agent/sphinx-agent) — Agentic AI Security Scanner</sub>`;
+<sub>Powered by [shedu](https://github.com/zhijiewong/shedu) — Agentic AI Security Scanner</sub>`;
 }
 
 async function githubApi(
@@ -249,7 +249,7 @@ async function githubApi(
       Authorization: `token ${token}`,
       "Content-Type": "application/json",
       Accept: "application/vnd.github.v3+json",
-      "User-Agent": "sphinx-agent-bot",
+      "User-Agent": "shedu-bot",
     },
     body: JSON.stringify(body),
   });
@@ -261,6 +261,6 @@ async function githubApi(
 }
 
 main().catch((err) => {
-  console.error("sphinx-agent bot error:", err);
+  console.error("shedu bot error:", err);
   process.exit(1);
 });

@@ -1,12 +1,12 @@
-# 🦁 Sphinx Mythos Pioneers
+# 🦁 Shedu Pioneers
 
-> Recognition for the people building sphinx-agent. This page is auto-updated by [`.github/workflows/pioneers.yml`](../.github/workflows/pioneers.yml) at the start of every month from contributor stats.
+> Recognition for the people building shedu. This page is auto-updated by [`.github/workflows/pioneers.yml`](../.github/workflows/pioneers.yml) at the start of every month from contributor stats.
 >
 > Last updated: _waiting for first auto-run_
 
 ## What it is
 
-The **Sphinx Mythos Pioneers** is a recognition tier (no cash) for the people who land code, scanners, tests, docs, and integrations in sphinx-agent. It exists because contributing to OSS is unpaid by default and that is unfair: the least we can do is name the people doing the work, in public, in a place adopters and recruiters will see.
+The **Shedu Pioneers** is a recognition tier (no cash) for the people who land code, scanners, tests, docs, and integrations in shedu. It exists because contributing to OSS is unpaid by default and that is unfair: the least we can do is name the people doing the work, in public, in a place adopters and recruiters will see.
 
 A separate, currently **inactive** scanner-rule cash bounty program is drafted at [`docs/bounty.md`](bounty.md) and activates upon a defined trigger event.
 
@@ -62,7 +62,7 @@ Pioneers who become inactive for 12+ months are moved here with their consent. L
 
 ## Conference invite list
 
-Pioneers may opt in to receive an invitation when sphinx-agent is presented at a conference (DEF CON AI Village, Black Hat Arsenal, USENIX Security WOOT, academic workshops). The invite covers a co-presenter slot for any Pioneer whose work is being demoed.
+Pioneers may opt in to receive an invitation when shedu is presented at a conference (DEF CON AI Village, Black Hat Arsenal, USENIX Security WOOT, academic workshops). The invite covers a co-presenter slot for any Pioneer whose work is being demoed.
 
 To opt in, comment on a tracking issue (link to be added) or email conduct@sphinx-agent.dev. Opting out at any time is one email.
 

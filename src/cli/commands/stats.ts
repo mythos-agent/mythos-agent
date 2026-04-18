@@ -15,7 +15,7 @@ export async function statsCommand(options: StatsOptions) {
   const projectPath = path.resolve(options.path || ".");
   const projectName = path.basename(projectPath);
 
-  console.log(chalk.bold(`\n📈 sphinx-agent stats — ${projectName}\n`));
+  console.log(chalk.bold(`\n📈 shedu stats — ${projectName}\n`));
 
   // Latest scan
   const result = loadResults(projectPath);
@@ -38,7 +38,7 @@ export async function statsCommand(options: StatsOptions) {
     console.log(`    Chains: ${result.chains.length}`);
     console.log(`    Dismissed: ${result.dismissedCount}`);
   } else {
-    console.log(chalk.dim("  No scan results yet. Run: sphinx-agent scan\n"));
+    console.log(chalk.dim("  No scan results yet. Run: shedu scan\n"));
   }
 
   // History

@@ -95,7 +95,7 @@ Sphinx-agent runs the benchmark on every release and commits its own results. Ot
 
 ## Per-release accuracy publication
 
-For each sphinx-agent release, the CHANGELOG includes a row:
+For each shedu release, the CHANGELOG includes a row:
 
 ```
 v2.X.X (date) | TPR: 0.XX | FPR: 0.YY | F1: 0.ZZ | runtime: NN s | benchmark: SPX-BENCH-2026-Q4
@@ -112,7 +112,7 @@ We publish comparison rows against:
 - **OSV-Scanner** — for the dependency-vuln axis
 - **Nuclei** — for the template-based DAST axis (where applicable to static cases)
 
-These rows are **observations, not claims**. The methodology is identical across scanners; the runner is open; comparison results are reproducible. We do not claim sphinx-agent "wins" — we publish numbers so users can decide.
+These rows are **observations, not claims**. The methodology is identical across scanners; the runner is open; comparison results are reproducible. We do not claim shedu "wins" — we publish numbers so users can decide.
 
 ## Contribution workflow
 
@@ -121,7 +121,7 @@ To contribute a case:
 1. Pick a CWE not yet well-covered (audit list lands at `docs/benchmark/coverage.md`)
 2. Copy `benchmark/cases/_template/` to `benchmark/cases/SPX-BENCH-NNNN/` — next free number
 3. Fill `case.yml`, add the `vulnerable/` fixture, optionally a `safe/` corrected version, write `README.md`
-4. Run the runner locally to confirm sphinx-agent's expected behavior on your case
+4. Run the runner locally to confirm shedu's expected behavior on your case
 5. Open a PR with `[BENCH]` prefix in the title
 6. Reviewer checks: schema validity, license declaration, ground-truth correctness, no PII or secrets
 
@@ -135,13 +135,13 @@ Once the bounty program activates ([`docs/bounty.md`](bounty.md)), benchmark con
 
 External users of the dataset are required only to cite. Suggested citation:
 
-> Sphinx Mythos contributors. "The Sphinx Benchmark v\<X.Y\>." sphinx-agent project, 2026. https://github.com/zhijiewong/sphinx-agent/tree/main/benchmark
+> Shedu contributors. "The Sphinx Benchmark v\<X.Y\>." shedu project, 2026. https://github.com/zhijiewong/shedu/tree/main/benchmark
 
 ## Roadmap relationship
 
 This benchmark is **B3** in the [strategic bets](../ROADMAP.md#2-strategic-bets). Year-by-year milestones:
 
-- **2026:** schema + runner + first 500 cases. First sphinx-agent FP rate measurement against the corpus. First comparison row vs Semgrep CE.
+- **2026:** schema + runner + first 500 cases. First shedu FP rate measurement against the corpus. First comparison row vs Semgrep CE.
 - **2027:** corpus expanded to 1000 cases. First external citation. AI-misuse class expanded. Annual update of the runner contract.
 - **2028:** stability — the benchmark becomes load-bearing infrastructure that downstream tools reference. Schema versioning policy enforced.
 

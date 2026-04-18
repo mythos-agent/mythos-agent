@@ -16,9 +16,7 @@ export async function rulesSearchCommand(query: string) {
 
   if (packs.length === 0) {
     console.log(chalk.yellow(`\n  No rule packs found for "${query}".\n`));
-    console.log(
-      chalk.dim("  Create your own: " + chalk.cyan("sphinx-agent rules init <name>") + "\n")
-    );
+    console.log(chalk.dim("  Create your own: " + chalk.cyan("shedu rules init <name>") + "\n"));
     return;
   }
 
@@ -30,7 +28,7 @@ export async function rulesSearchCommand(query: string) {
         (pack.author ? chalk.dim(` by ${pack.author}`) : "")
     );
     console.log(chalk.dim(`    ${pack.description}`));
-    console.log(chalk.dim(`    Install: `) + chalk.cyan(`sphinx-agent rules install ${pack.name}`));
+    console.log(chalk.dim(`    Install: `) + chalk.cyan(`shedu rules install ${pack.name}`));
     console.log();
   }
 }
@@ -72,8 +70,8 @@ export async function rulesListCommand() {
 
   if (installed.length === 0) {
     console.log(chalk.dim("\n  No rule packs installed.\n"));
-    console.log(chalk.dim("  Search: ") + chalk.cyan("sphinx-agent rules search <keyword>"));
-    console.log(chalk.dim("  Install: ") + chalk.cyan("sphinx-agent rules install <name>") + "\n");
+    console.log(chalk.dim("  Search: ") + chalk.cyan("shedu rules search <keyword>"));
+    console.log(chalk.dim("  Install: ") + chalk.cyan("shedu rules install <name>") + "\n");
     return;
   }
 

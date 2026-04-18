@@ -1,10 +1,10 @@
 # Release Policy
 
-How sphinx-agent versions, ships, and supports its releases.
+How shedu versions, ships, and supports its releases.
 
 ## Versioning
 
-sphinx-agent follows [Semantic Versioning 2.0](https://semver.org/spec/v2.0.0.html), driven by [Conventional Commits](https://www.conventionalcommits.org/) via [release-please](https://github.com/googleapis/release-please).
+shedu follows [Semantic Versioning 2.0](https://semver.org/spec/v2.0.0.html), driven by [Conventional Commits](https://www.conventionalcommits.org/) via [release-please](https://github.com/googleapis/release-please).
 
 | Commit prefix | Version bump | Example |
 |---|---|---|
@@ -45,7 +45,7 @@ The latest major version is **Active**. The previous major version receives **se
 | **1.x** | EOL announced | Security-only until 2026-10-16 (6 months after v2.0 release) |
 | **0.x (pre-1.0)** | End of life | No fixes |
 
-The schedule above is the default; actual EOL announcements are made in the CHANGELOG and pinned in [Discussions](https://github.com/zhijiewong/sphinx-agent/discussions) when set.
+The schedule above is the default; actual EOL announcements are made in the CHANGELOG and pinned in [Discussions](https://github.com/zhijiewong/shedu/discussions) when set.
 
 ## Deprecation policy
 
@@ -60,13 +60,13 @@ If a deprecation window cannot be honored (security-driven removal, upstream API
 
 Every release publishes:
 
-- **npm package** at [`sphinx-agent`](https://www.npmjs.com/package/sphinx-agent) — with provenance attestations (lands in H1 2026 supply-chain hardening)
+- **npm package** at [`shedu`](https://www.npmjs.com/package/shedu) — with provenance attestations (lands in H1 2026 supply-chain hardening)
 - **GitHub Release** with attached assets:
   - CycloneDX SBOM (lands in H1 2026)
   - cosign signature + bundle (lands in H1 2026)
   - SLSA L3 build provenance attestation (lands in H1 2026)
   - Source tarball
-- **Docker images** at `ghcr.io/zhijiewong/sphinx-agent` and `docker.io/sphinxagent/sphinx-agent`
+- **Docker images** at `ghcr.io/zhijiewong/shedu` and `docker.io/sphinxagent/shedu`
 - **CHANGELOG.md** entry summarizing the release
 
 Verification instructions for cosign signatures and SLSA provenance will live at [`docs/security/verify-release.md`](docs/security/verify-release.md) once H1 2026 supply-chain work lands.
@@ -84,7 +84,7 @@ Security releases follow the same versioning and branch model but are prioritize
 
 ## Pre-releases
 
-When ambitious changes need community testing, sphinx-agent ships pre-releases:
+When ambitious changes need community testing, shedu ships pre-releases:
 
 - **Alpha** (`-alpha.N`) — internal stability, breaking-change exploration
 - **Beta** (`-beta.N`) — feature complete, broad testing welcome

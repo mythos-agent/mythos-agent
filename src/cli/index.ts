@@ -60,7 +60,7 @@ import {
 const program = new Command();
 
 program
-  .name("sphinx-agent")
+  .name("shedu")
   .description(
     "Agentic AI security scanner — Mythos for everyone.\nFinds vulnerabilities, chains them into attack paths, and generates patches."
   )
@@ -96,7 +96,7 @@ program
   .option("-s, --severity <level>", "Fix vulnerabilities at or above this severity", "low")
   .action(fixCommand);
 
-program.command("init").description("Initialize sphinx-agent configuration").action(initCommand);
+program.command("init").description("Initialize shedu configuration").action(initCommand);
 
 program
   .command("ask")
@@ -264,7 +264,7 @@ hooksCmd
 
 hooksCmd
   .command("uninstall")
-  .description("Remove sphinx-agent git hooks")
+  .description("Remove shedu git hooks")
   .option("-p, --path <path>", "Project path", ".")
   .action(hooksUninstallCommand);
 

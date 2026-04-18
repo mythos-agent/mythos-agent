@@ -200,7 +200,7 @@ export function getComplianceMapping(finding: Vulnerability, frameworks: string[
 }
 
 export function generateDefaultPolicy(): string {
-  return `# sphinx-agent Policy Configuration
+  return `# shedu Policy Configuration
 # Place at .sphinx/policy.yml
 
 name: default

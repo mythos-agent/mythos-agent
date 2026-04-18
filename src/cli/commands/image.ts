@@ -10,7 +10,7 @@ interface ImageOptions {
 }
 
 export async function imageCommand(imageName: string, options: ImageOptions) {
-  console.log(chalk.bold("\n🐳 sphinx-agent image — Container Security Scan\n"));
+  console.log(chalk.bold("\n🐳 shedu image — Container Security Scan\n"));
   console.log(chalk.dim(`  Image: ${imageName}\n`));
 
   if (!isTrivyInstalled()) {

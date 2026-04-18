@@ -1,7 +1,7 @@
-# sphinx-agent Roadmap
+# shedu Roadmap
 
-> The multi-year strategic frame for the **Sphinx Mythos** — see [VISION.md](VISION.md) for the north star.
-> The active 6-month working plan lives in the pinned GitHub Issue **`[Roadmap] sphinx-agent H1 2026 Goals`**.
+> The multi-year strategic frame for the **Shedu** — see [VISION.md](VISION.md) for the north star.
+> The active 6-month working plan lives in the pinned GitHub Issue **`[Roadmap] shedu H1 2026 Goals`**.
 > This document is refreshed annually; material changes go through an [RFC](docs/rfcs/).
 
 **Status:** v2.0.0 launched April 2026 · MIT · TypeScript · single maintainer building toward a multi-maintainer team.
@@ -11,9 +11,9 @@
 
 ## 1. Vision in one paragraph
 
-sphinx-agent aims to be the open-source equivalent of an autonomous security research agent: a tool that reasons about a codebase the way a senior pentester would — generating hypotheses, navigating evidence, chaining individual findings into real attack paths, and proving exploitability. It is not a replacement for Semgrep, CodeQL, or Snyk; it integrates them where appropriate and competes on the axis those tools do not occupy: **autonomous reasoning on open code**. See [VISION.md](VISION.md) for the full framing and the capability arcs that define each year.
+shedu aims to be the open-source equivalent of an autonomous security research agent: a tool that reasons about a codebase the way a senior pentester would — generating hypotheses, navigating evidence, chaining individual findings into real attack paths, and proving exploitability. It is not a replacement for Semgrep, CodeQL, or Snyk; it integrates them where appropriate and competes on the axis those tools do not occupy: **autonomous reasoning on open code**. See [VISION.md](VISION.md) for the full framing and the capability arcs that define each year.
 
-| Axis | Semgrep | CodeQL | Snyk | Nuclei | sphinx-agent |
+| Axis | Semgrep | CodeQL | Snyk | Nuclei | shedu |
 |---|---|---|---|---|---|
 | Pattern matching | Best-in-class | Strong (manual queries) | Good | Template-based | Integrates Semgrep + adds AI reasoning |
 | Cross-file taint | Pro tier (paid) | Strong, complex setup | Limited | None | Deterministic graph + AI (in progress) |
@@ -53,7 +53,7 @@ Deterministic taint and call graphs. Tests for every CLI command. CWE Top 25 cov
 
 Persistent codebase knowledge graph. 4-phase agent (Recon → Hypothesis → Analyze → Exploit) with backtracking. Vulnerability chain engine upgraded from AI-only to graph + AI. Novel-vuln benchmark expanded to 1000 cases. Targeted detection for AI-misuse risks (prompt-injection sinks, unsafe LangChain patterns, MCP-server misconfig).
 
-**What a user gains as Theme B advances:** the ability to ask sphinx-agent to *hunt* — to investigate autonomously and report what it explored, not just what it matched.
+**What a user gains as Theme B advances:** the ability to ask shedu to *hunt* — to investigate autonomously and report what it explored, not just what it matched.
 
 ### Theme C — Ecosystem & Scale *(stage: 2027–2028 horizon)*
 
@@ -65,7 +65,7 @@ Cross-system / monorepo / trust-boundary analysis. Validated remediation pipelin
 
 ## 4. Active 6-month plan
 
-The active working plan is the pinned GitHub Issue **`[Roadmap] sphinx-agent H1 2026 Goals`** (link added on issue creation). H1 2026 buckets, with concrete deliverables tied to file paths:
+The active working plan is the pinned GitHub Issue **`[Roadmap] shedu H1 2026 Goals`** (link added on issue creation). H1 2026 buckets, with concrete deliverables tied to file paths:
 
 | Bucket | Deliverable | Where |
 |---|---|---|
@@ -76,7 +76,7 @@ The active working plan is the pinned GitHub Issue **`[Roadmap] sphinx-agent H1 
 | Compliance | EU CRA stance published | `docs/security/cra-stance.md` |
 | Compliance | SECURITY.md SLAs (Checkov-style) | `SECURITY.md` |
 | Supply chain | Sigstore signing + SBOM per release | `.github/workflows/` |
-| Community | Sphinx Mythos Pioneers leaderboard | `docs/pioneers.md` |
+| Community | Shedu Pioneers leaderboard | `docs/pioneers.md` |
 
 H2 2026 will be opened as a new pinned issue in July 2026 and will lead with knowledge-graph v1 and agent test harness. Items in the active issue use the 🙋 marker when a champion is wanted; this is the primary contributor on-ramp for high-leverage work.
 
@@ -96,7 +96,7 @@ The full ramp lives in [CONTRIBUTING.md](CONTRIBUTING.md). Summary by entry poin
 
 The maintainer path stays at the existing 5+ non-trivial PRs threshold from [GOVERNANCE.md](GOVERNANCE.md), now mapped to areas (scanner / analysis / CLI / agents) so specialization is possible.
 
-Recognition layer: **[Sphinx Mythos Pioneers](docs/pioneers.md)** — auto-updated leaderboard; profile cards for top contributors; opt-in conference invite list. A cash-bounty program is *drafted but inactive* and activates on first corporate user OR $5K/month recurring sponsorship; see [docs/bounty.md](docs/bounty.md).
+Recognition layer: **[Shedu Pioneers](docs/pioneers.md)** — auto-updated leaderboard; profile cards for top contributors; opt-in conference invite list. A cash-bounty program is *drafted but inactive* and activates on first corporate user OR $5K/month recurring sponsorship; see [docs/bounty.md](docs/bounty.md).
 
 ---
 
@@ -110,7 +110,7 @@ Three phases. Triggers — not dates — drive transitions. Full text appended t
 
 **License firewall.** Scanner code contributed under MIT remains MIT in perpetuity. Any future commercial differentiation will come from new code under a separate license, never from relicensing existing OSS code. This sentence is the primary protection against an Opengrep-style fork.
 
-**Trademark.** The `sphinx-agent` name is currently held by the lead maintainer personally. Future transfer to a fiscal host (such as Open Source Collective) is on the table once Phase 2 is reached.
+**Trademark.** The `shedu` name is currently held by the lead maintainer personally. Future transfer to a fiscal host (such as Open Source Collective) is on the table once Phase 2 is reached.
 
 ---
 
@@ -127,7 +127,7 @@ Measured quarterly via [docs/health-metrics.md](docs/health-metrics.md) using CH
 | CWE Top 25 coverage | 100% | 100% | 100% |
 | FP rate on benchmark | <15% | <10% | <7% |
 | Conference talks / papers | — | 1 talk | 1 talk + 1 workshop paper |
-| CVEs disclosed by sphinx-agent users | — | 5 | 15 |
+| CVEs disclosed by shedu users | — | 5 | 15 |
 
 Opt-in scan telemetry (count only, no content) lands per [docs/telemetry.md](docs/telemetry.md).
 
@@ -135,13 +135,13 @@ Opt-in scan telemetry (count only, no content) lands per [docs/telemetry.md](doc
 
 ## 8. Research agenda
 
-Detailed in [docs/research-agenda.md](docs/research-agenda.md). Headline contributions sphinx-agent intends to make to the field:
+Detailed in [docs/research-agenda.md](docs/research-agenda.md). Headline contributions shedu intends to make to the field:
 
 - **Benchmark dataset** (500 → 1,000 vulnerabilities, CC-BY).
 - **Prompt-engineering patterns for security reasoning** — `src/agent/prompts.ts` published as a documented reference, with empirical analysis of which patterns work.
 - **Hypothesis-driven agent architecture** — workshop paper on the 4-phase pipeline.
 - **Empirical study** on AI-augmented vs deterministic taint graphs.
-- **Multi-agent reasoning evaluation harness** — no comparator publishes one. Garak evaluates LLMs; Semgrep evaluates rules; nobody evaluates *agent pipelines for security tasks*. sphinx-agent will publish methodology and a public schema.
+- **Multi-agent reasoning evaluation harness** — no comparator publishes one. Garak evaluates LLMs; Semgrep evaluates rules; nobody evaluates *agent pipelines for security tasks*. shedu will publish methodology and a public schema.
 - **Cross-tool reasoning-trace schema** — an OSV-Schema-equivalent for agent reasoning evidence, publishable CC0.
 
 Target venues: DEF CON AI Village (2027), Black Hat Arsenal (2027), USENIX Security WOOT (2027 or 2028), at least one academic collaboration offering the benchmark as shared resource.
@@ -169,7 +169,7 @@ The plan defers open-core for at least 24 months because at single-maintainer sc
 
 | Target | Window | Why |
 |---|---|---|
-| **EU CRA stance published** | Q2 2026 | Reporting obligations for the broader regulation apply Sept 11, 2026; `docs/security/cra-stance.md` declares sphinx-agent's role (currently *not* an Open-Source Steward). |
+| **EU CRA stance published** | Q2 2026 | Reporting obligations for the broader regulation apply Sept 11, 2026; `docs/security/cra-stance.md` declares shedu's role (currently *not* an Open-Source Steward). |
 | **OpenSSF Best Practices Badge — Passing** | Q3 2026 | Free, mostly self-cert; required ≤14-day vuln response; unlocks downstream enterprise adoption. |
 | **OSPS Baseline L1 (Basic Hygiene)** | Q4 2026 | 40-control checklist aligned to EU CRA. Scorecard v6 produces machine-readable conformance evidence. |
 | **OpenSSF Best Practices Badge — Silver** | end 2027 | Adds 1-year roadmap, governance doc, signed releases, 80% test coverage, dependency monitoring. |
@@ -184,7 +184,7 @@ EU CRA full obligations apply Dec 11, 2027.
 
 | # | Risk | Likelihood | Impact | Mitigation |
 |---|---|---|---|---|
-| 1 | **Supply-chain compromise of sphinx-agent itself** (Trivy was hit twice in 2025–2026) | Medium | Critical | All actions pinned to commit SHA, Sigstore release signing, npm provenance, SLSA L3 build provenance, 2FA mandatory, signed commits, reproducible builds, public threat model at `docs/security/threat-model.md`. |
+| 1 | **Supply-chain compromise of shedu itself** (Trivy was hit twice in 2025–2026) | Medium | Critical | All actions pinned to commit SHA, Sigstore release signing, npm provenance, SLSA L3 build provenance, 2FA mandatory, signed commits, reproducible builds, public threat model at `docs/security/threat-model.md`. |
 | 2 | **Solo-maintainer burnout / bus-factor** (Gitleaks → Betterleaks; ZAP → Checkmarx) | High | Critical | Active recruiting in 2026; named successor in `MAINTAINERS.md`; explicit Phase 2/3 governance triggers; emeritus path documented. |
 | 3 | **False-positive drift** | Medium | High | 500-vuln benchmark as regression gate; FP rate tracked per release in machine-readable JSON. |
 | 4 | **Anthropic API dependency** (provider risk) | Medium | High | Ollama / vLLM / OpenAI paths kept equal-class in `src/agent/providers/`. |
@@ -192,7 +192,7 @@ EU CRA full obligations apply Dec 11, 2027.
 | 6 | **CVE-disclosure overload** as adoption grows | Low (2026), High (2028) | Medium | Formalize `SECURITY.md` triage process now; dedicated security-triage maintainer role at TSC phase. |
 | 7 | **tree-sitter grammar coverage gaps** | Medium | Medium | Pin grammar versions in `package.json`; test matrix per grammar; contribute upstream fixes. |
 | 8 | **Competing project absorbs community** | Medium | High | Differentiate on autonomy and reasoning, not rule count; maintain velocity on knowledge graph and agent work. |
-| 9 | **Trademark dispute over Mythos framing** | Low | Medium | Always *inspired by*, never parity claim; "Sphinx Mythos" treated as a self-contained compound; affiliation disclaimer in `VISION.md` and `README.md`. |
+| 9 | **Trademark dispute over Mythos framing** | Low | Medium | Always *inspired by*, never parity claim; "Shedu" treated as a self-contained compound; affiliation disclaimer in `VISION.md` and `README.md`. |
 | 10 | **Governance entanglement with a sponsor** (Gitleaks lesson) | Low | Critical | License firewall sentence in `GOVERNANCE.md`; trademark held personally until Phase 2; fiscal-host transfer requires consensus. |
 
 ---

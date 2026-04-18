@@ -1,4 +1,4 @@
-# Funding options for sphinx-agent.
+# Funding options for shedu.
 #
 # This file enables the "Sponsor" button on the GitHub repo page. GitHub's
 # verification rejects handles that don't have an active sponsor profile, so
@@ -11,5 +11,5 @@
 #   3. (Optional) custom URL once sphinx-agent.dev/sponsor is live
 
 # github: [zhijiewong]
-# open_collective: sphinx-agent
+# open_collective: shedu
 # custom: ["https://sphinx-agent.dev/sponsor"]

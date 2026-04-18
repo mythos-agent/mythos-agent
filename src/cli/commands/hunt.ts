@@ -14,7 +14,7 @@ export async function huntCommand(huntPath: string, options: HuntOptions) {
   const projectPath = path.resolve(huntPath);
   const config = loadConfig(projectPath);
 
-  console.log(chalk.bold("\n🔐 sphinx-agent hunt — Autonomous Security Agent\n"));
+  console.log(chalk.bold("\n🔐 shedu hunt — Autonomous Security Agent\n"));
   console.log(chalk.dim("━".repeat(50)));
   console.log(chalk.dim(`\nProject: ${projectPath}`));
   console.log(chalk.dim("Mode: Multi-agent swarm (Recon → Analyze → Exploit)\n"));

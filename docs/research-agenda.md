@@ -1,8 +1,8 @@
 # Research Agenda
 
-What sphinx-agent contributes back to the field of open security research, in addition to being a usable tool.
+What shedu contributes back to the field of open security research, in addition to being a usable tool.
 
-> **Why publish this.** The Garak (NVIDIA) playbook — peer-reviewed paper plus DEF CON slides — drove adoption faster than the tool's features did. For sphinx-agent to be the *open Sphinx Mythos*, it should add to the literature, not just consume from it.
+> **Why publish this.** The Garak (NVIDIA) playbook — peer-reviewed paper plus DEF CON slides — drove adoption faster than the tool's features did. For shedu to be the *open Shedu*, it should add to the literature, not just consume from it.
 >
 > **Last reviewed:** 2026-04-18.
 
@@ -14,7 +14,7 @@ These are the artifacts the project commits to producing over the 3-year arc, in
 
 **Artifact:** A curated, reproducible vulnerability dataset published at `docs/benchmark.md` and `benchmark/` with CC-BY licensing. Mix of CVE reproductions, intentional-vuln apps (e.g., DVWA, OWASP Juice Shop derivatives), and community-contributed cases.
 
-**What it enables:** quantitative comparison between scanners (sphinx-agent vs Semgrep CE vs Trivy vs OSV-Scanner) on a public, third-party-runnable corpus. Per-release accuracy JSON committed to the repo at `docs/benchmark/results/<version>.json`.
+**What it enables:** quantitative comparison between scanners (shedu vs Semgrep CE vs Trivy vs OSV-Scanner) on a public, third-party-runnable corpus. Per-release accuracy JSON committed to the repo at `docs/benchmark/results/<version>.json`.
 
 **Why this is novel:** existing benchmarks (OWASP Benchmark, NIST SARD) are old or narrow. A modern, growing, AI-friendly dataset doesn't exist as a community resource.
 
@@ -38,9 +38,9 @@ These are the artifacts the project commits to producing over the 3-year arc, in
 
 ### 4. Empirical study: AI-augmented vs deterministic taint graphs (2027)
 
-**Artifact:** A controlled study comparing sphinx-agent's deterministic taint engine (B1 in [ROADMAP.md](../ROADMAP.md#2-strategic-bets)) against an AI-only baseline on the Sphinx benchmark. Variables: false-positive rate, false-negative rate, runtime, cost.
+**Artifact:** A controlled study comparing shedu's deterministic taint engine (B1 in [ROADMAP.md](../ROADMAP.md#2-strategic-bets)) against an AI-only baseline on the Sphinx benchmark. Variables: false-positive rate, false-negative rate, runtime, cost.
 
-**Why this matters:** the field has moved fast on AI-only analysis (LangChain, LlamaIndex security tooling) and assumed it dominates classical methods. We have no idea whether the assumption holds. sphinx-agent is well-positioned to provide the empirical answer because it implements both paths.
+**Why this matters:** the field has moved fast on AI-only analysis (LangChain, LlamaIndex security tooling) and assumed it dominates classical methods. We have no idea whether the assumption holds. shedu is well-positioned to provide the empirical answer because it implements both paths.
 
 **Outcome:** publishable result either way. If hybrid wins, validates the architecture. If AI-only wins, redirects the project's engineering effort.
 
@@ -50,15 +50,15 @@ These are the artifacts the project commits to producing over the 3-year arc, in
 
 **Why we should own this:** the schema would, like OSV-Schema, become an ecosystem standard if published CC0. Adjacent projects (Garak, AVID, AI Vulnerability Database) would adopt it because there is no competing standard.
 
-**Form:** a typescript / python library at `tools/agent-eval/`; schema published CC0 at `schema/agent-eval.json`; reference implementations evaluating sphinx-agent, Garak, and one other agent on the Sphinx benchmark.
+**Form:** a typescript / python library at `tools/agent-eval/`; schema published CC0 at `schema/agent-eval.json`; reference implementations evaluating shedu, Garak, and one other agent on the Sphinx benchmark.
 
 ### 6. Cross-tool reasoning-trace schema (2028)
 
-**Artifact:** OSV-Schema-equivalent for agent reasoning evidence. When sphinx-agent (or another tool) produces a finding, the chain of reasoning that led to it should be expressible in a portable, machine-readable format other tools can consume.
+**Artifact:** OSV-Schema-equivalent for agent reasoning evidence. When shedu (or another tool) produces a finding, the chain of reasoning that led to it should be expressible in a portable, machine-readable format other tools can consume.
 
 **Why this matters:** today, every scanner outputs findings in incompatible formats. A reasoning-trace schema would let a downstream auditing tool answer "did the finding's evidence hold up under reanalysis?" without rerunning the scanner.
 
-**Form:** schema published CC0; reference implementation in sphinx-agent's report layer.
+**Form:** schema published CC0; reference implementation in shedu's report layer.
 
 ## Target venues
 
@@ -78,14 +78,14 @@ We deliberately do **not** target:
 
 ## How research output is reviewed
 
-Per [`docs/RFC-TEMPLATE.md`](RFC-TEMPLATE.md): any research output that names sphinx-agent as a primary contributor (paper, conference talk, dataset release) goes through a lightweight RFC. The RFC publishes the abstract and methodology a week before submission, allowing the community (especially co-authors) to preview and object.
+Per [`docs/RFC-TEMPLATE.md`](RFC-TEMPLATE.md): any research output that names shedu as a primary contributor (paper, conference talk, dataset release) goes through a lightweight RFC. The RFC publishes the abstract and methodology a week before submission, allowing the community (especially co-authors) to preview and object.
 
 ## Authorship and attribution
 
-Default authorship order on sphinx-agent papers:
+Default authorship order on shedu papers:
 
 1. The lead investigator (whoever led the work)
-2. The lead maintainer of sphinx-agent (because the artifact is a project asset)
+2. The lead maintainer of shedu (because the artifact is a project asset)
 3. Other contributors in order of measurable contribution
 
 Authorship may always be negotiated downward by senior contributors. Contributors may always decline authorship.

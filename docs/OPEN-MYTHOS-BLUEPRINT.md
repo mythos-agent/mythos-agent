@@ -6,7 +6,7 @@ Build an open-source autonomous security agent by **orchestrating the best exist
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│                    sphinx-agent                          │
+│                    shedu                          │
 │              AI Orchestration Layer                      │
 │         (Claude / OpenAI / Local Models)                 │
 │                                                         │
@@ -133,15 +133,15 @@ Inspired by Pentest Swarm AI and AWS multi-agent pentest architecture:
 
 | Company/Product | Their Capability | Our Open-Source Approach |
 |----------------|-----------------|------------------------|
-| **Snyk** | Developer-first SCA + auto-fix PRs | Trivy/Grype + AI-generated fix + `sphinx-agent fix --apply` |
+| **Snyk** | Developer-first SCA + auto-fix PRs | Trivy/Grype + AI-generated fix + `shedu fix --apply` |
 | **Wiz** | Graph-based cloud risk correlation | Multi-tool findings → AI-built vulnerability graph |
 | **Checkmarx** | Cross-file taint analysis | tree-sitter AST + AI data flow tracing |
 | **Veracode** | Binary analysis (no source) | Ghidra headless + AI reasoning on decompiled code |
 | **Pentera/Horizon3** | Autonomous breach simulation | Nuclei + sqlmap + AI-driven exploit chaining |
-| **CrowdStrike Charlotte AI** | Natural language threat hunting | `sphinx-agent ask` with tool-augmented AI |
+| **CrowdStrike Charlotte AI** | Natural language threat hunting | `shedu ask` with tool-augmented AI |
 | **Darktrace** | Network anomaly detection | Zeek/Suricata logs + AI behavioral analysis |
 | **Socket.dev** | Package behavior analysis | Sandbox execution + AI behavioral review |
-| **SonarQube** | Continuous code quality + security | `sphinx-agent watch` + Semgrep rules |
+| **SonarQube** | Continuous code quality + security | `shedu watch` + Semgrep rules |
 
 ## Implementation Plan
 
@@ -166,8 +166,8 @@ Each tool wrapper:
 - Normalizes findings to our `Vulnerability` type
 - Handles timeouts and errors
 
-Add CLI: `sphinx-agent tools check` — verify which tools are installed
-Add CLI: `sphinx-agent tools install` — auto-install missing tools
+Add CLI: `shedu tools check` — verify which tools are installed
+Add CLI: `shedu tools install` — auto-install missing tools
 
 ### Phase 2: Multi-Agent Architecture (3-4 weeks)
 **Goal:** Upgrade from single-pass scan to multi-agent orchestration.
@@ -213,7 +213,7 @@ src/dast/
   └── finding-correlator.ts — correlate SAST + DAST findings
 ```
 
-New command: `sphinx-agent pentest [target]` — full autonomous penetration test
+New command: `shedu pentest [target]` — full autonomous penetration test
 
 ### Phase 5: Enterprise Features (4-6 weeks)
 **Goal:** What makes enterprises pay $100K-$1M/yr for Snyk/Wiz/Checkmarx.
@@ -239,5 +239,5 @@ New command: `sphinx-agent pentest [target]` — full autonomous penetration tes
 
 5. **Developer-first** — CLI, VS Code extension, GitHub Action, PR bot. Security in the developer workflow, not a separate portal.
 
-## Name: sphinx-agent
+## Name: shedu
 **Tagline:** "The AI security agent that guards your code. Open-source Mythos for everyone."

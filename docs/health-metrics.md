@@ -25,7 +25,7 @@ Two metrics that we **do not** publish:
 
 ## Tooling
 
-- **Augur** (Python, Postgres-backed) — maintained by CHAOSS. Selected for sphinx-agent because it directly models the CHAOSS metric definitions and exports a stable JSON schema we can consume from in-repo dashboards.
+- **Augur** (Python, Postgres-backed) — maintained by CHAOSS. Selected for shedu because it directly models the CHAOSS metric definitions and exports a stable JSON schema we can consume from in-repo dashboards.
 - **OpenSSF Scorecard** — for the security score; runs as a GitHub Action and uploads results to scorecard.dev.
 
 We considered **GrimoireLab** (more powerful, more setup) and rejected it for now — Augur covers the chosen metric set with substantially less operations cost. Re-evaluate if our metric set grows beyond the Starter model.
@@ -36,7 +36,7 @@ We considered **GrimoireLab** (more powerful, more setup) and rejected it for no
 - **Live dashboard:** `https://stats.sphinx-agent.dev` (planned; lands once the domain is provisioned)
 - **Machine-readable JSON:** `stats.json` at the dashboard URL, also committed quarterly to the repo for archival
 
-The `sphinx-agent stats` CLI command (already in `src/cli/commands/stats.ts`) is extended to read `stats.json` and render the same numbers in the terminal — so the metric set is observable by users locally without leaving the CLI.
+The `shedu stats` CLI command (already in `src/cli/commands/stats.ts`) is extended to read `stats.json` and render the same numbers in the terminal — so the metric set is observable by users locally without leaving the CLI.
 
 ## Refresh cadence
 

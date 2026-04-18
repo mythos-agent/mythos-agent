@@ -10,11 +10,11 @@
 
 | Field | Value |
 |---|---|
-| Project name | sphinx-agent |
-| Project URL | https://github.com/zhijiewong/sphinx-agent |
-| Repository URL | https://github.com/zhijiewong/sphinx-agent |
+| Project name | shedu |
+| Project URL | https://github.com/zhijiewong/shedu |
+| Repository URL | https://github.com/zhijiewong/shedu |
 | License | MIT |
-| Description | Open-source AI-powered security research agent (the Sphinx Mythos). Reasons about code like a security researcher to find vulnerabilities, generate PoCs, and propose validated fixes. |
+| Description | Open-source AI-powered security research agent (the Shedu). Reasons about code like a security researcher to find vulnerabilities, generate PoCs, and propose validated fixes. |
 | Programming languages | TypeScript, JavaScript |
 
 ## Criteria — Passing tier (67 total)
@@ -25,7 +25,7 @@ Format: criterion → answer (Met / Unmet / N/A) → evidence URL or explanation
 
 | # | Criterion | Status | Evidence |
 |---|---|---|---|
-| 1 | Project sites (home, repo, docs) work and use HTTPS | Met | https://github.com/zhijiewong/sphinx-agent ; npm package page |
+| 1 | Project sites (home, repo, docs) work and use HTTPS | Met | https://github.com/zhijiewong/shedu ; npm package page |
 | 2 | Project sites support modern crypto (TLS 1.2+) | Met | GitHub + npm both enforce |
 | 3 | Project name and description provided | Met | README.md |
 | 4 | Interact in English | Met | All docs in English |
@@ -83,7 +83,7 @@ Format: criterion → answer (Met / Unmet / N/A) → evidence URL or explanation
 | 36 | Software produces no errors due to common input | Met | input validation throughout `src/` |
 | 37 | Code review performed | Met | All PRs require maintainer review (CODEOWNERS) |
 | 38 | Static analysis tool applied | Met | CodeQL + ESLint |
-| 39 | Dynamic analysis tool applied | Met | sphinx-agent self-scans during CI (dogfood) |
+| 39 | Dynamic analysis tool applied | Met | shedu self-scans during CI (dogfood) |
 | 40 | Vulnerabilities fixed within 60 days | Met | SECURITY.md fix targets |
 | 41 | Public archive of past releases | Met | GitHub Releases + npm |
 | 42 | Project takes documented steps to address common kinds of mistakes (e.g., training, code review) | Met | CONTRIBUTING.md + CODEOWNERS-based review |

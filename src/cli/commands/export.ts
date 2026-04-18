@@ -14,7 +14,7 @@ export async function exportCommand(options: ExportOptions) {
   const result = loadResults(projectPath);
 
   if (!result) {
-    console.log(chalk.yellow("\n⚠️  No scan results. Run sphinx-agent scan first.\n"));
+    console.log(chalk.yellow("\n⚠️  No scan results. Run shedu scan first.\n"));
     return;
   }
 
@@ -102,7 +102,7 @@ ${v.description}
 
 ### Acceptance Criteria
 - [ ] Vulnerability is fixed
-- [ ] Fix verified by re-running sphinx-agent scan
+- [ ] Fix verified by re-running shedu scan
 - [ ] No regressions introduced
 
 ---
@@ -123,7 +123,7 @@ function exportLinear(
   return JSON.stringify(
     vulns.map((v) => ({
       title: `[Security] ${v.id}: ${v.title}`,
-      description: `**File:** \`${v.location.file}:${v.location.line}\`\n\n${v.description}\n\n*Found by sphinx-agent*`,
+      description: `**File:** \`${v.location.file}:${v.location.line}\`\n\n${v.description}\n\n*Found by shedu*`,
       priority:
         v.severity === "critical" ? 1 : v.severity === "high" ? 2 : v.severity === "medium" ? 3 : 4,
       labels: ["security", v.severity],
@@ -168,10 +168,10 @@ ${v.description}
 
 ### Remediation
 - [ ] Fix the vulnerability
-- [ ] Run \`sphinx-agent scan\` to verify
+- [ ] Run \`shedu scan\` to verify
 - [ ] No regressions
 
-*Found by [sphinx-agent](https://github.com/sphinx-agent/sphinx-agent)*
+*Found by [shedu](https://github.com/zhijiewong/shedu)*
 `;
     })
     .join("\n---\n\n");

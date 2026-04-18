@@ -24,14 +24,14 @@ export async function variantsCommand(cveId: string | undefined, options: Varian
     console.log(
       chalk.yellow(
         "\n⚠️  API key required for variant analysis. Run " +
-          chalk.cyan("sphinx-agent init") +
+          chalk.cyan("shedu init") +
           " to configure.\n"
       )
     );
     return;
   }
 
-  console.log(chalk.bold("\n🔬 sphinx-agent variants — CVE Variant Analysis\n"));
+  console.log(chalk.bold("\n🔬 shedu variants — CVE Variant Analysis\n"));
   console.log(chalk.dim(`Project: ${projectPath}\n`));
 
   const analyzer = new VariantAnalyzer(config, projectPath);

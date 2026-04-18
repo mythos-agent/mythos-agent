@@ -100,18 +100,18 @@ const LOG_PATTERNS: Array<{
 ];
 
 export async function monitorCommand(options: MonitorOptions) {
-  console.log(chalk.bold("\n👁️  sphinx-agent monitor — Runtime Security Monitor\n"));
+  console.log(chalk.bold("\n👁️  shedu monitor — Runtime Security Monitor\n"));
 
   if (options.logFile) {
     // Monitor a specific log file
     await monitorFile(options.logFile);
   } else {
-    // Monitor stdin (pipe logs to sphinx-agent)
+    // Monitor stdin (pipe logs to shedu)
     console.log(chalk.dim("  Pipe your application logs:\n"));
-    console.log(chalk.cyan("    your-app 2>&1 | sphinx-agent monitor"));
-    console.log(chalk.cyan("    tail -f /var/log/app.log | sphinx-agent monitor"));
+    console.log(chalk.cyan("    your-app 2>&1 | shedu monitor"));
+    console.log(chalk.cyan("    tail -f /var/log/app.log | shedu monitor"));
     console.log(chalk.dim("\n  Or specify a log file:\n"));
-    console.log(chalk.cyan("    sphinx-agent monitor --log-file /var/log/app.log\n"));
+    console.log(chalk.cyan("    shedu monitor --log-file /var/log/app.log\n"));
 
     // Read from stdin
     console.log(chalk.dim("  Waiting for input...\n"));

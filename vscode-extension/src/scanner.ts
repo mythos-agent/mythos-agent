@@ -7,7 +7,7 @@ export class SphinxScanner {
   ) {}
 
   async scanFile(document: vscode.TextDocument): Promise<void> {
-    const config = vscode.workspace.getConfiguration("sphinx-agent");
+    const config = vscode.workspace.getConfiguration("shedu");
     const severityThreshold = config.get<string>("severity", "low");
     const enableSecrets = config.get<boolean>("enableSecrets", true);
 
@@ -28,7 +28,7 @@ export class SphinxScanner {
         const line = lines[i];
 
         // Check for suppression comment
-        if (i > 0 && lines[i - 1].trim().startsWith("// sphinx-agent-ignore"))
+        if (i > 0 && lines[i - 1].trim().startsWith("// shedu-ignore"))
           continue;
 
         for (const pattern of rule.patterns) {
@@ -40,7 +40,7 @@ export class SphinxScanner {
               `${rule.title}: ${rule.description}`,
               this.toVsSeverity(rule.severity)
             );
-            diag.source = "sphinx-agent";
+            diag.source = "shedu";
             diag.code = rule.id;
             if (rule.cwe) {
               diag.code = { value: rule.id, target: vscode.Uri.parse(`https://cwe.mitre.org/data/definitions/${rule.cwe.replace("CWE-", "")}.html`) };
@@ -58,7 +58,7 @@ export class SphinxScanner {
 
         for (let i = 0; i < lines.length; i++) {
           const line = lines[i];
-          if (i > 0 && lines[i - 1].trim().startsWith("// sphinx-agent-ignore"))
+          if (i > 0 && lines[i - 1].trim().startsWith("// shedu-ignore"))
             continue;
 
           const regex = new RegExp(rule.patterns[0], "gi");
@@ -69,7 +69,7 @@ export class SphinxScanner {
               `${rule.title}: ${rule.description}`,
               vscode.DiagnosticSeverity.Error
             );
-            diag.source = "sphinx-agent";
+            diag.source = "shedu";
             diag.code = rule.id;
             diagnostics.push(diag);
           }
@@ -96,18 +96,18 @@ export class SphinxScanner {
     uri: vscode.Uri,
     diagnostic: vscode.Diagnostic
   ): Promise<void> {
-    const config = vscode.workspace.getConfiguration("sphinx-agent");
+    const config = vscode.workspace.getConfiguration("shedu");
     const apiKey = config.get<string>("apiKey", "");
 
     if (!apiKey) {
       const action = await vscode.window.showWarningMessage(
-        "sphinx-agent: API key required for AI fixes. Configure in settings.",
+        "shedu: API key required for AI fixes. Configure in settings.",
         "Open Settings"
       );
       if (action === "Open Settings") {
         vscode.commands.executeCommand(
           "workbench.action.openSettings",
-          "sphinx-agent.apiKey"
+          "shedu.apiKey"
         );
       }
       return;
@@ -116,7 +116,7 @@ export class SphinxScanner {
     await vscode.window.withProgress(
       {
         location: vscode.ProgressLocation.Notification,
-        title: "sphinx-agent: Generating AI fix...",
+        title: "shedu: Generating AI fix...",
         cancellable: false,
       },
       async () => {
@@ -133,7 +133,7 @@ export class SphinxScanner {
             edit.replace(uri, line.range, fix);
             await vscode.workspace.applyEdit(edit);
             vscode.window.showInformationMessage(
-              `sphinx-agent: Fixed ${typeof diagnostic.code === 'object' ? diagnostic.code.value : diagnostic.code}`
+              `shedu: Fixed ${typeof diagnostic.code === 'object' ? diagnostic.code.value : diagnostic.code}`
             );
             // Re-scan the file
             const doc = await vscode.workspace.openTextDocument(uri);
@@ -141,7 +141,7 @@ export class SphinxScanner {
           }
         } catch (err) {
           vscode.window.showErrorMessage(
-            `sphinx-agent: Fix failed — ${err instanceof Error ? err.message : "unknown error"}`
+            `shedu: Fix failed — ${err instanceof Error ? err.message : "unknown error"}`
           );
         }
       }

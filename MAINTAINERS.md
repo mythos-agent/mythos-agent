@@ -1,6 +1,6 @@
 # Maintainers
 
-This file lists the active maintainers of sphinx-agent. Maintainer responsibilities, the path to becoming one, and the multi-phase governance evolution are described in [GOVERNANCE.md](./GOVERNANCE.md).
+This file lists the active maintainers of shedu. Maintainer responsibilities, the path to becoming one, and the multi-phase governance evolution are described in [GOVERNANCE.md](./GOVERNANCE.md).
 
 ## Active Maintainers
 
@@ -31,7 +31,7 @@ For continuity if a primary contact becomes unreachable. Listed in the order the
 
 If you are reading this in an emergency and the primary contact is unreachable for 7+ days, escalate publicly via:
 
-1. Open a [GitHub Discussion](https://github.com/zhijiewong/sphinx-agent/discussions) titled `[CONTINUITY]` describing the situation
+1. Open a [GitHub Discussion](https://github.com/zhijiewong/shedu/discussions) titled `[CONTINUITY]` describing the situation
 2. If there are active maintainers besides the primary, they may activate the trademark/release keys per the trademark-transfer clause in GOVERNANCE.md
 
 ## Emeritus Maintainers
@@ -54,8 +54,8 @@ Emeritus maintainers do **not** retain:
 
 | Topic | Channel |
 |---|---|
-| Public questions, design discussions | [GitHub Discussions](https://github.com/zhijiewong/sphinx-agent/discussions) |
-| Bug reports, feature requests | [GitHub Issues](https://github.com/zhijiewong/sphinx-agent/issues) |
+| Public questions, design discussions | [GitHub Discussions](https://github.com/zhijiewong/shedu/discussions) |
+| Bug reports, feature requests | [GitHub Issues](https://github.com/zhijiewong/shedu/issues) |
 | Security vulnerabilities | security@sphinx-agent.dev (see [SECURITY.md](./SECURITY.md)) |
 | Code of Conduct concerns | conduct@sphinx-agent.dev |
 | Trademark / commercial use of name | Lead maintainer (via security@ for now) |
@@ -63,7 +63,7 @@ Emeritus maintainers do **not** retain:
 
 ## Conflict-of-Interest Declarations
 
-Each maintainer is expected to disclose any employment, consulting, or equity relationship with vendors that compete with or sell alongside sphinx-agent (see [GOVERNANCE.md § Security and Supply Chain — Conflict of interest disclosure](./GOVERNANCE.md#conflict-of-interest-disclosure-for-maintainers)).
+Each maintainer is expected to disclose any employment, consulting, or equity relationship with vendors that compete with or sell alongside shedu (see [GOVERNANCE.md § Security and Supply Chain — Conflict of interest disclosure](./GOVERNANCE.md#conflict-of-interest-disclosure-for-maintainers)).
 
 Disclosures are listed in the "Conflicts of interest" column of the Active Maintainers table above. Updates to a disclosure go via PR, ideally with a co-signed acknowledgement from another maintainer when one exists.
 

@@ -64,7 +64,7 @@ export async function scanCommand(scanPath: string, options: ScanOptions) {
   const startTime = Date.now();
 
   if (outputFormat === "terminal") {
-    console.log(chalk.bold(`\n🔐 sphinx-agent v${VERSION} — Agentic AI Security Scanner`));
+    console.log(chalk.bold(`\n🔐 shedu v${VERSION} — Agentic AI Security Scanner`));
     console.log(chalk.dim("━".repeat(50)));
     console.log(chalk.dim(`\n📁 Scanning: ${projectPath}\n`));
   }
@@ -289,9 +289,7 @@ export async function scanCommand(scanPath: string, options: ScanOptions) {
     if (outputFormat === "terminal") {
       console.log(
         chalk.yellow(
-          "  ⚠ Phase 2 skipped: no API key. Run " +
-            chalk.cyan("sphinx-agent init") +
-            " to configure."
+          "  ⚠ Phase 2 skipped: no API key. Run " + chalk.cyan("shedu init") + " to configure."
         )
       );
     }

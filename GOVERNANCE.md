@@ -1,10 +1,10 @@
 # Project Governance
 
-sphinx-agent is an open-source project maintained by volunteers. This document describes how decisions are made.
+shedu is an open-source project maintained by volunteers. This document describes how decisions are made.
 
 ## Current Model: Benevolent Maintainer
 
-Today, sphinx-agent has a single lead maintainer (see [MAINTAINERS.md](./MAINTAINERS.md)) who has final say on merges, releases, and roadmap direction. This keeps the project moving while the community grows.
+Today, shedu has a single lead maintainer (see [MAINTAINERS.md](./MAINTAINERS.md)) who has final say on merges, releases, and roadmap direction. This keeps the project moving while the community grows.
 
 As the contributor base grows, we will transition to a multi-maintainer model (see "Becoming a Maintainer" below).
 
@@ -61,7 +61,7 @@ The governance model adapts as the project grows. Transitions are driven by **tr
 
 ### Trademark and Project Identity
 
-- The `sphinx-agent` name and logo are currently held by the lead maintainer personally
+- The `shedu` name and logo are currently held by the lead maintainer personally
 - A future transfer to a fiscal host (e.g., Open Source Collective) is on the table once Phase 2 is reached
 - Until then, commercial use of the name requires prior written permission from the lead maintainer
 - A trademark dispute or attempted brand capture by a sponsor is automatic grounds for an emergency RFC under the same 14-day consensus rule as a license change
@@ -93,11 +93,11 @@ All project spaces (issues, PRs, discussions, chat) follow the [Code of Conduct]
 
 - Source code is licensed under [MIT](./LICENSE).
 - Contributions are accepted under the project license (inbound = outbound); no CLA required.
-- The "sphinx-agent" name and logo belong to the project and may be used for discussing, teaching, or extending the software. Commercial use of the name requires prior written permission.
+- The "shedu" name and logo belong to the project and may be used for discussing, teaching, or extending the software. Commercial use of the name requires prior written permission.
 
 ## Security and Supply Chain
 
-sphinx-agent is a security tool. A compromise of this project would propagate harm to every downstream user at the speed of CI. We therefore hold the project to baseline security standards that apply to all maintainers, regardless of governance phase.
+shedu is a security tool. A compromise of this project would propagate harm to every downstream user at the speed of CI. We therefore hold the project to baseline security standards that apply to all maintainers, regardless of governance phase.
 
 ### Account security (mandatory)
 
@@ -133,7 +133,7 @@ Vulnerability handling, SLAs, and the EU Cyber Resilience Act stance live in:
 
 ### Conflict of interest disclosure (for maintainers)
 
-Maintainers who work for, consult for, or hold equity in a vendor that competes with or sells alongside sphinx-agent must disclose that relationship in their MAINTAINERS.md entry. Disclosure does not disqualify; non-disclosure is a removal-eligible offense.
+Maintainers who work for, consult for, or hold equity in a vendor that competes with or sells alongside shedu must disclose that relationship in their MAINTAINERS.md entry. Disclosure does not disqualify; non-disclosure is a removal-eligible offense.
 
 ### License firewall
 

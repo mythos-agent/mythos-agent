@@ -1,6 +1,6 @@
-# sphinx-agent and the EU Cyber Resilience Act
+# shedu and the EU Cyber Resilience Act
 
-> **Status (April 2026):** sphinx-agent is **not an Open-Source Steward** under the CRA. This document explains what that means for you.
+> **Status (April 2026):** shedu is **not an Open-Source Steward** under the CRA. This document explains what that means for you.
 >
 > **Last reviewed:** April 18, 2026.
 > **Next scheduled review:** September 2026 (before CRA reporting obligations apply).
@@ -20,33 +20,33 @@ The CRA defines three relevant roles:
 | **Open-Source Steward** | A legal entity that provides sustained support for free and open-source software used commercially in EU products | Lighter obligations: publish a cybersecurity policy, run coordinated vulnerability disclosure (CVD), report actively-exploited vulnerabilities, cooperate with EU market surveillance |
 | **Hobbyist / non-monetized maintainer** | An individual or informal group not commercially distributing the software | **No CRA obligations**. Donations and sponsorship that reimburse costs do not change this status. |
 
-## sphinx-agent's role today
+## shedu's role today
 
-sphinx-agent is currently:
+shedu is currently:
 
 - Maintained by an unpaid individual contributor (the lead maintainer).
 - Distributed under MIT via npm and GitHub.
 - Not placed on the EU market commercially by any legal entity associated with the project.
 - Not part of a legal entity that provides "sustained support."
 
-**Therefore sphinx-agent's lead maintainer is a hobbyist / non-monetized maintainer under the CRA**, with no CRA obligations attaching to the project itself.
+**Therefore shedu's lead maintainer is a hobbyist / non-monetized maintainer under the CRA**, with no CRA obligations attaching to the project itself.
 
 ## What this means for you (as a downstream user)
 
 ### If you are an individual or non-commercial user
 
-The CRA does not apply to you when you use sphinx-agent. Use the project as you would any MIT-licensed tool.
+The CRA does not apply to you when you use shedu. Use the project as you would any MIT-licensed tool.
 
-### If you are a commercial entity using sphinx-agent in a product placed on the EU market
+### If you are a commercial entity using shedu in a product placed on the EU market
 
-**You are the Manufacturer of the product.** Full CRA obligations attach to your product, including the parts that incorporate or depend on sphinx-agent. You retain responsibility for:
+**You are the Manufacturer of the product.** Full CRA obligations attach to your product, including the parts that incorporate or depend on shedu. You retain responsibility for:
 
-- SBOM coverage that includes sphinx-agent and its dependencies
-- Vulnerability monitoring of sphinx-agent
-- Security updates of sphinx-agent in your product (including back-porting fixes if your release lifecycle differs from sphinx-agent's)
+- SBOM coverage that includes shedu and its dependencies
+- Vulnerability monitoring of shedu
+- Security updates of shedu in your product (including back-porting fixes if your release lifecycle differs from shedu's)
 - Coordinated vulnerability disclosure for issues affecting your product
 
-To make this practical, sphinx-agent provides:
+To make this practical, shedu provides:
 
 - A **CycloneDX SBOM per release** (lands in H1 2026 supply-chain hardening session)
 - **Sigstore-signed releases** with cosign verification (lands in H1 2026)
@@ -55,9 +55,9 @@ To make this practical, sphinx-agent provides:
 - A **public threat model** at [`docs/security/threat-model.md`](threat-model.md) (lands in H1 2026)
 - **EOL dates published in advance** ([RELEASES.md](../../RELEASES.md))
 
-These are voluntary contributions to make sphinx-agent practically usable in CRA-compliant downstream products. They are not legally-required obligations of the sphinx-agent maintainer under the CRA.
+These are voluntary contributions to make shedu practically usable in CRA-compliant downstream products. They are not legally-required obligations of the shedu maintainer under the CRA.
 
-### If you are a commercial entity that wants sphinx-agent to take on Open-Source Steward obligations
+### If you are a commercial entity that wants shedu to take on Open-Source Steward obligations
 
 This requires a legal entity to provide sustained support. The lead maintainer is open to discussing fiscal-host arrangements (e.g., Open Source Collective, Sovereign Tech Fund support) that would make this feasible. Contact security@sphinx-agent.dev to start that conversation.
 
@@ -65,8 +65,8 @@ This requires a legal entity to provide sustained support. The lead maintainer i
 
 The maintainer's status may change if any of these occur:
 
-- A legal entity (company, foundation, fiscal host) takes on sustained support of sphinx-agent.
-- The lead maintainer begins commercial distribution of sphinx-agent (e.g., a paid hosted service or commercial-license tier).
+- A legal entity (company, foundation, fiscal host) takes on sustained support of shedu.
+- The lead maintainer begins commercial distribution of shedu (e.g., a paid hosted service or commercial-license tier).
 - The lead maintainer accepts paid maintenance work that exceeds cost-reimbursement (per the OpenSSF / EC guidance, sustained paid maintenance can shift status from hobbyist to steward).
 
 Any change to the CRA stance will be:
@@ -77,10 +77,10 @@ Any change to the CRA stance will be:
 
 ## Cooperation with EU market surveillance
 
-Even though the CRA does not currently impose obligations on the maintainer, sphinx-agent voluntarily commits to:
+Even though the CRA does not currently impose obligations on the maintainer, shedu voluntarily commits to:
 
 - **Cooperate in good faith** with any reasonable inquiry from EU national market-surveillance authorities (BSI, ANSSI, ENISA, etc.).
-- **Notify the community** of any actively-exploited vulnerability via a GitHub Security Advisory, the CHANGELOG, and (if severe) a notice in [Discussions](https://github.com/zhijiewong/sphinx-agent/discussions).
+- **Notify the community** of any actively-exploited vulnerability via a GitHub Security Advisory, the CHANGELOG, and (if severe) a notice in [Discussions](https://github.com/zhijiewong/shedu/discussions).
 - **Not impede downstream Manufacturers' compliance** by withholding SBOM, version, or fix-status information.
 
 ## References

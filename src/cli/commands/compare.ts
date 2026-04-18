@@ -16,7 +16,7 @@ export async function compareCommand(pathA: string, pathB: string, options: Comp
   const nameA = path.basename(dirA);
   const nameB = path.basename(dirB);
 
-  console.log(chalk.bold("\n⚖️  sphinx-agent compare\n"));
+  console.log(chalk.bold("\n⚖️  shedu compare\n"));
   console.log(chalk.dim(`  A: ${dirA}`));
   console.log(chalk.dim(`  B: ${dirB}\n`));
 

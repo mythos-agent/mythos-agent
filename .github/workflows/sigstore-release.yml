@@ -90,11 +90,11 @@ jobs:
 #
 #   # Download tarball + .sig + .crt from the release
 #   cosign verify-blob \
-#     --certificate sphinx-agent-<version>.tgz.crt \
-#     --signature   sphinx-agent-<version>.tgz.sig \
-#     --certificate-identity-regexp 'https://github.com/zhijiewong/sphinx-agent/.github/workflows/sigstore-release\.yml@.*' \
+#     --certificate shedu-<version>.tgz.crt \
+#     --signature   shedu-<version>.tgz.sig \
+#     --certificate-identity-regexp 'https://github.com/zhijiewong/shedu/.github/workflows/sigstore-release\.yml@.*' \
 #     --certificate-oidc-issuer 'https://token.actions.githubusercontent.com' \
-#     sphinx-agent-<version>.tgz
+#     shedu-<version>.tgz
 #
 # A scripted verifier ships at scripts/verify-release.sh (lands with the
 # threat-model PR).

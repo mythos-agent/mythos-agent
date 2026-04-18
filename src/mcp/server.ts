@@ -1,19 +1,19 @@
 #!/usr/bin/env node
 
 /**
- * sphinx-agent MCP Server
+ * shedu MCP Server
  *
- * Exposes sphinx-agent capabilities as MCP tools that can be used by
+ * Exposes shedu capabilities as MCP tools that can be used by
  * Claude Code, Cursor, Copilot, and any MCP-compatible AI tool.
  *
  * Usage:
- *   npx sphinx-agent mcp                    # start MCP server (stdio)
+ *   npx shedu mcp                    # start MCP server (stdio)
  *   Add to claude_desktop_config.json:
  *   {
  *     "mcpServers": {
- *       "sphinx-agent": {
+ *       "shedu": {
  *         "command": "npx",
- *         "args": ["sphinx-agent", "mcp"]
+ *         "args": ["shedu", "mcp"]
  *       }
  *     }
  *   }
@@ -138,7 +138,7 @@ export async function startMcpServer(): Promise<void> {
   });
 
   // Send server info on startup
-  process.stderr.write("sphinx-agent MCP server started\n");
+  process.stderr.write("shedu MCP server started\n");
 }
 
 async function handleRequest(req: McpRequest): Promise<McpResponse> {
@@ -150,7 +150,7 @@ async function handleRequest(req: McpRequest): Promise<McpResponse> {
         result: {
           protocolVersion: "2024-11-05",
           capabilities: { tools: {} },
-          serverInfo: { name: "sphinx-agent", version: "2.0.0" },
+          serverInfo: { name: "shedu", version: "2.0.0" },
         },
       };
 
@@ -232,7 +232,7 @@ async function handleToolCall(req: McpRequest): Promise<McpResponse> {
       case "sphinx_results": {
         const scanResult = loadResults(projectPath);
         if (!scanResult) {
-          result = "No scan results found. Run `sphinx-agent scan` first.";
+          result = "No scan results found. Run `shedu scan` first.";
         } else {
           const vulns = scanResult.confirmedVulnerabilities;
           result =

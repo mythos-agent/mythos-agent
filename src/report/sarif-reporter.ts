@@ -21,9 +21,9 @@ export function renderSarifReport(result: ScanResult): string {
       {
         tool: {
           driver: {
-            name: "sphinx-agent",
+            name: "shedu",
             version: "0.2.0",
-            informationUri: "https://github.com/sphinx-agent/sphinx-agent",
+            informationUri: "https://github.com/zhijiewong/shedu",
             rules: buildRules(result.confirmedVulnerabilities),
           },
         },

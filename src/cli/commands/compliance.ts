@@ -18,7 +18,7 @@ export async function complianceCommand(options: ComplianceOptions) {
   const result = loadResults(projectPath);
 
   if (!result) {
-    console.log(chalk.yellow("\n⚠️  No scan results. Run sphinx-agent scan first.\n"));
+    console.log(chalk.yellow("\n⚠️  No scan results. Run shedu scan first.\n"));
     return;
   }
 

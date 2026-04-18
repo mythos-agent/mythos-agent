@@ -60,7 +60,7 @@ const SECRET_PATTERNS: Array<{ name: string; pattern: RegExp; severity: "critica
 export async function historyScanCommand(options: HistoryScanOptions) {
   const projectPath = path.resolve(options.path || ".");
 
-  console.log(chalk.bold("\n🕵️  sphinx-agent history — Git History Secret Scan\n"));
+  console.log(chalk.bold("\n🕵️  shedu history — Git History Secret Scan\n"));
 
   // Check if git repo
   const gitCheck = spawnSync("git", ["rev-parse", "--git-dir"], {
@@ -177,7 +177,7 @@ export async function historyScanCommand(options: HistoryScanOptions) {
 
   console.log(chalk.bold("  Remediation:\n"));
   console.log(chalk.dim("    1. Rotate ALL found credentials immediately"));
-  console.log(chalk.dim("    2. Run: sphinx-agent rotate — for rotation guides"));
+  console.log(chalk.dim("    2. Run: shedu rotate — for rotation guides"));
   console.log(
     chalk.dim("    3. Consider: git filter-branch or BFG Repo-Cleaner to remove from history")
   );

@@ -27,7 +27,7 @@ export async function benchmarkCommand(options: BenchmarkOptions) {
   const config = loadConfig(projectPath);
 
   if (!options.json) {
-    console.log(chalk.bold("\n⏱️  sphinx-agent benchmark\n"));
+    console.log(chalk.bold("\n⏱️  shedu benchmark\n"));
     console.log(chalk.dim(`  Project: ${projectPath}\n`));
   }
 

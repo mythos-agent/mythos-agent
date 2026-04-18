@@ -39,7 +39,7 @@ describe("SARIF Reporter", () => {
     expect(sarif.version).toBe("2.1.0");
     expect(sarif.$schema).toContain("sarif-schema-2.1.0");
     expect(sarif.runs).toHaveLength(1);
-    expect(sarif.runs[0].tool.driver.name).toBe("sphinx-agent");
+    expect(sarif.runs[0].tool.driver.name).toBe("shedu");
   });
 
   it("includes all vulnerabilities as results", () => {

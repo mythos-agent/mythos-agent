@@ -21,7 +21,7 @@
   ],
   "packages": {
     ".": {
-      "package-name": "sphinx-agent"
+      "package-name": "shedu"
     }
   }
 }

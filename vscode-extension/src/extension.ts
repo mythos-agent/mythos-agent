@@ -7,7 +7,7 @@ let statusBarItem: vscode.StatusBarItem;
 
 export function activate(context: vscode.ExtensionContext) {
   diagnosticCollection =
-    vscode.languages.createDiagnosticCollection("sphinx-agent");
+    vscode.languages.createDiagnosticCollection("shedu");
   scanner = new SphinxScanner(diagnosticCollection);
 
   // Status bar
@@ -15,14 +15,14 @@ export function activate(context: vscode.ExtensionContext) {
     vscode.StatusBarAlignment.Left,
     100
   );
-  statusBarItem.command = "sphinx-agent.scanWorkspace";
-  statusBarItem.text = "$(shield) sphinx-agent";
+  statusBarItem.command = "shedu.scanWorkspace";
+  statusBarItem.text = "$(shield) shedu";
   statusBarItem.tooltip = "Click to scan workspace";
   statusBarItem.show();
 
   // Commands
   context.subscriptions.push(
-    vscode.commands.registerCommand("sphinx-agent.scanFile", async () => {
+    vscode.commands.registerCommand("shedu.scanFile", async () => {
       const editor = vscode.window.activeTextEditor;
       if (editor) {
         await scanner.scanFile(editor.document);
@@ -30,11 +30,11 @@ export function activate(context: vscode.ExtensionContext) {
       }
     }),
 
-    vscode.commands.registerCommand("sphinx-agent.scanWorkspace", async () => {
+    vscode.commands.registerCommand("shedu.scanWorkspace", async () => {
       await vscode.window.withProgress(
         {
           location: vscode.ProgressLocation.Notification,
-          title: "sphinx-agent: Scanning workspace...",
+          title: "shedu: Scanning workspace...",
           cancellable: false,
         },
         async () => {
@@ -45,13 +45,13 @@ export function activate(context: vscode.ExtensionContext) {
     }),
 
     vscode.commands.registerCommand(
-      "sphinx-agent.fixVulnerability",
+      "shedu.fixVulnerability",
       async (uri: vscode.Uri, diagnostic: vscode.Diagnostic) => {
         await scanner.fixVulnerability(uri, diagnostic);
       }
     ),
 
-    vscode.commands.registerCommand("sphinx-agent.clearDiagnostics", () => {
+    vscode.commands.registerCommand("shedu.clearDiagnostics", () => {
       diagnosticCollection.clear();
       updateStatusBar();
     })
@@ -60,7 +60,7 @@ export function activate(context: vscode.ExtensionContext) {
   // Scan on save
   context.subscriptions.push(
     vscode.workspace.onDidSaveTextDocument(async (document) => {
-      const config = vscode.workspace.getConfiguration("sphinx-agent");
+      const config = vscode.workspace.getConfiguration("shedu");
       if (config.get<boolean>("scanOnSave", true)) {
         await scanner.scanFile(document);
         updateStatusBar();
@@ -114,15 +114,15 @@ function updateStatusBar() {
   });
 
   if (total === 0) {
-    statusBarItem.text = "$(shield) sphinx-agent: Clean";
+    statusBarItem.text = "$(shield) shedu: Clean";
     statusBarItem.backgroundColor = undefined;
   } else if (critical > 0) {
-    statusBarItem.text = `$(shield) sphinx-agent: ${critical} critical, ${total} total`;
+    statusBarItem.text = `$(shield) shedu: ${critical} critical, ${total} total`;
     statusBarItem.backgroundColor = new vscode.ThemeColor(
       "statusBarItem.errorBackground"
     );
   } else {
-    statusBarItem.text = `$(shield) sphinx-agent: ${total} issues`;
+    statusBarItem.text = `$(shield) shedu: ${total} issues`;
     statusBarItem.backgroundColor = new vscode.ThemeColor(
       "statusBarItem.warningBackground"
     );
@@ -152,15 +152,15 @@ class SphinxCodeActionProvider implements vscode.CodeActionProvider {
     const actions: vscode.CodeAction[] = [];
 
     for (const diagnostic of context.diagnostics) {
-      if (diagnostic.source !== "sphinx-agent") continue;
+      if (diagnostic.source !== "shedu") continue;
 
       // AI Fix action
       const fixAction = new vscode.CodeAction(
-        `sphinx-agent: Fix with AI`,
+        `shedu: Fix with AI`,
         vscode.CodeActionKind.QuickFix
       );
       fixAction.command = {
-        command: "sphinx-agent.fixVulnerability",
+        command: "shedu.fixVulnerability",
         title: "Fix with AI",
         arguments: [document.uri, diagnostic],
       };
@@ -170,7 +170,7 @@ class SphinxCodeActionProvider implements vscode.CodeActionProvider {
 
       // Suppress action
       const suppressAction = new vscode.CodeAction(
-        `sphinx-agent: Suppress this warning`,
+        `shedu: Suppress this warning`,
         vscode.CodeActionKind.QuickFix
       );
       suppressAction.edit = new vscode.WorkspaceEdit();
@@ -178,7 +178,7 @@ class SphinxCodeActionProvider implements vscode.CodeActionProvider {
       suppressAction.edit.insert(
         document.uri,
         line.range.start,
-        `// sphinx-agent-ignore: ${diagnostic.code}\n`
+        `// shedu-ignore: ${diagnostic.code}\n`
       );
       suppressAction.diagnostics = [diagnostic];
       actions.push(suppressAction);

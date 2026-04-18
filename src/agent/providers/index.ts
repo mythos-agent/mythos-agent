@@ -9,7 +9,7 @@ export { createUsageTracker, trackUsage } from "./base.js";
 export function createProvider(config: SphinxConfig): AIProvider {
   const apiKey = config.apiKey;
   if (!apiKey) {
-    throw new Error("API key required. Run 'sphinx-agent init' to configure.");
+    throw new Error("API key required. Run 'shedu init' to configure.");
   }
 
   switch (config.provider) {

@@ -20,7 +20,7 @@ export async function serveCommand(options: ServeOptions) {
   });
 
   server.listen(options.port, options.host, () => {
-    console.log(chalk.bold("\n🔐 sphinx-agent API server\n"));
+    console.log(chalk.bold("\n🔐 shedu API server\n"));
     console.log(`  ${chalk.green("➜")} ${chalk.cyan(`http://${options.host}:${options.port}`)}`);
     console.log(chalk.dim(`  Project: ${projectPath}`));
     console.log(

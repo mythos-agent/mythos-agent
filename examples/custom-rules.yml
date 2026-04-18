@@ -1,4 +1,4 @@
-# Example custom rules for sphinx-agent
+# Example custom rules for shedu
 # Place in .sphinx/rules/ or pass with --rules flag
 
 rules:

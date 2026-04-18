@@ -2,7 +2,7 @@
 # scripts/verify-release.sh
 #
 # Verifies the cosign keyless signature and SLSA build provenance for a
-# sphinx-agent release. Downstream Manufacturers (per EU CRA, see
+# shedu release. Downstream Manufacturers (per EU CRA, see
 # docs/security/cra-stance.md) can run this to confirm a release was built
 # from this exact repo's CI without a hand-signed key existing anywhere.
 #
@@ -28,7 +28,7 @@
 
 set -euo pipefail
 
-REPO="zhijiewong/sphinx-agent"
+REPO="zhijiewong/shedu"
 EXPECTED_IDENTITY_REGEX="https://github.com/${REPO}/.github/workflows/sigstore-release\.yml@.*"
 EXPECTED_OIDC_ISSUER="https://token.actions.githubusercontent.com"
 
@@ -52,7 +52,7 @@ done
 WORK=$(mktemp -d)
 trap 'rm -rf "$WORK"' EXIT
 
-echo "→ Verifying sphinx-agent ${TAG} from ${REPO}"
+echo "→ Verifying shedu ${TAG} from ${REPO}"
 echo "  Working directory: $WORK"
 echo
 
@@ -68,13 +68,13 @@ echo "  ✓ release found"
 echo "[2/5] Downloading tarball + signatures..."
 gh release download "$TAG" \
   --repo "$REPO" \
-  --pattern "sphinx-agent-*.tgz*" \
+  --pattern "shedu-*.tgz*" \
   --dir "$WORK" 2>/dev/null || {
   echo "ERROR: could not download tarball assets for $TAG" >&2
   exit 66
 }
 
-TARBALL=$(ls "$WORK"/sphinx-agent-*.tgz 2>/dev/null | grep -v '\.sig$\|\.crt$\|\.sha256$' | head -1)
+TARBALL=$(ls "$WORK"/shedu-*.tgz 2>/dev/null | grep -v '\.sig$\|\.crt$\|\.sha256$' | head -1)
 SIG="${TARBALL}.sig"
 CRT="${TARBALL}.crt"
 
@@ -104,12 +104,12 @@ echo "  ✓ signature valid; signed by $REPO/.github/workflows/sigstore-release.
 
 # 4. Verify SBOM signature if present
 echo "[4/5] Verifying SBOM signature (if present)..."
-SBOM_JSON="$WORK/sphinx-agent-sbom.cdx.json"
+SBOM_JSON="$WORK/shedu-sbom.cdx.json"
 SBOM_SIG="${SBOM_JSON}.sig"
 SBOM_CRT="${SBOM_JSON}.crt"
 gh release download "$TAG" \
   --repo "$REPO" \
-  --pattern "sphinx-agent-sbom.cdx.*" \
+  --pattern "shedu-sbom.cdx.*" \
   --dir "$WORK" 2>/dev/null || true
 
 if [[ -f "$SBOM_JSON" ]] && [[ -f "$SBOM_SIG" ]] && [[ -f "$SBOM_CRT" ]]; then
@@ -131,7 +131,7 @@ fi
 
 # 5. npm provenance attestation
 echo "[5/5] Checking npm provenance attestation..."
-if NPM_OUT=$(npm view "sphinx-agent@${VERSION}" dist.attestations --json 2>/dev/null) && [[ -n "$NPM_OUT" ]]; then
+if NPM_OUT=$(npm view "shedu@${VERSION}" dist.attestations --json 2>/dev/null) && [[ -n "$NPM_OUT" ]]; then
   PROV=$(echo "$NPM_OUT" | jq -r '.attestations.url // empty' 2>/dev/null)
   if [[ -n "$PROV" ]]; then
     echo "  ✓ npm provenance attestation published at $PROV"

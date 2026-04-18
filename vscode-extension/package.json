@@ -1,9 +1,9 @@
 {
-  "name": "sphinx-agent-vscode",
-  "displayName": "sphinx-agent — AI Security Scanner",
+  "name": "shedu-vscode",
+  "displayName": "shedu — AI Security Scanner",
   "description": "Find vulnerabilities, chain them into attack paths, and auto-fix with AI. Mythos for everyone.",
   "version": "0.3.0",
-  "publisher": "sphinx-agent",
+  "publisher": "shedu",
   "icon": "icon.png",
   "engines": {
     "vscode": "^1.85.0"
@@ -28,47 +28,47 @@
   "contributes": {
     "commands": [
       {
-        "command": "sphinx-agent.scanFile",
-        "title": "sphinx-agent: Scan Current File"
+        "command": "shedu.scanFile",
+        "title": "shedu: Scan Current File"
       },
       {
-        "command": "sphinx-agent.scanWorkspace",
-        "title": "sphinx-agent: Scan Workspace"
+        "command": "shedu.scanWorkspace",
+        "title": "shedu: Scan Workspace"
       },
       {
-        "command": "sphinx-agent.fixVulnerability",
-        "title": "sphinx-agent: Fix Vulnerability with AI"
+        "command": "shedu.fixVulnerability",
+        "title": "shedu: Fix Vulnerability with AI"
       },
       {
-        "command": "sphinx-agent.clearDiagnostics",
-        "title": "sphinx-agent: Clear All Diagnostics"
+        "command": "shedu.clearDiagnostics",
+        "title": "shedu: Clear All Diagnostics"
       }
     ],
     "configuration": {
-      "title": "sphinx-agent",
+      "title": "shedu",
       "properties": {
-        "sphinx-agent.scanOnSave": {
+        "shedu.scanOnSave": {
           "type": "boolean",
           "default": true,
           "description": "Automatically scan files for vulnerabilities on save"
         },
-        "sphinx-agent.severity": {
+        "shedu.severity": {
           "type": "string",
           "default": "low",
           "enum": ["critical", "high", "medium", "low"],
           "description": "Minimum severity level to display"
         },
-        "sphinx-agent.enableSecrets": {
+        "shedu.enableSecrets": {
           "type": "boolean",
           "default": true,
           "description": "Enable secrets detection"
         },
-        "sphinx-agent.enableAI": {
+        "shedu.enableAI": {
           "type": "boolean",
           "default": false,
           "description": "Enable AI-powered deep analysis (requires API key)"
         },
-        "sphinx-agent.apiKey": {
+        "shedu.apiKey": {
           "type": "string",
           "default": "",
           "description": "Anthropic API key for AI features"

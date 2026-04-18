@@ -1,15 +1,15 @@
 {
-  "name": "sphinx-rules-example",
+  "name": "shedu-rules-example",
   "version": "0.1.0",
-  "description": "Example rule pack for sphinx-agent. Cookie-cutter — copy, rename, and publish.",
+  "description": "Example rule pack for shedu. Cookie-cutter — copy, rename, and publish.",
   "license": "MIT",
   "author": "Your Name <you@example.com>",
   "repository": {
     "type": "git",
-    "url": "https://github.com/your-handle/sphinx-rules-example"
+    "url": "https://github.com/your-handle/shedu-rules-example"
   },
   "keywords": [
-    "sphinx-agent",
+    "shedu",
     "security",
     "rule-pack",
     "static-analysis"
@@ -26,7 +26,7 @@
     "js-yaml": "^4.1.0"
   },
   "peerDependencies": {
-    "sphinx-agent": ">=2.0.0"
+    "shedu": ">=2.0.0"
   },
   "engines": {
     "node": ">=18"

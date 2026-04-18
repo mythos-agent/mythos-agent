@@ -29,7 +29,7 @@ export async function ciCommand(options: CiOptions) {
   const config = loadConfig(projectPath);
   const startTime = Date.now();
 
-  console.log(chalk.bold("🔐 sphinx-agent ci\n"));
+  console.log(chalk.bold("🔐 shedu ci\n"));
 
   // Run all scanners
   const spinner = ora("Scanning...").start();

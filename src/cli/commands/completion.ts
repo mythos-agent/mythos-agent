@@ -66,36 +66,36 @@ export async function completionCommand(options: CompletionOptions) {
       console.log(chalk.bold("\n  Shell Completions\n"));
       console.log(chalk.dim("  Add to your shell config:\n"));
       console.log(chalk.cyan("  # Bash (~/.bashrc)"));
-      console.log(chalk.dim('  eval "$(sphinx-agent completion --shell bash)"\n'));
+      console.log(chalk.dim('  eval "$(shedu completion --shell bash)"\n'));
       console.log(chalk.cyan("  # Zsh (~/.zshrc)"));
-      console.log(chalk.dim('  eval "$(sphinx-agent completion --shell zsh)"\n'));
+      console.log(chalk.dim('  eval "$(shedu completion --shell zsh)"\n'));
       console.log(chalk.cyan("  # Fish (~/.config/fish/config.fish)"));
-      console.log(chalk.dim("  sphinx-agent completion --shell fish | source\n"));
+      console.log(chalk.dim("  shedu completion --shell fish | source\n"));
   }
 }
 
 function generateBash(commands: string[]): string {
-  return `# sphinx-agent bash completion
+  return `# shedu bash completion
 _sphinx_agent() {
   local cur=\${COMP_WORDS[COMP_CWORD]}
   COMPREPLY=( $(compgen -W "${commands.join(" ")}" -- "$cur") )
 }
-complete -F _sphinx_agent sphinx-agent
-complete -F _sphinx_agent npx\\ sphinx-agent`;
+complete -F _sphinx_agent shedu
+complete -F _sphinx_agent npx\\ shedu`;
 }
 
 function generateZsh(commands: string[]): string {
-  return `# sphinx-agent zsh completion
+  return `# shedu zsh completion
 _sphinx_agent() {
   local -a commands
   commands=(${commands.map((c) => `'${c}'`).join(" ")})
   _describe 'command' commands
 }
-compdef _sphinx_agent sphinx-agent`;
+compdef _sphinx_agent shedu`;
 }
 
 function generateFish(commands: string[]): string {
   return commands
-    .map((c) => `complete -c sphinx-agent -f -n "__fish_use_subcommand" -a "${c}"`)
+    .map((c) => `complete -c shedu -f -n "__fish_use_subcommand" -a "${c}"`)
     .join("\n");
 }

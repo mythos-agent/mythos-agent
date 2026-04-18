@@ -1,4 +1,4 @@
-# Funding sphinx-agent
+# Funding shedu
 
 > Working document. Tracks the sustainability stack and grant applications. Live status updated as funders respond.
 > **Last reviewed:** 2026-04-18.
@@ -7,7 +7,7 @@
 
 The Tidelift 2024 State of the Open Source Maintainer Report found that 60% of OSS maintainers have considered quitting; paid maintainers do 55% more security work. For a *security* OSS project, sustainable funding is a security control.
 
-sphinx-agent's funding stack is intentionally incremental. We do not raise venture capital. We do not gate features. We accept money to extend the maintainer's time, fund security audits, fund a contributor bounty pool, and reduce bus-factor risk.
+shedu's funding stack is intentionally incremental. We do not raise venture capital. We do not gate features. We accept money to extend the maintainer's time, fund security audits, fund a contributor bounty pool, and reduce bus-factor risk.
 
 ## The plan, in priority order
 
@@ -46,9 +46,9 @@ We deliberately do **not** plan to:
 
 [STF](https://www.sovereigntechfund.de) funds security-relevant open-source infrastructure. Past grantees include curl, OpenSSL, GnuPG. They explicitly fund OSS maintenance, security audits, and "contractor" work to advance specific deliverables.
 
-**Application outline for sphinx-agent's STF application:**
+**Application outline for shedu's STF application:**
 
-- **Project relevance to digital sovereignty.** sphinx-agent is one of very few open-source AI security agents with multi-provider local-model support (Ollama / vLLM); it directly reduces EU dependence on closed-source US scanners (Snyk, Semgrep Cloud, Anthropic's proprietary Mythos).
+- **Project relevance to digital sovereignty.** shedu is one of very few open-source AI security agents with multi-provider local-model support (Ollama / vLLM); it directly reduces EU dependence on closed-source US scanners (Snyk, Semgrep Cloud, Anthropic's proprietary Mythos).
 - **Concrete deliverables to fund.** (a) deterministic taint engine v1 (the work in `src/analysis/taint-engine.ts`); (b) 500-vuln benchmark dataset; (c) third-party security audit; (d) contributor bounty pool seed for scanner rules. Each is a line item with hours/cost estimate.
 - **Maintenance model.** Public RFC process, multi-phase governance plan, OpenSSF Best Practices Badge progression — already documented in repo, link directly.
 - **Timeline.** 12-month engagement; quarterly reporting against the H1/H2 Goals issues.
@@ -61,7 +61,7 @@ We deliberately do **not** plan to:
 - **NGI Zero Core** — internet-architecture tooling
 - **NGI Zero Entrust** — privacy and trust enhancing technologies (PETs)
 
-**Application angle:** sphinx-agent's AI-misuse risk scanning differentiation (prompt-injection sinks, unsafe LangChain patterns, MCP-server misconfig, exposed model weights) directly addresses the NGI Entrust trust-enhancement remit. Funded grants typically run €5,000–€50,000 per milestone.
+**Application angle:** shedu's AI-misuse risk scanning differentiation (prompt-injection sinks, unsafe LangChain patterns, MCP-server misconfig, exposed model weights) directly addresses the NGI Entrust trust-enhancement remit. Funded grants typically run €5,000–€50,000 per milestone.
 
 Submit during the [next NGI Zero call](https://nlnet.nl/news/) (calls usually run April / June / October).
 
@@ -69,7 +69,7 @@ Submit during the [next NGI Zero call](https://nlnet.nl/news/) (calls usually ru
 
 [OSTIF](https://ostif.org/) coordinates and funds third-party security audits for OSS. Past audits: bcrypt, Python crypto libs, OpenVPN, libssh.
 
-**When to apply:** after sphinx-agent reaches OpenSSF Silver tier (planned end of 2027). OSTIF expects projects to have working CI, signed releases, and an active maintainer team — Silver-tier criteria align well.
+**When to apply:** after shedu reaches OpenSSF Silver tier (planned end of 2027). OSTIF expects projects to have working CI, signed releases, and an active maintainer team — Silver-tier criteria align well.
 
 **What an OSTIF-funded audit produces:** public report of findings, fix coordination with maintainers, follow-up confirmation. Audited code earns durable credibility with downstream Manufacturers.
 

@@ -2,7 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
 
-const REGISTRY_PREFIX = "sphinx-rules-";
+const REGISTRY_PREFIX = "shedu-rules-";
 const SAFE_NAME_PATTERN = /^[a-z0-9@._\/-]+$/;
 const LOCAL_RULES_DIR = ".sphinx/rules";
 
@@ -150,8 +150,8 @@ export function initRulePack(name: string, outputDir: string): string {
   const pkg = {
     name: packageName,
     version: "1.0.0",
-    description: `sphinx-agent security rules: ${name}`,
-    keywords: ["sphinx-agent", "security", "rules", name],
+    description: `shedu security rules: ${name}`,
+    keywords: ["shedu", "security", "rules", name],
     main: "rules.yml",
     files: ["*.yml"],
     license: "MIT",
@@ -160,7 +160,7 @@ export function initRulePack(name: string, outputDir: string): string {
 
   // Create example rule file. The pattern below is a real (low-severity)
   // demonstration; replace it with your own regex when you adapt the pack.
-  const exampleRules = `# ${name} — sphinx-agent custom rules
+  const exampleRules = `# ${name} — shedu custom rules
 # Publish with: npm publish
 
 rules:
@@ -183,12 +183,12 @@ rules:
   // Create README
   const readme = `# ${packageName}
 
-Custom security rules for [sphinx-agent](https://github.com/sphinx-agent/sphinx-agent).
+Custom security rules for [shedu](https://github.com/zhijiewong/shedu).
 
 ## Install
 
 \`\`\`bash
-sphinx-agent rules install ${name}
+shedu rules install ${name}
 \`\`\`
 
 ## Rules

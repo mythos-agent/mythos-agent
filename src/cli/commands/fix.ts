@@ -20,9 +20,7 @@ export async function fixCommand(fixPath: string, options: FixOptions) {
 
   if (!result) {
     console.log(
-      chalk.yellow(
-        "\n⚠️  No scan results found. Run " + chalk.cyan("sphinx-agent scan") + " first.\n"
-      )
+      chalk.yellow("\n⚠️  No scan results found. Run " + chalk.cyan("shedu scan") + " first.\n")
     );
     return;
   }
@@ -31,7 +29,7 @@ export async function fixCommand(fixPath: string, options: FixOptions) {
     console.log(
       chalk.yellow(
         "\n⚠️  API key required for fix generation. Run " +
-          chalk.cyan("sphinx-agent init") +
+          chalk.cyan("shedu init") +
           " to configure.\n"
       )
     );
@@ -55,7 +53,7 @@ export async function fixCommand(fixPath: string, options: FixOptions) {
     return;
   }
 
-  console.log(chalk.bold("\n🔧 sphinx-agent fix — AI-Powered Patch Generation"));
+  console.log(chalk.bold("\n🔧 shedu fix — AI-Powered Patch Generation"));
   console.log(chalk.dim("━".repeat(50)));
   console.log(
     chalk.dim(
@@ -109,15 +107,13 @@ export async function fixCommand(fixPath: string, options: FixOptions) {
     );
 
     if (applied > 0) {
-      console.log(
-        chalk.dim("  Run " + chalk.cyan("sphinx-agent scan") + " again to verify fixes.\n")
-      );
+      console.log(chalk.dim("  Run " + chalk.cyan("shedu scan") + " again to verify fixes.\n"));
     }
   } else {
     console.log(
       chalk.dim(
         "\n  This was a dry run. To apply patches, run:\n  " +
-          chalk.cyan("sphinx-agent fix --apply") +
+          chalk.cyan("shedu fix --apply") +
           "\n"
       )
     );

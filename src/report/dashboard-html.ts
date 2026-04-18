@@ -22,7 +22,7 @@ export function buildDashboardHtml(result: ScanResult | null, projectPath: strin
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>sphinx-agent Dashboard — ${esc(projectName)}</title>
+<title>shedu Dashboard — ${esc(projectName)}</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0a0a0f; color: #e0e0e0; min-height: 100vh; }
@@ -80,7 +80,7 @@ export function buildDashboardHtml(result: ScanResult | null, projectPath: strin
 </head>
 <body>
 <div class="header">
-  <h1><span>sphinx-agent</span> Dashboard</h1>
+  <h1><span>shedu</span> Dashboard</h1>
   <div>
     <span class="meta">${esc(projectName)} &bull; ${timestamp}</span>
     <button class="refresh-btn" onclick="location.reload()">Refresh</button>
@@ -190,7 +190,7 @@ export function buildDashboardHtml(result: ScanResult | null, projectPath: strin
   </div>
 
   <footer>
-    <p>Powered by <a href="https://github.com/sphinx-agent/sphinx-agent">sphinx-agent</a> — Agentic AI Security Scanner</p>
+    <p>Powered by <a href="https://github.com/zhijiewong/shedu">shedu</a> — Agentic AI Security Scanner</p>
   </footer>
 </div>
 </body>

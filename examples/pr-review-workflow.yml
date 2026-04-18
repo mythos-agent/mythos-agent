@@ -1,5 +1,5 @@
-# Example: Add as .github/workflows/sphinx-agent-pr-review.yml
-name: sphinx-agent PR Review
+# Example: Add as .github/workflows/shedu-pr-review.yml
+name: shedu PR Review
 
 on:
   pull_request:
@@ -18,13 +18,13 @@ jobs:
           fetch-depth: 0
 
       # Pattern-only review (free, no API key)
-      - uses: sphinx-agent/sphinx-agent/action@main
+      - uses: zhijiewong/shedu/action@main
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           fail-on: critical
 
       # Full AI review (requires Anthropic API key)
-      # - uses: sphinx-agent/sphinx-agent/action@main
+      # - uses: zhijiewong/shedu/action@main
       #   with:
       #     github-token: ${{ secrets.GITHUB_TOKEN }}
       #     api-key: ${{ secrets.ANTHROPIC_API_KEY }}

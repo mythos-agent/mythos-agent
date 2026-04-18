@@ -96,7 +96,7 @@ async function sendPayload(
       method,
       headers: {
         "Content-Type": "application/json",
-        "User-Agent": "sphinx-agent/1.0 (security-scanner)",
+        "User-Agent": "shedu/1.0 (security-scanner)",
       },
       body,
       signal: controller.signal,

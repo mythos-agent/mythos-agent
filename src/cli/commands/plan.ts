@@ -48,7 +48,7 @@ export async function planCommand(options: PlanOptions) {
   const result = loadResults(projectPath);
 
   if (!result) {
-    console.log(chalk.yellow("\n⚠️  No scan results. Run sphinx-agent scan first.\n"));
+    console.log(chalk.yellow("\n⚠️  No scan results. Run shedu scan first.\n"));
     return;
   }
 
@@ -138,7 +138,7 @@ export async function planCommand(options: PlanOptions) {
 
     console.log(
       chalk.dim("  Run ") +
-        chalk.cyan("sphinx-agent fix --apply") +
+        chalk.cyan("shedu fix --apply") +
         chalk.dim(" to auto-generate patches.\n")
     );
   } catch (err) {

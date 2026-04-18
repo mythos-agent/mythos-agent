@@ -4,10 +4,10 @@
 >
 > This program **activates** when **either** of these triggers fires:
 >
-> 1. The first corporate user reports a production deployment of sphinx-agent, **OR**
+> 1. The first corporate user reports a production deployment of shedu, **OR**
 > 2. Recurring sponsorship via GitHub Sponsors + Open Collective reaches **$5,000 / month**.
 >
-> Until then: contributions are recognized through the [Sphinx Mythos Pioneers](pioneers.md) leaderboard (no cash). The scanner-SDK and rule-pack contribution paths described in [CONTRIBUTING.md](../CONTRIBUTING.md) are open today; the cash bounty layer is not.
+> Until then: contributions are recognized through the [Shedu Pioneers](pioneers.md) leaderboard (no cash). The scanner-SDK and rule-pack contribution paths described in [CONTRIBUTING.md](../CONTRIBUTING.md) are open today; the cash bounty layer is not.
 
 ## Why this is drafted-but-inactive
 
@@ -20,7 +20,7 @@ The right sequence — and the one this document encodes — is: **recognition f
 | Contribution | Bounty | Conditions |
 |---|---|---|
 | Accepted scanner rule (rule pack OR built-in) | $50 | Real CWE; passes true-positive + true-negative tests; merged or published |
-| Accepted scanner module (new `src/scanner/*-scanner.ts` or `sphinx-scanner-*` package) | $200 | Tests included; CHANGELOG entry; ≥1 reviewer approval |
+| Accepted scanner module (new `src/scanner/*-scanner.ts` or `shedu-scanner-*` package) | $200 | Tests included; CHANGELOG entry; ≥1 reviewer approval |
 | Accepted vulnerability addition to the published benchmark with reproducible PoC | $500 | Conforms to benchmark schema; independently verifiable; CC-BY licensed |
 
 These prices are calibrated against [Nuclei's Template Reward Program](https://projectdiscovery.io/blog/announcing-the-nuclei-templates-community-leaderboard-and-rewards), which has two years of empirical data on what works at this scale.
@@ -30,7 +30,7 @@ These prices are calibrated against [Nuclei's Template Reward Program](https://p
 - **Core engine code** — `src/agents/`, `src/agent/`, `src/analysis/`, `src/cli/`. The maintainer review bottleneck for core code makes per-PR cash incentives counterproductive (single-maintainer review of paid work creates an asymmetric-pressure failure mode that has wrecked smaller bounty programs in the past).
 - **Documentation, translations, design.** These are valued contributions but harder to objectively grade for payment; recognition tier covers them.
 - **Issue triage, code review.** Same reason.
-- **Vulnerability reports against sphinx-agent itself.** That goes through [SECURITY.md](../SECURITY.md), which separately addresses bug bounty (currently no paid program).
+- **Vulnerability reports against shedu itself.** That goes through [SECURITY.md](../SECURITY.md), which separately addresses bug bounty (currently no paid program).
 - **Bots and AI-generated PRs that bypass the maintainer review intent.** Substantive AI-assisted PRs are welcome (and properly disclosed); spammy automated submissions for bounty harvesting are not.
 
 ## Workflow (when active)
@@ -67,7 +67,7 @@ Resumption requires the pool to reach 3 months' expected payouts. This buffer pr
 
 ## Recognition is independent
 
-A contributor who claims a bounty also gets full recognition under the [Sphinx Mythos Pioneers](pioneers.md) program. Cash and recognition are **additive**, not exclusive — taking the bounty does not remove your name from the leaderboard or change your tier.
+A contributor who claims a bounty also gets full recognition under the [Shedu Pioneers](pioneers.md) program. Cash and recognition are **additive**, not exclusive — taking the bounty does not remove your name from the leaderboard or change your tier.
 
 A contributor may also **decline** a bounty (in their PR description: "no bounty, please") and receive only the recognition. Maintainers do not push contributors to accept payment; the program exists for those who want or need the cash.
 
@@ -90,5 +90,5 @@ Future entries logged here when the program activates, pauses, resumes, or its t
 
 - [Nuclei Templates Reward Program](https://projectdiscovery.io/blog/announcing-the-nuclei-templates-community-leaderboard-and-rewards) — primary model
 - [ProjectDiscovery OSS Bounty Program](https://projectdiscovery.io/blog/announcing-the-projectdiscovery-oss-bounty-program) — adjacent model with broader scope
-- [Sphinx Mythos Pioneers](pioneers.md) — the recognition layer this program sits on top of
+- [Shedu Pioneers](pioneers.md) — the recognition layer this program sits on top of
 - [Funding stack](sustainability/funding.md) — where the pool's money comes from

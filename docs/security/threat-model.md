@@ -1,6 +1,6 @@
-# sphinx-agent — Threat Model
+# shedu — Threat Model
 
-> Public threat model for sphinx-agent itself. Not a threat model for code that sphinx-agent scans.
+> Public threat model for shedu itself. Not a threat model for code that shedu scans.
 > **Last reviewed:** 2026-04-18.
 > **Review cadence:** Annually, or whenever a new attack class is in scope (e.g., new agent provider, new MCP server capability).
 
@@ -14,25 +14,25 @@ This document explains what we are defending against, what we are explicitly not
 
 | # | Asset | Why it matters |
 |---|---|---|
-| A1 | The `sphinx-agent` npm package | Distributed code; the most likely target |
+| A1 | The `shedu` npm package | Distributed code; the most likely target |
 | A2 | The release-signing key material | Compromise enables silent malicious releases |
 | A3 | Maintainer GitHub account(s) | Compromise allows arbitrary code merges and releases |
 | A4 | The repository itself (source code, workflows, branch protection) | Provides every other asset's integrity |
 | A5 | Issue / PR / Discussion content | Phishing surface; data exfiltration target |
-| A6 | Findings reported by sphinx-agent users | May contain customer code or vulnerability details |
-| A7 | API keys held in user `~/.sphinx-agent/config.json` | LLM-provider credentials; not held by the project, but the project's input handling matters |
+| A6 | Findings reported by shedu users | May contain customer code or vulnerability details |
+| A7 | API keys held in user `~/.shedu/config.json` | LLM-provider credentials; not held by the project, but the project's input handling matters |
 
 ## Adversaries (and what they want)
 
 | ID | Adversary | Motivation |
 |---|---|---|
 | T1 | Opportunistic supply-chain attacker | Mass compromise via popular package. Credential theft, cryptominer install, downstream supply-chain pivots. |
-| T2 | Targeted attacker against a specific downstream user | Use sphinx-agent as an entry point into a high-value organization that runs it in CI. |
+| T2 | Targeted attacker against a specific downstream user | Use shedu as an entry point into a high-value organization that runs it in CI. |
 | T3 | Malicious contributor | Land subtly malicious code via PR; abuse the scanner-rule plugin SDK to ship a backdoored rule. |
 | T4 | Compromised maintainer machine | Local malware on the lead maintainer's workstation tampers with releases. |
 | T5 | Sponsor / vendor with leverage | Pressure to add a backdoor or to relicense (Gitleaks-style). |
-| T6 | Researcher misusing sphinx-agent against a system they don't own | Reputational risk for the project. |
-| T7 | Adversarial input via scanned codebase | Crafted code that exploits a parser bug or AI prompt-injection in sphinx-agent itself. |
+| T6 | Researcher misusing shedu against a system they don't own | Reputational risk for the project. |
+| T7 | Adversarial input via scanned codebase | Crafted code that exploits a parser bug or AI prompt-injection in shedu itself. |
 | T8 | LLM-provider compromise / outage | Provider returns malicious or misleading output; project unable to scan. |
 
 ## Attack surfaces and mitigations
@@ -130,14 +130,14 @@ This document explains what we are defending against, what we are explicitly not
 
 ## Explicitly out of scope
 
-These are real risks that sphinx-agent does not attempt to address (not in the threat model):
+These are real risks that shedu does not attempt to address (not in the threat model):
 
-- **Vulnerabilities in code that sphinx-agent scans.** Those are the *target* of analysis, not part of sphinx-agent's attack surface. They go through user channels (Discussions or directly upstream).
+- **Vulnerabilities in code that shedu scans.** Those are the *target* of analysis, not part of shedu's attack surface. They go through user channels (Discussions or directly upstream).
 - **Cryptographic attacks against TLS or the GitHub platform.** We rely on the platform's defenses.
 - **Nation-state targeting of the lead maintainer.** Mitigation requires resources beyond a volunteer-run project. Bus-factor work (Phase 2/3 governance) reduces the attack surface but does not eliminate it.
 - **Confidentiality of telemetry.** Telemetry is opt-in, count-only, no content (per `docs/telemetry.md` once published). Users who want zero telemetry should disable.
 - **Side-channel attacks on the AI provider's infrastructure.**
-- **Misuse of sphinx-agent against systems the user does not own.** Addressed via the responsible-use notice in README, not via technical controls.
+- **Misuse of shedu against systems the user does not own.** Addressed via the responsible-use notice in README, not via technical controls.
 
 ## Out-of-band controls (not in this repo)
 
