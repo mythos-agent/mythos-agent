@@ -2,6 +2,17 @@
 
 All notable changes to sphinx-agent are documented here. The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). Starting with the next release, entries are generated automatically by [release-please](https://github.com/googleapis/release-please) from [Conventional Commits](https://www.conventionalcommits.org/).
 
+## [3.0.0](https://github.com/zhijiewong/sphinx-agent/compare/v2.0.2...v3.0.0) (2026-04-18)
+
+
+### ⚠ BREAKING CHANGES
+
+* rename project to shedu
+
+### Added
+
+* rename project to shedu ([3b4522a](https://github.com/zhijiewong/sphinx-agent/commit/3b4522abafc498123c45ddd5f2b61fc4b871bb37))
+
 ## [2.0.2](https://github.com/zhijiewong/sphinx-agent/compare/v2.0.1...v2.0.2) (2026-04-18)
 
 
