@@ -1,0 +1,95 @@
+name: SBOM Generation
+
+# Generates a CycloneDX SBOM for every published release and attaches it to
+# the GitHub release. Downstream Manufacturers (per EU CRA) need this to
+# satisfy their SBOM coverage obligations when they integrate sphinx-agent.
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag to generate SBOM for"
+        required: true
+        type: string
+
+permissions:
+  contents: write    # upload SBOM to release assets
+  id-token: write    # OIDC for cosign signing of the SBOM
+
+jobs:
+  generate-sbom:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.release.tag_name || inputs.tag }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install production dependencies
+        run: npm ci --omit=dev
+
+      - name: Generate CycloneDX SBOM
+        run: |
+          npx --yes @cyclonedx/cyclonedx-npm \
+            --output-format JSON \
+            --output-file sphinx-agent-sbom.cdx.json \
+            --spec-version 1.6 \
+            --validate
+
+      - name: Generate CycloneDX SBOM (XML)
+        run: |
+          npx --yes @cyclonedx/cyclonedx-npm \
+            --output-format XML \
+            --output-file sphinx-agent-sbom.cdx.xml \
+            --spec-version 1.6 \
+            --validate
+
+      - name: Install cosign
+        uses: sigstore/cosign-installer@v3
+        with:
+          cosign-release: "v2.4.1"
+
+      - name: Sign SBOMs (keyless)
+        env:
+          COSIGN_EXPERIMENTAL: "1"
+        run: |
+          cosign sign-blob --yes \
+            --output-signature sphinx-agent-sbom.cdx.json.sig \
+            --output-certificate sphinx-agent-sbom.cdx.json.crt \
+            sphinx-agent-sbom.cdx.json
+          cosign sign-blob --yes \
+            --output-signature sphinx-agent-sbom.cdx.xml.sig \
+            --output-certificate sphinx-agent-sbom.cdx.xml.crt \
+            sphinx-agent-sbom.cdx.xml
+
+      - name: Upload SBOMs to release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.event.release.tag_name || inputs.tag }}
+          files: |
+            sphinx-agent-sbom.cdx.json
+            sphinx-agent-sbom.cdx.json.sig
+            sphinx-agent-sbom.cdx.json.crt
+            sphinx-agent-sbom.cdx.xml
+            sphinx-agent-sbom.cdx.xml.sig
+            sphinx-agent-sbom.cdx.xml.crt
+          fail_on_unmatched_files: true
+
+      - name: Upload SBOM as CI artifact (audit trail)
+        uses: actions/upload-artifact@v4
+        with:
+          name: sphinx-agent-sbom-${{ github.event.release.tag_name || inputs.tag }}
+          path: |
+            sphinx-agent-sbom.cdx.json
+            sphinx-agent-sbom.cdx.xml
+          retention-days: 365
+
+# SBOM policy and consumption guidance: docs/security/sbom.md

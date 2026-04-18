@@ -1,0 +1,92 @@
+name: Sigstore Release Signing
+
+# Signs every published release with cosign keyless signatures and uploads
+# the signature, certificate, and SLSA L3 build provenance attestation.
+# Triggered by release-please when a new release is created.
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag to sign (e.g. v2.1.0)"
+        required: true
+        type: string
+
+permissions:
+  contents: write       # upload assets to the release
+  id-token: write       # OIDC for keyless cosign signing + SLSA provenance
+  attestations: write   # SLSA build provenance attestations
+
+jobs:
+  sign-and-attest:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.release.tag_name || inputs.tag }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Pack npm tarball
+        id: pack
+        run: |
+          TARBALL=$(npm pack --silent)
+          echo "tarball=${TARBALL}" >> "$GITHUB_OUTPUT"
+          sha256sum "${TARBALL}" > "${TARBALL}.sha256"
+
+      - name: Install cosign
+        uses: sigstore/cosign-installer@v3
+        with:
+          cosign-release: "v2.4.1"
+
+      - name: Sign tarball with cosign (keyless OIDC)
+        env:
+          COSIGN_EXPERIMENTAL: "1"
+        run: |
+          cosign sign-blob \
+            --yes \
+            --output-signature "${{ steps.pack.outputs.tarball }}.sig" \
+            --output-certificate "${{ steps.pack.outputs.tarball }}.crt" \
+            "${{ steps.pack.outputs.tarball }}"
+
+      - name: Generate SLSA L3 build provenance attestation
+        uses: actions/attest-build-provenance@v2
+        with:
+          subject-path: ${{ steps.pack.outputs.tarball }}
+
+      - name: Upload signed artifacts to release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.event.release.tag_name || inputs.tag }}
+          files: |
+            ${{ steps.pack.outputs.tarball }}
+            ${{ steps.pack.outputs.tarball }}.sig
+            ${{ steps.pack.outputs.tarball }}.crt
+            ${{ steps.pack.outputs.tarball }}.sha256
+          fail_on_unmatched_files: true
+
+# Verification (run by downstream users):
+#
+#   # Download tarball + .sig + .crt from the release
+#   cosign verify-blob \
+#     --certificate sphinx-agent-<version>.tgz.crt \
+#     --signature   sphinx-agent-<version>.tgz.sig \
+#     --certificate-identity-regexp 'https://github.com/zhijiewong/sphinx-agent/.github/workflows/sigstore-release\.yml@.*' \
+#     --certificate-oidc-issuer 'https://token.actions.githubusercontent.com' \
+#     sphinx-agent-<version>.tgz
+#
+# A scripted verifier ships at scripts/verify-release.sh (lands with the
+# threat-model PR).
