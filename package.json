@@ -1,7 +1,7 @@
 {
   "name": "mythos-agent",
   "version": "3.0.0",
-  "description": "Open-source autonomous AI security agent. Reasons about code like a senior pentester to find vulnerabilities, chain them into attack paths, and generate validated patches.",
+  "description": "Open-source AI code-review assistant for application security. Flags likely vulnerabilities in source code with reasoning and suggested fixes.",
   "type": "module",
   "main": "dist/index.js",
   "bin": {
@@ -31,12 +31,9 @@
     "vulnerability",
     "scanner",
     "ai",
-    "claude",
     "cybersecurity",
-    "owasp",
     "sast",
-    "static-analysis",
-    "agentic"
+    "static-analysis"
   ],
   "author": "mythos-agent contributors",
   "license": "MIT",

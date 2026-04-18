@@ -1,7 +1,7 @@
 <p align="center">
   <h1 align="center">mythos-agent</h1>
-  <p align="center"><strong>The AI security agent that guards your code.</strong></p>
-  <p align="center"><em>The Mythos-Agent — an open-source autonomous security research agent.</em></p>
+  <p align="center"><strong>AI code-review assistant for application security.</strong></p>
+  <p align="center"><em>Open-source. Reads your code, flags likely security issues, explains its reasoning, suggests fixes.</em></p>
 </p>
 
 <p align="center">
@@ -27,7 +27,7 @@
 
 ---
 
-mythos-agent **reasons about your code like a security researcher** — generating hypotheses about what could go wrong, finding variants of known CVEs, proving exploitability with PoC exploits, and auto-fixing what it finds. Inspired by the same research direction as Anthropic's proprietary Mythos security agent; not a clone, not affiliated. See [VISION.md](VISION.md) for the full framing.
+mythos-agent **reviews your code the way a reviewer on a security-focused team would** — walking through likely issue patterns, checking for variants of known CVEs, ranking findings by confidence, and suggesting fixes you can accept or reject. Inspired by the same research direction as Anthropic's proprietary Mythos security agent; not a clone, not affiliated. See [VISION.md](VISION.md) for the full framing.
 
 > **For new contributors:** the active 6-month working plan is in the pinned issue **`[Roadmap] mythos-agent H1 2026 Goals`**. Look for 🙋 markers — those are items where help is wanted. New here? See [CONTRIBUTING.md](CONTRIBUTING.md) for `good-first-issue` guidance.
 >
@@ -38,12 +38,12 @@ npx mythos-agent hunt
 ```
 
 ```
-🔐 mythos-agent hunt — Autonomous Security Agent
+🔐 mythos-agent hunt — AI Code-Review Assistant
 
 ✔ Phase 1: Reconnaissance — 12 entry points, express, typescript, postgresql
 ✔ Phase 2: Hypothesis — 8 security hypotheses generated
 ✔ Phase 3: Analysis — 15 findings (semgrep, gitleaks, trivy, built-in), 22 false positives dismissed
-✔ Phase 4: Exploitation — 2 attack chains, 3 PoCs
+✔ Phase 4: Reproduction — 2 finding chains, 3 reproductions
 
 🧪 Security Hypotheses
 
@@ -56,17 +56,17 @@ npx mythos-agent hunt
 
   3 confirmed | 8 likely | 4 possible | 22 dismissed
 
-⛓️ VULNERABILITY CHAINS
+⛓️ FINDING CHAINS
 
  CRITICAL  SQL Injection → Auth Bypass → Data Exfiltration
   ├── src/api/search.ts:45      — unsanitized input in SQL query
   ├── src/middleware/auth.ts:88  — JWT verification skippable
   └── src/api/export.ts:23      — bulk export has no ACL
 
-💣 Proof of Concepts
+🧪 Reproductions
 
   SPX-0001 — SQL injection in search endpoint
-    curl 'http://target/api/search?q=%27%20OR%201%3D1--'
+    See repro steps in docs/reproductions/SPX-0001.md
 
   Trust Score: 2.3/10 — critical issues found
 ```
