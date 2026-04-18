@@ -1,4 +1,4 @@
-# Example custom rules for shedu
+# Example custom rules for mythos-agent
 # Place in .sphinx/rules/ or pass with --rules flag
 
 rules:

@@ -15,13 +15,15 @@ export async function askCommand(
   if (!config.apiKey) {
     console.log(
       chalk.yellow(
-        "\n⚠️  API key required for shedu ask. Run " + chalk.cyan("shedu init") + " to configure.\n"
+        "\n⚠️  API key required for mythos-agent ask. Run " +
+          chalk.cyan("mythos-agent init") +
+          " to configure.\n"
       )
     );
     return;
   }
 
-  console.log(chalk.bold("\n🔐 shedu ask — AI Security Analysis\n"));
+  console.log(chalk.bold("\n🔐 mythos-agent ask — AI Security Analysis\n"));
   console.log(chalk.dim(`Project: ${projectPath}\n`));
 
   const engine = new QueryEngine(config, projectPath);
@@ -50,7 +52,7 @@ export async function askCommand(
     const { userQuestion } = await inquirer.prompt({
       type: "input",
       name: "userQuestion",
-      message: chalk.cyan("shedu>"),
+      message: chalk.cyan("mythos-agent>"),
       validate: (input: string) => input.trim().length > 0 || "Please enter a question",
     });
 

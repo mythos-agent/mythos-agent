@@ -9,7 +9,7 @@ export async function baselineSaveCommand(options: { path?: string }) {
 
   if (!result) {
     console.log(
-      chalk.yellow("\n⚠️  No scan results. Run " + chalk.cyan("shedu scan") + " first.\n")
+      chalk.yellow("\n⚠️  No scan results. Run " + chalk.cyan("mythos-agent scan") + " first.\n")
     );
     return;
   }
@@ -22,7 +22,7 @@ export async function baselineSaveCommand(options: { path?: string }) {
   );
   console.log(
     chalk.dim("  Future scans can compare against this baseline:\n") +
-      chalk.cyan("  shedu baseline compare\n")
+      chalk.cyan("  mythos-agent baseline compare\n")
   );
 }
 
@@ -32,7 +32,7 @@ export async function baselineCompareCommand(options: { path?: string; json?: bo
 
   if (!result) {
     console.log(
-      chalk.yellow("\n⚠️  No scan results. Run " + chalk.cyan("shedu scan") + " first.\n")
+      chalk.yellow("\n⚠️  No scan results. Run " + chalk.cyan("mythos-agent scan") + " first.\n")
     );
     return;
   }
@@ -41,7 +41,7 @@ export async function baselineCompareCommand(options: { path?: string; json?: bo
   if (!baseline) {
     console.log(
       chalk.yellow(
-        "\n⚠️  No baseline saved. Run " + chalk.cyan("shedu baseline save") + " first.\n"
+        "\n⚠️  No baseline saved. Run " + chalk.cyan("mythos-agent baseline save") + " first.\n"
       )
     );
     return;
@@ -66,7 +66,7 @@ export async function baselineCompareCommand(options: { path?: string; json?: bo
     return;
   }
 
-  console.log(chalk.bold("\n📊 shedu baseline comparison\n"));
+  console.log(chalk.bold("\n📊 mythos-agent baseline comparison\n"));
   console.log(chalk.dim("━".repeat(50)));
   console.log(
     chalk.dim(

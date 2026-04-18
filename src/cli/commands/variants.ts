@@ -24,14 +24,14 @@ export async function variantsCommand(cveId: string | undefined, options: Varian
     console.log(
       chalk.yellow(
         "\n⚠️  API key required for variant analysis. Run " +
-          chalk.cyan("shedu init") +
+          chalk.cyan("mythos-agent init") +
           " to configure.\n"
       )
     );
     return;
   }
 
-  console.log(chalk.bold("\n🔬 shedu variants — CVE Variant Analysis\n"));
+  console.log(chalk.bold("\n🔬 mythos-agent variants — CVE Variant Analysis\n"));
   console.log(chalk.dim(`Project: ${projectPath}\n`));
 
   const analyzer = new VariantAnalyzer(config, projectPath);

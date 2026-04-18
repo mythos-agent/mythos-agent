@@ -1,7 +1,7 @@
 version: "3.8"
 
 services:
-  shedu:
+  mythos-agent:
     build: .
     ports:
       - "4041:4041"

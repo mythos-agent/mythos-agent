@@ -23,7 +23,9 @@ export async function reportCommand(options: ReportOptions) {
 
   if (!result) {
     console.log(
-      chalk.yellow("\n⚠️  No scan results found. Run " + chalk.cyan("shedu scan") + " first.\n")
+      chalk.yellow(
+        "\n⚠️  No scan results found. Run " + chalk.cyan("mythos-agent scan") + " first.\n"
+      )
     );
     return;
   }

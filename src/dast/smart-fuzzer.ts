@@ -170,7 +170,7 @@ Generate your first round of test payloads.`,
         method: actualMethod,
         headers: {
           "Content-Type": "application/json",
-          "User-Agent": "shedu/1.0 (security-scanner)",
+          "User-Agent": "mythos-agent/1.0 (security-scanner)",
         },
         body,
         signal: controller.signal,

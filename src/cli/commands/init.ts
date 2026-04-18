@@ -4,7 +4,7 @@ import inquirer from "inquirer";
 import { writeConfig } from "../../config/config.js";
 
 export async function initCommand() {
-  console.log(chalk.bold("\n🔐 shedu — Agentic AI Security Scanner\n"));
+  console.log(chalk.bold("\n🔐 mythos-agent — Agentic AI Security Scanner\n"));
   console.log(chalk.dim("Let's set up your configuration.\n"));
 
   const { provider } = await inquirer.prompt({
@@ -108,6 +108,8 @@ export async function initCommand() {
   if (costNote) console.log(costNote);
 
   console.log(
-    chalk.bold("\n  Run ") + chalk.cyan("shedu scan") + chalk.bold(" to scan your project.\n")
+    chalk.bold("\n  Run ") +
+      chalk.cyan("mythos-agent scan") +
+      chalk.bold(" to scan your project.\n")
   );
 }

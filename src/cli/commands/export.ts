@@ -14,7 +14,7 @@ export async function exportCommand(options: ExportOptions) {
   const result = loadResults(projectPath);
 
   if (!result) {
-    console.log(chalk.yellow("\n⚠️  No scan results. Run shedu scan first.\n"));
+    console.log(chalk.yellow("\n⚠️  No scan results. Run mythos-agent scan first.\n"));
     return;
   }
 
@@ -102,7 +102,7 @@ ${v.description}
 
 ### Acceptance Criteria
 - [ ] Vulnerability is fixed
-- [ ] Fix verified by re-running shedu scan
+- [ ] Fix verified by re-running mythos-agent scan
 - [ ] No regressions introduced
 
 ---
@@ -123,7 +123,7 @@ function exportLinear(
   return JSON.stringify(
     vulns.map((v) => ({
       title: `[Security] ${v.id}: ${v.title}`,
-      description: `**File:** \`${v.location.file}:${v.location.line}\`\n\n${v.description}\n\n*Found by shedu*`,
+      description: `**File:** \`${v.location.file}:${v.location.line}\`\n\n${v.description}\n\n*Found by mythos-agent*`,
       priority:
         v.severity === "critical" ? 1 : v.severity === "high" ? 2 : v.severity === "medium" ? 3 : 4,
       labels: ["security", v.severity],
@@ -168,10 +168,10 @@ ${v.description}
 
 ### Remediation
 - [ ] Fix the vulnerability
-- [ ] Run \`shedu scan\` to verify
+- [ ] Run \`mythos-agent scan\` to verify
 - [ ] No regressions
 
-*Found by [shedu](https://github.com/zhijiewong/shedu)*
+*Found by [mythos-agent](https://github.com/mythos-agent/mythos-agent)*
 `;
     })
     .join("\n---\n\n");

@@ -1,6 +1,6 @@
-# shedu RFCs
+# mythos-agent RFCs
 
-Substantive changes to shedu — anything that affects more than one area, alters a public CLI / API surface, changes governance, or shifts the strategic direction in [VISION.md](../../VISION.md) or [ROADMAP.md](../../ROADMAP.md) — are proposed here as RFCs.
+Substantive changes to mythos-agent — anything that affects more than one area, alters a public CLI / API surface, changes governance, or shifts the strategic direction in [VISION.md](../../VISION.md) or [ROADMAP.md](../../ROADMAP.md) — are proposed here as RFCs.
 
 ## When an RFC is required
 
@@ -18,7 +18,7 @@ Substantive changes to shedu — anything that affects more than one area, alter
 | Bug fix | No (use a regular PR) |
 | Documentation fix | No |
 
-When in doubt, open a [GitHub Discussion](https://github.com/zhijiewong/shedu/discussions) and ask.
+When in doubt, open a [GitHub Discussion](https://github.com/mythos-agent/mythos-agent/discussions) and ask.
 
 ## Process
 

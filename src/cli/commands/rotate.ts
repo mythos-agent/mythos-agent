@@ -106,7 +106,7 @@ export async function rotateCommand(options: RotateOptions) {
   const result = loadResults(projectPath);
 
   if (!result) {
-    console.log(chalk.yellow("\n⚠️  No scan results. Run shedu scan first.\n"));
+    console.log(chalk.yellow("\n⚠️  No scan results. Run mythos-agent scan first.\n"));
     return;
   }
 
@@ -124,7 +124,7 @@ export async function rotateCommand(options: RotateOptions) {
     return;
   }
 
-  console.log(chalk.bold("\n🔄 shedu rotate — Secret Rotation Guide\n"));
+  console.log(chalk.bold("\n🔄 mythos-agent rotate — Secret Rotation Guide\n"));
   console.log(chalk.dim("━".repeat(50)));
   console.log(chalk.dim(`\n  ${secrets.length} secret(s) need rotation:\n`));
 
@@ -152,7 +152,7 @@ export async function rotateCommand(options: RotateOptions) {
   console.log(chalk.dim("    2. Store new values in environment variables or a secrets manager"));
   console.log(chalk.dim("    3. Remove hardcoded values from source code"));
   console.log(
-    chalk.dim("    4. Run ") + chalk.cyan("shedu scan") + chalk.dim(" again to verify\n")
+    chalk.dim("    4. Run ") + chalk.cyan("mythos-agent scan") + chalk.dim(" again to verify\n")
   );
 }
 

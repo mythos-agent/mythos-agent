@@ -63,7 +63,7 @@ export async function threatModelCommand(options: ThreatModelOptions) {
   const projectPath = path.resolve(options.path || ".");
   const config = loadConfig(projectPath);
 
-  console.log(chalk.bold("\n🛡️  shedu threat-model — STRIDE Analysis\n"));
+  console.log(chalk.bold("\n🛡️  mythos-agent threat-model — STRIDE Analysis\n"));
 
   const spinner = ora("Analyzing architecture...").start();
 

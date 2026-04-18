@@ -16,7 +16,7 @@ export async function notifyCommand(options: NotifyOptions) {
   const result = loadResults(projectPath);
 
   if (!result) {
-    console.log(chalk.yellow("\n⚠️  No scan results. Run shedu scan first.\n"));
+    console.log(chalk.yellow("\n⚠️  No scan results. Run mythos-agent scan first.\n"));
     return;
   }
 
@@ -58,7 +58,7 @@ async function sendSlack(webhookUrl: string, result: ScanResult): Promise<void> 
   const blocks = [
     {
       type: "header",
-      text: { type: "plain_text", text: `🔐 shedu: ${project}` },
+      text: { type: "plain_text", text: `🔐 mythos-agent: ${project}` },
     },
     {
       type: "section",
@@ -96,7 +96,7 @@ async function sendDiscord(webhookUrl: string, result: ScanResult): Promise<void
   const project = path.basename(result.projectPath);
 
   const embed = {
-    title: `🔐 shedu: ${project}`,
+    title: `🔐 mythos-agent: ${project}`,
     color: trustScore >= 7 ? 0x22c55e : trustScore >= 4 ? 0xeab308 : 0xef4444,
     fields: [
       { name: "Trust Score", value: `${trustScore.toFixed(1)}/10`, inline: true },
@@ -107,7 +107,7 @@ async function sendDiscord(webhookUrl: string, result: ScanResult): Promise<void
         value: `🔴 ${counts.critical} | 🟠 ${counts.high} | 🟡 ${counts.medium} | 🔵 ${counts.low}`,
       },
     ],
-    footer: { text: "shedu — AI security agent" },
+    footer: { text: "mythos-agent — AI security agent" },
     timestamp: result.timestamp,
   };
 
@@ -124,8 +124,8 @@ async function sendTeams(webhookUrl: string, result: ScanResult): Promise<void> 
     "@type": "MessageCard",
     "@context": "http://schema.org/extensions",
     themeColor: trustScore >= 7 ? "22c55e" : trustScore >= 4 ? "eab308" : "ef4444",
-    summary: `shedu: ${vulns.length} findings in ${project}`,
-    title: `🔐 shedu: ${project}`,
+    summary: `mythos-agent: ${vulns.length} findings in ${project}`,
+    title: `🔐 mythos-agent: ${project}`,
     text:
       `**Trust Score: ${trustScore.toFixed(1)}/10**\n\n` +
       `🔴 ${counts.critical} Critical | 🟠 ${counts.high} High | 🟡 ${counts.medium} Medium | 🔵 ${counts.low} Low\n\n` +
@@ -138,7 +138,7 @@ async function sendTeams(webhookUrl: string, result: ScanResult): Promise<void> 
 async function sendWebhook(webhookUrl: string, result: ScanResult): Promise<void> {
   const vulns = result.confirmedVulnerabilities;
   await postJson(webhookUrl, {
-    source: "shedu",
+    source: "mythos-agent",
     project: path.basename(result.projectPath),
     timestamp: result.timestamp,
     trustScore: calcTrustScore(vulns),

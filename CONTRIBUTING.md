@@ -1,16 +1,16 @@
-# Contributing to shedu
+# Contributing to mythos-agent
 
-Thanks for your interest. shedu — the **Shedu** — is an open-source AI security agent. We welcome code, rules, tests, docs, integrations, and ideas.
+Thanks for your interest. mythos-agent — the **Mythos-Agent** — is an open-source AI security agent. We welcome code, rules, tests, docs, integrations, and ideas.
 
 > **New here?** Jump to [Where to start](#where-to-start). The fastest first contribution is adding a test for an untested CLI command — every command in `src/cli/commands/` without a `__tests__` directory is fair game.
 >
-> **Looking for the strategic context?** [VISION.md](VISION.md) is the north star; [ROADMAP.md](ROADMAP.md) is the multi-year frame; the pinned issue **`[Roadmap] shedu H1 2026 Goals`** is the active 6-month plan.
+> **Looking for the strategic context?** [VISION.md](VISION.md) is the north star; [ROADMAP.md](ROADMAP.md) is the multi-year frame; the pinned issue **`[Roadmap] mythos-agent H1 2026 Goals`** is the active 6-month plan.
 
 ## Quick Start
 
 ```bash
-git clone https://github.com/zhijiewong/shedu.git
-cd shedu
+git clone https://github.com/mythos-agent/mythos-agent.git
+cd mythos-agent
 npm install
 npm run build
 npm test
@@ -125,13 +125,13 @@ rules:
 ### Rule packs
 Publishable as separate npm packages:
 ```bash
-shedu rules init my-pack
-cd shedu-rules-my-pack
+mythos-agent rules init my-pack
+cd mythos-agent-rules-my-pack
 # edit rules.yml
 npm publish
 ```
 
-The `shedu-rules-*` npm prefix is reserved for community rule packs. The forthcoming **scanner plugin SDK** (Q3 2026 milestone in ROADMAP) will document a programmatic alternative to YAML rules for cases that need real logic.
+The `mythos-agent-rules-*` npm prefix is reserved for community rule packs. The forthcoming **scanner plugin SDK** (Q3 2026 milestone in ROADMAP) will document a programmatic alternative to YAML rules for cases that need real logic.
 
 ## Adding tool integrations
 
@@ -188,7 +188,7 @@ Optional for: scanner rules, integrations, bug fixes.
 
 Contributors are listed in:
 
-- The auto-updated [Shedu Pioneers leaderboard](docs/pioneers.md) (lands H1 2026)
+- The auto-updated [Mythos-Agent Pioneers leaderboard](docs/pioneers.md) (lands H1 2026)
 - Release notes for the release containing your change
 - The all-contributors section of the README (when set up)
 
@@ -196,13 +196,13 @@ A scanner-rule and scanner-module **bounty program** is drafted but currently **
 
 ## Responsible use
 
-shedu is a defensive tool. By contributing, you agree to use it — and to design contributions that — primarily serve defenders.
+mythos-agent is a defensive tool. By contributing, you agree to use it — and to design contributions that — primarily serve defenders.
 
-- **Do not** use shedu to scan systems you do not own or have explicit written permission to test.
+- **Do not** use mythos-agent to scan systems you do not own or have explicit written permission to test.
 - **Do not** contribute scanners or AI prompts whose primary purpose is to enable offensive operations against systems the user does not control.
 - **Do** contribute scanners that detect attacker techniques so defenders can find and remove them.
-- **Responsibly disclose** any zero-day vulnerability that shedu helps you find — do not weaponize it.
-- The shedu maintainers reserve the right to decline contributions that materially shift the project's defensive posture.
+- **Responsibly disclose** any zero-day vulnerability that mythos-agent helps you find — do not weaponize it.
+- The mythos-agent maintainers reserve the right to decline contributions that materially shift the project's defensive posture.
 
 This is not a moral statement; it is the project's position. People who build offensive tooling are welcome to fork (MIT permits it). They must do so under a different brand.
 

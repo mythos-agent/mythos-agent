@@ -2,7 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
 
-const REGISTRY_PREFIX = "shedu-rules-";
+const REGISTRY_PREFIX = "mythos-agent-rules-";
 const SAFE_NAME_PATTERN = /^[a-z0-9@._\/-]+$/;
 const LOCAL_RULES_DIR = ".sphinx/rules";
 
@@ -150,8 +150,8 @@ export function initRulePack(name: string, outputDir: string): string {
   const pkg = {
     name: packageName,
     version: "1.0.0",
-    description: `shedu security rules: ${name}`,
-    keywords: ["shedu", "security", "rules", name],
+    description: `mythos-agent security rules: ${name}`,
+    keywords: ["mythos-agent", "security", "rules", name],
     main: "rules.yml",
     files: ["*.yml"],
     license: "MIT",
@@ -160,7 +160,7 @@ export function initRulePack(name: string, outputDir: string): string {
 
   // Create example rule file. The pattern below is a real (low-severity)
   // demonstration; replace it with your own regex when you adapt the pack.
-  const exampleRules = `# ${name} — shedu custom rules
+  const exampleRules = `# ${name} — mythos-agent custom rules
 # Publish with: npm publish
 
 rules:
@@ -183,12 +183,12 @@ rules:
   // Create README
   const readme = `# ${packageName}
 
-Custom security rules for [shedu](https://github.com/zhijiewong/shedu).
+Custom security rules for [mythos-agent](https://github.com/mythos-agent/mythos-agent).
 
 ## Install
 
 \`\`\`bash
-shedu rules install ${name}
+mythos-agent rules install ${name}
 \`\`\`
 
 ## Rules

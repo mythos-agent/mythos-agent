@@ -26,7 +26,7 @@ export interface TaintFlow {
   narrative: string;
 }
 
-const TAINT_SYSTEM_PROMPT = `You are shedu's taint analysis engine. Your job is to trace the flow of user-controlled data from **sources** (where data enters the application) to **sinks** (where dangerous operations happen).
+const TAINT_SYSTEM_PROMPT = `You are mythos-agent's taint analysis engine. Your job is to trace the flow of user-controlled data from **sources** (where data enters the application) to **sinks** (where dangerous operations happen).
 
 ## Sources (where tainted data enters)
 - HTTP request parameters: req.query, req.params, req.body, req.headers

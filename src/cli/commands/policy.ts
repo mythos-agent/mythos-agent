@@ -16,7 +16,7 @@ export async function policyCheckCommand(options: { path?: string; json?: boolea
 
   if (!result) {
     console.log(
-      chalk.yellow("\n⚠️  No scan results. Run " + chalk.cyan("shedu scan") + " first.\n")
+      chalk.yellow("\n⚠️  No scan results. Run " + chalk.cyan("mythos-agent scan") + " first.\n")
     );
     return;
   }
@@ -25,7 +25,7 @@ export async function policyCheckCommand(options: { path?: string; json?: boolea
   if (!policy) {
     console.log(
       chalk.yellow(
-        "\n⚠️  No policy found. Run " + chalk.cyan("shedu policy init") + " to create one.\n"
+        "\n⚠️  No policy found. Run " + chalk.cyan("mythos-agent policy init") + " to create one.\n"
       )
     );
     return;
@@ -62,11 +62,11 @@ export async function policyInitCommand(options: { path?: string }) {
   fs.writeFileSync(policyPath, generateDefaultPolicy(), "utf-8");
   console.log(chalk.green(`\n✅ Policy created at ${policyPath}\n`));
   console.log(chalk.dim("  Edit the policy, then run:"));
-  console.log(chalk.cyan("  shedu policy check\n"));
+  console.log(chalk.cyan("  mythos-agent policy check\n"));
 }
 
 function renderPolicyResult(policyName: string, result: PolicyResult): void {
-  console.log(chalk.bold(`\n📋 shedu policy — ${policyName}\n`));
+  console.log(chalk.bold(`\n📋 mythos-agent policy — ${policyName}\n`));
   console.log(chalk.dim("━".repeat(50)));
 
   if (result.passed && result.warnings.length === 0) {

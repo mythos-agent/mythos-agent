@@ -1,4 +1,4 @@
-# Example rules.yml for a shedu rule pack.
+# Example rules.yml for a mythos-agent rule pack.
 #
 # This file ships a single demonstration rule. Edit, add more, or replace
 # entirely. Each rule needs a stable id, a real CWE, severity, languages,

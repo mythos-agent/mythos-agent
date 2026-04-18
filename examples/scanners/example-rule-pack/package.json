@@ -1,15 +1,15 @@
 {
-  "name": "shedu-rules-example",
+  "name": "mythos-agent-rules-example",
   "version": "0.1.0",
-  "description": "Example rule pack for shedu. Cookie-cutter — copy, rename, and publish.",
+  "description": "Example rule pack for mythos-agent. Cookie-cutter — copy, rename, and publish.",
   "license": "MIT",
   "author": "Your Name <you@example.com>",
   "repository": {
     "type": "git",
-    "url": "https://github.com/your-handle/shedu-rules-example"
+    "url": "https://github.com/your-handle/mythos-agent-rules-example"
   },
   "keywords": [
-    "shedu",
+    "mythos-agent",
     "security",
     "rule-pack",
     "static-analysis"
@@ -26,7 +26,7 @@
     "js-yaml": "^4.1.0"
   },
   "peerDependencies": {
-    "shedu": ">=2.0.0"
+    "mythos-agent": ">=2.0.0"
   },
   "engines": {
     "node": ">=18"

@@ -53,7 +53,7 @@ export async function importCommand(filePath: string, options: ImportOptions) {
     return;
   }
 
-  // Save as shedu results
+  // Save as mythos-agent results
   const result: ScanResult = {
     projectPath,
     timestamp: new Date().toISOString(),
@@ -73,7 +73,9 @@ export async function importCommand(filePath: string, options: ImportOptions) {
       `\n✅ Imported ${findings.length} findings from ${options.format || "auto-detected"} format.\n`
     )
   );
-  console.log(chalk.dim("  Run shedu report to view, or shedu fix to generate patches.\n"));
+  console.log(
+    chalk.dim("  Run mythos-agent report to view, or mythos-agent fix to generate patches.\n")
+  );
 }
 
 function importSarif(content: string): Vulnerability[] {

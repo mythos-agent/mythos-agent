@@ -1,5 +1,5 @@
 name: Bug Report
-description: Report a bug in shedu
+description: Report a bug in mythos-agent
 title: "[Bug]: "
 labels: ["bug"]
 body:
@@ -13,7 +13,7 @@ body:
     attributes:
       label: Description
       description: What happened? What did you expect to happen?
-      placeholder: "When I run shedu scan, it..."
+      placeholder: "When I run mythos-agent scan, it..."
     validations:
       required: true
 
@@ -23,7 +23,7 @@ body:
       label: Steps to Reproduce
       description: How can we reproduce the issue?
       value: |
-        1. Run `shedu ...`
+        1. Run `mythos-agent ...`
         2. ...
         3. See error
     validations:
@@ -57,7 +57,7 @@ body:
   - type: input
     id: version
     attributes:
-      label: shedu Version
+      label: mythos-agent Version
       placeholder: "2.0.0"
     validations:
       required: true

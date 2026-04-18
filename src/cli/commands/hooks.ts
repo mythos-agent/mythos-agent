@@ -4,46 +4,46 @@ import { spawnSync } from "node:child_process";
 import chalk from "chalk";
 
 const PRE_COMMIT_HOOK = `#!/bin/sh
-# shedu pre-commit hook
+# mythos-agent pre-commit hook
 # Scans staged files for security vulnerabilities before allowing commit
 
-echo "🔐 shedu: scanning staged changes..."
+echo "🔐 mythos-agent: scanning staged changes..."
 
-# Run shedu on staged files only
-npx shedu scan . --diff --no-ai --no-chain --no-deps --severity critical 2>/dev/null
+# Run mythos-agent on staged files only
+npx mythos-agent scan . --diff --no-ai --no-chain --no-deps --severity critical 2>/dev/null
 
 EXIT_CODE=$?
 
 if [ $EXIT_CODE -ne 0 ]; then
   echo ""
-  echo "❌ shedu found critical security issues."
+  echo "❌ mythos-agent found critical security issues."
   echo "   Fix them before committing, or bypass with: git commit --no-verify"
   echo ""
   exit 1
 fi
 
-echo "✅ shedu: no critical issues found."
+echo "✅ mythos-agent: no critical issues found."
 `;
 
 const PRE_PUSH_HOOK = `#!/bin/sh
-# shedu pre-push hook
+# mythos-agent pre-push hook
 # Full security scan before pushing
 
-echo "🔐 shedu: running security scan before push..."
+echo "🔐 mythos-agent: running security scan before push..."
 
-npx shedu ci --fail-on high 2>/dev/null
+npx mythos-agent ci --fail-on high 2>/dev/null
 
 EXIT_CODE=$?
 
 if [ $EXIT_CODE -ne 0 ]; then
   echo ""
-  echo "❌ shedu found high/critical security issues."
+  echo "❌ mythos-agent found high/critical security issues."
   echo "   Fix them before pushing, or bypass with: git push --no-verify"
   echo ""
   exit 1
 fi
 
-echo "✅ shedu: security check passed."
+echo "✅ mythos-agent: security check passed."
 `;
 
 export async function hooksInstallCommand(options: {
@@ -94,7 +94,7 @@ export async function hooksUninstallCommand(options: { path?: string }) {
     const hookPath = path.join(hooksDir, hook);
     if (fs.existsSync(hookPath)) {
       const content = fs.readFileSync(hookPath, "utf-8");
-      if (content.includes("shedu")) {
+      if (content.includes("mythos-agent")) {
         fs.unlinkSync(hookPath);
         console.log(chalk.dim(`  Removed ${hook} hook`));
         removed++;
@@ -103,7 +103,7 @@ export async function hooksUninstallCommand(options: { path?: string }) {
   }
 
   if (removed === 0) {
-    console.log(chalk.dim("\n  No shedu hooks found.\n"));
+    console.log(chalk.dim("\n  No mythos-agent hooks found.\n"));
   } else {
     console.log(chalk.green(`\n  ✅ ${removed} hook(s) removed.\n`));
   }

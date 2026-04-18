@@ -20,7 +20,7 @@ export async function diffReportCommand(options: DiffReportOptions) {
   const projectPath = path.resolve(options.path || ".");
   const config = loadConfig(projectPath);
 
-  console.log(chalk.bold("\n📝 shedu diff-report\n"));
+  console.log(chalk.bold("\n📝 mythos-agent diff-report\n"));
   console.log(chalk.dim(`  Base: ${options.base}`));
   console.log(chalk.dim(`  Path: ${projectPath}\n`));
 

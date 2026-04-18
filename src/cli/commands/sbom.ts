@@ -76,7 +76,7 @@ function generateCycloneDx(deps: Dependency[], projectPath: string): string {
       version: 1,
       metadata: {
         timestamp: new Date().toISOString(),
-        tools: [{ vendor: "shedu", name: "shedu", version: "1.0.0" }],
+        tools: [{ vendor: "mythos-agent", name: "mythos-agent", version: "1.0.0" }],
         component: {
           type: "application",
           name: projectName,
@@ -118,7 +118,7 @@ function generateSpdx(deps: Dependency[], projectPath: string): string {
       documentNamespace: `https://sphinx-agent.dev/sbom/${projectName}/${timestamp}`,
       creationInfo: {
         created: timestamp,
-        creators: ["Tool: shedu-1.0.0"],
+        creators: ["Tool: mythos-agent-1.0.0"],
       },
       packages: [
         {

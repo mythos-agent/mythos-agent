@@ -14,7 +14,7 @@ export async function doctorCommand(options: DoctorOptions) {
   const projectPath = path.resolve(options.path || ".");
   const config = loadConfig(projectPath);
 
-  console.log(chalk.bold("\n🩺 shedu doctor\n"));
+  console.log(chalk.bold("\n🩺 mythos-agent doctor\n"));
   console.log(chalk.dim("━".repeat(50)));
 
   let score = 0;
@@ -27,7 +27,9 @@ export async function doctorCommand(options: DoctorOptions) {
     score += 1;
     console.log(chalk.green("  ✓ Config file found:") + chalk.dim(` ${configFile}`));
   } else {
-    console.log(chalk.yellow("  ✗ No .sphinx.yml config file") + chalk.dim(" — run: shedu init"));
+    console.log(
+      chalk.yellow("  ✗ No .sphinx.yml config file") + chalk.dim(" — run: mythos-agent init")
+    );
   }
 
   // 2. API key
@@ -76,7 +78,7 @@ export async function doctorCommand(options: DoctorOptions) {
   } else {
     console.log(
       chalk.yellow("  ✗ No API key configured") +
-        chalk.dim(" — AI features disabled. Run: shedu init")
+        chalk.dim(" — AI features disabled. Run: mythos-agent init")
     );
   }
 
@@ -135,7 +137,7 @@ export async function doctorCommand(options: DoctorOptions) {
     score += 1;
     console.log(chalk.green("  ✓ Policy file configured"));
   } else {
-    console.log(chalk.dim("  ✗ No policy file") + chalk.dim(" — run: shedu policy init"));
+    console.log(chalk.dim("  ✗ No policy file") + chalk.dim(" — run: mythos-agent policy init"));
   }
 
   // 7. IaC files
@@ -166,12 +168,12 @@ export async function doctorCommand(options: DoctorOptions) {
 
   // Recommendations
   const recommendations: string[] = [];
-  if (!configFile) recommendations.push("Run `shedu init` to create config");
+  if (!configFile) recommendations.push("Run `mythos-agent init` to create config");
   if (!config.apiKey) recommendations.push("Add API key for AI-powered analysis");
   if (installedTools.length < 2)
     recommendations.push("Install Semgrep + Trivy for deeper scanning");
   if (!fs.existsSync(policyPath))
-    recommendations.push("Run `shedu policy init` to enforce standards");
+    recommendations.push("Run `mythos-agent policy init` to enforce standards");
 
   if (recommendations.length > 0) {
     console.log(chalk.bold("\n  Recommendations:\n"));

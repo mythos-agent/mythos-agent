@@ -23,14 +23,14 @@ export async function taintCommand(taintPath: string, options: TaintOptions) {
     console.log(
       chalk.yellow(
         "\n⚠️  API key required for taint analysis. Run " +
-          chalk.cyan("shedu init") +
+          chalk.cyan("mythos-agent init") +
           " to configure.\n"
       )
     );
     return;
   }
 
-  console.log(chalk.bold("\n🔬 shedu taint — AI Data Flow Analysis\n"));
+  console.log(chalk.bold("\n🔬 mythos-agent taint — AI Data Flow Analysis\n"));
   console.log(chalk.dim(`Project: ${projectPath}\n`));
 
   const spinner = ora("Tracing data flows from sources to sinks...").start();

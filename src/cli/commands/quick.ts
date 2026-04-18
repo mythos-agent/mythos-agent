@@ -97,11 +97,11 @@ export async function quickCommand(options: QuickOptions) {
   // Suggested next action
   console.log();
   if (counts.critical > 0) {
-    console.log(chalk.cyan("  → shedu fix --severity critical --apply"));
+    console.log(chalk.cyan("  → mythos-agent fix --severity critical --apply"));
   } else if (counts.high > 0) {
-    console.log(chalk.cyan("  → shedu fix --severity high --apply"));
+    console.log(chalk.cyan("  → mythos-agent fix --severity high --apply"));
   } else {
-    console.log(chalk.cyan("  → shedu scan  (for full analysis)"));
+    console.log(chalk.cyan("  → mythos-agent scan  (for full analysis)"));
   }
   console.log();
 }

@@ -1,13 +1,13 @@
 blank_issues_enabled: false
 contact_links:
   - name: Question or usage help
-    url: https://github.com/zhijiewong/shedu/discussions/categories/q-a
+    url: https://github.com/mythos-agent/mythos-agent/discussions/categories/q-a
     about: Please ask usage questions in Discussions — issues are reserved for confirmed bugs and feature requests.
   - name: Idea or feature brainstorm
-    url: https://github.com/zhijiewong/shedu/discussions/categories/ideas
+    url: https://github.com/mythos-agent/mythos-agent/discussions/categories/ideas
     about: For early-stage ideas, start a discussion first. Concrete feature requests should use the Feature Request template.
   - name: Security vulnerability
-    url: https://github.com/zhijiewong/shedu/security/policy
+    url: https://github.com/mythos-agent/mythos-agent/security/policy
     about: Do NOT file security issues here. See SECURITY.md for coordinated disclosure via email.
   - name: Code of Conduct report
     url: mailto:conduct@sphinx-agent.dev

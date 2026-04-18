@@ -96,7 +96,7 @@ export async function licenseCommand(options: LicenseOptions) {
     denyList.length > 0 ? licenses.filter((l) => denyList.some((d) => l.license.includes(d))) : [];
   const ok = licenses.filter((l) => l.risk === "ok");
 
-  console.log(chalk.bold("\n📜 shedu license\n"));
+  console.log(chalk.bold("\n📜 mythos-agent license\n"));
   console.log(chalk.dim(`  ${licenses.length} dependencies analyzed\n`));
 
   console.log(

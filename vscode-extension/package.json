@@ -1,9 +1,9 @@
 {
-  "name": "shedu-vscode",
-  "displayName": "shedu — AI Security Scanner",
+  "name": "mythos-agent-vscode",
+  "displayName": "mythos-agent — AI Security Scanner",
   "description": "Find vulnerabilities, chain them into attack paths, and auto-fix with AI. Mythos for everyone.",
   "version": "0.3.0",
-  "publisher": "shedu",
+  "publisher": "mythos-agent",
   "icon": "icon.png",
   "engines": {
     "vscode": "^1.85.0"
@@ -28,47 +28,47 @@
   "contributes": {
     "commands": [
       {
-        "command": "shedu.scanFile",
-        "title": "shedu: Scan Current File"
+        "command": "mythos-agent.scanFile",
+        "title": "mythos-agent: Scan Current File"
       },
       {
-        "command": "shedu.scanWorkspace",
-        "title": "shedu: Scan Workspace"
+        "command": "mythos-agent.scanWorkspace",
+        "title": "mythos-agent: Scan Workspace"
       },
       {
-        "command": "shedu.fixVulnerability",
-        "title": "shedu: Fix Vulnerability with AI"
+        "command": "mythos-agent.fixVulnerability",
+        "title": "mythos-agent: Fix Vulnerability with AI"
       },
       {
-        "command": "shedu.clearDiagnostics",
-        "title": "shedu: Clear All Diagnostics"
+        "command": "mythos-agent.clearDiagnostics",
+        "title": "mythos-agent: Clear All Diagnostics"
       }
     ],
     "configuration": {
-      "title": "shedu",
+      "title": "mythos-agent",
       "properties": {
-        "shedu.scanOnSave": {
+        "mythos-agent.scanOnSave": {
           "type": "boolean",
           "default": true,
           "description": "Automatically scan files for vulnerabilities on save"
         },
-        "shedu.severity": {
+        "mythos-agent.severity": {
           "type": "string",
           "default": "low",
           "enum": ["critical", "high", "medium", "low"],
           "description": "Minimum severity level to display"
         },
-        "shedu.enableSecrets": {
+        "mythos-agent.enableSecrets": {
           "type": "boolean",
           "default": true,
           "description": "Enable secrets detection"
         },
-        "shedu.enableAI": {
+        "mythos-agent.enableAI": {
           "type": "boolean",
           "default": false,
           "description": "Enable AI-powered deep analysis (requires API key)"
         },
-        "shedu.apiKey": {
+        "mythos-agent.apiKey": {
           "type": "string",
           "default": "",
           "description": "Anthropic API key for AI features"

@@ -21,9 +21,9 @@ export function renderSarifReport(result: ScanResult): string {
       {
         tool: {
           driver: {
-            name: "shedu",
+            name: "mythos-agent",
             version: "0.2.0",
-            informationUri: "https://github.com/zhijiewong/shedu",
+            informationUri: "https://github.com/mythos-agent/mythos-agent",
             rules: buildRules(result.confirmedVulnerabilities),
           },
         },

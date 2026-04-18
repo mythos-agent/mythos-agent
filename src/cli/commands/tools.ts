@@ -2,7 +2,7 @@ import chalk from "chalk";
 import { checkAllTools } from "../../tools/index.js";
 
 export async function toolsCheckCommand() {
-  console.log(chalk.bold("\n🔧 shedu tools\n"));
+  console.log(chalk.bold("\n🔧 mythos-agent tools\n"));
 
   const tools = checkAllTools();
   const maxName = Math.max(...tools.map((t) => t.name.length));
@@ -24,7 +24,7 @@ export async function toolsCheckCommand() {
   console.log(chalk.dim(`\n  ${installed}/${total} tools available.`));
 
   if (installed < total) {
-    console.log(chalk.dim("\n  shedu works without external tools (built-in rules)."));
+    console.log(chalk.dim("\n  mythos-agent works without external tools (built-in rules)."));
     console.log(chalk.dim("  Install tools for deeper analysis:\n"));
 
     const missing = tools.filter((t) => !t.installed);

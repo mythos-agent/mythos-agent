@@ -2,7 +2,7 @@ name: SBOM Generation
 
 # Generates a CycloneDX SBOM for every published release and attaches it to
 # the GitHub release. Downstream Manufacturers (per EU CRA) need this to
-# satisfy their SBOM coverage obligations when they integrate shedu.
+# satisfy their SBOM coverage obligations when they integrate mythos-agent.
 
 on:
   release:
@@ -40,7 +40,7 @@ jobs:
         run: |
           npx --yes @cyclonedx/cyclonedx-npm \
             --output-format JSON \
-            --output-file shedu-sbom.cdx.json \
+            --output-file mythos-agent-sbom.cdx.json \
             --spec-version 1.6 \
             --validate
 
@@ -48,7 +48,7 @@ jobs:
         run: |
           npx --yes @cyclonedx/cyclonedx-npm \
             --output-format XML \
-            --output-file shedu-sbom.cdx.xml \
+            --output-file mythos-agent-sbom.cdx.xml \
             --spec-version 1.6 \
             --validate
 
@@ -62,34 +62,34 @@ jobs:
           COSIGN_EXPERIMENTAL: "1"
         run: |
           cosign sign-blob --yes \
-            --output-signature shedu-sbom.cdx.json.sig \
-            --output-certificate shedu-sbom.cdx.json.crt \
-            shedu-sbom.cdx.json
+            --output-signature mythos-agent-sbom.cdx.json.sig \
+            --output-certificate mythos-agent-sbom.cdx.json.crt \
+            mythos-agent-sbom.cdx.json
           cosign sign-blob --yes \
-            --output-signature shedu-sbom.cdx.xml.sig \
-            --output-certificate shedu-sbom.cdx.xml.crt \
-            shedu-sbom.cdx.xml
+            --output-signature mythos-agent-sbom.cdx.xml.sig \
+            --output-certificate mythos-agent-sbom.cdx.xml.crt \
+            mythos-agent-sbom.cdx.xml
 
       - name: Upload SBOMs to release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ github.event.release.tag_name || inputs.tag }}
           files: |
-            shedu-sbom.cdx.json
-            shedu-sbom.cdx.json.sig
-            shedu-sbom.cdx.json.crt
-            shedu-sbom.cdx.xml
-            shedu-sbom.cdx.xml.sig
-            shedu-sbom.cdx.xml.crt
+            mythos-agent-sbom.cdx.json
+            mythos-agent-sbom.cdx.json.sig
+            mythos-agent-sbom.cdx.json.crt
+            mythos-agent-sbom.cdx.xml
+            mythos-agent-sbom.cdx.xml.sig
+            mythos-agent-sbom.cdx.xml.crt
           fail_on_unmatched_files: true
 
       - name: Upload SBOM as CI artifact (audit trail)
         uses: actions/upload-artifact@v4
         with:
-          name: shedu-sbom-${{ github.event.release.tag_name || inputs.tag }}
+          name: mythos-agent-sbom-${{ github.event.release.tag_name || inputs.tag }}
           path: |
-            shedu-sbom.cdx.json
-            shedu-sbom.cdx.xml
+            mythos-agent-sbom.cdx.json
+            mythos-agent-sbom.cdx.xml
           retention-days: 365
 
 # SBOM policy and consumption guidance: docs/security/sbom.md

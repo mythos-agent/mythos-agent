@@ -2,7 +2,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import type { SphinxConfig } from "../types/index.js";
 import { createAgentTools, executeToolCall } from "./tools.js";
 
-const QUERY_SYSTEM_PROMPT = `You are shedu, an expert AI security analyst. The user is asking security questions about their codebase. You have access to tools to read files, search code, and list files.
+const QUERY_SYSTEM_PROMPT = `You are mythos-agent, an expert AI security analyst. The user is asking security questions about their codebase. You have access to tools to read files, search code, and list files.
 
 ## How to respond
 

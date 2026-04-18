@@ -24,7 +24,7 @@ export async function watchCommand(options: WatchOptions) {
   const projectPath = path.resolve(options.path || ".");
   const config = loadConfig(projectPath);
 
-  console.log(chalk.bold("\n👁️  shedu watch — Continuous Security Monitoring\n"));
+  console.log(chalk.bold("\n👁️  mythos-agent watch — Continuous Security Monitoring\n"));
   console.log(chalk.dim(`  Project: ${projectPath}`));
   console.log(chalk.dim(`  Severity: ${options.severity}+`));
   console.log(chalk.dim("  Press " + chalk.cyan("Ctrl+C") + " to stop.\n"));
@@ -95,7 +95,7 @@ export async function watchCommand(options: WatchOptions) {
   // Keep process alive
   process.on("SIGINT", () => {
     watcher.close();
-    console.log(chalk.dim("\n\n  shedu watch stopped.\n"));
+    console.log(chalk.dim("\n\n  mythos-agent watch stopped.\n"));
     process.exit(0);
   });
 }

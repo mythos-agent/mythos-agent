@@ -44,7 +44,7 @@ describe("CLI smoke tests", () => {
     it("runs without throwing and reports installed tool count", async () => {
       await expect(toolsCheckCommand()).resolves.not.toThrow();
       const output = logSpy.mock.calls.flat().join("\n");
-      expect(output).toMatch(/shedu tools/);
+      expect(output).toMatch(/mythos-agent tools/);
       // The summary line is "<n>/<m> tools available."
       expect(output).toMatch(/\d+\/\d+ tools available/);
     });
@@ -54,7 +54,7 @@ describe("CLI smoke tests", () => {
     it("handles empty project (no scan results) gracefully", async () => {
       await expect(statsCommand({ path: tmpDir })).resolves.not.toThrow();
       const output = logSpy.mock.calls.flat().join("\n");
-      expect(output).toMatch(/shedu stats/);
+      expect(output).toMatch(/mythos-agent stats/);
       expect(output).toMatch(/No scan results yet/);
     });
   });
@@ -79,7 +79,7 @@ describe("CLI smoke tests", () => {
     it("runs health checks against an empty project without throwing", async () => {
       await expect(doctorCommand({ path: tmpDir })).resolves.not.toThrow();
       const output = logSpy.mock.calls.flat().join("\n");
-      expect(output).toMatch(/shedu doctor/);
+      expect(output).toMatch(/mythos-agent doctor/);
     });
   });
 

@@ -13,7 +13,7 @@ export interface Patch {
   endLine: number;
 }
 
-const FIX_SYSTEM_PROMPT = `You are shedu, an expert security engineer. Your task is to generate precise, minimal patches that fix security vulnerabilities without breaking functionality.
+const FIX_SYSTEM_PROMPT = `You are mythos-agent, an expert security engineer. Your task is to generate precise, minimal patches that fix security vulnerabilities without breaking functionality.
 
 ## Rules
 

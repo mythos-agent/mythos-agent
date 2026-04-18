@@ -1,15 +1,15 @@
 # SBOM Policy
 
-How shedu produces, distributes, and maintains its Software Bill of Materials.
+How mythos-agent produces, distributes, and maintains its Software Bill of Materials.
 
 ## What we publish
 
-For every release of shedu, we publish a CycloneDX SBOM in two formats:
+For every release of mythos-agent, we publish a CycloneDX SBOM in two formats:
 
 | Artifact | Format | Spec version |
 |---|---|---|
-| `shedu-sbom.cdx.json` | CycloneDX JSON | 1.6 |
-| `shedu-sbom.cdx.xml` | CycloneDX XML | 1.6 |
+| `mythos-agent-sbom.cdx.json` | CycloneDX JSON | 1.6 |
+| `mythos-agent-sbom.cdx.xml` | CycloneDX XML | 1.6 |
 
 Both are attached to the corresponding GitHub release and are signed with cosign (keyless). Signatures (`.sig`) and certificates (`.crt`) are attached alongside.
 
@@ -32,13 +32,13 @@ Manual regeneration: trigger `SBOM Generation` workflow manually with the releas
 
 The SBOM covers:
 
-- The shedu npm package itself
+- The mythos-agent npm package itself
 - All production dependencies (transitive included) per the published `package.json` / `package-lock.json`
 
 The SBOM does **not** cover:
 
 - Development-only dependencies (test runners, linters, type-checkers)
-- External tools that shedu invokes via subprocess (Semgrep, Trivy, Gitleaks, Checkov, Nuclei) — these are user-installed and tracked in their own SBOMs
+- External tools that mythos-agent invokes via subprocess (Semgrep, Trivy, Gitleaks, Checkov, Nuclei) — these are user-installed and tracked in their own SBOMs
 - The Docker image layers — a separate Docker SBOM lands in H2 2026
 - LLM model weights — these are user-fetched and not redistributed
 
@@ -49,11 +49,11 @@ Downstream Manufacturers verifying SBOM integrity:
 ```bash
 # Download the SBOM, signature, and certificate from the release page
 cosign verify-blob \
-  --certificate shedu-sbom.cdx.json.crt \
-  --signature   shedu-sbom.cdx.json.sig \
-  --certificate-identity-regexp 'https://github.com/zhijiewong/shedu/.github/workflows/sbom\.yml@.*' \
+  --certificate mythos-agent-sbom.cdx.json.crt \
+  --signature   mythos-agent-sbom.cdx.json.sig \
+  --certificate-identity-regexp 'https://github.com/mythos-agent/mythos-agent/.github/workflows/sbom\.yml@.*' \
   --certificate-oidc-issuer 'https://token.actions.githubusercontent.com' \
-  shedu-sbom.cdx.json
+  mythos-agent-sbom.cdx.json
 ```
 
 If verification fails, treat the SBOM as untrusted and report at [SECURITY.md](../../SECURITY.md).
@@ -70,7 +70,7 @@ We are open to adding SPDX output if a downstream Manufacturer asks for it; open
 
 ## How this maps to EU CRA
 
-Under the EU Cyber Resilience Act, a Manufacturer placing a product on the EU market must include an SBOM covering the product's components. When you integrate shedu into such a product, our SBOM gives you:
+Under the EU Cyber Resilience Act, a Manufacturer placing a product on the EU market must include an SBOM covering the product's components. When you integrate mythos-agent into such a product, our SBOM gives you:
 
 - A machine-readable component list to merge into your product's SBOM
 - License metadata for each dependency (sufficient for CRA Annex II)

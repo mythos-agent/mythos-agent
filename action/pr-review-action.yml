@@ -1,6 +1,6 @@
-name: "shedu PR Review"
+name: "mythos-agent PR Review"
 description: "AI-powered security review for pull requests. Posts inline comments on vulnerable lines."
-author: "shedu"
+author: "mythos-agent"
 
 branding:
   icon: "shield"
@@ -27,9 +27,9 @@ runs:
       with:
         node-version: "20"
 
-    - name: Install shedu
+    - name: Install mythos-agent
       shell: bash
-      run: npm install -g shedu typescript tsx
+      run: npm install -g mythos-agent typescript tsx
 
     - name: Fetch PR base for diff
       shell: bash

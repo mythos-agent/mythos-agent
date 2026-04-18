@@ -1,12 +1,12 @@
-# shedu Launch Kit
+# mythos-agent Launch Kit
 
-Everything you need to publish and promote shedu on launch day.
+Everything you need to publish and promote mythos-agent on launch day.
 
 ---
 
 ## Pre-Launch Checklist
 
-- [ ] Create GitHub org `shedu` and transfer repo from `zhijiewong/shedu`
+- [ ] Create GitHub org `mythos-agent` and transfer repo from `mythos-agent/mythos-agent`
 - [ ] Update `package.json` repository/homepage URLs to new org
 - [ ] Make repo public
 - [ ] `npm publish` (first publish claims the package name)
@@ -23,14 +23,14 @@ Everything you need to publish and promote shedu on launch day.
 
 ### Title (under 80 chars)
 ```
-Show HN: shedu – AI security agent with 49 scanners and 329 rules (OSS)
+Show HN: mythos-agent – AI security agent with 49 scanners and 329 rules (OSS)
 ```
 
 ### Body
 ```
 Hi HN,
 
-I built shedu, an open-source AI security agent inspired by Anthropic's Mythos. Unlike traditional scanners that match known patterns, shedu reasons about your code like a security researcher.
+I built mythos-agent, an open-source AI security agent inspired by Anthropic's Mythos. Unlike traditional scanners that match known patterns, mythos-agent reasons about your code like a security researcher.
 
 What makes it different:
 
@@ -49,11 +49,11 @@ By the numbers:
 - Full OWASP Top 10 coverage
 
 Quick start:
-  npx shedu scan        # pattern scan (no API key needed)
-  npx shedu hunt        # full AI-powered security hunt
-  npx shedu quick       # 10-second security check
+  npx mythos-agent scan        # pattern scan (no API key needed)
+  npx mythos-agent hunt        # full AI-powered security hunt
+  npx mythos-agent quick       # 10-second security check
 
-GitHub: https://github.com/zhijiewong/shedu
+GitHub: https://github.com/mythos-agent/mythos-agent
 
 Built with TypeScript. MIT licensed. 25K lines, 96 tests, 4 code reviews.
 
@@ -66,7 +66,7 @@ I'd love feedback on the scanning approach and what vulnerability categories I s
 
 ### Main Launch Tweet
 ```
-🔐 Introducing shedu — the AI security agent that guards your code.
+🔐 Introducing mythos-agent — the AI security agent that guards your code.
 
 Open-source Mythos for everyone.
 
@@ -76,14 +76,14 @@ Open-source Mythos for everyone.
 → CVE variant analysis (Big Sleep technique)
 → AI-guided fuzzing with PoC generation
 
-npx shedu scan
+npx mythos-agent scan
 
-github.com/zhijiewong/shedu
+github.com/mythos-agent/mythos-agent
 ```
 
 ### Thread Post 2 — What Makes It Different
 ```
-What makes shedu different from Semgrep/Snyk/CodeQL?
+What makes mythos-agent different from Semgrep/Snyk/CodeQL?
 
 1️⃣ It REASONS about code, not just matches patterns
 2️⃣ It generates hypotheses: "this function could be vulnerable because..."
@@ -110,7 +110,7 @@ What makes shedu different from Semgrep/Snyk/CodeQL?
 ```
 Try it in 10 seconds:
 
-npx shedu quick
+npx mythos-agent quick
 
 Output:
 🔐 2.3/10 | 3C 8H 2M (13ms)
@@ -119,20 +119,20 @@ Output:
   🔴 JWT None Algorithm — src/auth.ts:78
   🔴 Hardcoded Secret — src/config.ts:12
 
-  → shedu fix --severity critical --apply
+  → mythos-agent fix --severity critical --apply
 
 One command. Instant results.
 ```
 
 ### Thread Post 5 — Call to Action
 ```
-shedu is MIT licensed and free forever.
+mythos-agent is MIT licensed and free forever.
 
 ⭐ Star if you want to see more AI-powered security tools
 🔧 Contribute: we have "good first issue" labels
-📦 npm install -g shedu
+📦 npm install -g mythos-agent
 
-github.com/zhijiewong/shedu
+github.com/mythos-agent/mythos-agent
 
 Built with Claude Opus 4.6 — 25K lines in a single coding session.
 ```
@@ -143,7 +143,7 @@ Built with Claude Opus 4.6 — 25K lines in a single coding session.
 
 ### r/netsec Post
 ```
-Title: shedu: Open-source AI security scanner with 49 categories, 329+ rules, hypothesis-driven scanning
+Title: mythos-agent: Open-source AI security scanner with 49 categories, 329+ rules, hypothesis-driven scanning
 
 I built an open-source security scanner that uses AI to reason about code rather than just matching patterns. It combines traditional SAST with AI-powered techniques inspired by Google's Big Sleep and Anthropic's Mythos.
 
@@ -158,7 +158,7 @@ Covers: injection (SQL, NoSQL, command, SSTI), XSS (8 DOM patterns), auth (JWT, 
 
 Works with Claude, GPT-4o, or local models (Ollama). Pattern scanning works without any API key.
 
-GitHub: https://github.com/zhijiewong/shedu
+GitHub: https://github.com/mythos-agent/mythos-agent
 
 Feedback welcome — especially from pentesters on what rules/checks are missing.
 ```
@@ -167,7 +167,7 @@ Feedback welcome — especially from pentesters on what rules/checks are missing
 ```
 Title: I built a 25K-line AI security scanner with 49 vulnerability categories in TypeScript
 
-shedu is an open-source AI security agent. Instead of just matching regex patterns like most SAST tools, it uses AI to reason about what could go wrong in your code.
+mythos-agent is an open-source AI security agent. Instead of just matching regex patterns like most SAST tools, it uses AI to reason about what could go wrong in your code.
 
 Some numbers:
 - 25K lines of TypeScript
@@ -179,16 +179,16 @@ Some numbers:
 
 The most interesting part: the hypothesis agent reads your functions and generates security hypotheses like "this transaction doesn't lock the row — potential race condition" rather than just matching known patterns.
 
-Try it: npx shedu scan
+Try it: npx mythos-agent scan
 
-GitHub: https://github.com/zhijiewong/shedu
+GitHub: https://github.com/mythos-agent/mythos-agent
 ```
 
 ### r/cybersecurity Post
 ```
 Title: Open-source AI security agent with AI/LLM security scanning, supply chain detection, and zero-trust validation
 
-Releasing shedu — a CLI security tool that combines 49 scanner categories with AI-powered analysis. A few highlights for this community:
+Releasing mythos-agent — a CLI security tool that combines 49 scanner categories with AI-powered analysis. A few highlights for this community:
 
 - AI/LLM Security: detects prompt injection, unsafe eval of AI output, API key exposure in client code, cost attacks (13 rules)
 - Supply Chain: typosquatting detection, dependency confusion, dangerous install scripts
@@ -198,7 +198,7 @@ Releasing shedu — a CLI security tool that combines 49 scanner categories with
 
 Also includes a STRIDE threat model generator, security scorecard with letter grades, and secrets rotation guides.
 
-Free, open-source, MIT licensed: https://github.com/zhijiewong/shedu
+Free, open-source, MIT licensed: https://github.com/mythos-agent/mythos-agent
 ```
 
 ---
@@ -206,9 +206,9 @@ Free, open-source, MIT licensed: https://github.com/zhijiewong/shedu
 ## LinkedIn Post
 
 ```
-🔐 Excited to announce shedu — an open-source AI security agent.
+🔐 Excited to announce mythos-agent — an open-source AI security agent.
 
-While Anthropic's Mythos finds zero-days for 40 elite organizations, shedu brings that capability to everyone.
+While Anthropic's Mythos finds zero-days for 40 elite organizations, mythos-agent brings that capability to everyone.
 
 What makes it unique:
 → Hypothesis-driven scanning (AI reasons about what COULD go wrong)
@@ -224,13 +224,13 @@ For security teams:
 • REST API and MCP server for tool integration
 
 For developers:
-• npx shedu quick — 10-second security check
-• npx shedu fix --apply — AI-generated patches
-• npx shedu ask "find auth bypasses" — natural language queries
+• npx mythos-agent quick — 10-second security check
+• npx mythos-agent fix --apply — AI-generated patches
+• npx mythos-agent ask "find auth bypasses" — natural language queries
 
 MIT licensed. Free forever.
 
-🔗 GitHub: https://github.com/zhijiewong/shedu
+🔗 GitHub: https://github.com/mythos-agent/mythos-agent
 
 #cybersecurity #opensource #devsecops #appsec #ai
 ```
@@ -245,7 +245,7 @@ MIT licensed. Free forever.
 
 ### Product Hunt Description (260 chars)
 ```
-shedu is an AI security agent with 49 scanner categories and 329+ rules. Unlike pattern matchers, it hypothesizes vulnerabilities, finds CVE variants, generates PoC exploits, and auto-fixes issues. Covers AI/LLM, API, cloud, supply chain, and more.
+mythos-agent is an AI security agent with 49 scanner categories and 329+ rules. Unlike pattern matchers, it hypothesizes vulnerabilities, finds CVE variants, generates PoC exploits, and auto-fixes issues. Covers AI/LLM, API, cloud, supply chain, and more.
 ```
 
 ---
@@ -256,12 +256,12 @@ shedu is an AI security agent with 49 scanner categories and 329+ rules. Unlike 
 
 1. **The Problem** — Mythos finds zero-days for 40 companies. Everyone else uses Semgrep.
 2. **The Gap** — Pattern matching vs. semantic reasoning. What Big Sleep proved.
-3. **The Solution** — shedu: hypothesis-driven scanning + variant analysis
+3. **The Solution** — mythos-agent: hypothesis-driven scanning + variant analysis
 4. **Architecture** — Multi-agent swarm: Recon → Hypothesize → Analyze → Exploit
 5. **Demo** — Walk through scanning a real project, showing hypothesis output
 6. **The Numbers** — 49 categories, 329 rules, 58 commands, 4 code reviews
 7. **What's Next** — Documentation site, more language support, community rules
-8. **Try It** — `npx shedu scan`
+8. **Try It** — `npx mythos-agent scan`
 
 ---
 
@@ -272,7 +272,7 @@ shedu is an AI security agent with 49 scanner categories and 329+ rules. Unlike 
 ```
 Hi [Name],
 
-I'm launching shedu, an open-source AI security agent that combines 49 vulnerability scanner categories with AI-powered analysis.
+I'm launching mythos-agent, an open-source AI security agent that combines 49 vulnerability scanner categories with AI-powered analysis.
 
 Key differentiators from Semgrep/Snyk:
 - Hypothesis-driven scanning (AI reasons about each function)
@@ -283,7 +283,7 @@ Key differentiators from Semgrep/Snyk:
 
 Would this be a good fit for [newsletter name]? Happy to provide more details or a demo.
 
-GitHub: https://github.com/zhijiewong/shedu
+GitHub: https://github.com/mythos-agent/mythos-agent
 
 Best,
 [Your name]
@@ -303,7 +303,7 @@ Best,
 ## GitHub Release Notes (v2.0.0)
 
 ```markdown
-## shedu v2.0.0 — The AI Security Agent
+## mythos-agent v2.0.0 — The AI Security Agent
 
 The most comprehensive open-source security scanner available.
 
@@ -316,8 +316,8 @@ The most comprehensive open-source security scanner available.
 
 ### Quick Start
 ```bash
-npm install -g shedu
-shedu scan
+npm install -g mythos-agent
+mythos-agent scan
 ```
 
 ### Full Changelog

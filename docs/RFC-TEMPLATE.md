@@ -41,7 +41,7 @@ The bulk of the RFC. Cover:
 - New components, files, or interfaces with their proposed paths under `src/`
 - Behavior changes (CLI output, JSON shapes, report formats, agent prompts)
 - Backwards compatibility — what breaks, what gets a deprecation cycle, what is wholly new
-- Configuration changes (env vars, `.shedu/config.json`, CLI flags)
+- Configuration changes (env vars, `.mythos-agent/config.json`, CLI flags)
 - Performance implications (with rough estimates if possible)
 - Security implications (cross-reference [`docs/security/threat-model.md`](../security/threat-model.md) attack surfaces if applicable)
 

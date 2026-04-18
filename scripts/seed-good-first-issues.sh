@@ -33,7 +33,7 @@ fi
 
 # Verify we're at the repo root
 if [[ ! -f "package.json" ]] || [[ ! -d "src/cli/commands" ]]; then
-  echo "ERROR: run from shedu repository root" >&2
+  echo "ERROR: run from mythos-agent repository root" >&2
   exit 1
 fi
 
@@ -90,7 +90,7 @@ for cmd in "${COMMANDS[@]}"; do
 
 Add a Vitest test suite for the \`${cmd}\` CLI command at \`src/cli/commands/${cmd}.ts\`.
 
-This is part of the H1 2026 "80% CLI test coverage" bucket. See the pinned [\`[Roadmap] shedu H1 2026 Goals\`](../../issues?q=is%3Aissue+is%3Aopen+%22%5BRoadmap%5D%22) issue.
+This is part of the H1 2026 "80% CLI test coverage" bucket. See the pinned [\`[Roadmap] mythos-agent H1 2026 Goals\`](../../issues?q=is%3Aissue+is%3Aopen+%22%5BRoadmap%5D%22) issue.
 
 ## Acceptance criteria
 
@@ -113,7 +113,7 @@ Right now \`${cmd}\` has no automated tests. A regression here would ship to npm
 
 ## Recognition
 
-Merging this PR earns a [Shedu Pioneer](../blob/main/docs/pioneers.md) badge in the **🧪 Test** category.
+Merging this PR earns a [Mythos-Agent Pioneer](../blob/main/docs/pioneers.md) badge in the **🧪 Test** category.
 
 ## Notes for reviewer
 

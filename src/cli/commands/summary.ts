@@ -24,11 +24,11 @@ export async function summaryCommand(options: SummaryOptions) {
   const tools = checkAllTools();
   const configFile = findConfigFile(projectPath);
 
-  console.log(chalk.bold(`\n🔐 shedu — ${projectName}\n`));
+  console.log(chalk.bold(`\n🔐 mythos-agent — ${projectName}\n`));
   console.log(chalk.dim("━".repeat(60)));
 
   if (!result) {
-    console.log(chalk.yellow("\n  No scan results. Run: shedu scan\n"));
+    console.log(chalk.yellow("\n  No scan results. Run: mythos-agent scan\n"));
     return;
   }
 
@@ -149,10 +149,11 @@ export async function summaryCommand(options: SummaryOptions) {
 
   // Quick actions
   console.log(chalk.bold("\n  Quick Actions"));
-  if (counts.critical > 0) console.log(chalk.cyan("    shedu fix --severity critical --apply"));
-  if (vulns.length > 0) console.log(chalk.cyan("    shedu plan"));
-  if (!configFile) console.log(chalk.cyan("    shedu generate"));
-  console.log(chalk.cyan("    shedu dashboard"));
+  if (counts.critical > 0)
+    console.log(chalk.cyan("    mythos-agent fix --severity critical --apply"));
+  if (vulns.length > 0) console.log(chalk.cyan("    mythos-agent plan"));
+  if (!configFile) console.log(chalk.cyan("    mythos-agent generate"));
+  console.log(chalk.cyan("    mythos-agent dashboard"));
 
   console.log();
 }

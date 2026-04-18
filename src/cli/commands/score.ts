@@ -29,7 +29,7 @@ export async function scoreCommand(options: ScoreOptions) {
   const projectPath = path.resolve(options.path || ".");
 
   if (!options.json) {
-    console.log(chalk.bold("\n🏆 shedu security scorecard\n"));
+    console.log(chalk.bold("\n🏆 mythos-agent security scorecard\n"));
   }
 
   const spinner = options.json ? null : ora("Analyzing security posture...").start();
@@ -186,7 +186,7 @@ export async function scoreCommand(options: ScoreOptions) {
   if (options.badge) {
     const badgeColor = totalScore >= 70 ? "brightgreen" : totalScore >= 50 ? "yellow" : "red";
     const badgeUrl = `https://img.shields.io/badge/security-${grade}%20(${totalScore}%25)-${badgeColor}`;
-    const badgeMd = `[![Security Score](${badgeUrl})](https://github.com/zhijiewong/shedu)`;
+    const badgeMd = `[![Security Score](${badgeUrl})](https://github.com/mythos-agent/mythos-agent)`;
 
     console.log(chalk.bold("  README Badge:\n"));
     console.log(chalk.cyan(`  ${badgeMd}`));

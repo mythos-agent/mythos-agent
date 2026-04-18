@@ -1,11 +1,11 @@
 {
-  "name": "sphinx-agent",
+  "name": "mythos-agent",
   "version": "2.0.2",
-  "description": "Agentic AI security scanner — Mythos for everyone. Finds vulnerabilities, chains them into attack paths, and generates patches.",
+  "description": "Open-source autonomous AI security agent. Reasons about code like a senior pentester to find vulnerabilities, chain them into attack paths, and generate validated patches.",
   "type": "module",
   "main": "dist/index.js",
   "bin": {
-    "sphinx-agent": "dist/cli/index.js"
+    "mythos-agent": "dist/cli/index.js"
   },
   "files": [
     "dist",
@@ -38,15 +38,15 @@
     "static-analysis",
     "agentic"
   ],
-  "author": "sphinx-agent contributors",
+  "author": "mythos-agent contributors",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/sphinx-agent/sphinx-agent.git"
+    "url": "https://github.com/mythos-agent/mythos-agent.git"
   },
-  "homepage": "https://github.com/sphinx-agent/sphinx-agent",
+  "homepage": "https://github.com/mythos-agent/mythos-agent",
   "bugs": {
-    "url": "https://github.com/sphinx-agent/sphinx-agent/issues"
+    "url": "https://github.com/mythos-agent/mythos-agent/issues"
   },
   "funding": "https://github.com/sponsors/zhijiewong",
   "publishConfig": {

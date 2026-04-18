@@ -1,13 +1,13 @@
 <p align="center">
-  <h1 align="center">shedu</h1>
+  <h1 align="center">mythos-agent</h1>
   <p align="center"><strong>The AI security agent that guards your code.</strong></p>
-  <p align="center"><em>The Shedu — an open-source autonomous security research agent.</em></p>
+  <p align="center"><em>The Mythos-Agent — an open-source autonomous security research agent.</em></p>
 </p>
 
 <p align="center">
-  <a href="https://github.com/zhijiewong/shedu/actions"><img src="https://github.com/zhijiewong/shedu/workflows/CI/badge.svg" alt="CI"></a>
-  <a href="https://www.npmjs.com/package/shedu"><img src="https://img.shields.io/npm/v/shedu" alt="npm"></a>
-  <a href="https://github.com/zhijiewong/shedu/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue" alt="License"></a>
+  <a href="https://github.com/mythos-agent/mythos-agent/actions"><img src="https://github.com/mythos-agent/mythos-agent/workflows/CI/badge.svg" alt="CI"></a>
+  <a href="https://www.npmjs.com/package/mythos-agent"><img src="https://img.shields.io/npm/v/mythos-agent" alt="npm"></a>
+  <a href="https://github.com/mythos-agent/mythos-agent/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue" alt="License"></a>
   <img src="https://img.shields.io/badge/node-%3E%3D18-green" alt="Node">
   <img src="https://img.shields.io/badge/scanners-49-purple" alt="Scanners">
   <img src="https://img.shields.io/badge/rules-329%2B-orange" alt="Rules">
@@ -27,18 +27,18 @@
 
 ---
 
-shedu **reasons about your code like a security researcher** — generating hypotheses about what could go wrong, finding variants of known CVEs, proving exploitability with PoC exploits, and auto-fixing what it finds. Inspired by the same research direction as Anthropic's proprietary Mythos security agent; not a clone, not affiliated. See [VISION.md](VISION.md) for the full framing.
+mythos-agent **reasons about your code like a security researcher** — generating hypotheses about what could go wrong, finding variants of known CVEs, proving exploitability with PoC exploits, and auto-fixing what it finds. Inspired by the same research direction as Anthropic's proprietary Mythos security agent; not a clone, not affiliated. See [VISION.md](VISION.md) for the full framing.
 
-> **For new contributors:** the active 6-month working plan is in the pinned issue **`[Roadmap] shedu H1 2026 Goals`**. Look for 🙋 markers — those are items where help is wanted. New here? See [CONTRIBUTING.md](CONTRIBUTING.md) for `good-first-issue` guidance.
+> **For new contributors:** the active 6-month working plan is in the pinned issue **`[Roadmap] mythos-agent H1 2026 Goals`**. Look for 🙋 markers — those are items where help is wanted. New here? See [CONTRIBUTING.md](CONTRIBUTING.md) for `good-first-issue` guidance.
 >
 > **For security teams and EU CRA-compliant downstream manufacturers:** see [SECURITY.md](SECURITY.md) for our vulnerability disclosure SLAs, [docs/security/cra-stance.md](docs/security/cra-stance.md) for our EU CRA role declaration, [docs/security/threat-model.md](docs/security/threat-model.md) for our public threat model, and [RELEASES.md](RELEASES.md) for our versioning, LTS, and EOL policy. OpenSSF Best Practices Badge (Passing) submission targeted **June 2026**; releases are signed via [Sigstore](docs/security/sbom.md) and ship with [CycloneDX SBOMs](docs/security/sbom.md) for downstream Manufacturer compliance.
 
 ```bash
-npx shedu hunt
+npx mythos-agent hunt
 ```
 
 ```
-🔐 shedu hunt — Autonomous Security Agent
+🔐 mythos-agent hunt — Autonomous Security Agent
 
 ✔ Phase 1: Reconnaissance — 12 entry points, express, typescript, postgresql
 ✔ Phase 2: Hypothesis — 8 security hypotheses generated
@@ -75,34 +75,34 @@ npx shedu hunt
 
 ```bash
 # Install
-npm install -g shedu
+npm install -g mythos-agent
 
 # Quick scan (no API key needed)
-shedu scan
+mythos-agent scan
 
 # Full autonomous hunt (needs API key)
-shedu init
-shedu hunt
+mythos-agent init
+mythos-agent hunt
 
 # Find variants of known CVEs
-shedu variants CVE-2021-44228
+mythos-agent variants CVE-2021-44228
 
 # Ask security questions
-shedu ask "are there any auth bypasses?"
+mythos-agent ask "are there any auth bypasses?"
 
 # Check available tools
-shedu tools
+mythos-agent tools
 ```
 
 ## How It Works
 
-shedu combines **three things no other open-source tool does together**:
+mythos-agent combines **three things no other open-source tool does together**:
 
 ### 1. Hypothesis-Driven Scanning
 Instead of matching known patterns, the AI **reasons about what COULD go wrong** — generating hypotheses like "this transaction doesn't lock the row, potential race condition" or "this auth check uses string comparison, potential timing attack."
 
 ### 2. Variant Analysis (Big Sleep technique)
-Given a known CVE, shedu finds **structurally similar but syntactically different** code in your codebase. Same root cause, different location. This is how Google's Big Sleep found 20 real zero-days.
+Given a known CVE, mythos-agent finds **structurally similar but syntactically different** code in your codebase. Same root cause, different location. This is how Google's Big Sleep found 20 real zero-days.
 
 ### 3. Multi-Stage Verification
 Every finding goes through a confidence pipeline:
@@ -133,7 +133,7 @@ Only findings that survive multiple stages are reported as "confirmed."
 
 ## Hunt Mode
 
-`shedu hunt` runs the full multi-agent pipeline:
+`mythos-agent hunt` runs the full multi-agent pipeline:
 
 ```
 ┌──────────────┐     ┌──────────────┐     ┌──────────────┐     ┌──────────────┐
@@ -153,10 +153,10 @@ Find code in your project that has the same root cause as known CVEs:
 
 ```bash
 # Search for Log4Shell-like patterns
-shedu variants CVE-2021-44228
+mythos-agent variants CVE-2021-44228
 
 # Auto-detect and scan for variants
-shedu variants --auto
+mythos-agent variants --auto
 ```
 
 The variant analyzer extracts the **root cause pattern** from the CVE (not the surface syntax) and searches your codebase for structurally similar code.
@@ -197,7 +197,7 @@ The variant analyzer extracts the **root cause pattern** from the CVE (not the s
 | **VS Code** | Extension with inline diagnostics + one-click AI fix |
 | **GitHub Action** | Scan on push/PR + SARIF upload to Code Scanning |
 | **PR Review Bot** | Inline comments on vulnerable lines in pull requests |
-| **Dashboard** | Local web UI at `shedu dashboard` |
+| **Dashboard** | Local web UI at `mythos-agent dashboard` |
 | **SARIF** | GitHub Code Scanning, VS Code, any SARIF tool |
 | **Policy Engine** | SOC2, HIPAA, PCI-DSS, OWASP compliance mapping |
 
@@ -214,7 +214,7 @@ Pattern scanning, secrets, deps, and IaC work without any API key.
 
 ## Comparison
 
-| Feature | shedu | Semgrep | Snyk | CodeQL | Nuclei |
+| Feature | mythos-agent | Semgrep | Snyk | CodeQL | Nuclei |
 |---------|-------------|---------|------|--------|--------|
 | Pattern scanning | Yes | Best | Yes | Yes | Templates |
 | **Hypothesis scanning** | **Yes** | No | No | No | No |
@@ -236,8 +236,8 @@ Pattern scanning, secrets, deps, and IaC work without any API key.
 See [CONTRIBUTING.md](CONTRIBUTING.md) for details.
 
 ```bash
-git clone https://github.com/zhijiewong/shedu.git
-cd shedu && npm install && npm run build && npm test
+git clone https://github.com/mythos-agent/mythos-agent.git
+cd mythos-agent && npm install && npm run build && npm test
 ```
 
 ### Architecture
