@@ -2,6 +2,20 @@
 
 All notable changes to sphinx-agent are documented here. The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). Starting with the next release, entries are generated automatically by [release-please](https://github.com/googleapis/release-please) from [Conventional Commits](https://www.conventionalcommits.org/).
 
+## [3.0.1](https://github.com/mythos-agent/mythos-agent/compare/v3.0.0...v3.0.1) (2026-04-18)
+
+
+### Fixed
+
+* **cli:** read --version from package.json and sync description ([c697595](https://github.com/mythos-agent/mythos-agent/commit/c69759529cc7df8231144036023c11e27b45c451))
+* harden webhooks, fan out version-from-package.json, drop stale main field ([5703298](https://github.com/mythos-agent/mythos-agent/commit/5703298a5bdebc5debc84b981947b07f455f1111))
+* **security:** harden patch sandbox, provider error leak, and LLM prompt isolation ([ffeafc6](https://github.com/mythos-agent/mythos-agent/commit/ffeafc6d2a1e5c42c3286399f4e125dcf97e1020))
+
+
+### Changed
+
+* **cli:** replace any with real types in map.ts HTML renderer ([f9c99df](https://github.com/mythos-agent/mythos-agent/commit/f9c99df50616809ecd4b244d43ca370456b10d24))
+
 ## [3.0.0](https://github.com/zhijiewong/shedu/compare/v2.0.2...v3.0.0) (2026-04-18)
 
 
