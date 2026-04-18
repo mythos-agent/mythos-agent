@@ -40,7 +40,7 @@ Respond with a JSON object:
       "description": "What the vulnerability is and how it can be exploited",
       "severity": "critical|high|medium|low",
       "category": "injection|xss|auth|crypto|...",
-      "cwe": "CWE-XXX",
+      "cwe": "<CWE-ID, e.g. CWE-89>",
       "file": "relative/path/to/file.ts",
       "line": 42,
       "snippet": "the vulnerable line of code"

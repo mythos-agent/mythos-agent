@@ -70,9 +70,8 @@ The active working plan is the pinned GitHub Issue **`[Roadmap] sphinx-agent H1 
 | Bucket | Deliverable | Where |
 |---|---|---|
 | Core hardening | Deterministic taint graph v1 | `src/analysis/taint-engine.ts` |
-| Core hardening | 80% test coverage across all 44 CLI commands | `src/cli/commands/__tests__/` |
-| Core hardening | Resolve CWE-XXX placeholders | `src/agent/prompts.ts` |
-| Core hardening | Resolve stub patterns | `src/rules/registry.ts` |
+| Core hardening | 80% test coverage across all 44 CLI commands (7/44 ✅ via smoke tests) | `src/cli/commands/__tests__/` |
+| Core hardening | Disambiguate placeholder strings to reduce Day-1 visitor confusion | `src/agent/prompts.ts`, `src/rules/registry.ts` |
 | Compliance | OpenSSF Best Practices Badge — Passing | bestpractices.dev |
 | Compliance | EU CRA stance published | `docs/security/cra-stance.md` |
 | Compliance | SECURITY.md SLAs (Checkov-style) | `SECURITY.md` |

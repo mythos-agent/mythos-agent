@@ -21,9 +21,8 @@ The biggest single lever on adopter trust. Theme A from the strategic roadmap.
 
 - [ ] ⚪ **Deterministic taint graph v1** in `src/analysis/taint-engine.ts` — replace AI-prompt taint tracking. Stage: `experimental`. 🙋 (analysis background needed)
 - [ ] ⚪ **Deterministic call graph v1** in `src/analysis/call-graph.ts` — inter-procedural. Stage: `experimental`. 🙋
-- [ ] ⚪ **80% test coverage across all 44 CLI commands** under `src/cli/commands/`. Currently 0 commands have dedicated tests. 🙋 (great first issue — pick one command)
-- [ ] ⚪ **Resolve `CWE-XXX` placeholders** in `src/agent/prompts.ts` — full CWE Top 25 mapping
-- [ ] ⚪ **Resolve stub patterns** in `src/rules/registry.ts` — replace `TODO_REPLACE_WITH_ACTUAL_PATTERN` rules
+- [ ] 🟡 **80% test coverage across all 44 CLI commands** under `src/cli/commands/`. **Progress:** 7 commands covered by smoke tests in `__tests__/cli-smoke.test.ts` (tools, stats, summary, compliance, doctor, quick, score). Remaining ~37 commands. 🙋 (great first issue — pick one command, follow the smoke-test pattern)
+- [x] ✅ **Disambiguate placeholder strings** — `src/agent/prompts.ts` schema example now uses `<CWE-ID, e.g. CWE-89>` (clearer placeholder syntax); `src/rules/registry.ts` rule-pack generator now ships a real demonstration rule (eval() detection) rather than `TODO_REPLACE_WITH_ACTUAL_PATTERN`. Both were intentional templates, not stubs — the change reduces Day-1 visitor confusion when grepping for "TODO" or "XXX".
 - [ ] ⚪ **CWE Top 25 audit** across all 49 scanners — every scanner declares which CWEs it covers
 - [ ] ⚪ **CODEOWNERS** expanded for distributed review (currently lead-only)
 

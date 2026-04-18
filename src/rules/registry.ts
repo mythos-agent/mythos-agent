@@ -158,19 +158,25 @@ export function initRulePack(name: string, outputDir: string): string {
   };
   fs.writeFileSync(path.join(dir, "package.json"), JSON.stringify(pkg, null, 2));
 
-  // Create example rule file
+  // Create example rule file. The pattern below is a real (low-severity)
+  // demonstration; replace it with your own regex when you adapt the pack.
   const exampleRules = `# ${name} — sphinx-agent custom rules
 # Publish with: npm publish
 
 rules:
-  - id: ${name}-example
-    title: Example rule from ${name} pack
-    description: "Replace this with your actual rule description."
-    severity: medium
-    category: custom
-    languages: ["*"]
+  - id: ${name}-eval-usage
+    title: Use of eval() — code injection risk
+    description: |
+      eval() executes a string as code. Replace with a safer alternative
+      (JSON.parse for JSON, lookup tables for dynamic dispatch, etc.).
+      This is a starter rule from the ${name} pack template — replace
+      the rule below with your own when you customize the pack.
+    severity: high
+    category: injection
+    cwe: CWE-95
+    languages: ["javascript", "typescript"]
     patterns:
-      - pattern: "TODO_REPLACE_WITH_ACTUAL_PATTERN"
+      - pattern: "\\\\beval\\\\s*\\\\("
 `;
   fs.writeFileSync(path.join(dir, "rules.yml"), exampleRules);
 
