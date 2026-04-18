@@ -1,6 +1,6 @@
 {
   "name": "sphinx-agent",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Agentic AI security scanner — Mythos for everyone. Finds vulnerabilities, chains them into attack paths, and generates patches.",
   "type": "module",
   "main": "dist/index.js",
