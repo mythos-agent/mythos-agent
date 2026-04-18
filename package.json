@@ -3,7 +3,6 @@
   "version": "3.0.0",
   "description": "Open-source AI code-review assistant for application security. Flags likely vulnerabilities in source code with reasoning and suggested fixes.",
   "type": "module",
-  "main": "dist/index.js",
   "bin": {
     "mythos-agent": "dist/cli/index.js"
   },

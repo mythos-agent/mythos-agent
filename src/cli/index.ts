@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
-import { createRequire } from "node:module";
 import { Command } from "commander";
+import { VERSION } from "../version.js";
 import { scanCommand } from "./commands/scan.js";
 import { initCommand } from "./commands/init.js";
 import { reportCommand } from "./commands/report.js";
@@ -58,9 +58,6 @@ import {
   rulesInitCommand,
 } from "./commands/rules.js";
 
-const require = createRequire(import.meta.url);
-const pkg = require("../../package.json") as { version: string };
-
 const program = new Command();
 
 program
@@ -68,7 +65,7 @@ program
   .description(
     "AI code-review assistant for application security. Flags likely vulnerabilities in source code with reasoning and suggested fixes."
   )
-  .version(pkg.version);
+  .version(VERSION);
 
 program
   .command("scan")

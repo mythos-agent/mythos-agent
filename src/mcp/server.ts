@@ -27,6 +27,7 @@ import { parseCodebase } from "../analysis/code-parser.js";
 import { mapEndpoints, assessEndpointSecurity } from "../analysis/endpoint-mapper.js";
 import { loadResults } from "../store/results-store.js";
 import type { Vulnerability } from "../types/index.js";
+import { VERSION } from "../version.js";
 
 interface McpRequest {
   jsonrpc: "2.0";
@@ -150,7 +151,7 @@ async function handleRequest(req: McpRequest): Promise<McpResponse> {
         result: {
           protocolVersion: "2024-11-05",
           capabilities: { tools: {} },
-          serverInfo: { name: "mythos-agent", version: "2.0.0" },
+          serverInfo: { name: "mythos-agent", version: VERSION },
         },
       };
 

@@ -6,6 +6,7 @@ import {
   parseLockfile,
   type Dependency,
 } from "../../scanner/lockfile-parsers.js";
+import { VERSION } from "../../version.js";
 
 interface SbomOptions {
   path?: string;
@@ -76,7 +77,7 @@ function generateCycloneDx(deps: Dependency[], projectPath: string): string {
       version: 1,
       metadata: {
         timestamp: new Date().toISOString(),
-        tools: [{ vendor: "mythos-agent", name: "mythos-agent", version: "1.0.0" }],
+        tools: [{ vendor: "mythos-agent", name: "mythos-agent", version: VERSION }],
         component: {
           type: "application",
           name: projectName,
@@ -118,7 +119,7 @@ function generateSpdx(deps: Dependency[], projectPath: string): string {
       documentNamespace: `https://sphinx-agent.dev/sbom/${projectName}/${timestamp}`,
       creationInfo: {
         created: timestamp,
-        creators: ["Tool: mythos-agent-1.0.0"],
+        creators: [`Tool: mythos-agent-${VERSION}`],
       },
       packages: [
         {

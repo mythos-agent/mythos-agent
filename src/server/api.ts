@@ -13,6 +13,7 @@ import { loadPolicy, evaluatePolicy } from "../policy/engine.js";
 import { renderSarifReport } from "../report/sarif-reporter.js";
 import { renderMarkdownReport } from "../report/markdown-reporter.js";
 import type { Vulnerability, ScanResult } from "../types/index.js";
+import { VERSION } from "../version.js";
 
 interface ServerConfig {
   port: number;
@@ -44,7 +45,7 @@ let serverConfig: ServerConfig;
 
 route("GET", "/api/health", async () => ({
   status: 200,
-  data: { status: "ok", version: "1.0.0", timestamp: new Date().toISOString() },
+  data: { status: "ok", version: VERSION, timestamp: new Date().toISOString() },
 }));
 
 route("GET", "/api/results", async () => {

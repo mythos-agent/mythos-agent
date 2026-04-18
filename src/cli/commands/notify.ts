@@ -151,7 +151,77 @@ async function sendWebhook(webhookUrl: string, result: ScanResult): Promise<void
   });
 }
 
-async function postJson(url: string, body: unknown): Promise<void> {
+/**
+ * Reject URLs that target loopback, link-local, private, or cloud-metadata
+ * addresses. Prevents SSRF via user-supplied --webhook / --slack / --discord
+ * / --teams flags.
+ */
+export function assertPublicWebhookUrl(raw: string): URL {
+  let url: URL;
+  try {
+    url = new URL(raw);
+  } catch {
+    throw new Error(`Invalid webhook URL: ${raw}`);
+  }
+  if (url.protocol !== "https:" && url.protocol !== "http:") {
+    throw new Error(`Webhook URL must use http(s): ${url.protocol}`);
+  }
+  const host = url.hostname.toLowerCase().replace(/^\[|\]$/g, "");
+
+  // Explicit localhost / metadata hostnames
+  if (
+    host === "localhost" ||
+    host.endsWith(".localhost") ||
+    host === "metadata.google.internal" ||
+    host === "metadata" ||
+    host === "metadata.azure.com"
+  ) {
+    throw new Error(`Webhook URL cannot target internal host: ${host}`);
+  }
+
+  // IPv4 literal
+  const v4 = /^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/.exec(host);
+  if (v4) {
+    const [a, b] = [Number(v4[1]), Number(v4[2])];
+    const blocked =
+      a === 0 || // 0.0.0.0/8
+      a === 10 || // private
+      a === 127 || // loopback
+      (a === 169 && b === 254) || // link-local (AWS/GCP metadata 169.254.169.254)
+      (a === 172 && b >= 16 && b <= 31) || // private
+      (a === 192 && b === 168) || // private
+      a >= 224; // multicast + reserved
+    if (blocked) {
+      throw new Error(`Webhook URL cannot target private/metadata IP: ${host}`);
+    }
+  }
+
+  // IPv6 literal — loopback, link-local, unique-local
+  if (host.includes(":")) {
+    if (
+      host === "::" ||
+      host === "::1" ||
+      host.startsWith("fe80:") ||
+      host.startsWith("fc") ||
+      host.startsWith("fd")
+    ) {
+      throw new Error(`Webhook URL cannot target private/loopback IPv6: ${host}`);
+    }
+  }
+
+  return url;
+}
+
+async function postJson(rawUrl: string, body: unknown): Promise<void> {
+  let url: URL;
+  try {
+    url = assertPublicWebhookUrl(rawUrl);
+  } catch (err) {
+    console.log(
+      chalk.red(`  Refused webhook: ${err instanceof Error ? err.message : String(err)}`)
+    );
+    return;
+  }
   try {
     await fetch(url, {
       method: "POST",
