@@ -1,0 +1,36 @@
+# Example rules.yml for a sphinx-agent rule pack.
+#
+# This file ships a single demonstration rule. Edit, add more, or replace
+# entirely. Each rule needs a stable id, a real CWE, severity, languages,
+# and at least one pattern.
+#
+# Schema reference: ../../../CONTRIBUTING.md#adding-security-rules
+
+rules:
+  # Demonstration rule: detects use of `eval()` in JavaScript / TypeScript.
+  # Replace with your own rules. Keep the schema; change the content.
+  - id: example-eval-usage
+    title: Use of eval() — code injection risk
+    description: |
+      `eval()` executes a string as JavaScript at runtime. When the string
+      contains any user-controlled input, this is a code-injection
+      vulnerability. Even when the input is currently trusted, eval() makes
+      the surrounding code brittle: a refactor that introduces user input
+      becomes a vulnerability silently.
+
+      **Fix:** replace eval() with a safer alternative. For JSON parsing,
+      use JSON.parse(). For dynamic property access, use bracket notation
+      with allowlisted keys. For dynamic function dispatch, use an explicit
+      lookup table.
+    severity: high
+    category: injection
+    cwe: CWE-95
+    languages: ["javascript", "typescript"]
+    patterns:
+      - type: regex
+        pattern: "\\beval\\s*\\("
+    references:
+      - "https://cwe.mitre.org/data/definitions/95.html"
+      - "https://owasp.org/www-community/attacks/Direct_Dynamic_Code_Evaluation_Eval%20Injection"
+
+  # Add more rules below. Delete the example above when ready.

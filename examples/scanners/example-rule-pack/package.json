@@ -1,0 +1,31 @@
+{
+  "name": "sphinx-rules-example",
+  "version": "0.1.0",
+  "description": "Example rule pack for sphinx-agent. Cookie-cutter — copy, rename, and publish.",
+  "license": "MIT",
+  "author": "Your Name <you@example.com>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-handle/sphinx-rules-example"
+  },
+  "keywords": [
+    "sphinx-agent",
+    "security",
+    "rule-pack",
+    "static-analysis"
+  ],
+  "files": [
+    "rules.yml",
+    "README.md"
+  ],
+  "main": "rules.yml",
+  "scripts": {
+    "test": "npx --yes sphinx-agent rules test --pack ."
+  },
+  "peerDependencies": {
+    "sphinx-agent": ">=2.0.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
