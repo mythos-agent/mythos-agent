@@ -2,6 +2,13 @@
 
 All notable changes to sphinx-agent are documented here. The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). Starting with the next release, entries are generated automatically by [release-please](https://github.com/googleapis/release-please) from [Conventional Commits](https://www.conventionalcommits.org/).
 
+## [2.0.2](https://github.com/zhijiewong/sphinx-agent/compare/v2.0.1...v2.0.2) (2026-04-18)
+
+
+### Fixed
+
+* **ci:** unblock sbom and sigstore workflows; add verify-release.sh ([97cdd52](https://github.com/zhijiewong/sphinx-agent/commit/97cdd52228e68fb78c851f6d9fa7a941d3813674))
+
 ## [2.0.1](https://github.com/zhijiewong/sphinx-agent/compare/v2.0.0...v2.0.1) (2026-04-18)
 
 
