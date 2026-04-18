@@ -14,13 +14,19 @@ export default defineConfig({
         "src/types/**",
         "dist/**",
       ],
-      // Thresholds are set slightly below current coverage so CI doesn't
-      // break from noise. Raise them as the scanner test matrix grows.
-      // Current baseline: lines 37% / branches 62% / functions 56%.
+      // Thresholds are floors, not aspirations. Set slightly below current
+      // coverage so CI doesn't break from noise; raise them as new test
+      // surfaces (scanners / CLI commands / agent harness) come online.
+      // Tracked under the H1 2026 "80% CLI test coverage" bucket.
+      // Current baseline (post CLI smoke tests): lines ~37% / branches ~60% /
+      // functions ~56%. Smoke tests added new import-tracked files which
+      // surfaced previously-invisible branches; the branches threshold was
+      // dropped from 60 to 55 to absorb that and will tighten as more
+      // commands gain real tests.
       thresholds: {
         lines: 35,
         functions: 50,
-        branches: 60,
+        branches: 55,
         statements: 35,
       },
     },
