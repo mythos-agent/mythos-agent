@@ -1,6 +1,6 @@
 {
   "name": "mythos-agent",
-  "version": "2.0.2",
+  "version": "3.0.0",
   "description": "Open-source autonomous AI security agent. Reasons about code like a senior pentester to find vulnerabilities, chain them into attack paths, and generate validated patches.",
   "type": "module",
   "main": "dist/index.js",
