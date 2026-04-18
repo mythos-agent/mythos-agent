@@ -3,11 +3,24 @@ import path from "node:path";
 import http from "node:http";
 import chalk from "chalk";
 import ora from "ora";
-import { parseCodebase } from "../../analysis/code-parser.js";
+import { parseCodebase, type CodebaseMap } from "../../analysis/code-parser.js";
 import { buildCallGraph } from "../../analysis/call-graph.js";
-import { mapEndpoints, assessEndpointSecurity } from "../../analysis/endpoint-mapper.js";
-import { mapServices } from "../../analysis/service-mapper.js";
+import {
+  mapEndpoints,
+  assessEndpointSecurity,
+  type Endpoint,
+} from "../../analysis/endpoint-mapper.js";
+import {
+  mapServices,
+  type ServiceMap,
+  type Service,
+  type ServiceConnection,
+  type TrustBoundary,
+} from "../../analysis/service-mapper.js";
 import { loadResults } from "../../store/results-store.js";
+import type { ScanResult, Vulnerability } from "../../types/index.js";
+
+type EndpointAssessment = ReturnType<typeof assessEndpointSecurity>;
 
 interface MapOptions {
   path?: string;
@@ -48,19 +61,19 @@ export async function mapCommand(options: MapOptions) {
 }
 
 function buildMapHtml(
-  codebase: any,
-  endpoints: any[],
-  assessment: any,
-  services: any,
-  scanResult: any,
+  codebase: CodebaseMap,
+  endpoints: Endpoint[],
+  assessment: EndpointAssessment,
+  services: ServiceMap,
+  scanResult: ScanResult | null,
   projectPath: string
 ): string {
-  const vulns = scanResult?.confirmedVulnerabilities || [];
+  const vulns: Vulnerability[] = scanResult?.confirmedVulnerabilities ?? [];
   const projectName = path.basename(projectPath);
 
   const endpointRows = endpoints
-    .map((ep: any) => {
-      const vulnCount = vulns.filter((v: any) => v.location.file === ep.file).length;
+    .map((ep) => {
+      const vulnCount = vulns.filter((v) => v.location.file === ep.file).length;
       return `<tr>
       <td><span class="method ${ep.method.toLowerCase()}">${ep.method}</span></td>
       <td><code>${esc(ep.path)}</code></td>
@@ -74,7 +87,7 @@ function buildMapHtml(
 
   const serviceNodes = services.services
     .map(
-      (s: any) => `{
+      (s: Service) => `{
     id: "${esc(s.name)}",
     label: "${esc(s.name)}",
     type: "${s.type}",
@@ -85,7 +98,7 @@ function buildMapHtml(
 
   const serviceEdges = services.connections
     .map(
-      (c: any) => `{
+      (c: ServiceConnection) => `{
     from: "${esc(c.from)}",
     to: "${esc(c.to)}",
     label: "${esc(c.protocol)}"
@@ -95,11 +108,11 @@ function buildMapHtml(
 
   const trustBoundaries = services.trustBoundaries
     .map(
-      (tb: any) =>
+      (tb: TrustBoundary) =>
         `<div class="boundary ${tb.exposure}">
       <strong>${esc(tb.name)}</strong> (${tb.exposure})
-      <div class="services">${tb.services.map((s: string) => `<span class="chip">${esc(s)}</span>`).join(" ")}</div>
-      ${tb.risks.length > 0 ? `<div class="risks">${tb.risks.map((r: string) => `<span class="risk">⚠ ${esc(r)}</span>`).join("<br>")}</div>` : ""}
+      <div class="services">${tb.services.map((s) => `<span class="chip">${esc(s)}</span>`).join(" ")}</div>
+      ${tb.risks.length > 0 ? `<div class="risks">${tb.risks.map((r) => `<span class="risk">⚠ ${esc(r)}</span>`).join("<br>")}</div>` : ""}
     </div>`
     )
     .join("");
