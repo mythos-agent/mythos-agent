@@ -30,6 +30,8 @@
 sphinx-agent **reasons about your code like a security researcher** — generating hypotheses about what could go wrong, finding variants of known CVEs, proving exploitability with PoC exploits, and auto-fixing what it finds. Inspired by the same research direction as Anthropic's proprietary Mythos security agent; not a clone, not affiliated. See [VISION.md](VISION.md) for the full framing.
 
 > **For new contributors:** the active 6-month working plan is in the pinned issue **`[Roadmap] sphinx-agent H1 2026 Goals`**. Look for 🙋 markers — those are items where help is wanted. New here? See [CONTRIBUTING.md](CONTRIBUTING.md) for `good-first-issue` guidance.
+>
+> **For security teams and EU CRA-compliant downstream manufacturers:** see [SECURITY.md](SECURITY.md) for our vulnerability disclosure SLAs, [docs/security/cra-stance.md](docs/security/cra-stance.md) for our EU CRA role declaration, and [RELEASES.md](RELEASES.md) for our versioning, LTS, and EOL policy. OpenSSF Best Practices Badge (Passing) submission targeted Q3 2026.
 
 ```bash
 npx sphinx-agent hunt
