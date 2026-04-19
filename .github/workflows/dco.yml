@@ -1,0 +1,76 @@
+name: DCO
+
+# Developer Certificate of Origin enforcement.
+#
+# Every commit in a pull request must carry a `Signed-off-by: Name
+# <email>` trailer. `git commit -s` adds it automatically. Missing
+# sign-offs fail the check with a clear remediation message.
+#
+# Rationale: GOVERNANCE.md § Security and Supply Chain commits to "DCO
+# sign-off planned for all commits" as a supply-chain-safety measure
+# (attribution + attestation). This workflow ships the enforcement.
+#
+# Self-contained shell check — no third-party GitHub Action dependency
+# to audit, no GitHub App install required. Reviews every commit in the
+# PR's commit range, not just the tip.
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  check-sign-off:
+    name: Check commits for DCO sign-off
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          # Need the full PR commit range to inspect every commit; a
+          # shallow clone only shows HEAD.
+          fetch-depth: 0
+
+      - name: Verify Signed-off-by on every commit in the PR
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          set -euo pipefail
+          missing_count=0
+          missing_list=""
+          while IFS= read -r sha; do
+            [ -z "$sha" ] && continue
+            subject=$(git log -1 --format='%s' "$sha")
+            author=$(git log -1 --format='%an <%ae>' "$sha")
+            body=$(git log -1 --format='%B' "$sha")
+            # Require at least one Signed-off-by trailer. Accept the
+            # literal "Signed-off-by:" prefix; case-insensitive to
+            # forgive `signed-off-by:`.
+            if ! printf '%s\n' "$body" | grep -qiE '^Signed-off-by: .+ <.+@.+>$'; then
+              missing_count=$((missing_count + 1))
+              missing_list="$missing_list\n  $sha  \"$subject\" — by $author"
+            fi
+          done < <(git rev-list "$BASE_SHA..$HEAD_SHA")
+
+          if [ "$missing_count" -gt 0 ]; then
+            echo "::error::$missing_count commit(s) in this PR are missing a DCO sign-off."
+            printf '%b\n' "$missing_list"
+            cat <<'HELP'
+
+          To fix:
+
+            1. For your most recent commit:   git commit --amend -s --no-edit
+            2. For every commit in the PR:    git rebase --signoff main
+            3. Force-push:                    git push --force-with-lease
+
+          See docs/security/... or CONTRIBUTING.md § Commit messages
+          for the full DCO text and contributor attestation.
+          HELP
+            exit 1
+          fi
+
+          echo "All commits have DCO sign-off."
