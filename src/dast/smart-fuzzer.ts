@@ -85,7 +85,7 @@ Generate your first round of test payloads.`,
       const text = response.content.find((b) => b.type === "text");
       if (!text || text.type !== "text") break;
 
-      const payloadData = this.parsePayloads(text.text);
+      const payloadData = parsePayloads(text.text);
       if (!payloadData || payloadData.payloads.length === 0) break;
 
       // Send payloads and collect results
@@ -101,7 +101,7 @@ Generate your first round of test payloads.`,
         );
 
         // Check if this is a finding
-        if (this.isVulnerable(result, payload)) {
+        if (isVulnerable(result, payload)) {
           findings.push({
             id: `SFUZZ-${String(findings.length + 1).padStart(4, "0")}`,
             rule: `smart-fuzz:${payload.reasoning.split(" ")[0] || "unknown"}`,
@@ -186,58 +186,67 @@ Generate your first round of test payloads.`,
       return { status: 0, time: Date.now() - start, body: "" };
     }
   }
+}
 
-  private isVulnerable(
-    result: { status: number; time: number; body: string },
-    payload: { expectedIndicator: string; value: string }
-  ): boolean {
-    // Server error with database error messages
-    if (result.status === 500 && /sql|syntax|query|database|error|exception/i.test(result.body)) {
-      return true;
-    }
-
-    // Reflected XSS
-    if (
-      result.body.includes(payload.value) &&
-      /<script|onload|onerror|onclick/i.test(payload.value)
-    ) {
-      return true;
-    }
-
-    // Time-based blind injection (response > 4.5s)
-    if (result.time > 4500 && payload.value.includes("WAITFOR")) {
-      return true;
-    }
-
-    // Check expected indicator (safely — AI may provide invalid regex)
-    if (payload.expectedIndicator) {
-      try {
-        if (new RegExp(payload.expectedIndicator, "i").test(result.body)) return true;
-      } catch {
-        // Invalid regex from AI — fall back to string includes
-        if (result.body.toLowerCase().includes(payload.expectedIndicator.toLowerCase()))
-          return true;
-      }
-    }
-
-    return false;
+/**
+ * Detection oracle for a single payload/response pair. Exported so tests
+ * can drive it directly with constructed inputs — avoids spinning up a
+ * real HTTP server + Anthropic client just to cover the detection branches.
+ *
+ * Branches, in order:
+ *   1. status=500 with SQL/exception-keyword body → vuln (server error
+ *      leaking DB message).
+ *   2. Reflected XSS: body contains the payload AND the payload
+ *      itself is XSS-shaped (script tag / event handler).
+ *   3. Time-based: response >4500ms AND payload contains "WAITFOR".
+ *   4. `expectedIndicator` regex (AI-provided) matches body; falls
+ *      back to case-insensitive string-includes if the regex itself
+ *      is invalid (AI has been observed emitting `(?<badlookbehind)`).
+ */
+export function isVulnerable(
+  result: { status: number; time: number; body: string },
+  payload: { expectedIndicator: string; value: string }
+): boolean {
+  if (result.status === 500 && /sql|syntax|query|database|error|exception/i.test(result.body)) {
+    return true;
   }
-
-  private parsePayloads(text: string): {
-    payloads: Array<{
-      param: string;
-      value: string;
-      method?: string;
-      reasoning: string;
-      expectedIndicator: string;
-    }>;
-  } | null {
-    const jsonMatch = text.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) return null;
+  if (
+    result.body.includes(payload.value) &&
+    /<script|onload|onerror|onclick/i.test(payload.value)
+  ) {
+    return true;
+  }
+  if (result.time > 4500 && payload.value.includes("WAITFOR")) {
+    return true;
+  }
+  if (payload.expectedIndicator) {
     try {
-      return JSON.parse(jsonMatch[0]);
+      if (new RegExp(payload.expectedIndicator, "i").test(result.body)) return true;
     } catch {
-      return null;
+      if (result.body.toLowerCase().includes(payload.expectedIndicator.toLowerCase())) return true;
     }
+  }
+  return false;
+}
+
+/**
+ * Extract the AI-generated payload list from a Claude response. Exported
+ * for unit testing of the JSON-extraction + malformed-input guards.
+ */
+export function parsePayloads(text: string): {
+  payloads: Array<{
+    param: string;
+    value: string;
+    method?: string;
+    reasoning: string;
+    expectedIndicator: string;
+  }>;
+} | null {
+  const jsonMatch = text.match(/\{[\s\S]*\}/);
+  if (!jsonMatch) return null;
+  try {
+    return JSON.parse(jsonMatch[0]);
+  } catch {
+    return null;
   }
 }

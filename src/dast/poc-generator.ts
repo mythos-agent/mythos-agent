@@ -78,7 +78,7 @@ Generate a minimal, safe PoC that proves the vulnerability exists.`,
       };
     }
 
-    return this.parsePoc(text.text, vulnerability.id);
+    return parsePoc(text.text, vulnerability.id);
   }
 
   /**
@@ -106,42 +106,57 @@ Generate a minimal, safe PoC that proves the vulnerability exists.`,
 
     return pocs;
   }
+}
 
-  private parsePoc(text: string, vulnId: string): ProofOfConcept {
-    const jsonMatch = text.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) {
-      return {
-        vulnerabilityId: vulnId,
-        title: "PoC generation failed",
-        description: text.slice(0, 200),
-        expectedResult: "N/A",
-        impact: "N/A",
-        verified: false,
-      };
-    }
+/**
+ * Parse a Claude PoC-generation response into `ProofOfConcept` shape.
+ * Exported so tests can exercise the JSON-extraction + field-defaulting
+ * + malformed-input fallback without running the AI call.
+ *
+ * Three disjoint return shapes:
+ *   - No JSON substring → "PoC generation failed" sentinel, first
+ *     200 chars of text as description, expectedResult/impact "N/A".
+ *   - JSON parse error → "PoC parse failed" sentinel (same shape
+ *     as above but different title).
+ *   - Valid JSON → mapped ProofOfConcept with per-field defaults
+ *     (title="PoC for <id>", description="", expectedResult="",
+ *     impact="") for missing keys. verified is always false — the
+ *     fuzzer verifies separately.
+ */
+export function parsePoc(text: string, vulnId: string): ProofOfConcept {
+  const jsonMatch = text.match(/\{[\s\S]*\}/);
+  if (!jsonMatch) {
+    return {
+      vulnerabilityId: vulnId,
+      title: "PoC generation failed",
+      description: text.slice(0, 200),
+      expectedResult: "N/A",
+      impact: "N/A",
+      verified: false,
+    };
+  }
 
-    try {
-      const data = JSON.parse(jsonMatch[0]);
-      return {
-        vulnerabilityId: vulnId,
-        title: data.title || `PoC for ${vulnId}`,
-        description: data.description || "",
-        curlCommand: data.curlCommand,
-        pythonScript: data.pythonScript,
-        httpRequest: data.httpRequest,
-        expectedResult: data.expectedResult || "",
-        impact: data.impact || "",
-        verified: false,
-      };
-    } catch {
-      return {
-        vulnerabilityId: vulnId,
-        title: "PoC parse failed",
-        description: text.slice(0, 200),
-        expectedResult: "N/A",
-        impact: "N/A",
-        verified: false,
-      };
-    }
+  try {
+    const data = JSON.parse(jsonMatch[0]);
+    return {
+      vulnerabilityId: vulnId,
+      title: data.title || `PoC for ${vulnId}`,
+      description: data.description || "",
+      curlCommand: data.curlCommand,
+      pythonScript: data.pythonScript,
+      httpRequest: data.httpRequest,
+      expectedResult: data.expectedResult || "",
+      impact: data.impact || "",
+      verified: false,
+    };
+  } catch {
+    return {
+      vulnerabilityId: vulnId,
+      title: "PoC parse failed",
+      description: text.slice(0, 200),
+      expectedResult: "N/A",
+      impact: "N/A",
+      verified: false,
+    };
   }
 }
