@@ -92,6 +92,7 @@ program
   .option("--no-crypto", "Skip crypto audit scanning")
   .option("--no-privacy", "Skip privacy/GDPR scanning")
   .option("--no-race-conditions", "Skip race-condition scanning")
+  .option("--no-redos", "Skip ReDoS (regex denial-of-service) scanning")
   .action(scanCommand);
 
 program

@@ -9,8 +9,8 @@
   <a href="https://www.npmjs.com/package/mythos-agent"><img src="https://img.shields.io/npm/v/mythos-agent" alt="npm"></a>
   <a href="https://github.com/mythos-agent/mythos-agent/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue" alt="License"></a>
   <img src="https://img.shields.io/badge/node-%3E%3D18-green" alt="Node">
-  <img src="https://img.shields.io/badge/scanners-14_wired-purple" alt="Wired scanners">
-  <img src="https://img.shields.io/badge/experimental-29-lightgrey" alt="Experimental scanners">
+  <img src="https://img.shields.io/badge/scanners-15_wired-purple" alt="Wired scanners">
+  <img src="https://img.shields.io/badge/experimental-28-lightgrey" alt="Experimental scanners">
   <img src="https://img.shields.io/badge/rules-329%2B-orange" alt="Rules">
 </p>
 
@@ -162,7 +162,7 @@ mythos-agent variants --auto
 
 The variant analyzer extracts the **root cause pattern** from the CVE (not the surface syntax) and searches your codebase for structurally similar code.
 
-## Scanners (14 wired + 29 experimental, 329+ rules)
+## Scanners (15 wired + 28 experimental, 329+ rules)
 
 The **Default** scanners run on every `mythos-agent scan`. **Experimental** scanners are implemented + unit-tested classes that ship in the tarball but are not yet reachable from any CLI, HTTP, MCP, or agent entry point — tracked by [`KNOWN_EXPERIMENTAL`](src/scanner/__tests__/wiring-invariant.test.ts) in the wiring-invariant test.
 
@@ -183,6 +183,7 @@ The **Default** scanners run on every `mythos-agent scan`. **Experimental** scan
 | Crypto Audit | Weak hashes, ECB mode, hardcoded keys, deprecated TLS | 11 | Default |
 | Privacy/GDPR | PII handling, consent, data retention (GDPR article mapping) | 9 | Default |
 | Race Conditions | TOCTOU, non-atomic ops, double-spend, missing transactions | 7 | Default |
+| ReDoS | Catastrophic backtracking in regex (nested quantifiers, overlapping alternatives) | — | Default |
 | Supply Chain | Typosquatting, dependency confusion, dangerous install scripts | 12 | Experimental |
 | Zero Trust | Service trust, mTLS, network segmentation, IP-based auth | 8 | Experimental |
 | GraphQL | Introspection, depth limit, field auth, batching | 8 | Experimental |
@@ -192,9 +193,9 @@ The **Default** scanners run on every `mythos-agent scan`. **Experimental** scan
 | SSTI | Jinja2, EJS, Handlebars, Pug, Nunjucks, Twig, Go templates | 7 | Experimental |
 
 <details>
-<summary>Additional experimental scanners (22 more, not yet wired into default scan)</summary>
+<summary>Additional experimental scanners (21 more, not yet wired into default scan)</summary>
 
-SQL injection deep, XSS deep, NoSQL, command injection, deserialization, path traversal, open redirect, XXE, input validation, clickjacking, DNS rebinding, subdomain enumeration, dep confusion, environment variables, logging, error handling, cache, email, upload, ReDoS, memory safety, permissions.
+SQL injection deep, XSS deep, NoSQL, command injection, deserialization, path traversal, open redirect, XXE, input validation, clickjacking, DNS rebinding, subdomain enumeration, dep confusion, environment variables, logging, error handling, cache, email, upload, memory safety, permissions.
 
 Each exists as a class under `src/scanner/` and has unit tests in `src/scanner/__tests__/coverage-scanners.test.ts` / `new-scanners.test.ts`, but is not invoked by any CLI command, HTTP API route, MCP handler, or agent pipeline. See `KNOWN_EXPERIMENTAL` in the wiring-invariant test for each scanner's deferral reason. Wiring one up follows the pattern of the HeadersScanner / JwtScanner / SessionScanner / BusinessLogicScanner commits on `main`.
 

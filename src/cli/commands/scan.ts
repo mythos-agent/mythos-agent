@@ -29,6 +29,7 @@ import { BusinessLogicScanner } from "../../scanner/business-logic-scanner.js";
 import { CryptoScanner } from "../../scanner/crypto-scanner.js";
 import { PrivacyScanner } from "../../scanner/privacy-scanner.js";
 import { RaceConditionScanner } from "../../scanner/race-condition-scanner.js";
+import { RedosScanner } from "../../scanner/redos-scanner.js";
 import type { ScanResult, Severity, Vulnerability } from "../../types/index.js";
 
 interface ScanOptions {
@@ -53,6 +54,7 @@ interface ScanOptions {
   crypto: boolean;
   privacy: boolean;
   raceConditions: boolean;
+  redos: boolean;
 }
 
 export async function scanCommand(scanPath: string, options: ScanOptions) {
@@ -386,6 +388,24 @@ export async function scanCommand(scanPath: string, options: ScanOptions) {
     }
   }
 
+  // Phase 1o: ReDoS Scan
+  let redosFindings: Vulnerability[] = [];
+  if (options.redos) {
+    const redosSpinner = outputFormat === "terminal" ? ora("Phase 1o: ReDoS Scan").start() : null;
+    try {
+      const redosScanner = new RedosScanner();
+      const redosResult = await redosScanner.scan(projectPath);
+      redosFindings = redosResult.findings;
+      if (redosSpinner) {
+        redosSpinner.succeed(
+          `Phase 1o: ReDoS ${chalk.dim(`—`)} ${redosFindings.length > 0 ? chalk.red.bold(`${redosFindings.length} ReDoS-vulnerable regex patterns`) : "clean"}`
+        );
+      }
+    } catch (err) {
+      if (redosSpinner) redosSpinner.warn(`Phase 1o: ReDoS — skipped`);
+    }
+  }
+
   // Phase 2: AI Deep Analysis
   let phase2Findings: Vulnerability[] = [];
   let confirmed: Vulnerability[] = [
@@ -403,6 +423,7 @@ export async function scanCommand(scanPath: string, options: ScanOptions) {
     ...cryptoFindings,
     ...privacyFindings,
     ...raceFindings,
+    ...redosFindings,
   ];
   let dismissedCount = 0;
 
@@ -434,6 +455,7 @@ export async function scanCommand(scanPath: string, options: ScanOptions) {
         ...cryptoFindings,
         ...privacyFindings,
         ...raceFindings,
+        ...redosFindings,
         ...phase2Findings,
       ];
 
