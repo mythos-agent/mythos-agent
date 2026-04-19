@@ -4,7 +4,7 @@
 > The active 6-month working plan lives in the pinned GitHub Issue **`[Roadmap] mythos-agent H1 2026 Goals`**.
 > This document is refreshed annually; material changes go through an [RFC](docs/rfcs/).
 
-**Status:** v2.0.0 launched April 2026 · MIT · TypeScript · single maintainer building toward a multi-maintainer team.
+**Status:** v3.1.0 (April 2026) · MIT · TypeScript · single maintainer building toward a multi-maintainer team.
 **Reading time:** ~10 minutes for the full document. Section 1 alone gives you the gist.
 
 ---
@@ -67,16 +67,23 @@ Cross-system / monorepo / trust-boundary analysis. Validated remediation pipelin
 
 The active working plan is the pinned GitHub Issue **`[Roadmap] mythos-agent H1 2026 Goals`** (link added on issue creation). H1 2026 buckets, with concrete deliverables tied to file paths:
 
-| Bucket | Deliverable | Where |
-|---|---|---|
-| Core hardening | Deterministic taint graph v1 | `src/analysis/taint-engine.ts` |
-| Core hardening | 80% test coverage across all 44 CLI commands (7/44 ✅ via smoke tests) | `src/cli/commands/__tests__/` |
-| Core hardening | Disambiguate placeholder strings to reduce Day-1 visitor confusion | `src/agent/prompts.ts`, `src/rules/registry.ts` |
-| Compliance | OpenSSF Best Practices Badge — Passing | bestpractices.dev |
-| Compliance | EU CRA stance published | `docs/security/cra-stance.md` |
-| Compliance | SECURITY.md SLAs (Checkov-style) | `SECURITY.md` |
-| Supply chain | Sigstore signing + SBOM per release | `.github/workflows/` |
-| Community | Mythos-Agent Pioneers leaderboard | `docs/pioneers.md` |
+| Bucket | Deliverable | Where | Status |
+|---|---|---|---|
+| Core hardening | Deterministic taint graph v1 | `src/analysis/taint-engine.ts` | in progress |
+| Core hardening | 80% test coverage across 44 CLI commands | `src/cli/commands/__tests__/` | 7/44 smoke; 346+ tests across core/config/mcp/server/agents/chain/agent/rules/dast (parallel track) |
+| Core hardening | Disambiguate placeholder strings to reduce Day-1 visitor confusion | `src/agent/prompts.ts`, `src/rules/registry.ts` | in progress |
+| Core hardening | Single-source scanner orchestration (CLI ↔ HTTP API parity) | `src/core/run-scan.ts` | ✅ shipped — `runScan()` unifies both call sites; 15 scanners wired, drift-prevented by `wiring-invariant.test.ts` |
+| Core hardening | Sphinx Benchmark v0.1 scaffold | `benchmark/cases/`, `src/scanner/__tests__/benchmark-scaffold.test.ts` | ✅ shipped — 5 cases covering JWT / BusinessLogic / Session / Headers / Secrets; drift-prevented by scanner-coverage invariant |
+| Core hardening | 4.0 branding layer (`mythos_*` MCP tools, `MythosConfig`, `.mythos.yml`) with legacy `sphinx_*` aliases | `src/mcp/server.ts`, `src/types/index.ts`, `src/config/config.ts` | ✅ shipped — dual-probe back-compat live through 3.x; 4.0 drop is grep-and-delete |
+| Core hardening | LLM-mock harness for agentic-loop testing | `src/agent/__tests__/analyzer-loop.test.ts` | ✅ shipped — AIAnalyzer DI + scriptable mock client; lift to shared util when next AI-loop test lands |
+| Compliance | OpenSSF Best Practices Badge — Passing | bestpractices.dev | drafted, targeted June 2026 |
+| Compliance | EU CRA stance published | `docs/security/cra-stance.md` | ✅ shipped |
+| Compliance | SECURITY.md SLAs (Checkov-style) | `SECURITY.md` | ✅ shipped |
+| Compliance | SARIF 2.1.0 JSON-Schema conformance | `src/report/__tests__/sarif-schema.test.ts` | ✅ shipped |
+| Supply chain | Sigstore signing + SBOM per release | `.github/workflows/` | ✅ shipped |
+| Supply chain | Actions pinned to commit SHAs + harden-runner + DCO | `.github/workflows/` | ✅ shipped |
+| Supply chain | Deterministic LLM calls (temperature=0 pinned) | `src/agent/providers/*` | ✅ shipped |
+| Community | Mythos-Agent Pioneers leaderboard | `docs/pioneers.md` | drafted |
 
 H2 2026 will be opened as a new pinned issue in July 2026 and will lead with knowledge-graph v1 and agent test harness. Items in the active issue use the 🙋 marker when a champion is wanted; this is the primary contributor on-ramp for high-leverage work.
 
