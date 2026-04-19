@@ -28,6 +28,15 @@ jobs:
     if: needs.release-please.outputs.released == 'true'
     runs-on: ubuntu-latest
     steps:
+      - name: Harden runner
+        uses: step-security/harden-runner@6c3c2f2c1c457b00c10c4848d6f5491db3b629df # v2
+        with:
+          # Publish path is the highest-value target (registry upload).
+          # Audit now, block later once endpoints are enumerated
+          # (expected: registry.npmjs.org, fulcio.sigstore.dev,
+          # rekor.sigstore.dev). See docs/security/threat-model.md § S4.
+          egress-policy: audit
+
       - name: Checkout
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
 

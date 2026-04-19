@@ -22,6 +22,16 @@ jobs:
   generate-sbom:
     runs-on: ubuntu-latest
     steps:
+      - name: Harden runner
+        uses: step-security/harden-runner@6c3c2f2c1c457b00c10c4848d6f5491db3b629df # v2
+        with:
+          # Start in audit mode: logs all outbound network calls without
+          # blocking. Once a baseline is collected from several successful
+          # runs, flip to `egress-policy: block` with an explicit
+          # `allowed-endpoints` list. Tracked in docs/security/
+          # threat-model.md § S4.
+          egress-policy: audit
+
       - name: Checkout repository
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
         with:

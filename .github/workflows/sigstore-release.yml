@@ -23,6 +23,14 @@ jobs:
   sign-and-attest:
     runs-on: ubuntu-latest
     steps:
+      - name: Harden runner
+        uses: step-security/harden-runner@6c3c2f2c1c457b00c10c4848d6f5491db3b629df # v2
+        with:
+          # Audit-first stance; flip to `block` with an explicit endpoint
+          # allowlist once a run baseline is captured. See docs/security/
+          # threat-model.md § S4.
+          egress-policy: audit
+
       - name: Checkout repository
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
         with:
