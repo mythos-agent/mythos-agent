@@ -1,6 +1,22 @@
 import fs from "node:fs";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 import type { ScanResult, Vulnerability, VulnChain, Severity } from "../types/index.js";
+
+const HERO_SVG_DATA_URI = loadAssetAsDataUri("cerby-hero.svg", "image/svg+xml");
+const FAVICON_SVG_DATA_URI = loadAssetAsDataUri("favicon.svg", "image/svg+xml");
+const FAVICON_ICO_DATA_URI = loadAssetAsDataUri("favicon.ico", "image/x-icon");
+
+function loadAssetAsDataUri(filename: string, mimeType: string): string {
+  try {
+    const here = path.dirname(fileURLToPath(import.meta.url));
+    const filePath = path.resolve(here, "../../assets", filename);
+    const contents = fs.readFileSync(filePath);
+    return `data:${mimeType};base64,${contents.toString("base64")}`;
+  } catch {
+    return "";
+  }
+}
 
 export function renderHtmlReport(result: ScanResult, projectPath: string): string {
   const html = buildHtml(result);
@@ -32,6 +48,8 @@ function buildHtml(result: ScanResult): string {
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>mythos-agent Security Report</title>
+${FAVICON_SVG_DATA_URI ? `<link rel="icon" type="image/svg+xml" href="${FAVICON_SVG_DATA_URI}">` : ""}
+${FAVICON_ICO_DATA_URI ? `<link rel="icon" type="image/x-icon" href="${FAVICON_ICO_DATA_URI}">` : ""}
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0d1117; color: #c9d1d9; line-height: 1.6; }
@@ -79,6 +97,7 @@ function buildHtml(result: ScanResult): string {
 <body>
 <div class="container">
   <header>
+    ${HERO_SVG_DATA_URI ? `<img src="${HERO_SVG_DATA_URI}" alt="Cerby" width="64" style="display:block;margin:0 auto 0.75rem;">` : ""}
     <h1>mythos-agent Security Report</h1>
     <p>Agentic AI Security Scanner</p>
     <div class="meta">
