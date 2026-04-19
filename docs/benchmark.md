@@ -1,10 +1,15 @@
 # The Sphinx Benchmark
 
-> **Status: Spec stub.** The benchmark dataset is being built incrementally through 2026. This document defines the schema, scope, methodology, and contribution rules. The first ≥100 cases land in Q4 2026 (per the H1 2026 Goals issue); the full 500 by end of 2026; 1,000 by end of 2027.
+> **Status: Live scaffold, 4 cases.** The v0.1 runner ships under
+> `src/scanner/__tests__/benchmark-scaffold.test.ts` and auto-discovers
+> cases from `benchmark/cases/`. Every `npm test` run exercises the
+> corpus against the wired deterministic scanners; a missing expected
+> finding fails CI. The corpus grows incrementally — first ≥100 cases
+> land in Q4 2026, full 500 by end of 2026, 1,000 by end of 2027.
 >
 > **License:** dataset CC-BY 4.0; runner code MIT.
 >
-> **Last reviewed:** 2026-04-18.
+> **Last reviewed:** 2026-04-19.
 
 ## Why a new benchmark
 
@@ -54,38 +59,80 @@ benchmark/
         └── README.md           # Human-readable explanation
 ```
 
-`case.yml` schema (subject to revision via RFC before Q4 2026 lands):
+`case.yml` schema (subject to revision via RFC before Q4 2026 lands).
+This example is the actual shape of a shipped case — see
+[`benchmark/cases/SPX-BENCH-0001/case.yml`](../benchmark/cases/SPX-BENCH-0001/case.yml)
+for the original:
 
 ```yaml
 id: SPX-BENCH-0001               # Stable identifier
-title: SQL injection in user search endpoint
-cwe: CWE-89                      # Real CWE; placeholders rejected
-severity: high                   # critical | high | medium | low | info
-languages: [typescript]
+title: JWT token persisted to browser localStorage
+cwe: CWE-922                     # Real CWE; placeholders rejected
+severity: medium                 # critical | high | medium | low | info
+languages:
+  - typescript
+  - javascript
 classes:                         # Attack class taxonomy
-  - injection
-  - sql
+  - auth
+  - jwt
+  - insecure-storage
 sources:                         # Where this case came from
-  - type: cve_repro
-    cve: CVE-2024-XXXXX
-    url: https://...
+  - type: canonical_pattern
+    url: https://cwe.mitre.org/data/definitions/922.html
 license: CC-BY-4.0
 expected_findings:               # The ground truth
-  - file: vulnerable/api.ts
-    line_range: [42, 48]
-    rule_class: sql-injection
-    severity: high
+  - file: vulnerable/auth.ts
+    rule_class: jwt-stored-localstorage
+    severity: medium
 notes: |
-  Edge case: the query uses template literals with `${input}` interpolation
-  rather than the more common string concatenation. Scanners that only check
-  for `+` concatenation will miss this.
-contributed_by: '@your-handle'
-contributed_at: '2026-XX-XX'
+  JWTs stored in window.localStorage are readable by any script in
+  the document — an XSS anywhere on the origin exfiltrates the token.
+  The intended fix is HttpOnly cookies or an in-memory token with a
+  silent refresh from a cookie-backed refresh token.
+contributed_by: "@your-handle"
+contributed_at: "2026-04-19"
 ```
+
+The scaffold matches an expected finding against produced findings by
+`f.location.file.endsWith(expected.file) && f.rule.includes(expected.rule_class)`
+— so `rule_class` only needs to be a substring of the scanner's full
+rule id (`"jwt-stored-localstorage"` matches `"jwt:jwt-stored-localstorage"`).
+
+## Current corpus
+
+As of the last-reviewed date, the corpus has **4 cases covering 4 distinct
+wired deterministic scanners**:
+
+| Case | Scanner | Rule class | CWE | Severity |
+|---|---|---|---|---|
+| [SPX-BENCH-0001](../benchmark/cases/SPX-BENCH-0001/README.md) | JwtScanner | `jwt-stored-localstorage` | CWE-922 | medium |
+| [SPX-BENCH-0002](../benchmark/cases/SPX-BENCH-0002/README.md) | BusinessLogicScanner | `biz-role-escalation` | CWE-269 | critical |
+| [SPX-BENCH-0003](../benchmark/cases/SPX-BENCH-0003/README.md) | SessionScanner | `session-insecure-cookie` | CWE-614 | high |
+| [SPX-BENCH-0004](../benchmark/cases/SPX-BENCH-0004/README.md) | HeadersScanner | `header-csp-unsafe` | CWE-693 | high |
+
+Next natural additions: SecretsScanner (the 5th scanner the v0.1 runner
+exercises and currently without a benchmark case), then coverage of the
+other wired scanners (PatternScanner rule classes, CryptoScanner,
+PrivacyScanner, etc.) as dedicated cases rather than PatternScanner's
+broader aggregate.
 
 ## Runner contract
 
-The benchmark runner (`benchmark/run.ts`, lands Q4 2026) executes a scanner against every case and produces:
+The v0.1 runner (`src/scanner/__tests__/benchmark-scaffold.test.ts`)
+enumerates every `benchmark/cases/SPX-BENCH-*` directory, loads each
+`case.yml`, runs the wired deterministic scanners against the case
+directory, and fails if any `expected_findings` entry has no matching
+produced finding. Runs on every `npm test` / every CI push, so a
+missing finding blocks merge.
+
+Scanners evaluated in v0.1: SecretsScanner, JwtScanner, HeadersScanner,
+SessionScanner, BusinessLogicScanner. PatternScanner + the AIAnalyzer
+loop are deliberately excluded from v0.1 — they need a `MythosConfig`
+and an LLM key respectively, which would turn the fast unit-test runner
+into an integration test. Those paths rejoin when the full runner
+(below) lands in Q4 2026.
+
+The full runner (`benchmark/run.ts`, lands Q4 2026) will additionally produce:
 
 - **Per-case result:** Pass (correct findings only), Partial (missed some, found others), Fail (no findings or all wrong)
 - **Aggregate metrics:** True Positive Rate, False Positive Rate, Precision, Recall, F1, runtime per case
@@ -118,12 +165,35 @@ These rows are **observations, not claims**. The methodology is identical across
 
 To contribute a case:
 
-1. Pick a CWE not yet well-covered (audit list lands at `docs/benchmark/coverage.md`)
-2. Copy `benchmark/cases/_template/` to `benchmark/cases/SPX-BENCH-NNNN/` — next free number
-3. Fill `case.yml`, add the `vulnerable/` fixture, optionally a `safe/` corrected version, write `README.md`
-4. Run the runner locally to confirm mythos-agent's expected behavior on your case
-5. Open a PR with `[BENCH]` prefix in the title
-6. Reviewer checks: schema validity, license declaration, ground-truth correctness, no PII or secrets
+1. Pick a CWE not yet covered — see the [Current corpus](#current-corpus)
+   table above; the audit list lands at `docs/benchmark/coverage.md`
+   once it grows past a table.
+2. Copy `benchmark/cases/_template/` to `benchmark/cases/SPX-BENCH-NNNN/` — next free number (current highest: 0004).
+3. Fill `case.yml`, add the `vulnerable/` fixture, optionally a `safe/` corrected version, write `README.md`.
+4. Run `npx vitest run src/scanner/__tests__/benchmark-scaffold.test.ts`
+   locally. The new case is auto-discovered; a failing match produces
+   a diagnostic listing every finding the scanners produced — use it
+   to tune your `rule_class` assertion.
+5. Open a PR with `[BENCH]` prefix in the title.
+6. Reviewer checks: schema validity, license declaration, ground-truth correctness, no PII or secrets.
+
+**Pitfalls observed in shipped cases** (see each case's README for
+specifics):
+
+- **Whole-corpus-aggregating scanners** (HeadersScanner's missing-header
+  rules, which check that no file in the project emits the header) can
+  be defeated by the scaffold scanning `vulnerable/` + `safe/` as one
+  project. Prefer misconfig rules (`header-csp-unsafe`) over missing
+  rules for HeadersScanner cases. See SPX-BENCH-0004 README.
+- **Regex `.` does not cross newlines by default.** If the scanner's
+  pattern requires two tokens on the same line (e.g., header name +
+  unsafe value), put them on one line in the vulnerable fixture even
+  if that means a long line. First SPX-BENCH-0004 attempt failed here.
+- **Safe fixture content must not accidentally trigger the scanner's
+  broader patterns.** BusinessLogicScanner's role-escalation rule
+  has a broader pattern that fires when `role` / `isAdmin` / etc.
+  appear near a `.update(…)` call; even a comment mentioning "role"
+  in a safe fixture can false-positive. See SPX-BENCH-0002 README.
 
 Once the bounty program activates ([`docs/bounty.md`](bounty.md)), benchmark contributions with reproducible PoCs are eligible for the $500 tier.
 
@@ -167,3 +237,4 @@ These get resolved in `docs/rfcs/NNNN-benchmark-schema-v1.md` (template at [docs
 | Date | Change |
 |---|---|
 | 2026-04-18 | Initial spec stub published. Schema and first 100 cases land Q4 2026. |
+| 2026-04-19 | v0.1 scaffold + runner shipped. Corpus grew 1 → 4 cases (JWT / BusinessLogic / Session / Headers). Schema example updated to real SPX-BENCH-0001 shape. Contribution workflow gained a "pitfalls observed" section citing specific gotchas from the first four cases. |
