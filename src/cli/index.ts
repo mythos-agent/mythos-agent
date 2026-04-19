@@ -85,6 +85,7 @@ program
   .option("--no-llm", "Skip AI/LLM security scanning")
   .option("--no-api-sec", "Skip API security scanning")
   .option("--no-cloud", "Skip cloud misconfiguration scanning")
+  .option("--no-headers", "Skip HTTP security headers scanning")
   .action(scanCommand);
 
 program

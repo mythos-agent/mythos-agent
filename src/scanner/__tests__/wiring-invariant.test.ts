@@ -44,7 +44,6 @@ const KNOWN_EXPERIMENTAL = new Set<string>([
   // Web / HTTP layer — not wired; overlap with HeadersScanner territory.
   "CorsScanner",
   "ClickjackingScanner",
-  "HeadersScanner",
   "JwtScanner",
   "OauthScanner",
   "SessionScanner",

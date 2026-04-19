@@ -22,6 +22,7 @@ import { IacScanner } from "../../scanner/iac-scanner.js";
 import { LlmSecurityScanner } from "../../scanner/llm-security-scanner.js";
 import { ApiSecurityScanner } from "../../scanner/api-security-scanner.js";
 import { CloudSecurityScanner } from "../../scanner/cloud-scanner.js";
+import { HeadersScanner } from "../../scanner/headers-scanner.js";
 import type { ScanResult, Severity, Vulnerability } from "../../types/index.js";
 
 interface ScanOptions {
@@ -39,6 +40,7 @@ interface ScanOptions {
   llm: boolean;
   apiSec: boolean;
   cloud: boolean;
+  headers: boolean;
 }
 
 export async function scanCommand(scanPath: string, options: ScanOptions) {
@@ -239,6 +241,25 @@ export async function scanCommand(scanPath: string, options: ScanOptions) {
     }
   }
 
+  // Phase 1h: Security Headers Scan
+  let headersFindings: Vulnerability[] = [];
+  if (options.headers) {
+    const headersSpinner =
+      outputFormat === "terminal" ? ora("Phase 1h: Security Headers Scan").start() : null;
+    try {
+      const headersScanner = new HeadersScanner();
+      const headersResult = await headersScanner.scan(projectPath);
+      headersFindings = headersResult.findings;
+      if (headersSpinner) {
+        headersSpinner.succeed(
+          `Phase 1h: Security Headers ${chalk.dim(`—`)} ${headersFindings.length > 0 ? chalk.red.bold(`${headersFindings.length} header issues`) : "clean"}`
+        );
+      }
+    } catch (err) {
+      if (headersSpinner) headersSpinner.warn(`Phase 1h: Security Headers — skipped`);
+    }
+  }
+
   // Phase 2: AI Deep Analysis
   let phase2Findings: Vulnerability[] = [];
   let confirmed: Vulnerability[] = [
@@ -249,6 +270,7 @@ export async function scanCommand(scanPath: string, options: ScanOptions) {
     ...llmFindings,
     ...apiSecFindings,
     ...cloudFindings,
+    ...headersFindings,
   ];
   let dismissedCount = 0;
 
@@ -264,12 +286,16 @@ export async function scanCommand(scanPath: string, options: ScanOptions) {
       phase2Findings = aiResult.discovered;
       dismissedCount = aiResult.dismissedCount;
 
-      // AI only verifies phase1 findings — preserve secrets/dep/IaC findings
+      // AI only verifies phase1 findings — preserve all deterministic scanners
       confirmed = [
         ...aiResult.confirmed,
         ...secretsFindings,
         ...depFindings,
         ...iacFindings,
+        ...llmFindings,
+        ...apiSecFindings,
+        ...cloudFindings,
+        ...headersFindings,
         ...phase2Findings,
       ];
 
