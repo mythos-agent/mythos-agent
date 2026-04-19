@@ -90,7 +90,7 @@ export class AIAnalyzer {
       // Model produced a final answer — extract JSON
       const textBlock = response.content.find((b) => b.type === "text");
       if (textBlock && textBlock.type === "text") {
-        return this.parseResponse(textBlock.text, phase1Findings);
+        return parseAnalysisResponse(textBlock.text, phase1Findings);
       }
 
       break;
@@ -103,73 +103,96 @@ export class AIAnalyzer {
       dismissedCount: 0,
     };
   }
+}
 
-  private parseResponse(text: string, phase1Findings: Vulnerability[]): AnalysisResult {
-    // Extract JSON from the response (may be wrapped in markdown code blocks)
-    const jsonMatch = text.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) {
-      return {
-        confirmed: phase1Findings,
-        discovered: [],
-        dismissedCount: 0,
-      };
-    }
-
-    let output: AIAnalysisOutput;
-    try {
-      output = JSON.parse(jsonMatch[0]);
-    } catch {
-      return {
-        confirmed: phase1Findings,
-        discovered: [],
-        dismissedCount: 0,
-      };
-    }
-
-    // Process verified findings
-    const confirmed: Vulnerability[] = [];
-    let dismissedCount = 0;
-
-    const verifiedMap = new Map((output.verified || []).map((v) => [v.originalId, v]));
-
-    for (const finding of phase1Findings) {
-      const verification = verifiedMap.get(finding.id);
-      if (verification) {
-        if (verification.isReal) {
-          confirmed.push({
-            ...finding,
-            aiVerified: true,
-            severity: verification.adjustedSeverity || finding.severity,
-            confidence: "high",
-          });
-        } else {
-          dismissedCount++;
-        }
-      } else {
-        // Not verified by AI — keep with original confidence
-        confirmed.push(finding);
-      }
-    }
-
-    // Process discovered findings
-    let discoverCounter = phase1Findings.length + 1;
-    const discovered: Vulnerability[] = (output.discovered || []).map((d) => ({
-      id: `SPX-${String(discoverCounter++).padStart(4, "0")}`,
-      rule: "ai-discovered",
-      title: d.title,
-      description: d.description,
-      severity: d.severity,
-      category: d.category,
-      cwe: d.cwe,
-      confidence: "high" as const,
-      aiVerified: true,
-      location: {
-        file: d.file,
-        line: d.line,
-        snippet: d.snippet,
-      },
-    }));
-
-    return { confirmed, discovered, dismissedCount };
+/**
+ * Parses an AIAnalyzer tool-loop final response into `AnalysisResult`.
+ * Exported as a module-level function (not a private method) so tests
+ * can hit the verification/dismissal/discovered-id-generation logic
+ * without running the 20-turn Anthropic agentic loop.
+ *
+ * Behavior pinned by src/agent/__tests__/analyzer.test.ts:
+ *  - No JSON substring in text → fallback: all phase1 pass through,
+ *    dismissedCount=0, discovered=[]. (Load-bearing: if the model
+ *    returns prose-only on token-limit truncation, users still get
+ *    their phase1 findings back instead of an empty result.)
+ *  - Malformed JSON → same fallback, no throw.
+ *  - `verified[].isReal=false` → finding is dismissed (dropped from
+ *    `confirmed`, incremented in `dismissedCount`).
+ *  - `verified[].isReal=true` → finding is kept with
+ *    aiVerified=true and confidence="high", and severity is
+ *    overridden by `adjustedSeverity` when present.
+ *  - phase1 findings with no entry in `verified[]` pass through
+ *    unchanged (original confidence, no aiVerified flag).
+ *  - `discovered[]` findings get ids SPX-NNNN starting from
+ *    phase1.length + 1, rule="ai-discovered", confidence="high",
+ *    aiVerified=true.
+ */
+export function parseAnalysisResponse(
+  text: string,
+  phase1Findings: Vulnerability[]
+): AnalysisResult {
+  const jsonMatch = text.match(/\{[\s\S]*\}/);
+  if (!jsonMatch) {
+    return {
+      confirmed: phase1Findings,
+      discovered: [],
+      dismissedCount: 0,
+    };
   }
+
+  let output: AIAnalysisOutput;
+  try {
+    output = JSON.parse(jsonMatch[0]);
+  } catch {
+    return {
+      confirmed: phase1Findings,
+      discovered: [],
+      dismissedCount: 0,
+    };
+  }
+
+  const confirmed: Vulnerability[] = [];
+  let dismissedCount = 0;
+
+  const verifiedMap = new Map((output.verified || []).map((v) => [v.originalId, v]));
+
+  for (const finding of phase1Findings) {
+    const verification = verifiedMap.get(finding.id);
+    if (verification) {
+      if (verification.isReal) {
+        confirmed.push({
+          ...finding,
+          aiVerified: true,
+          severity: verification.adjustedSeverity || finding.severity,
+          confidence: "high",
+        });
+      } else {
+        dismissedCount++;
+      }
+    } else {
+      // Not verified by AI — keep with original confidence
+      confirmed.push(finding);
+    }
+  }
+
+  let discoverCounter = phase1Findings.length + 1;
+  const discovered: Vulnerability[] = (output.discovered || []).map((d) => ({
+    id: `SPX-${String(discoverCounter++).padStart(4, "0")}`,
+    rule: "ai-discovered",
+    title: d.title,
+    description: d.description,
+    severity: d.severity,
+    category: d.category,
+    cwe: d.cwe,
+    confidence: "high" as const,
+    aiVerified: true,
+    location: {
+      file: d.file,
+      line: d.line,
+      snippet: d.snippet,
+    },
+  }));
+
+  return { confirmed, discovered, dismissedCount };
 }
