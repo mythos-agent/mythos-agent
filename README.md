@@ -9,7 +9,8 @@
   <a href="https://www.npmjs.com/package/mythos-agent"><img src="https://img.shields.io/npm/v/mythos-agent" alt="npm"></a>
   <a href="https://github.com/mythos-agent/mythos-agent/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue" alt="License"></a>
   <img src="https://img.shields.io/badge/node-%3E%3D18-green" alt="Node">
-  <img src="https://img.shields.io/badge/scanners-49-purple" alt="Scanners">
+  <img src="https://img.shields.io/badge/scanners-13_wired-purple" alt="Wired scanners">
+  <img src="https://img.shields.io/badge/experimental-30-lightgrey" alt="Experimental scanners">
   <img src="https://img.shields.io/badge/rules-329%2B-orange" alt="Rules">
 </p>
 
@@ -161,32 +162,45 @@ mythos-agent variants --auto
 
 The variant analyzer extracts the **root cause pattern** from the CVE (not the surface syntax) and searches your codebase for structurally similar code.
 
-## Scanners (49 categories, 329+ rules)
+## Scanners (13 wired + 30 experimental, 329+ rules)
 
-| Category | What it finds | Rules |
-|----------|-------------|-------|
-| Code patterns | SQLi, XSS, command injection, eval, SSRF, etc. | 25+ |
-| Framework rules | React, Next.js, Express, Django, Flask, Spring, Go | 27 |
-| Secrets | AWS, GitHub, Stripe, API keys, DB URLs, private keys + entropy | 22 |
-| Dependencies (SCA) | Known CVEs via OSV API (10 lockfile formats) | OSV |
-| IaC | Docker, Terraform, Kubernetes misconfigurations | 13 |
-| AI/LLM Security | Prompt injection, unsafe eval of AI output, cost attacks | 13 |
-| API Security | OWASP API Top 10: BOLA, mass assignment, broken auth | 12 |
-| Cloud Misconfig | AWS/Azure/GCP: public storage, wildcard IAM, open firewalls | 14 |
-| Supply Chain | Typosquatting, dependency confusion, dangerous install scripts | 12 |
-| Crypto Audit | Weak hashes, ECB mode, hardcoded keys, deprecated TLS | 11 |
-| Zero Trust | Service trust, mTLS, network segmentation, IP-based auth | 8 |
-| Privacy/GDPR | PII handling, consent, data retention (GDPR article mapping) | 9 |
-| Race Conditions | TOCTOU, non-atomic ops, double-spend, missing transactions | 7 |
-| Security Headers | CSP, HSTS, X-Frame-Options, Referrer-Policy | 8 |
-| GraphQL | Introspection, depth limit, field auth, batching | 8 |
-| WebSocket | Auth, origin check, message validation, broadcast XSS | 7 |
-| JWT | Algorithm, expiry, storage, revocation, audience | 9 |
-| CORS | Origin reflection, credentials handling, substring bypass | 7 |
-| OAuth/OIDC | Missing state, no PKCE, implicit flow, client secret exposure | 7 |
-| SSTI | Jinja2, EJS, Handlebars, Pug, Nunjucks, Twig, Go templates | 7 |
-| Session | Fixation, expiry, cookie flags, localStorage tokens | 7 |
-| + 28 more | SQL injection deep, XSS deep, NoSQL, command injection, deserialization, upload, logging, error handling, ReDoS, memory safety, path traversal, open redirect, XXE, DNS rebinding, clickjacking, subdomain, email, cache, env variables, dep confusion, business logic, permissions, input validation, git history, taint engine, DAST fuzzer, hypothesis agent, variant analysis | 100+ |
+The **Default** scanners run on every `mythos-agent scan`. **Benchmark-only** scanners are wired but currently only invoked by `mythos-agent benchmark`. **Experimental** scanners are implemented + unit-tested classes that ship in the tarball but are not yet reachable from any CLI, HTTP, MCP, or agent entry point — tracked by [`KNOWN_EXPERIMENTAL`](src/scanner/__tests__/wiring-invariant.test.ts) in the wiring-invariant test.
+
+| Category | What it finds | Rules | Status |
+|----------|---------------|-------|--------|
+| Code patterns | SQLi, XSS, command injection, eval, SSRF, etc. | 25+ | Default |
+| Framework rules | React, Next.js, Express, Django, Flask, Spring, Go | 27 | Default |
+| Secrets | AWS, GitHub, Stripe, API keys, DB URLs, private keys + entropy | 22 | Default |
+| Dependencies (SCA) | Known CVEs via OSV API (10 lockfile formats) | OSV | Default |
+| IaC | Docker, Terraform, Kubernetes misconfigurations | 13 | Default |
+| AI/LLM Security | Prompt injection, unsafe eval of AI output, cost attacks | 13 | Default |
+| API Security | OWASP API Top 10: BOLA, mass assignment, broken auth | 12 | Default |
+| Cloud Misconfig | AWS/Azure/GCP: public storage, wildcard IAM, open firewalls | 14 | Default |
+| Security Headers | CSP, HSTS, X-Frame-Options, Referrer-Policy | 8 | Default |
+| JWT | Algorithm, expiry, storage, revocation, audience | 9 | Default |
+| Session | Fixation, expiry, cookie flags, localStorage tokens | 7 | Default |
+| Business Logic | Negative amounts, coupon reuse, inventory races, role escalation | 6 | Default |
+| Crypto Audit | Weak hashes, ECB mode, hardcoded keys, deprecated TLS | 11 | Benchmark-only |
+| Privacy/GDPR | PII handling, consent, data retention (GDPR article mapping) | 9 | Benchmark-only |
+| Supply Chain | Typosquatting, dependency confusion, dangerous install scripts | 12 | Experimental |
+| Zero Trust | Service trust, mTLS, network segmentation, IP-based auth | 8 | Experimental |
+| Race Conditions | TOCTOU, non-atomic ops, double-spend, missing transactions | 7 | Experimental |
+| GraphQL | Introspection, depth limit, field auth, batching | 8 | Experimental |
+| WebSocket | Auth, origin check, message validation, broadcast XSS | 7 | Experimental |
+| CORS | Origin reflection, credentials handling, substring bypass | 7 | Experimental |
+| OAuth/OIDC | Missing state, no PKCE, implicit flow, client secret exposure | 7 | Experimental |
+| SSTI | Jinja2, EJS, Handlebars, Pug, Nunjucks, Twig, Go templates | 7 | Experimental |
+
+<details>
+<summary>Additional experimental scanners (22 more, not yet wired into default scan)</summary>
+
+SQL injection deep, XSS deep, NoSQL, command injection, deserialization, path traversal, open redirect, XXE, input validation, clickjacking, DNS rebinding, subdomain enumeration, dep confusion, environment variables, logging, error handling, cache, email, upload, ReDoS, memory safety, permissions.
+
+Each exists as a class under `src/scanner/` and has unit tests in `src/scanner/__tests__/coverage-scanners.test.ts` / `new-scanners.test.ts`, but is not invoked by any CLI command, HTTP API route, MCP handler, or agent pipeline. See `KNOWN_EXPERIMENTAL` in the wiring-invariant test for each scanner's deferral reason. Wiring one up follows the pattern of the HeadersScanner / JwtScanner / SessionScanner / BusinessLogicScanner commits on `main`.
+
+</details>
+
+Beyond the scanners above, mythos-agent ships complementary analyses (not counted in the scanner totals): call-graph + taint engine, DAST smart fuzzer, AI hypothesis agent, variant analysis, and git-history mining.
 
 **External tool integrations:** Semgrep (30+ languages), Gitleaks (100+ patterns), Trivy (SCA + containers), Checkov (1000+ IaC policies), Nuclei (9000+ DAST templates)
 
