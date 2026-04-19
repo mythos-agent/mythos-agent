@@ -60,7 +60,10 @@ interface CaseFile {
 /**
  * Scanners the v0.1 runner evaluates. When a new deterministic scanner
  * lands in the default runtime path (via `src/cli/commands/scan.ts`),
- * add it here so the benchmark sees it.
+ * add it here so the benchmark sees it — or add it to
+ * `BENCHMARK_EXCLUDED` below with a reason. The invariant test in
+ * this file fails if a scanner is wired in scan.ts but appears in
+ * neither list.
  */
 const SCANNERS: Array<{
   name: string;
@@ -72,6 +75,34 @@ const SCANNERS: Array<{
   { name: "session", make: () => new SessionScanner() },
   { name: "business-logic", make: () => new BusinessLogicScanner() },
 ];
+
+/**
+ * Scanners instantiated in src/cli/commands/scan.ts but deliberately
+ * NOT included in SCANNERS above. Adding a new scanner to scan.ts
+ * forces a choice: include it in SCANNERS (so the benchmark catches
+ * rule-removal regressions for it) or add it here with a reason.
+ * The invariant test enforces that — preventing silent benchmark
+ * coverage drift.
+ *
+ * Spirit identical to `KNOWN_EXPERIMENTAL` in wiring-invariant.test.ts.
+ */
+const BENCHMARK_EXCLUDED = new Set<string>([
+  // Needs a MythosConfig argument; v0.1 runner is config-free.
+  "PatternScanner",
+  // Needs network (OSV API); v0.1 runner is offline and hermetic.
+  "DepScanner",
+  // Wired in scan.ts but not yet added to v0.1 SCANNERS. All eligible
+  // candidates for expansion — adding any requires writing a case
+  // (or at minimum confirming existing cases stay clean against them).
+  "IacScanner",
+  "LlmSecurityScanner",
+  "ApiSecurityScanner",
+  "CloudSecurityScanner",
+  "CryptoScanner",
+  "PrivacyScanner",
+  "RaceConditionScanner",
+  "RedosScanner",
+]);
 
 async function runScannersAgainst(projectPath: string): Promise<Vulnerability[]> {
   const all: Vulnerability[] = [];
@@ -135,5 +166,70 @@ describe("Sphinx Benchmark v0.1 scaffold", () => {
         );
       }
     }
+  });
+});
+
+describe("Sphinx Benchmark v0.1 scanner-coverage invariant", () => {
+  it("every scanner instantiated in scan.ts is in SCANNERS or BENCHMARK_EXCLUDED", () => {
+    // Sister-invariant to wiring-invariant.test.ts. The wiring test
+    // catches scanners declared in src/scanner/ that aren't wired
+    // into any runtime entry point. This test catches the next
+    // silent drift: scanners wired into scan.ts's default pipeline
+    // that AREN'T being evaluated by the benchmark scaffold.
+    //
+    // Pre this commit, SCANNERS was a 5-entry hardcoded list and
+    // any new scanner in scan.ts just … didn't run in the
+    // benchmark. A future SPX-BENCH case expecting findings from
+    // an unregistered scanner would fail cryptically at the
+    // `every expected_finding is produced` assertion without any
+    // hint that the root cause was SCANNERS, not the case.
+    // Source of truth: src/core/run-scan.ts is where scanners get
+    // instantiated on `mythos-agent scan` (and /api/scan) since the
+    // runScan extraction (c4e90a4 / 203fa4c). Pre-refactor this was
+    // scan.ts itself.
+    const scanSrcPath = path.join(repoRoot, "src/core/run-scan.ts");
+    const scanSrc = fs.readFileSync(scanSrcPath, "utf-8");
+
+    const wired = new Set<string>();
+    for (const m of scanSrc.matchAll(/\bnew\s+(\w+Scanner)\s*\(/g)) {
+      wired.add(m[1]);
+    }
+
+    expect(wired.size).toBeGreaterThan(0);
+
+    const inScaffold = new Set<string>();
+    for (const { make } of SCANNERS) {
+      inScaffold.add(make().constructor.name);
+    }
+
+    const unaccounted = [...wired].filter((c) => !inScaffold.has(c) && !BENCHMARK_EXCLUDED.has(c));
+
+    if (unaccounted.length > 0) {
+      throw new Error(
+        `Scanner(s) are wired in src/core/run-scan.ts but missing from both SCANNERS and BENCHMARK_EXCLUDED:\n` +
+          unaccounted.map((c) => `  - ${c}`).join("\n") +
+          "\n\nEither:\n" +
+          "  (a) add a `{ name, make: () => new Xxx() }` entry to SCANNERS in this file, or\n" +
+          "  (b) add the class name to BENCHMARK_EXCLUDED with a reason.\n"
+      );
+    }
+    expect(unaccounted).toEqual([]);
+  });
+
+  it("BENCHMARK_EXCLUDED entries are all actually wired in run-scan.ts (no stale)", () => {
+    // Mirror of wiring-invariant's "allowlist entries are actually
+    // declared" test. If a scanner is removed from run-scan.ts but
+    // its BENCHMARK_EXCLUDED entry lingers, the next maintainer has
+    // misleading context — remove it.
+    const scanSrc = fs.readFileSync(path.join(repoRoot, "src/core/run-scan.ts"), "utf-8");
+    const wired = new Set<string>();
+    for (const m of scanSrc.matchAll(/\bnew\s+(\w+Scanner)\s*\(/g)) {
+      wired.add(m[1]);
+    }
+    const stale = [...BENCHMARK_EXCLUDED].filter((c) => !wired.has(c));
+    expect(
+      stale,
+      "Remove these from BENCHMARK_EXCLUDED — they're no longer wired in run-scan.ts"
+    ).toEqual([]);
   });
 });
