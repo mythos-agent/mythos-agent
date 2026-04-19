@@ -1,0 +1,28 @@
+id: SPX-BENCH-0001
+title: JWT token persisted to browser localStorage
+cwe: CWE-922 # Insecure Storage of Sensitive Information
+severity: medium
+languages:
+  - typescript
+  - javascript
+classes:
+  - auth
+  - jwt
+  - insecure-storage
+sources:
+  - type: canonical_pattern
+    url: https://cwe.mitre.org/data/definitions/922.html
+license: CC-BY-4.0
+expected_findings:
+  - file: vulnerable/auth.ts
+    rule_class: jwt-stored-localstorage
+    severity: medium
+notes: |
+  JWTs stored in window.localStorage are readable by any script in the
+  document — an XSS anywhere on the origin exfiltrates the token.
+  localStorage also lacks the HttpOnly flag. The intended fix is
+  HttpOnly cookies (server-issued, SameSite=Lax or Strict) or
+  in-memory token held only for the lifetime of the page with a
+  silent refresh from a cookie-backed refresh token.
+contributed_by: "@zhijiewong"
+contributed_at: "2026-04-19"

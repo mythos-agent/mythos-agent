@@ -1,0 +1,28 @@
+id: SPX-BENCH-NNNN # Stable identifier — pick the next free number.
+title: Short human-readable title
+cwe: CWE-XX # Real CWE; placeholders are rejected in review.
+severity: medium # critical | high | medium | low | info
+languages:
+  - typescript
+classes:
+  - injection # Attack-class taxonomy; see docs/benchmark.md § Scope.
+sources:
+  # Where this case came from. Pick the most specific type you can.
+  #   cve_repro (with cve + url) | canonical_pattern | advisory | research_paper
+  - type: canonical_pattern
+    url: https://example.invalid/your-reference
+license: CC-BY-4.0
+expected_findings:
+  # Ground truth — every entry MUST be produced by mythos-agent's wired
+  # scanners against the vulnerable/ directory, or the benchmark run
+  # for this case fails.
+  - file: vulnerable/entry.ts
+    rule_class: your-rule-class # substring match against the produced `rule` field
+    severity: medium
+    # line_range: [N, N]  # optional; leave off until ranges stabilize
+notes: |
+  One or two paragraphs describing what the case tests and any
+  edge-case subtlety. Reviewers use this to sanity-check the
+  ground-truth labels.
+contributed_by: "@your-github-handle"
+contributed_at: "YYYY-MM-DD"
