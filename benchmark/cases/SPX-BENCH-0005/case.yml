@@ -1,0 +1,40 @@
+id: SPX-BENCH-0005
+title: Hardcoded AWS access key committed to source
+cwe: CWE-798 # Use of Hard-coded Credentials
+severity: critical
+languages:
+  - typescript
+  - javascript
+classes:
+  - secrets
+  - hardcoded-credentials
+  - supply-chain-risk
+sources:
+  - type: canonical_pattern
+    url: https://cwe.mitre.org/data/definitions/798.html
+  - type: canonical_pattern
+    url: https://docs.aws.amazon.com/IAM/latest/UserGuide/best-practices.html
+license: CC-BY-4.0
+expected_findings:
+  - file: vulnerable/config.ts
+    rule_class: aws-access-key
+    severity: critical
+notes: |
+  An AWS access key with the canonical AWS-docs placeholder shape
+  (AKIA + 16 uppercase alphanumerics) is hardcoded as a literal.
+  Once committed to source, the key is permanent in git history —
+  even deleting it and force-pushing leaves a trace in mirrors,
+  forks, and package tarballs that already pulled the commit.
+
+  The canonical fix reads from environment variables with a clear
+  error if absent, and documents the secret-management path the
+  project uses (AWS Secrets Manager, SOPS-encrypted config,
+  Vault, or at minimum `.env.example` + gitignore). The safe
+  fixture shows the env-var pattern.
+
+  Rounds out the v0.1 scaffold's scanner coverage — all 5 wired
+  scanners in SCANNERS (Secrets, JWT, Headers, Session,
+  BusinessLogic) now have at least one benchmark case exercising
+  them directly.
+contributed_by: "@zhijiewong"
+contributed_at: "2026-04-19"
