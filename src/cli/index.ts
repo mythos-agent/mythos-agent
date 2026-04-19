@@ -89,6 +89,8 @@ program
   .option("--no-jwt", "Skip JWT security scanning")
   .option("--no-session", "Skip session security scanning")
   .option("--no-biz-logic", "Skip business-logic scanning")
+  .option("--no-crypto", "Skip crypto audit scanning")
+  .option("--no-privacy", "Skip privacy/GDPR scanning")
   .action(scanCommand);
 
 program

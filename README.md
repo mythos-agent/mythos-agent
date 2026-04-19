@@ -164,7 +164,7 @@ The variant analyzer extracts the **root cause pattern** from the CVE (not the s
 
 ## Scanners (13 wired + 30 experimental, 329+ rules)
 
-The **Default** scanners run on every `mythos-agent scan`. **Benchmark-only** scanners are wired but currently only invoked by `mythos-agent benchmark`. **Experimental** scanners are implemented + unit-tested classes that ship in the tarball but are not yet reachable from any CLI, HTTP, MCP, or agent entry point — tracked by [`KNOWN_EXPERIMENTAL`](src/scanner/__tests__/wiring-invariant.test.ts) in the wiring-invariant test.
+The **Default** scanners run on every `mythos-agent scan`. **Experimental** scanners are implemented + unit-tested classes that ship in the tarball but are not yet reachable from any CLI, HTTP, MCP, or agent entry point — tracked by [`KNOWN_EXPERIMENTAL`](src/scanner/__tests__/wiring-invariant.test.ts) in the wiring-invariant test.
 
 | Category | What it finds | Rules | Status |
 |----------|---------------|-------|--------|
@@ -180,8 +180,8 @@ The **Default** scanners run on every `mythos-agent scan`. **Benchmark-only** sc
 | JWT | Algorithm, expiry, storage, revocation, audience | 9 | Default |
 | Session | Fixation, expiry, cookie flags, localStorage tokens | 7 | Default |
 | Business Logic | Negative amounts, coupon reuse, inventory races, role escalation | 6 | Default |
-| Crypto Audit | Weak hashes, ECB mode, hardcoded keys, deprecated TLS | 11 | Benchmark-only |
-| Privacy/GDPR | PII handling, consent, data retention (GDPR article mapping) | 9 | Benchmark-only |
+| Crypto Audit | Weak hashes, ECB mode, hardcoded keys, deprecated TLS | 11 | Default |
+| Privacy/GDPR | PII handling, consent, data retention (GDPR article mapping) | 9 | Default |
 | Supply Chain | Typosquatting, dependency confusion, dangerous install scripts | 12 | Experimental |
 | Zero Trust | Service trust, mTLS, network segmentation, IP-based auth | 8 | Experimental |
 | Race Conditions | TOCTOU, non-atomic ops, double-spend, missing transactions | 7 | Experimental |

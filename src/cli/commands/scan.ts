@@ -26,6 +26,8 @@ import { HeadersScanner } from "../../scanner/headers-scanner.js";
 import { JwtScanner } from "../../scanner/jwt-scanner.js";
 import { SessionScanner } from "../../scanner/session-scanner.js";
 import { BusinessLogicScanner } from "../../scanner/business-logic-scanner.js";
+import { CryptoScanner } from "../../scanner/crypto-scanner.js";
+import { PrivacyScanner } from "../../scanner/privacy-scanner.js";
 import type { ScanResult, Severity, Vulnerability } from "../../types/index.js";
 
 interface ScanOptions {
@@ -47,6 +49,8 @@ interface ScanOptions {
   jwt: boolean;
   session: boolean;
   bizLogic: boolean;
+  crypto: boolean;
+  privacy: boolean;
 }
 
 export async function scanCommand(scanPath: string, options: ScanOptions) {
@@ -323,6 +327,44 @@ export async function scanCommand(scanPath: string, options: ScanOptions) {
     }
   }
 
+  // Phase 1l: Crypto Audit
+  let cryptoFindings: Vulnerability[] = [];
+  if (options.crypto) {
+    const cryptoSpinner =
+      outputFormat === "terminal" ? ora("Phase 1l: Crypto Audit").start() : null;
+    try {
+      const cryptoScanner = new CryptoScanner();
+      const cryptoResult = await cryptoScanner.scan(projectPath);
+      cryptoFindings = cryptoResult.findings;
+      if (cryptoSpinner) {
+        cryptoSpinner.succeed(
+          `Phase 1l: Crypto Audit ${chalk.dim(`—`)} ${cryptoFindings.length > 0 ? chalk.red.bold(`${cryptoFindings.length} crypto issues`) : "clean"}`
+        );
+      }
+    } catch (err) {
+      if (cryptoSpinner) cryptoSpinner.warn(`Phase 1l: Crypto Audit — skipped`);
+    }
+  }
+
+  // Phase 1m: Privacy/GDPR Scan
+  let privacyFindings: Vulnerability[] = [];
+  if (options.privacy) {
+    const privacySpinner =
+      outputFormat === "terminal" ? ora("Phase 1m: Privacy/GDPR Scan").start() : null;
+    try {
+      const privacyScanner = new PrivacyScanner();
+      const privacyResult = await privacyScanner.scan(projectPath);
+      privacyFindings = privacyResult.findings;
+      if (privacySpinner) {
+        privacySpinner.succeed(
+          `Phase 1m: Privacy/GDPR ${chalk.dim(`—`)} ${privacyFindings.length > 0 ? chalk.red.bold(`${privacyFindings.length} privacy issues`) : "clean"}`
+        );
+      }
+    } catch (err) {
+      if (privacySpinner) privacySpinner.warn(`Phase 1m: Privacy/GDPR — skipped`);
+    }
+  }
+
   // Phase 2: AI Deep Analysis
   let phase2Findings: Vulnerability[] = [];
   let confirmed: Vulnerability[] = [
@@ -337,6 +379,8 @@ export async function scanCommand(scanPath: string, options: ScanOptions) {
     ...jwtFindings,
     ...sessionFindings,
     ...bizLogicFindings,
+    ...cryptoFindings,
+    ...privacyFindings,
   ];
   let dismissedCount = 0;
 
@@ -365,6 +409,8 @@ export async function scanCommand(scanPath: string, options: ScanOptions) {
         ...jwtFindings,
         ...sessionFindings,
         ...bizLogicFindings,
+        ...cryptoFindings,
+        ...privacyFindings,
         ...phase2Findings,
       ];
 
