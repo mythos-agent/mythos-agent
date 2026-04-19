@@ -142,7 +142,7 @@ export async function startMcpServer(): Promise<void> {
   process.stderr.write("mythos-agent MCP server started\n");
 }
 
-async function handleRequest(req: McpRequest): Promise<McpResponse> {
+export async function handleRequest(req: McpRequest): Promise<McpResponse> {
   switch (req.method) {
     case "initialize":
       return {
