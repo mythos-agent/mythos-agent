@@ -72,48 +72,65 @@ export class ChainAnalyzer {
     const textBlock = response.content.find((b) => b.type === "text");
     if (!textBlock || textBlock.type !== "text") return [];
 
-    return this.parseChains(textBlock.text, vulnerabilities);
+    return parseChainsFromText(textBlock.text, vulnerabilities);
+  }
+}
+
+/**
+ * Parses a Claude chain-analysis response into `VulnChain[]`. Exported as
+ * a module-level function (not a private method) so tests can exercise
+ * the JSON-extraction + vuln-ID-resolution + <2-vuln-drop logic without
+ * spinning up an Anthropic client.
+ *
+ * Robustness invariants (all pinned by chain-analyzer.test.ts):
+ *   - No JSON substring in text → returns [].
+ *   - JSON present but malformed → returns [] (no throw).
+ *   - `chains` field missing → returns [] (no throw).
+ *   - Each chain's vulnerabilityIds that don't match any supplied
+ *     vulnerability are silently dropped. If fewer than 2 vulns remain
+ *     after that filter, the whole chain is discarded — a "chain" of 1
+ *     isn't a chain.
+ *   - Chain ids are `CHAIN-001`, `CHAIN-002`, ... based on position
+ *     in the output array (not filtered index).
+ */
+export function parseChainsFromText(text: string, vulnerabilities: Vulnerability[]): VulnChain[] {
+  const jsonMatch = text.match(/\{[\s\S]*\}/);
+  if (!jsonMatch) return [];
+
+  let output: {
+    chains: Array<{
+      title: string;
+      severity: Severity;
+      vulnerabilityIds: string[];
+      narrative: string;
+      impact: string;
+    }>;
+  };
+
+  try {
+    output = JSON.parse(jsonMatch[0]);
+  } catch {
+    return [];
   }
 
-  private parseChains(text: string, vulnerabilities: Vulnerability[]): VulnChain[] {
-    const jsonMatch = text.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) return [];
+  const vulnMap = new Map(vulnerabilities.map((v) => [v.id, v]));
 
-    let output: {
-      chains: Array<{
-        title: string;
-        severity: Severity;
-        vulnerabilityIds: string[];
-        narrative: string;
-        impact: string;
-      }>;
-    };
+  return (output.chains || [])
+    .map((chain, i) => {
+      const chainVulns = chain.vulnerabilityIds
+        .map((id) => vulnMap.get(id))
+        .filter((v): v is Vulnerability => v !== undefined);
 
-    try {
-      output = JSON.parse(jsonMatch[0]);
-    } catch {
-      return [];
-    }
+      if (chainVulns.length < 2) return null;
 
-    const vulnMap = new Map(vulnerabilities.map((v) => [v.id, v]));
-
-    return (output.chains || [])
-      .map((chain, i) => {
-        const chainVulns = chain.vulnerabilityIds
-          .map((id) => vulnMap.get(id))
-          .filter((v): v is Vulnerability => v !== undefined);
-
-        if (chainVulns.length < 2) return null;
-
-        return {
-          id: `CHAIN-${String(i + 1).padStart(3, "0")}`,
-          title: chain.title,
-          severity: chain.severity,
-          vulnerabilities: chainVulns,
-          narrative: chain.narrative,
-          impact: chain.impact,
-        };
-      })
-      .filter((c): c is VulnChain => c !== null);
-  }
+      return {
+        id: `CHAIN-${String(i + 1).padStart(3, "0")}`,
+        title: chain.title,
+        severity: chain.severity,
+        vulnerabilities: chainVulns,
+        narrative: chain.narrative,
+        impact: chain.impact,
+      };
+    })
+    .filter((c): c is VulnChain => c !== null);
 }
