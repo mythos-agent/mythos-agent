@@ -4,7 +4,7 @@
 >
 > **Target tier:** Passing (67 criteria). Silver and Gold tiers are tracked in [ROADMAP.md §10](../../ROADMAP.md#10-compliance-milestones).
 >
-> **Status:** Draft answers prepared 2026-04-18; live submission pending.
+> **Status:** Draft answers refreshed 2026-04-19 (post major test + supply-chain push); live submission pending June 2026.
 
 ## Project metadata
 
@@ -63,13 +63,13 @@ Format: criterion → answer (Met / Unmet / N/A) → evidence URL or explanation
 | # | Criterion | Status | Evidence |
 |---|---|---|---|
 | 23 | Working build system | Met | `npm run build` (tsc) |
-| 24 | Automated test suite | Met | Vitest, 141 tests across 14 files |
+| 24 | Automated test suite | Met | Vitest, 351 tests across 33 files (integration + unit coverage for core/, config/, mcp/, server/, agents/, chain/, agent/, rules/, dast/, scanner/, plus 5-case benchmark scaffold) |
 | 25 | New functionality testing policy in CONTRIBUTING | Pending | To add in Session 4 (CONTRIBUTING.md expansion) |
 | 26 | Tests added/updated as features added (last 2-12 mo evidence) | Met | recent commit aabd395 added 22 scanner + 4 store smoke tests |
 | 27 | Build options that warn or fail on issues used in CI | Met | TypeScript strict mode; ESLint in CI |
 | 28 | At least one warning flag enabled | Met | tsconfig.json strict: true |
 | 29 | Address compiler/static-analysis warnings | Met | CodeQL findings tracked |
-| 30 | Hardening mechanisms used (e.g., Sigstore signing) | Pending | Sigstore signing lands H1 2026 (Session 3) |
+| 30 | Hardening mechanisms used (e.g., Sigstore signing) | Met | Sigstore keyless signing live per `.github/workflows/sigstore-release.yml`; CycloneDX SBOM per release; SHA-pinned GitHub Actions; step-security/harden-runner on release paths; DCO sign-off on PRs |
 | 31 | Maintainable code documented | Met | README + inline JSDoc |
 | 32 | Crypto for keys/passwords/secrets uses standard libs | Met | Node crypto module; no homegrown crypto |
 | 33 | Secured cryptographic mechanism (no MD5/SHA1 for passwords) | Met | bcrypt / standard hashes only |
@@ -103,13 +103,16 @@ All Met or Pending; no expected blockers for Passing tier.
 
 ## Items needing action before submission
 
-These are the only items where the answer is currently Pending. Address before submitting:
+These are the remaining items where the answer is currently Pending. Most previously-pending items have shipped; remaining list:
 
-1. **Criterion 17** — first-pass response stats. Need 2+ months of data; submit in June 2026 once baseline established.
-2. **Criterion 25** — testing policy in CONTRIBUTING.md. Add in Session 4.
-3. **Criterion 30** — Sigstore signing. Lands in Session 3.
-4. **Criterion 34** — crypto usage documentation. Goes in `docs/security/threat-model.md` (Session 3).
-5. **Criterion 43** — common-mistakes documentation. Goes in `docs/security/threat-model.md` (Session 3).
+1. **Criterion 17** — first-pass response stats. Need 2+ months of closed-issue data; measure via `gh issue list --state=closed` and commit to `docs/health-metrics.md` monthly. Submit in June 2026 once baseline established.
+2. **Criterion 25** — explicit "new functionality must have tests" policy in CONTRIBUTING.md. The *practice* is in place (every commit in the post-3.0.0 review cycle shipped with tests; suite grew 176 → 351 tests) but needs an explicit paragraph in CONTRIBUTING.md for the auditor to cite.
+
+### Items that shipped since the prior refresh
+
+- ✅ **Criterion 30** — Sigstore signing + SBOM + SHA-pinned actions + harden-runner + DCO.
+- ✅ **Criterion 34** — crypto usage documented in `docs/security/threat-model.md`.
+- ✅ **Criterion 43** — common-mistakes / pitfalls documented in `docs/security/threat-model.md` (threat-model S1-S8 adversary catalog + OSSF Scorecard Token-Permissions guidance baked in).
 
 ## After submission
 
@@ -121,10 +124,11 @@ Once the Passing badge is awarded:
 
 ## Submission timeline
 
-- **April–May 2026:** Complete pending items above (Sessions 3 + 4 finish them).
+- **April 2026:** Major test-coverage and supply-chain hardening push shipped (criteria 24, 30, 34, 43 now Met). Pending: 17 (time-dependent data), 25 (one-paragraph CONTRIBUTING.md policy wording).
+- **May 2026:** Add testing policy paragraph to CONTRIBUTING.md (criterion 25). Begin collecting issue-response baseline data for criterion 17.
 - **June 2026:** Submit Passing tier application.
 - **Q3 2026:** Badge awarded (target).
-- **End of 2027:** Submit Silver tier application.
+- **End of 2027:** Submit Silver tier application (adds 1-year roadmap, formal governance, 80% test coverage — most covered by planned roadmap work).
 - **End of 2028:** Submit Gold tier application (alongside first third-party security audit).
 
 ## References
