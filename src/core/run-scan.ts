@@ -1,4 +1,5 @@
 import { loadConfig } from "../config/config.js";
+import type { MythosConfig } from "../types/index.js";
 import { PatternScanner } from "../scanner/pattern-scanner.js";
 import { SecretsScanner } from "../scanner/secrets-scanner.js";
 import { DepScanner } from "../scanner/dep-scanner.js";
@@ -54,6 +55,12 @@ export interface RunScanOptions {
   // scan keeps them out. HTTP API opts in to match its historical behavior.
   includeExternalTools?: boolean;
 
+  // Pre-resolved config. The CLI mutates config.scan.include/exclude in
+  // `--diff` mode before running, so it passes the already-mutated object
+  // to avoid a double loadConfig() that would lose the mutation. Other
+  // callers (HTTP API, tests) leave this undefined and let runScan load.
+  config?: MythosConfig;
+
   // Progress reporting for interactive callers (e.g. CLI spinners).
   // Non-interactive callers (HTTP API, tests) leave this undefined.
   onPhase?: (event: PhaseEvent) => void;
@@ -88,7 +95,21 @@ export type PhaseId =
   | "external-tools";
 
 export interface RunScanOutput {
+  // Concatenation of all sub-arrays in the order PatternScanner →
+  // other deterministic scanners → external tools. Callers that don't
+  // need to distinguish provenance (HTTP API summary, most tests) use
+  // this directly.
   findings: Vulnerability[];
+  // Pattern-scanner findings, separated so the CLI's AIAnalyzer Phase 2
+  // can verify them without also re-verifying already-deterministic
+  // secrets/deps/iac/etc. results.
+  patternFindings: Vulnerability[];
+  // Non-pattern deterministic scanner findings (secrets, deps, iac,
+  // llm, apiSec, cloud, headers, jwt, session, bizLogic, crypto,
+  // privacy, raceConditions, redos) + external-tool findings when
+  // includeExternalTools is on. These bypass AI verification in the
+  // CLI Phase 2 flow — they're deterministic enough to trust as-is.
+  deterministicFindings: Vulnerability[];
   filesScanned: number;
   languages: string[];
   toolsRun: string[];
@@ -137,9 +158,10 @@ export async function runScan(
   projectPath: string,
   opts: RunScanOptions = {}
 ): Promise<RunScanOutput> {
-  const config = loadConfig(projectPath);
+  const config = opts.config ?? loadConfig(projectPath);
   const start = Date.now();
-  const findings: Vulnerability[] = [];
+  const patternFindings: Vulnerability[] = [];
+  const deterministicFindings: Vulnerability[] = [];
   const toolsRun: string[] = [];
 
   // Phase 1 (pattern scanner) is always on — it's the baseline; it produces
@@ -152,7 +174,7 @@ export async function runScan(
   try {
     const patternScanner = new PatternScanner(config);
     const patternResult = await patternScanner.scan(projectPath);
-    findings.push(...patternResult.findings);
+    patternFindings.push(...patternResult.findings);
     filesScanned = patternResult.filesScanned;
     languages = patternResult.languages;
     opts.onPhase?.({
@@ -173,7 +195,7 @@ export async function runScan(
   }
 
   if (on(opts.secrets)) {
-    findings.push(
+    deterministicFindings.push(
       ...(await runPhase("secrets", "Secrets Detection", opts.onPhase, () =>
         new SecretsScanner().scan(projectPath)
       ))
@@ -181,7 +203,7 @@ export async function runScan(
   }
 
   if (on(opts.deps)) {
-    findings.push(
+    deterministicFindings.push(
       ...(await runPhase("deps", "Dependency Scan (OSV)", opts.onPhase, () =>
         new DepScanner().scan(projectPath)
       ))
@@ -189,7 +211,7 @@ export async function runScan(
   }
 
   if (on(opts.iac)) {
-    findings.push(
+    deterministicFindings.push(
       ...(await runPhase("iac", "IaC Security Scan", opts.onPhase, () =>
         new IacScanner().scan(projectPath)
       ))
@@ -197,7 +219,7 @@ export async function runScan(
   }
 
   if (on(opts.llm)) {
-    findings.push(
+    deterministicFindings.push(
       ...(await runPhase("llm", "AI/LLM Security Scan", opts.onPhase, () =>
         new LlmSecurityScanner().scan(projectPath)
       ))
@@ -205,7 +227,7 @@ export async function runScan(
   }
 
   if (on(opts.apiSec)) {
-    findings.push(
+    deterministicFindings.push(
       ...(await runPhase("api-sec", "API Security Scan", opts.onPhase, () =>
         new ApiSecurityScanner().scan(projectPath)
       ))
@@ -213,7 +235,7 @@ export async function runScan(
   }
 
   if (on(opts.cloud)) {
-    findings.push(
+    deterministicFindings.push(
       ...(await runPhase("cloud", "Cloud Security Scan", opts.onPhase, () =>
         new CloudSecurityScanner().scan(projectPath)
       ))
@@ -221,7 +243,7 @@ export async function runScan(
   }
 
   if (on(opts.headers)) {
-    findings.push(
+    deterministicFindings.push(
       ...(await runPhase("headers", "Security Headers Scan", opts.onPhase, () =>
         new HeadersScanner().scan(projectPath)
       ))
@@ -229,7 +251,7 @@ export async function runScan(
   }
 
   if (on(opts.jwt)) {
-    findings.push(
+    deterministicFindings.push(
       ...(await runPhase("jwt", "JWT Security Scan", opts.onPhase, () =>
         new JwtScanner().scan(projectPath)
       ))
@@ -237,7 +259,7 @@ export async function runScan(
   }
 
   if (on(opts.session)) {
-    findings.push(
+    deterministicFindings.push(
       ...(await runPhase("session", "Session Security Scan", opts.onPhase, () =>
         new SessionScanner().scan(projectPath)
       ))
@@ -245,7 +267,7 @@ export async function runScan(
   }
 
   if (on(opts.bizLogic)) {
-    findings.push(
+    deterministicFindings.push(
       ...(await runPhase("biz-logic", "Business Logic Scan", opts.onPhase, () =>
         new BusinessLogicScanner().scan(projectPath)
       ))
@@ -253,7 +275,7 @@ export async function runScan(
   }
 
   if (on(opts.crypto)) {
-    findings.push(
+    deterministicFindings.push(
       ...(await runPhase("crypto", "Crypto Audit", opts.onPhase, () =>
         new CryptoScanner().scan(projectPath)
       ))
@@ -261,7 +283,7 @@ export async function runScan(
   }
 
   if (on(opts.privacy)) {
-    findings.push(
+    deterministicFindings.push(
       ...(await runPhase("privacy", "Privacy/GDPR Scan", opts.onPhase, () =>
         new PrivacyScanner().scan(projectPath)
       ))
@@ -269,7 +291,7 @@ export async function runScan(
   }
 
   if (on(opts.raceConditions)) {
-    findings.push(
+    deterministicFindings.push(
       ...(await runPhase("race-conditions", "Race Condition Scan", opts.onPhase, () =>
         new RaceConditionScanner().scan(projectPath)
       ))
@@ -277,7 +299,7 @@ export async function runScan(
   }
 
   if (on(opts.redos)) {
-    findings.push(
+    deterministicFindings.push(
       ...(await runPhase("redos", "ReDoS Scan", opts.onPhase, () =>
         new RedosScanner().scan(projectPath)
       ))
@@ -289,7 +311,7 @@ export async function runScan(
     const extStart = Date.now();
     try {
       const { findings: external, toolsRun: ran } = await runAllTools(projectPath);
-      findings.push(...external);
+      deterministicFindings.push(...external);
       toolsRun.push(...ran);
       opts.onPhase?.({
         id: "external-tools",
@@ -309,7 +331,9 @@ export async function runScan(
   }
 
   return {
-    findings,
+    findings: [...patternFindings, ...deterministicFindings],
+    patternFindings,
+    deterministicFindings,
     filesScanned,
     languages,
     toolsRun,

@@ -2,35 +2,21 @@ import path from "node:path";
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import chalk from "chalk";
-import ora from "ora";
+import ora, { type Ora } from "ora";
 import { loadConfig } from "../../config/config.js";
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const pkgJson = JSON.parse(readFileSync(path.resolve(__dirname, "../../../package.json"), "utf-8"));
-const VERSION = pkgJson.version;
 import { saveResults } from "../../store/results-store.js";
-import { PatternScanner } from "../../scanner/pattern-scanner.js";
 import { AIAnalyzer } from "../../agent/analyzer.js";
 import { ChainAnalyzer } from "../../chain/chain-analyzer.js";
 import { renderTerminalReport } from "../../report/terminal-reporter.js";
 import { renderJsonReport } from "../../report/json-reporter.js";
 import { renderSarifReport } from "../../report/sarif-reporter.js";
 import { getGitChangedFiles } from "../../scanner/diff-scanner.js";
-import { SecretsScanner } from "../../scanner/secrets-scanner.js";
-import { DepScanner } from "../../scanner/dep-scanner.js";
-import { IacScanner } from "../../scanner/iac-scanner.js";
-import { LlmSecurityScanner } from "../../scanner/llm-security-scanner.js";
-import { ApiSecurityScanner } from "../../scanner/api-security-scanner.js";
-import { CloudSecurityScanner } from "../../scanner/cloud-scanner.js";
-import { HeadersScanner } from "../../scanner/headers-scanner.js";
-import { JwtScanner } from "../../scanner/jwt-scanner.js";
-import { SessionScanner } from "../../scanner/session-scanner.js";
-import { BusinessLogicScanner } from "../../scanner/business-logic-scanner.js";
-import { CryptoScanner } from "../../scanner/crypto-scanner.js";
-import { PrivacyScanner } from "../../scanner/privacy-scanner.js";
-import { RaceConditionScanner } from "../../scanner/race-condition-scanner.js";
-import { RedosScanner } from "../../scanner/redos-scanner.js";
+import { runScan, type PhaseEvent, type PhaseId } from "../../core/run-scan.js";
 import type { ScanResult, Severity, Vulnerability } from "../../types/index.js";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const pkgJson = JSON.parse(readFileSync(path.resolve(__dirname, "../../../package.json"), "utf-8"));
+const VERSION = pkgJson.version;
 
 interface ScanOptions {
   ai: boolean;
@@ -57,12 +43,99 @@ interface ScanOptions {
   redos: boolean;
 }
 
+// Maps runScan's PhaseId to the CLI's historical "Phase 1x: Label" prefix so
+// users who read the terminal output during a scan see the same numbered
+// progression they did before the runScan() extraction. Also carries the
+// noun used for the finding count summary line ("3 LLM security issues"
+// vs "3 API issues"), since each scanner reports a distinct vuln class.
+const PHASE_DISPLAY: Record<PhaseId, { prefix: string; label: string; findingNoun: string }> = {
+  pattern: { prefix: "Phase 1", label: "Pattern Scan", findingNoun: "potential issues" },
+  secrets: { prefix: "Phase 1b", label: "Secrets Detection", findingNoun: "secrets" },
+  deps: { prefix: "Phase 1c", label: "Dependency Scan (OSV)", findingNoun: "vulnerable deps" },
+  iac: { prefix: "Phase 1d", label: "IaC Security Scan", findingNoun: "misconfigs" },
+  llm: { prefix: "Phase 1e", label: "AI/LLM Security Scan", findingNoun: "LLM security issues" },
+  "api-sec": { prefix: "Phase 1f", label: "API Security Scan", findingNoun: "API issues" },
+  cloud: { prefix: "Phase 1g", label: "Cloud Security Scan", findingNoun: "cloud misconfigs" },
+  headers: { prefix: "Phase 1h", label: "Security Headers Scan", findingNoun: "header issues" },
+  jwt: { prefix: "Phase 1i", label: "JWT Security Scan", findingNoun: "JWT issues" },
+  session: { prefix: "Phase 1j", label: "Session Security Scan", findingNoun: "session issues" },
+  "biz-logic": {
+    prefix: "Phase 1k",
+    label: "Business Logic Scan",
+    findingNoun: "biz-logic issues",
+  },
+  crypto: { prefix: "Phase 1l", label: "Crypto Audit", findingNoun: "crypto issues" },
+  privacy: { prefix: "Phase 1m", label: "Privacy/GDPR Scan", findingNoun: "privacy issues" },
+  "race-conditions": {
+    prefix: "Phase 1n",
+    label: "Race Condition Scan",
+    findingNoun: "race-condition issues",
+  },
+  redos: {
+    prefix: "Phase 1o",
+    label: "ReDoS Scan",
+    findingNoun: "ReDoS-vulnerable regex patterns",
+  },
+  "external-tools": {
+    prefix: "Phase 1x",
+    label: "External Tools",
+    findingNoun: "external-tool findings",
+  },
+};
+
+// Drives ora spinners off runScan's PhaseEvent stream. Each phase start
+// creates a fresh spinner; end/error closes it. Keeping this function in
+// scan.ts (rather than run-scan.ts) means runScan stays pure for the
+// non-interactive HTTP API caller.
+function makeSpinnerReporter(outputFormat: string): (event: PhaseEvent) => void {
+  if (outputFormat !== "terminal") return () => {};
+
+  const active = new Map<PhaseId, { spinner: Ora }>();
+
+  return (event: PhaseEvent) => {
+    const display = PHASE_DISPLAY[event.id];
+    if (!display) return;
+    const header = `${display.prefix}: ${display.label}`;
+
+    if (event.state === "start") {
+      active.set(event.id, { spinner: ora(header).start() });
+      return;
+    }
+
+    const entry = active.get(event.id);
+    if (!entry) return;
+    active.delete(event.id);
+
+    if (event.state === "error") {
+      entry.spinner.warn(`${header} — skipped`);
+      return;
+    }
+
+    const durationStr =
+      event.durationMs !== undefined ? chalk.dim(`(${(event.durationMs / 1000).toFixed(1)}s)`) : "";
+    const count = event.findings ?? 0;
+    const findings =
+      count > 0
+        ? chalk.red.bold(`${count} ${display.findingNoun}`)
+        : event.id === "pattern"
+          ? `${count} ${display.findingNoun}`
+          : "clean";
+    const filesSuffix =
+      event.id === "pattern" && event.filesScanned !== undefined
+        ? ` in ${event.filesScanned} files`
+        : "";
+    entry.spinner.succeed(`${header} ${durationStr} — ${findings}${filesSuffix}`.trim());
+  };
+}
+
 export async function scanCommand(scanPath: string, options: ScanOptions) {
   const projectPath = path.resolve(scanPath);
   const config = loadConfig(projectPath);
   const outputFormat = options.sarif ? "sarif" : options.json ? "json" : options.output;
 
-  // Handle --diff: restrict scan to changed files
+  // Handle --diff: restrict scan to changed files. Mutates `config` so the
+  // same pre-resolved object reaches runScan without a second loadConfig
+  // losing the mutation.
   if (options.diff) {
     const base = typeof options.diff === "string" ? options.diff : undefined;
     const changedFiles = getGitChangedFiles(projectPath, base);
@@ -72,7 +145,6 @@ export async function scanCommand(scanPath: string, options: ScanOptions) {
       }
       return;
     }
-    // Override include patterns to only scan changed files
     config.scan.include = changedFiles.map((f) => f.file);
     config.scan.exclude = [];
   }
@@ -85,346 +157,36 @@ export async function scanCommand(scanPath: string, options: ScanOptions) {
     console.log(chalk.dim(`\n📁 Scanning: ${projectPath}\n`));
   }
 
-  // Phase 1: Pattern Scan
-  const spinner = outputFormat === "terminal" ? ora("Phase 1: Pattern Scan").start() : null;
+  // Phase 1: delegate the full deterministic-scanner suite to runScan.
+  // Before this migration, 15 inline scanner blocks lived here; each new
+  // scanner meant three edits (scan.ts, api.ts, KNOWN_EXPERIMENTAL). Now
+  // wiring a scanner is one edit in run-scan.ts.
+  const runResult = await runScan(projectPath, {
+    config,
+    secrets: options.secrets,
+    deps: options.deps,
+    iac: options.iac,
+    llm: options.llm,
+    apiSec: options.apiSec,
+    cloud: options.cloud,
+    headers: options.headers,
+    jwt: options.jwt,
+    session: options.session,
+    bizLogic: options.bizLogic,
+    crypto: options.crypto,
+    privacy: options.privacy,
+    raceConditions: options.raceConditions,
+    redos: options.redos,
+    onPhase: makeSpinnerReporter(outputFormat),
+  });
 
-  const patternScanner = new PatternScanner(config);
-  const phase1Start = Date.now();
-  const {
-    findings: phase1Findings,
-    filesScanned,
-    languages,
-  } = await patternScanner.scan(projectPath);
-  const phase1Duration = ((Date.now() - phase1Start) / 1000).toFixed(1);
+  const { patternFindings, deterministicFindings, filesScanned, languages } = runResult;
 
-  if (spinner) {
-    spinner.succeed(
-      `Phase 1: Pattern Scan ${chalk.dim(`(${phase1Duration}s)`)} — ${phase1Findings.length} potential issues in ${filesScanned} files`
-    );
-  }
-
-  // Phase 1b: Secrets Detection
-  let secretsFindings: Vulnerability[] = [];
-  if (options.secrets) {
-    const secretsSpinner =
-      outputFormat === "terminal" ? ora("Phase 1b: Secrets Detection").start() : null;
-
-    const secretsScanner = new SecretsScanner();
-    const secretsStart = Date.now();
-    const secretsResult = await secretsScanner.scan(projectPath);
-    const secretsDuration = ((Date.now() - secretsStart) / 1000).toFixed(1);
-    secretsFindings = secretsResult.findings;
-
-    if (secretsSpinner) {
-      if (secretsFindings.length > 0) {
-        secretsSpinner.succeed(
-          `Phase 1b: Secrets Detection ${chalk.dim(`(${secretsDuration}s)`)} — ${chalk.red.bold(`${secretsFindings.length} secrets found`)} in ${secretsResult.filesScanned} files`
-        );
-      } else {
-        secretsSpinner.succeed(
-          `Phase 1b: Secrets Detection ${chalk.dim(`(${secretsDuration}s)`)} — no secrets found`
-        );
-      }
-    }
-  }
-
-  // Phase 1c: Dependency Scanning
-  let depFindings: Vulnerability[] = [];
-  if (options.deps) {
-    const depSpinner =
-      outputFormat === "terminal" ? ora("Phase 1c: Dependency Scan (OSV)").start() : null;
-
-    try {
-      const depScanner = new DepScanner();
-      const depStart = Date.now();
-      const depResult = await depScanner.scan(projectPath);
-      const depDuration = ((Date.now() - depStart) / 1000).toFixed(1);
-      depFindings = depResult.findings;
-
-      if (depSpinner) {
-        if (depFindings.length > 0) {
-          depSpinner.succeed(
-            `Phase 1c: Dependency Scan ${chalk.dim(`(${depDuration}s)`)} — ${chalk.red.bold(`${depFindings.length} vulnerable deps`)} in ${depResult.totalDependencies} packages`
-          );
-        } else {
-          depSpinner.succeed(
-            `Phase 1c: Dependency Scan ${chalk.dim(`(${depDuration}s)`)} — ${depResult.totalDependencies} packages clean`
-          );
-        }
-      }
-    } catch (err) {
-      if (depSpinner) {
-        depSpinner.warn(
-          `Phase 1c: Dependency Scan — skipped (${err instanceof Error ? err.message : "error"})`
-        );
-      }
-    }
-  }
-
-  // Phase 1d: IaC Scanning
-  let iacFindings: Vulnerability[] = [];
-  if (options.iac) {
-    const iacSpinner =
-      outputFormat === "terminal" ? ora("Phase 1d: IaC Security Scan").start() : null;
-
-    try {
-      const iacScanner = new IacScanner();
-      const iacStart = Date.now();
-      const iacResult = await iacScanner.scan(projectPath);
-      const iacDuration = ((Date.now() - iacStart) / 1000).toFixed(1);
-      iacFindings = iacResult.findings;
-
-      if (iacSpinner) {
-        if (iacFindings.length > 0) {
-          iacSpinner.succeed(
-            `Phase 1d: IaC Security Scan ${chalk.dim(`(${iacDuration}s)`)} — ${chalk.red.bold(`${iacFindings.length} misconfigs`)} in ${iacResult.filesScanned} files`
-          );
-        } else if (iacResult.filesScanned > 0) {
-          iacSpinner.succeed(
-            `Phase 1d: IaC Security Scan ${chalk.dim(`(${iacDuration}s)`)} — ${iacResult.filesScanned} IaC files clean`
-          );
-        } else {
-          iacSpinner.succeed(
-            `Phase 1d: IaC Security Scan ${chalk.dim(`(${iacDuration}s)`)} — no IaC files found`
-          );
-        }
-      }
-    } catch (err) {
-      if (iacSpinner) {
-        iacSpinner.warn(
-          `Phase 1d: IaC Security Scan — skipped (${err instanceof Error ? err.message : "error"})`
-        );
-      }
-    }
-  }
-
-  // Phase 1e: AI/LLM Security Scan
-  let llmFindings: Vulnerability[] = [];
-  if (options.llm) {
-    const llmSpinner =
-      outputFormat === "terminal" ? ora("Phase 1e: AI/LLM Security Scan").start() : null;
-    try {
-      const llmScanner = new LlmSecurityScanner();
-      const llmResult = await llmScanner.scan(projectPath);
-      llmFindings = llmResult.findings;
-      if (llmSpinner) {
-        llmSpinner.succeed(
-          `Phase 1e: AI/LLM Security ${chalk.dim(`—`)} ${llmFindings.length > 0 ? chalk.red.bold(`${llmFindings.length} LLM security issues`) : "clean"}`
-        );
-      }
-    } catch (err) {
-      if (llmSpinner) llmSpinner.warn(`Phase 1e: AI/LLM Security — skipped`);
-    }
-  }
-
-  // Phase 1f: API Security Scan
-  let apiSecFindings: Vulnerability[] = [];
-  if (options.apiSec) {
-    const apiSpinner =
-      outputFormat === "terminal" ? ora("Phase 1f: API Security Scan").start() : null;
-    try {
-      const apiScanner = new ApiSecurityScanner();
-      const apiResult = await apiScanner.scan(projectPath);
-      apiSecFindings = apiResult.findings;
-      if (apiSpinner) {
-        apiSpinner.succeed(
-          `Phase 1f: API Security ${chalk.dim(`—`)} ${apiSecFindings.length > 0 ? chalk.red.bold(`${apiSecFindings.length} API issues`) : "clean"}`
-        );
-      }
-    } catch (err) {
-      if (apiSpinner) apiSpinner.warn(`Phase 1f: API Security — skipped`);
-    }
-  }
-
-  // Phase 1g: Cloud Misconfiguration Scan
-  let cloudFindings: Vulnerability[] = [];
-  if (options.cloud) {
-    const cloudSpinner =
-      outputFormat === "terminal" ? ora("Phase 1g: Cloud Security Scan").start() : null;
-    try {
-      const cloudScanner = new CloudSecurityScanner();
-      const cloudResult = await cloudScanner.scan(projectPath);
-      cloudFindings = cloudResult.findings;
-      if (cloudSpinner) {
-        cloudSpinner.succeed(
-          `Phase 1g: Cloud Security ${chalk.dim(`—`)} ${cloudFindings.length > 0 ? chalk.red.bold(`${cloudFindings.length} cloud misconfigs`) : "clean"}`
-        );
-      }
-    } catch (err) {
-      if (cloudSpinner) cloudSpinner.warn(`Phase 1g: Cloud Security — skipped`);
-    }
-  }
-
-  // Phase 1h: Security Headers Scan
-  let headersFindings: Vulnerability[] = [];
-  if (options.headers) {
-    const headersSpinner =
-      outputFormat === "terminal" ? ora("Phase 1h: Security Headers Scan").start() : null;
-    try {
-      const headersScanner = new HeadersScanner();
-      const headersResult = await headersScanner.scan(projectPath);
-      headersFindings = headersResult.findings;
-      if (headersSpinner) {
-        headersSpinner.succeed(
-          `Phase 1h: Security Headers ${chalk.dim(`—`)} ${headersFindings.length > 0 ? chalk.red.bold(`${headersFindings.length} header issues`) : "clean"}`
-        );
-      }
-    } catch (err) {
-      if (headersSpinner) headersSpinner.warn(`Phase 1h: Security Headers — skipped`);
-    }
-  }
-
-  // Phase 1i: JWT Security Scan
-  let jwtFindings: Vulnerability[] = [];
-  if (options.jwt) {
-    const jwtSpinner =
-      outputFormat === "terminal" ? ora("Phase 1i: JWT Security Scan").start() : null;
-    try {
-      const jwtScanner = new JwtScanner();
-      const jwtResult = await jwtScanner.scan(projectPath);
-      jwtFindings = jwtResult.findings;
-      if (jwtSpinner) {
-        jwtSpinner.succeed(
-          `Phase 1i: JWT Security ${chalk.dim(`—`)} ${jwtFindings.length > 0 ? chalk.red.bold(`${jwtFindings.length} JWT issues`) : "clean"}`
-        );
-      }
-    } catch (err) {
-      if (jwtSpinner) jwtSpinner.warn(`Phase 1i: JWT Security — skipped`);
-    }
-  }
-
-  // Phase 1j: Session Security Scan
-  let sessionFindings: Vulnerability[] = [];
-  if (options.session) {
-    const sessionSpinner =
-      outputFormat === "terminal" ? ora("Phase 1j: Session Security Scan").start() : null;
-    try {
-      const sessionScanner = new SessionScanner();
-      const sessionResult = await sessionScanner.scan(projectPath);
-      sessionFindings = sessionResult.findings;
-      if (sessionSpinner) {
-        sessionSpinner.succeed(
-          `Phase 1j: Session Security ${chalk.dim(`—`)} ${sessionFindings.length > 0 ? chalk.red.bold(`${sessionFindings.length} session issues`) : "clean"}`
-        );
-      }
-    } catch (err) {
-      if (sessionSpinner) sessionSpinner.warn(`Phase 1j: Session Security — skipped`);
-    }
-  }
-
-  // Phase 1k: Business Logic Scan
-  let bizLogicFindings: Vulnerability[] = [];
-  if (options.bizLogic) {
-    const bizSpinner =
-      outputFormat === "terminal" ? ora("Phase 1k: Business Logic Scan").start() : null;
-    try {
-      const bizScanner = new BusinessLogicScanner();
-      const bizResult = await bizScanner.scan(projectPath);
-      bizLogicFindings = bizResult.findings;
-      if (bizSpinner) {
-        bizSpinner.succeed(
-          `Phase 1k: Business Logic ${chalk.dim(`—`)} ${bizLogicFindings.length > 0 ? chalk.red.bold(`${bizLogicFindings.length} biz-logic issues`) : "clean"}`
-        );
-      }
-    } catch (err) {
-      if (bizSpinner) bizSpinner.warn(`Phase 1k: Business Logic — skipped`);
-    }
-  }
-
-  // Phase 1l: Crypto Audit
-  let cryptoFindings: Vulnerability[] = [];
-  if (options.crypto) {
-    const cryptoSpinner =
-      outputFormat === "terminal" ? ora("Phase 1l: Crypto Audit").start() : null;
-    try {
-      const cryptoScanner = new CryptoScanner();
-      const cryptoResult = await cryptoScanner.scan(projectPath);
-      cryptoFindings = cryptoResult.findings;
-      if (cryptoSpinner) {
-        cryptoSpinner.succeed(
-          `Phase 1l: Crypto Audit ${chalk.dim(`—`)} ${cryptoFindings.length > 0 ? chalk.red.bold(`${cryptoFindings.length} crypto issues`) : "clean"}`
-        );
-      }
-    } catch (err) {
-      if (cryptoSpinner) cryptoSpinner.warn(`Phase 1l: Crypto Audit — skipped`);
-    }
-  }
-
-  // Phase 1m: Privacy/GDPR Scan
-  let privacyFindings: Vulnerability[] = [];
-  if (options.privacy) {
-    const privacySpinner =
-      outputFormat === "terminal" ? ora("Phase 1m: Privacy/GDPR Scan").start() : null;
-    try {
-      const privacyScanner = new PrivacyScanner();
-      const privacyResult = await privacyScanner.scan(projectPath);
-      privacyFindings = privacyResult.findings;
-      if (privacySpinner) {
-        privacySpinner.succeed(
-          `Phase 1m: Privacy/GDPR ${chalk.dim(`—`)} ${privacyFindings.length > 0 ? chalk.red.bold(`${privacyFindings.length} privacy issues`) : "clean"}`
-        );
-      }
-    } catch (err) {
-      if (privacySpinner) privacySpinner.warn(`Phase 1m: Privacy/GDPR — skipped`);
-    }
-  }
-
-  // Phase 1n: Race Condition Scan
-  let raceFindings: Vulnerability[] = [];
-  if (options.raceConditions) {
-    const raceSpinner =
-      outputFormat === "terminal" ? ora("Phase 1n: Race Condition Scan").start() : null;
-    try {
-      const raceScanner = new RaceConditionScanner();
-      const raceResult = await raceScanner.scan(projectPath);
-      raceFindings = raceResult.findings;
-      if (raceSpinner) {
-        raceSpinner.succeed(
-          `Phase 1n: Race Conditions ${chalk.dim(`—`)} ${raceFindings.length > 0 ? chalk.red.bold(`${raceFindings.length} race-condition issues`) : "clean"}`
-        );
-      }
-    } catch (err) {
-      if (raceSpinner) raceSpinner.warn(`Phase 1n: Race Conditions — skipped`);
-    }
-  }
-
-  // Phase 1o: ReDoS Scan
-  let redosFindings: Vulnerability[] = [];
-  if (options.redos) {
-    const redosSpinner = outputFormat === "terminal" ? ora("Phase 1o: ReDoS Scan").start() : null;
-    try {
-      const redosScanner = new RedosScanner();
-      const redosResult = await redosScanner.scan(projectPath);
-      redosFindings = redosResult.findings;
-      if (redosSpinner) {
-        redosSpinner.succeed(
-          `Phase 1o: ReDoS ${chalk.dim(`—`)} ${redosFindings.length > 0 ? chalk.red.bold(`${redosFindings.length} ReDoS-vulnerable regex patterns`) : "clean"}`
-        );
-      }
-    } catch (err) {
-      if (redosSpinner) redosSpinner.warn(`Phase 1o: ReDoS — skipped`);
-    }
-  }
-
-  // Phase 2: AI Deep Analysis
+  // Phase 2: AI Deep Analysis (CLI-only — requires interactive apiKey).
+  // Only pattern findings go through AI verification; deterministic scanners
+  // are trusted as-is.
   let phase2Findings: Vulnerability[] = [];
-  let confirmed: Vulnerability[] = [
-    ...phase1Findings,
-    ...secretsFindings,
-    ...depFindings,
-    ...iacFindings,
-    ...llmFindings,
-    ...apiSecFindings,
-    ...cloudFindings,
-    ...headersFindings,
-    ...jwtFindings,
-    ...sessionFindings,
-    ...bizLogicFindings,
-    ...cryptoFindings,
-    ...privacyFindings,
-    ...raceFindings,
-    ...redosFindings,
-  ];
+  let confirmed: Vulnerability[] = [...patternFindings, ...deterministicFindings];
   let dismissedCount = 0;
 
   if (options.ai && config.apiKey) {
@@ -433,31 +195,13 @@ export async function scanCommand(scanPath: string, options: ScanOptions) {
     try {
       const aiAnalyzer = new AIAnalyzer(config);
       const phase2Start = Date.now();
-      const aiResult = await aiAnalyzer.analyze(projectPath, phase1Findings);
+      const aiResult = await aiAnalyzer.analyze(projectPath, patternFindings);
       const phase2Duration = ((Date.now() - phase2Start) / 1000).toFixed(1);
 
       phase2Findings = aiResult.discovered;
       dismissedCount = aiResult.dismissedCount;
 
-      // AI only verifies phase1 findings — preserve all deterministic scanners
-      confirmed = [
-        ...aiResult.confirmed,
-        ...secretsFindings,
-        ...depFindings,
-        ...iacFindings,
-        ...llmFindings,
-        ...apiSecFindings,
-        ...cloudFindings,
-        ...headersFindings,
-        ...jwtFindings,
-        ...sessionFindings,
-        ...bizLogicFindings,
-        ...cryptoFindings,
-        ...privacyFindings,
-        ...raceFindings,
-        ...redosFindings,
-        ...phase2Findings,
-      ];
+      confirmed = [...aiResult.confirmed, ...deterministicFindings, ...phase2Findings];
 
       if (aiSpinner) {
         aiSpinner.succeed(
@@ -528,7 +272,7 @@ export async function scanCommand(scanPath: string, options: ScanOptions) {
     duration,
     languages,
     filesScanned,
-    phase1Findings,
+    phase1Findings: patternFindings,
     phase2Findings,
     confirmedVulnerabilities: confirmed,
     dismissedCount,

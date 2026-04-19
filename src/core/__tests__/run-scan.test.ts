@@ -4,6 +4,7 @@ import os from "node:os";
 import path from "node:path";
 
 import { runScan, type PhaseEvent } from "../run-scan.js";
+import { loadConfig } from "../../config/config.js";
 
 const tmpDirs: string[] = [];
 
@@ -31,6 +32,8 @@ describe("runScan — shape + defaults", () => {
     const out = await runScan(dir);
     expect(out).toMatchObject({
       findings: expect.any(Array),
+      patternFindings: expect.any(Array),
+      deterministicFindings: expect.any(Array),
       filesScanned: expect.any(Number),
       languages: expect.any(Array),
       toolsRun: expect.any(Array),
@@ -39,6 +42,15 @@ describe("runScan — shape + defaults", () => {
     expect(out.durationMs).toBeGreaterThanOrEqual(0);
     // External tools are opt-in; default runs must not populate toolsRun.
     expect(out.toolsRun).toEqual([]);
+  });
+
+  it("`findings` equals the concatenation of patternFindings + deterministicFindings", async () => {
+    // The CLI relies on this split to feed only patternFindings through the
+    // AIAnalyzer Phase 2 verifier while passing deterministicFindings
+    // through untouched. Invariant: the two must partition `findings`.
+    const dir = fixture({ "app.ts": "export const x = 1;\n" });
+    const out = await runScan(dir);
+    expect(out.findings).toEqual([...out.patternFindings, ...out.deterministicFindings]);
   });
 
   it("filesScanned reflects the pattern scanner's view of the project", async () => {
@@ -104,6 +116,28 @@ describe("runScan — per-scanner opt-out flags", () => {
         "redos",
       ])
     );
+  });
+});
+
+describe("runScan — pre-resolved config", () => {
+  it("honors a caller-supplied `config` and does not re-load from disk", async () => {
+    // The CLI mutates config.scan.include/exclude in --diff mode before
+    // calling runScan. If runScan ignored the passed-in config and re-ran
+    // loadConfig(), those diff-mode mutations would be silently discarded
+    // and the scan would cover the whole project instead of just changed
+    // files. Pin this invariant.
+    const dir = fixture({
+      "included.ts": "export const a = 1;\n",
+      "excluded.ts": "export const b = 2;\n",
+    });
+    const config = loadConfig(dir);
+    config.scan.include = ["included.ts"]; // deliberately narrow
+    config.scan.exclude = [];
+
+    const out = await runScan(dir, { config });
+    // PatternScanner honors config.scan.include, so filesScanned reflects
+    // the narrowed set, not the whole tempdir.
+    expect(out.filesScanned).toBe(1);
   });
 });
 
