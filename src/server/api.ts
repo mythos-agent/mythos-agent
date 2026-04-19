@@ -1,18 +1,13 @@
 import http from "node:http";
 import { URL } from "node:url";
 import path from "node:path";
-import { loadConfig } from "../config/config.js";
-import { PatternScanner } from "../scanner/pattern-scanner.js";
-import { SecretsScanner } from "../scanner/secrets-scanner.js";
-import { IacScanner } from "../scanner/iac-scanner.js";
-import { DepScanner } from "../scanner/dep-scanner.js";
-import { runAllTools } from "../tools/index.js";
+import { runScan } from "../core/run-scan.js";
 import { loadResults, saveResults } from "../store/results-store.js";
 import { loadBaseline, compareToBaseline } from "../store/baseline.js";
 import { loadPolicy, evaluatePolicy } from "../policy/engine.js";
 import { renderSarifReport } from "../report/sarif-reporter.js";
 import { renderMarkdownReport } from "../report/markdown-reporter.js";
-import type { Vulnerability, ScanResult } from "../types/index.js";
+import type { ScanResult } from "../types/index.js";
 import { VERSION } from "../version.js";
 
 interface ServerConfig {
@@ -93,50 +88,28 @@ route("GET", "/api/policy", async () => {
 });
 
 route("POST", "/api/scan", async (_req, _params, body) => {
-  let options: Record<string, unknown> = {};
   if (body) {
     try {
-      options = JSON.parse(body);
+      JSON.parse(body);
     } catch {
       return { status: 400, data: { error: "Invalid JSON body" } };
     }
   }
-  // Restrict scanning to the configured project path (prevent path traversal)
+  // Restrict scanning to the configured project path (prevent path traversal
+  // via a client-supplied path in the request body).
   const projectPath = serverConfig.projectPath;
 
-  const config = loadConfig(projectPath);
-  const findings: Vulnerability[] = [];
-  const startTime = Date.now();
-
-  // Run built-in scanners
-  const patternScanner = new PatternScanner(config);
-  const { findings: patterns, filesScanned, languages } = await patternScanner.scan(projectPath);
-  findings.push(...patterns);
-
-  const secretsScanner = new SecretsScanner();
-  const { findings: secrets } = await secretsScanner.scan(projectPath);
-  findings.push(...secrets);
-
-  const iacScanner = new IacScanner();
-  const { findings: iac } = await iacScanner.scan(projectPath);
-  findings.push(...iac);
-
-  try {
-    const depScanner = new DepScanner();
-    const { findings: deps } = await depScanner.scan(projectPath);
-    findings.push(...deps);
-  } catch {
-    /* optional */
-  }
-
-  // External tools
-  const { findings: external, toolsRun } = await runAllTools(projectPath);
-  findings.push(...external);
+  // Delegate to the shared Phase-1 orchestrator. Before this refactor the
+  // HTTP API ran 4 scanners while the CLI ran 15; every new scanner added
+  // to the CLI silently widened that gap. Now both go through runScan().
+  const { findings, filesScanned, languages, toolsRun, durationMs } = await runScan(projectPath, {
+    includeExternalTools: true,
+  });
 
   const result: ScanResult = {
     projectPath,
     timestamp: new Date().toISOString(),
-    duration: Date.now() - startTime,
+    duration: durationMs,
     languages,
     filesScanned,
     phase1Findings: findings,
