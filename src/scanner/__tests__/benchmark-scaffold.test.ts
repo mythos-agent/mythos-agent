@@ -8,6 +8,14 @@ import { HeadersScanner } from "../headers-scanner.js";
 import { SessionScanner } from "../session-scanner.js";
 import { BusinessLogicScanner } from "../business-logic-scanner.js";
 import { SecretsScanner } from "../secrets-scanner.js";
+import { IacScanner } from "../iac-scanner.js";
+import { LlmSecurityScanner } from "../llm-security-scanner.js";
+import { ApiSecurityScanner } from "../api-security-scanner.js";
+import { CloudSecurityScanner } from "../cloud-scanner.js";
+import { CryptoScanner } from "../crypto-scanner.js";
+import { PrivacyScanner } from "../privacy-scanner.js";
+import { RaceConditionScanner } from "../race-condition-scanner.js";
+import { RedosScanner } from "../redos-scanner.js";
 import type { Vulnerability } from "../../types/index.js";
 
 /**
@@ -74,6 +82,14 @@ const SCANNERS: Array<{
   { name: "headers", make: () => new HeadersScanner() },
   { name: "session", make: () => new SessionScanner() },
   { name: "business-logic", make: () => new BusinessLogicScanner() },
+  { name: "iac", make: () => new IacScanner() },
+  { name: "llm-security", make: () => new LlmSecurityScanner() },
+  { name: "api-security", make: () => new ApiSecurityScanner() },
+  { name: "cloud", make: () => new CloudSecurityScanner() },
+  { name: "crypto", make: () => new CryptoScanner() },
+  { name: "privacy", make: () => new PrivacyScanner() },
+  { name: "race-conditions", make: () => new RaceConditionScanner() },
+  { name: "redos", make: () => new RedosScanner() },
 ];
 
 /**
@@ -91,17 +107,6 @@ const BENCHMARK_EXCLUDED = new Set<string>([
   "PatternScanner",
   // Needs network (OSV API); v0.1 runner is offline and hermetic.
   "DepScanner",
-  // Wired in scan.ts but not yet added to v0.1 SCANNERS. All eligible
-  // candidates for expansion — adding any requires writing a case
-  // (or at minimum confirming existing cases stay clean against them).
-  "IacScanner",
-  "LlmSecurityScanner",
-  "ApiSecurityScanner",
-  "CloudSecurityScanner",
-  "CryptoScanner",
-  "PrivacyScanner",
-  "RaceConditionScanner",
-  "RedosScanner",
 ]);
 
 async function runScannersAgainst(projectPath: string): Promise<Vulnerability[]> {
