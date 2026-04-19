@@ -188,8 +188,23 @@ export async function handleRequest(req: McpRequest): Promise<McpResponse> {
 }
 
 async function handleToolCall(req: McpRequest): Promise<McpResponse> {
-  const params = req.params as { name: string; arguments: Record<string, string> };
+  // req.params is optional in JSON-RPC 2.0. A client that sends
+  // {"method":"tools/call"} with no params object — or a params object
+  // without a `name` field — must get a clean -32602 back, not a
+  // TypeError ("Cannot read properties of undefined"). The original
+  // code cast req.params unconditionally and crashed the MCP server.
+  const params = (req.params ?? {}) as {
+    name?: unknown;
+    arguments?: Record<string, string>;
+  };
   const toolName = params.name;
+  if (typeof toolName !== "string" || toolName.length === 0) {
+    return {
+      jsonrpc: "2.0",
+      id: req.id,
+      error: { code: -32602, message: "Missing or invalid 'name' in tools/call params" },
+    };
+  }
   const args = params.arguments || {};
   const projectPath = args.path || process.cwd();
 

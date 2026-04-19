@@ -106,6 +106,27 @@ describe("MCP server — protocol handlers", () => {
     expect(resp.error?.message).toContain("sphinx_nonsense");
   });
 
+  it("returns JSON-RPC -32602 for tools/call with no params object (regression: null-deref)", async () => {
+    // Pre-fix the handler crashed with "Cannot read properties of
+    // undefined" because params was type-asserted without a runtime
+    // check. JSON-RPC 2.0 makes params optional, so a well-formed
+    // client request can legitimately omit it.
+    const resp = await handleRequest(rpc("tools/call"));
+    expect(resp.result).toBeUndefined();
+    expect(resp.error?.code).toBe(-32602);
+    expect(resp.error?.message?.toLowerCase()).toContain("name");
+  });
+
+  it("returns JSON-RPC -32602 for tools/call with params but no name field", async () => {
+    // Second regression shape: params object present, but the `name`
+    // field is missing. Handler must short-circuit before the
+    // mythos_/sphinx_ prefix check, which would otherwise throw.
+    const resp = await handleRequest(rpc("tools/call", { arguments: { path: "/tmp" } }));
+    expect(resp.result).toBeUndefined();
+    expect(resp.error?.code).toBe(-32602);
+    expect(resp.error?.message?.toLowerCase()).toContain("name");
+  });
+
   it("preserves the request id in the response (JSON-RPC 2.0 requirement)", async () => {
     const resp = await handleRequest(rpc("initialize", undefined, 42));
     expect(resp.id).toBe(42);
