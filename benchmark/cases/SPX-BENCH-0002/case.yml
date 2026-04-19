@@ -1,0 +1,39 @@
+id: SPX-BENCH-0002
+title: Mass-assignment allows client-controlled role escalation
+cwe: CWE-269 # Improper Privilege Management
+severity: critical
+languages:
+  - typescript
+  - javascript
+classes:
+  - authorization
+  - mass-assignment
+  - privilege-escalation
+  - broken-access-control
+sources:
+  - type: canonical_pattern
+    url: https://cwe.mitre.org/data/definitions/269.html
+  - type: canonical_pattern
+    url: https://owasp.org/www-community/attacks/Mass_Assignment
+license: CC-BY-4.0
+expected_findings:
+  - file: vulnerable/user.ts
+    rule_class: biz-role-escalation
+    severity: critical
+notes: |
+  The PUT/POST /users/:id handler copies req.body.role directly into
+  the database update payload. An authenticated but low-privileged
+  attacker posts {"role": "admin"} alongside a legitimate profile
+  update and is granted admin privileges on the next write.
+
+  The canonical fix has two parts: (1) allowlist the client-editable
+  fields instead of spreading req.body, and (2) route privilege
+  changes through a dedicated admin-only endpoint with server-side
+  actor-identity checks. The safe fixture demonstrates (1); a full
+  system would pair it with (2).
+
+  Triggers business-logic-scanner rule `biz-role-escalation`. This is
+  CWE-269 (Improper Privilege Management), also covered by OWASP API
+  Top 10's Broken Object Property Level Authorization.
+contributed_by: "@zhijiewong"
+contributed_at: "2026-04-19"
