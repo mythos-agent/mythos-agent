@@ -140,7 +140,13 @@ async function sendPayload(
   }
 }
 
-function checkVulnerable(
+/**
+ * Given a payload and the response shape it produced, decide whether the
+ * fixture looks vulnerable. Exported for unit testing — `fuzzEndpoints`
+ * runs live HTTP so the cheapest way to cover detection logic is to
+ * drive this function directly with constructed inputs.
+ */
+export function checkVulnerable(
   payload: TestPayload,
   statusCode: number,
   body: string,
@@ -187,7 +193,11 @@ function checkVulnerable(
   return { isVuln: false };
 }
 
-function resultToVulnerability(result: FuzzResult, index: number): Vulnerability {
+/**
+ * Project a FuzzResult into the repo's canonical `Vulnerability` shape.
+ * Exported for unit testing of id formatting + metadata preservation.
+ */
+export function resultToVulnerability(result: FuzzResult, index: number): Vulnerability {
   return {
     id: `FUZZ-${String(index + 1).padStart(4, "0")}`,
     rule: `dast:${result.payload.category}`,
