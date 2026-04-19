@@ -21,7 +21,7 @@ import type { Vulnerability } from "../../types/index.js";
  * Covered today: the five deterministic scanners we can reliably point
  * at a directory without additional config. PatternScanner + the AI
  * analyzer loop are deliberately excluded from v0.1 — they need
- * `SphinxConfig` and an LLM key respectively, which would turn this
+ * `MythosConfig` and an LLM key respectively, which would turn this
  * into an integration test instead of a fast unit test. Those paths
  * join when the full runner (docs/benchmark.md § Runner contract)
  * lands in Q4 2026.

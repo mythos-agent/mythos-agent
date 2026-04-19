@@ -1,5 +1,5 @@
 import Anthropic from "@anthropic-ai/sdk";
-import type { SphinxConfig, Vulnerability, Severity } from "../types/index.js";
+import type { MythosConfig, Vulnerability, Severity } from "../types/index.js";
 import { createAgentTools, executeToolCall } from "../agent/tools.js";
 
 export interface CveInfo {
@@ -57,7 +57,7 @@ export class VariantAnalyzer {
   private client: Anthropic;
 
   constructor(
-    private config: SphinxConfig,
+    private config: MythosConfig,
     private projectPath: string
   ) {
     this.client = new Anthropic({ apiKey: config.apiKey });

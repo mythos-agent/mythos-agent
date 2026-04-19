@@ -1,5 +1,5 @@
 import Anthropic from "@anthropic-ai/sdk";
-import type { SphinxConfig, Vulnerability, VulnChain, Severity } from "../types/index.js";
+import type { MythosConfig, Vulnerability, VulnChain, Severity } from "../types/index.js";
 
 const CHAIN_PROMPT = `You are a security expert analyzing confirmed vulnerabilities in a codebase. Your job is to identify **vulnerability chains** — sequences of individually exploitable (or seemingly minor) vulnerabilities that, when combined, create a more severe attack path.
 
@@ -40,7 +40,7 @@ export class ChainAnalyzer {
   private client: Anthropic;
   private model: string;
 
-  constructor(private config: SphinxConfig) {
+  constructor(private config: MythosConfig) {
     this.client = new Anthropic({ apiKey: config.apiKey });
     this.model = config.model;
   }

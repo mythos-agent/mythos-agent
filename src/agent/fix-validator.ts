@@ -2,7 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
 import Anthropic from "@anthropic-ai/sdk";
-import type { SphinxConfig, Vulnerability } from "../types/index.js";
+import type { MythosConfig, Vulnerability } from "../types/index.js";
 import { type Patch, applyPatch } from "./fixer.js";
 
 export interface ValidatedFix {
@@ -36,7 +36,7 @@ function testSqlInjectionFix() {
 export class FixValidator {
   private client: Anthropic | null;
 
-  constructor(private config: SphinxConfig) {
+  constructor(private config: MythosConfig) {
     this.client = config.apiKey ? new Anthropic({ apiKey: config.apiKey }) : null;
   }
 

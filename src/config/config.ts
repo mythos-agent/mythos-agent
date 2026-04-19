@@ -1,22 +1,30 @@
 import fs from "node:fs";
 import path from "node:path";
 import yaml from "js-yaml";
-import { DEFAULT_CONFIG, type SphinxConfig } from "../types/index.js";
+import { DEFAULT_CONFIG, type MythosConfig } from "../types/index.js";
 
-const CONFIG_FILENAME = ".sphinx.yml";
+// Preferred config filename is .mythos.yml; .sphinx.yml is accepted for
+// back-compat with projects created during the sphinx-branded era through
+// 3.x. When both exist in the same directory, .mythos.yml wins — that's
+// the migration path: copy sphinx → mythos, next run picks up the new file.
+// 4.0 drops .sphinx.yml support entirely.
+const CANONICAL_CONFIG_FILENAME = ".mythos.yml";
+const LEGACY_CONFIG_FILENAME = ".sphinx.yml";
 
 export function findConfigFile(startDir: string): string | null {
   let dir = path.resolve(startDir);
   while (true) {
-    const configPath = path.join(dir, CONFIG_FILENAME);
-    if (fs.existsSync(configPath)) return configPath;
+    const canonical = path.join(dir, CANONICAL_CONFIG_FILENAME);
+    if (fs.existsSync(canonical)) return canonical;
+    const legacy = path.join(dir, LEGACY_CONFIG_FILENAME);
+    if (fs.existsSync(legacy)) return legacy;
     const parent = path.dirname(dir);
     if (parent === dir) return null;
     dir = parent;
   }
 }
 
-export function loadConfig(projectPath: string): SphinxConfig {
+export function loadConfig(projectPath: string): MythosConfig {
   const config = structuredClone(DEFAULT_CONFIG);
 
   // Load from file — deep merge to preserve nested defaults
@@ -37,22 +45,26 @@ export function loadConfig(projectPath: string): SphinxConfig {
     }
   }
 
-  // Environment variables override file config
-  if (process.env.SPHINX_API_KEY) {
-    config.apiKey = process.env.SPHINX_API_KEY;
-  }
+  // Environment variables override file config.
+  // MYTHOS_* is preferred; SPHINX_* is accepted for back-compat through 3.x.
+  // When both are set, MYTHOS_* wins. ANTHROPIC_API_KEY is the standard
+  // upstream fallback and applies only when neither of the others is set.
+  const envApiKey = process.env.MYTHOS_API_KEY || process.env.SPHINX_API_KEY;
+  if (envApiKey) config.apiKey = envApiKey;
   if (process.env.ANTHROPIC_API_KEY && !config.apiKey) {
     config.apiKey = process.env.ANTHROPIC_API_KEY;
   }
-  if (process.env.SPHINX_MODEL) {
-    config.model = process.env.SPHINX_MODEL;
-  }
+  const envModel = process.env.MYTHOS_MODEL || process.env.SPHINX_MODEL;
+  if (envModel) config.model = envModel;
 
   return config;
 }
 
-export function writeConfig(dir: string, config: Partial<SphinxConfig>): string {
-  const configPath = path.join(dir, CONFIG_FILENAME);
+export function writeConfig(dir: string, config: Partial<MythosConfig>): string {
+  // New configs always land in .mythos.yml; an existing .sphinx.yml in the
+  // same directory is left untouched so we don't surprise users, but the
+  // next findConfigFile() call will prefer the newly-written .mythos.yml.
+  const configPath = path.join(dir, CANONICAL_CONFIG_FILENAME);
   const content = yaml.dump(config, { lineWidth: 80, noRefs: true });
   fs.writeFileSync(configPath, content, "utf-8");
   return configPath;

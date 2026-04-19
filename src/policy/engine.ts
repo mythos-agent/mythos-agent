@@ -40,7 +40,9 @@ export interface PolicyViolation {
   compliance?: string[];
 }
 
-const DEFAULT_POLICY_PATH = ".sphinx/policy.yml";
+// Preferred policy path; .sphinx/policy.yml is checked as a back-compat fallback.
+const DEFAULT_POLICY_PATH = ".mythos/policy.yml";
+const LEGACY_POLICY_PATH = ".sphinx/policy.yml";
 
 const COMPLIANCE_MAP: Record<string, Record<string, string>> = {
   SOC2: {
@@ -76,8 +78,10 @@ const COMPLIANCE_MAP: Record<string, Record<string, string>> = {
 };
 
 export function loadPolicy(projectPath: string): Policy | null {
-  const policyPath = path.join(projectPath, DEFAULT_POLICY_PATH);
-  if (!fs.existsSync(policyPath)) return null;
+  const canonical = path.join(projectPath, DEFAULT_POLICY_PATH);
+  const legacy = path.join(projectPath, LEGACY_POLICY_PATH);
+  const policyPath = fs.existsSync(canonical) ? canonical : fs.existsSync(legacy) ? legacy : null;
+  if (!policyPath) return null;
 
   try {
     const raw = fs.readFileSync(policyPath, "utf-8");
@@ -201,7 +205,7 @@ export function getComplianceMapping(finding: Vulnerability, frameworks: string[
 
 export function generateDefaultPolicy(): string {
   return `# mythos-agent Policy Configuration
-# Place at .sphinx/policy.yml
+# Place at .mythos/policy.yml (or legacy .sphinx/policy.yml through 3.x)
 
 name: default
 description: Default security policy

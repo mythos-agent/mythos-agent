@@ -1,5 +1,5 @@
 import Anthropic from "@anthropic-ai/sdk";
-import type { SphinxConfig } from "../types/index.js";
+import type { MythosConfig } from "../types/index.js";
 import type { ReconReport } from "./agent-protocol.js";
 import { createAgentTools, executeToolCall } from "../agent/tools.js";
 
@@ -26,7 +26,7 @@ export class ReconAgent {
   private client: Anthropic;
 
   constructor(
-    private config: SphinxConfig,
+    private config: MythosConfig,
     private projectPath: string
   ) {
     this.client = new Anthropic({ apiKey: config.apiKey });

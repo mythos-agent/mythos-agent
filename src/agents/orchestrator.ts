@@ -1,6 +1,6 @@
 import chalk from "chalk";
 import ora from "ora";
-import type { SphinxConfig } from "../types/index.js";
+import type { MythosConfig } from "../types/index.js";
 import type { Vulnerability, VulnChain, ScanResult } from "../types/index.js";
 import { ReconAgent } from "./recon-agent.js";
 import { HypothesisAgent, type SecurityHypothesis } from "./hypothesis-agent.js";
@@ -38,7 +38,7 @@ export interface OrchestratorResult {
  */
 export class Orchestrator {
   constructor(
-    private config: SphinxConfig,
+    private config: MythosConfig,
     private projectPath: string,
     private silent = false
   ) {}

@@ -1,4 +1,4 @@
-import type { SphinxConfig, Vulnerability } from "../types/index.js";
+import type { MythosConfig, Vulnerability } from "../types/index.js";
 import type { ReconReport, AnalysisReport } from "./agent-protocol.js";
 import { PatternScanner } from "../scanner/pattern-scanner.js";
 import { SecretsScanner } from "../scanner/secrets-scanner.js";
@@ -13,7 +13,7 @@ import { AIAnalyzer } from "../agent/analyzer.js";
  */
 export class AnalyzerAgent {
   constructor(
-    private config: SphinxConfig,
+    private config: MythosConfig,
     private projectPath: string
   ) {}
 

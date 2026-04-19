@@ -4,7 +4,8 @@ import { spawnSync } from "node:child_process";
 
 const REGISTRY_PREFIX = "mythos-agent-rules-";
 const SAFE_NAME_PATTERN = /^[a-z0-9@._\/-]+$/;
-const LOCAL_RULES_DIR = ".sphinx/rules";
+// Preferred local rules dir; .sphinx/rules remains accepted for back-compat.
+const LOCAL_RULES_DIR = ".mythos/rules";
 
 export interface RulePack {
   name: string;

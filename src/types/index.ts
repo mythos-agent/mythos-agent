@@ -60,7 +60,7 @@ export interface RulePattern {
   message?: string;
 }
 
-export interface SphinxConfig {
+export interface MythosConfig {
   apiKey?: string;
   model: string;
   provider: string; // "anthropic" | "openai" | "ollama" | "lmstudio" | "vllm" | custom
@@ -76,7 +76,13 @@ export interface SphinxConfig {
   };
 }
 
-export const DEFAULT_CONFIG: SphinxConfig = {
+/**
+ * @deprecated Legacy alias retained for back-compat through 3.x. 4.0 removes it.
+ * Import `MythosConfig` instead.
+ */
+export type SphinxConfig = MythosConfig;
+
+export const DEFAULT_CONFIG: MythosConfig = {
   model: "claude-sonnet-4-20250514",
   provider: "anthropic",
   rules: {
@@ -99,6 +105,7 @@ export const DEFAULT_CONFIG: SphinxConfig = {
       "dist/**",
       "build/**",
       ".git/**",
+      ".mythos/**",
       ".sphinx/**",
       "**/*.test.*",
       "**/*.spec.*",

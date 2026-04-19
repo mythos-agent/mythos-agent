@@ -1,4 +1,4 @@
-import type { SphinxConfig, Vulnerability } from "../types/index.js";
+import type { MythosConfig, Vulnerability } from "../types/index.js";
 import { PatternScanner } from "./pattern-scanner.js";
 import { SecretsScanner } from "./secrets-scanner.js";
 import { IacScanner } from "./iac-scanner.js";
@@ -22,7 +22,7 @@ export interface ParallelScanResult {
  * Each scanner runs independently and results are merged.
  */
 export async function runParallelScan(
-  config: SphinxConfig,
+  config: MythosConfig,
   projectPath: string
 ): Promise<ParallelScanResult> {
   const startTime = Date.now();

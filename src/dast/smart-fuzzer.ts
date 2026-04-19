@@ -1,5 +1,5 @@
 import Anthropic from "@anthropic-ai/sdk";
-import type { SphinxConfig, Vulnerability, Severity } from "../types/index.js";
+import type { MythosConfig, Vulnerability, Severity } from "../types/index.js";
 
 export interface SmartFuzzResult {
   endpoint: string;
@@ -43,7 +43,7 @@ const MAX_PAYLOADS_PER_ROUND = 5;
 export class SmartFuzzer {
   private client: Anthropic;
 
-  constructor(private config: SphinxConfig) {
+  constructor(private config: MythosConfig) {
     this.client = new Anthropic({ apiKey: config.apiKey });
   }
 

@@ -1,5 +1,5 @@
 import Anthropic from "@anthropic-ai/sdk";
-import type { SphinxConfig } from "../types/index.js";
+import type { MythosConfig } from "../types/index.js";
 import { createAgentTools, executeToolCall } from "./tools.js";
 
 const QUERY_SYSTEM_PROMPT = `You are mythos-agent, an expert AI security analyst. The user is asking security questions about their codebase. You have access to tools to read files, search code, and list files.
@@ -34,7 +34,7 @@ export class QueryEngine {
   private conversationHistory: Anthropic.MessageParam[] = [];
 
   constructor(
-    private config: SphinxConfig,
+    private config: MythosConfig,
     private projectPath: string
   ) {
     this.client = new Anthropic({ apiKey: config.apiKey });

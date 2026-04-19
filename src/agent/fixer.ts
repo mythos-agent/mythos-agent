@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import Anthropic from "@anthropic-ai/sdk";
-import type { SphinxConfig, Vulnerability } from "../types/index.js";
+import type { MythosConfig, Vulnerability } from "../types/index.js";
 
 export interface Patch {
   vulnerabilityId: string;
@@ -43,7 +43,7 @@ export class AIFixer {
   private client: Anthropic;
   private model: string;
 
-  constructor(private config: SphinxConfig) {
+  constructor(private config: MythosConfig) {
     this.client = new Anthropic({ apiKey: config.apiKey });
     this.model = config.model;
   }

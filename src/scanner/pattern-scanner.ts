@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { glob } from "glob";
-import type { SphinxConfig, Vulnerability, RuleDefinition, Severity } from "../types/index.js";
+import type { MythosConfig, Vulnerability, RuleDefinition, Severity } from "../types/index.js";
 import { loadBuiltinRules } from "../rules/builtin-rules.js";
 import { loadFrameworkRules } from "../rules/framework-rules.js";
 import { loadCustomRules } from "../rules/custom-rules.js";
@@ -30,7 +30,7 @@ export class PatternScanner {
   private rules: RuleDefinition[];
 
   constructor(
-    private config: SphinxConfig,
+    private config: MythosConfig,
     customRulesPath?: string
   ) {
     this.rules = [

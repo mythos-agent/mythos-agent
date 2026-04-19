@@ -21,6 +21,7 @@ export const PRESETS: Record<string, Preset> = {
           "dist/**",
           "build/**",
           ".git/**",
+          ".mythos/**",
           ".sphinx/**",
           "**/*.test.*",
           "**/*.spec.*",
@@ -40,6 +41,7 @@ export const PRESETS: Record<string, Preset> = {
           ".next/**",
           "out/**",
           ".git/**",
+          ".mythos/**",
           ".sphinx/**",
           "**/*.test.*",
           "**/*.spec.*",
@@ -60,6 +62,7 @@ export const PRESETS: Record<string, Preset> = {
           "__pycache__/**",
           "*.pyc",
           ".git/**",
+          ".mythos/**",
           ".sphinx/**",
           "migrations/**",
           "static/**",
@@ -73,7 +76,7 @@ export const PRESETS: Record<string, Preset> = {
     config: {
       scan: {
         include: ["**/*.py", "**/*.html", "**/*.yml"],
-        exclude: ["venv/**", ".venv/**", "__pycache__/**", ".git/**", ".sphinx/**"],
+        exclude: ["venv/**", ".venv/**", "__pycache__/**", ".git/**", ".mythos/**", ".sphinx/**"],
       },
     },
   },
@@ -83,7 +86,15 @@ export const PRESETS: Record<string, Preset> = {
     config: {
       scan: {
         include: ["**/*.java", "**/*.xml", "**/*.yml", "**/*.yaml", "**/*.properties"],
-        exclude: ["target/**", "build/**", ".gradle/**", ".git/**", ".sphinx/**", "**/test/**"],
+        exclude: [
+          "target/**",
+          "build/**",
+          ".gradle/**",
+          ".git/**",
+          ".mythos/**",
+          ".sphinx/**",
+          "**/test/**",
+        ],
       },
     },
   },
@@ -93,7 +104,7 @@ export const PRESETS: Record<string, Preset> = {
     config: {
       scan: {
         include: ["**/*.go", "**/*.yml", "**/*.yaml"],
-        exclude: ["vendor/**", ".git/**", ".sphinx/**", "**/*_test.go"],
+        exclude: ["vendor/**", ".git/**", ".mythos/**", ".sphinx/**", "**/*_test.go"],
       },
     },
   },
@@ -108,6 +119,7 @@ export const PRESETS: Record<string, Preset> = {
           "build/**",
           "dist/**",
           ".git/**",
+          ".mythos/**",
           ".sphinx/**",
           "**/*.test.*",
           "**/*.spec.*",
@@ -140,6 +152,7 @@ export const PRESETS: Record<string, Preset> = {
           "dist/**",
           "build/**",
           ".git/**",
+          ".mythos/**",
           ".sphinx/**",
           "vendor/**",
           "venv/**",

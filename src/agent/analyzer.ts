@@ -1,5 +1,5 @@
 import Anthropic from "@anthropic-ai/sdk";
-import type { SphinxConfig, Vulnerability, Severity } from "../types/index.js";
+import type { MythosConfig, Vulnerability, Severity } from "../types/index.js";
 import { SYSTEM_PROMPT, buildAnalysisPrompt } from "./prompts.js";
 import { createAgentTools, executeToolCall } from "./tools.js";
 
@@ -38,7 +38,7 @@ export class AIAnalyzer {
   private client: Anthropic;
   private model: string;
 
-  constructor(private config: SphinxConfig) {
+  constructor(private config: MythosConfig) {
     this.client = new Anthropic({ apiKey: config.apiKey });
     this.model = config.model;
   }

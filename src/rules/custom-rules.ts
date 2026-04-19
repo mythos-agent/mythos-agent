@@ -21,8 +21,12 @@ interface YamlRule {
 
 export function loadCustomRules(rulesPath?: string, projectPath?: string): RuleDefinition[] {
   const base = projectPath || process.cwd();
+  // .mythos/* is the canonical path; .sphinx/* is checked after so existing
+  // projects with sphinx-era rule files keep resolving through 3.x.
   const searchPaths = [
     rulesPath,
+    path.join(base, ".mythos/rules"),
+    path.join(base, ".mythos/rules.yml"),
     path.join(base, ".sphinx/rules"),
     path.join(base, ".sphinx/rules.yml"),
   ].filter(Boolean) as string[];

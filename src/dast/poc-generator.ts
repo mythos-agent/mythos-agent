@@ -1,5 +1,5 @@
 import Anthropic from "@anthropic-ai/sdk";
-import type { SphinxConfig, Vulnerability } from "../types/index.js";
+import type { MythosConfig, Vulnerability } from "../types/index.js";
 
 export interface ProofOfConcept {
   vulnerabilityId: string;
@@ -35,7 +35,7 @@ const POC_SYSTEM = `You are a security proof-of-concept generator. Given a confi
 export class PocGenerator {
   private client: Anthropic;
 
-  constructor(private config: SphinxConfig) {
+  constructor(private config: MythosConfig) {
     this.client = new Anthropic({ apiKey: config.apiKey });
   }
 
