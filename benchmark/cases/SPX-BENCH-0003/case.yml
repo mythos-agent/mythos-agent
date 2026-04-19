@@ -1,0 +1,42 @@
+id: SPX-BENCH-0003
+title: Express session cookie missing HttpOnly and Secure flags
+cwe: CWE-614 # Sensitive Cookie in HTTPS Session Without 'Secure' Attribute
+severity: high
+languages:
+  - typescript
+  - javascript
+classes:
+  - session-management
+  - cookie-flags
+  - xss-token-theft
+  - csrf
+sources:
+  - type: canonical_pattern
+    url: https://cwe.mitre.org/data/definitions/614.html
+  - type: canonical_pattern
+    url: https://cwe.mitre.org/data/definitions/1004.html
+  - type: canonical_pattern
+    url: https://owasp.org/www-community/HttpOnly
+license: CC-BY-4.0
+expected_findings:
+  - file: vulnerable/session.ts
+    rule_class: session-insecure-cookie
+    severity: high
+notes: |
+  The express-session middleware is configured without `httpOnly: true`
+  or `secure: true` on its cookie object. That means:
+
+  * Any XSS on the origin can read document.cookie and exfiltrate the
+    session id — so the session serves as the attacker's long-term
+    foothold rather than the single-page compromise XSS otherwise is.
+  * The cookie is transmitted over cleartext HTTP if the user ever
+    lands on one, making it trivially interceptable on shared Wi-Fi
+    or in an on-path attacker position.
+
+  The canonical fix sets both flags (and sameSite=strict or lax for
+  CSRF defense). The safe fixture demonstrates the full remediation.
+
+  Triggers session-scanner rule `session-insecure-cookie`. This is
+  CWE-614, covered by OWASP's HttpOnly guidance.
+contributed_by: "@zhijiewong"
+contributed_at: "2026-04-19"
