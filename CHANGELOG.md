@@ -2,6 +2,23 @@
 
 All notable changes to sphinx-agent are documented here. The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). Starting with the next release, entries are generated automatically by [release-please](https://github.com/googleapis/release-please) from [Conventional Commits](https://www.conventionalcommits.org/).
 
+## [3.1.0](https://github.com/mythos-agent/mythos-agent/compare/v3.0.1...v3.1.0) (2026-04-19)
+
+
+### Added
+
+* **scan:** wire BusinessLogicScanner into default scan pipeline ([a70dd51](https://github.com/mythos-agent/mythos-agent/commit/a70dd517ef002f2ce9cacc5a79319a812434b329))
+* **scan:** wire HeadersScanner into default scan pipeline ([4240953](https://github.com/mythos-agent/mythos-agent/commit/42409532dfeb1fa40eef30bf0a841a2668fc77c4))
+* **scan:** wire JwtScanner into default scan pipeline ([11c9078](https://github.com/mythos-agent/mythos-agent/commit/11c90788c072a673f2f24aa25e509e7c7953ca6a))
+* **scan:** wire SessionScanner into default scan pipeline ([4db372a](https://github.com/mythos-agent/mythos-agent/commit/4db372a5ff6beb85a4bc3e4e1f0b50870f5279fe))
+
+
+### Fixed
+
+* **agent:** pin temperature=0 on every Claude/OpenAI call for deterministic scans ([e6d1231](https://github.com/mythos-agent/mythos-agent/commit/e6d123162060659d65c63c65fbdc90a5e6370d49))
+* **ci:** drop --provenance from publish step (npm rejects it for private repos) ([57dfcbe](https://github.com/mythos-agent/mythos-agent/commit/57dfcbe66d81f9b666bb42702c92cf7dbacf26a8))
+* **ci:** skip DCO check on release-please and dependabot PR branches ([f2f5cb5](https://github.com/mythos-agent/mythos-agent/commit/f2f5cb57807bd06bd55ef542992df414c24c46d6))
+
 ## [3.0.1](https://github.com/mythos-agent/mythos-agent/compare/v3.0.0...v3.0.1) (2026-04-18)
 
 
