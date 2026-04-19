@@ -97,6 +97,7 @@ Generate patches for each vulnerability. The "original" field must contain the E
         const response = await this.client.messages.create({
           model: this.model,
           max_tokens: 4096,
+          temperature: 0,
           system: FIX_SYSTEM_PROMPT,
           messages: [{ role: "user", content: prompt }],
         });

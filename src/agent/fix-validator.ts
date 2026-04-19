@@ -137,6 +137,7 @@ export class FixValidator {
       const response = await this.client.messages.create({
         model: this.config.model,
         max_tokens: 2048,
+        temperature: 0,
         system: TEST_GEN_PROMPT,
         messages: [
           {

@@ -45,6 +45,10 @@ export class AnthropicProvider implements AIProvider {
     const response = await this.client.messages.create({
       model: this.model,
       max_tokens: maxTokens,
+      // Deterministic scans: temperature=0 makes findings reproducible
+      // across runs on the same input + model. Required for diff-mode
+      // (baseline comparison) to stay stable.
+      temperature: 0,
       system,
       messages: anthropicMessages,
       ...(anthropicTools && anthropicTools.length > 0 ? { tools: anthropicTools } : {}),

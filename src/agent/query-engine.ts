@@ -58,6 +58,7 @@ export class QueryEngine {
       const response = await this.client.messages.create({
         model: this.model,
         max_tokens: 4096,
+        temperature: 0,
         system: QUERY_SYSTEM_PROMPT,
         tools,
         messages,

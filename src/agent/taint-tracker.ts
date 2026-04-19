@@ -118,6 +118,7 @@ Be thorough — follow imports, function calls, and data transformations across 
       const response = await this.client.messages.create({
         model: this.model,
         max_tokens: 8192,
+        temperature: 0,
         system: TAINT_SYSTEM_PROMPT,
         tools,
         messages,

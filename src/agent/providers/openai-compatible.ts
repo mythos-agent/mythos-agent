@@ -95,6 +95,8 @@ export class OpenAICompatibleProvider implements AIProvider {
       model: this.model,
       messages: openaiMessages,
       max_tokens: maxTokens,
+      // Deterministic scans — see note in providers/anthropic.ts.
+      temperature: 0,
     };
 
     if (openaiTools && openaiTools.length > 0) {

@@ -57,6 +57,7 @@ export class AIAnalyzer {
       const response = await this.client.messages.create({
         model: this.model,
         max_tokens: 8192,
+        temperature: 0,
         system: SYSTEM_PROMPT,
         tools,
         messages,
