@@ -2,75 +2,16 @@ import { describe, it, expect, afterEach } from "vitest";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import type Anthropic from "@anthropic-ai/sdk";
 
 import { AIAnalyzer } from "../analyzer.js";
 import { DEFAULT_CONFIG, type MythosConfig, type Vulnerability } from "../../types/index.js";
+import { createMockClient, type MockMessage } from "../../__tests__/llm-mock.js";
 
 // These tests exercise the AIAnalyzer's 20-turn agentic loop end-to-end
 // — the piece deliberately left untested in f8d08ef (which only covered
-// the pure response parser). The LLM-mock harness in this file is the
-// reusable piece: it injects a scriptable client into any class that
-// accepts Anthropic via constructor DI, so future Recon/Hypothesis/
-// Exploit/SmartFuzzer/PoC loop tests can share it.
-
-// Minimal subset of Anthropic.Message the analyzer loop consumes.
-// The real type has many more fields (usage, model, id, role, etc.)
-// but the loop only reads stop_reason and content, so the mock can
-// stay small and be cast at the boundary.
-type MockMessage = {
-  stop_reason: "tool_use" | "end_turn" | "max_tokens" | "stop_sequence";
-  content: Array<
-    | { type: "text"; text: string }
-    | { type: "tool_use"; id: string; name: string; input: Record<string, unknown> }
-  >;
-};
-
-interface CreateCall {
-  model: string;
-  max_tokens: number;
-  temperature: number;
-  system: string;
-  tools: unknown[];
-  messages: unknown[];
-}
-
-/**
- * Build a scriptable stand-in for an Anthropic client. Each call to
- * `.messages.create()` pops the next scripted response; if the queue
- * is empty the mock throws with a clear diagnostic so tests that
- * under-script fail loudly rather than hang.
- *
- * Returns both the mock client and a live call log so tests can
- * assert on what the analyzer sent upstream (e.g., that
- * temperature=0 is pinned per e6d1231, that tool_result blocks are
- * correctly appended on tool-use round-trips).
- */
-function createMockClient(responses: MockMessage[]): {
-  client: Anthropic;
-  calls: CreateCall[];
-} {
-  const calls: CreateCall[] = [];
-  const queue = [...responses];
-
-  const client = {
-    messages: {
-      create: async (opts: CreateCall): Promise<MockMessage> => {
-        calls.push(opts);
-        const next = queue.shift();
-        if (!next) {
-          throw new Error(
-            `MockAnthropicClient: ran out of scripted responses on call #${calls.length}. ` +
-              "Either the test is under-scripted, or the loop is making more calls than expected."
-          );
-        }
-        return next;
-      },
-    },
-  } as unknown as Anthropic;
-
-  return { client, calls };
-}
+// the pure response parser). The LLM-mock harness now lives at
+// src/__tests__/llm-mock.ts as a shared util; future Recon/Hypothesis/
+// Exploit/SmartFuzzer/PoC loop tests import it from there.
 
 const tmpDirs: string[] = [];
 function fixture(files: Record<string, string> = {}): string {

@@ -25,11 +25,15 @@ const MAX_TURNS = 15;
 export class ReconAgent {
   private client: Anthropic;
 
+  // `client` is optional so tests can inject a scriptable mock via
+  // createMockClient (src/__tests__/llm-mock.ts). Production callers
+  // pass only (config, projectPath) and get a real client.
   constructor(
     private config: MythosConfig,
-    private projectPath: string
+    private projectPath: string,
+    client?: Anthropic
   ) {
-    this.client = new Anthropic({ apiKey: config.apiKey });
+    this.client = client ?? new Anthropic({ apiKey: config.apiKey });
   }
 
   async execute(): Promise<ReconReport> {

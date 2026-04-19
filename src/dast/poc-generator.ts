@@ -35,8 +35,13 @@ const POC_SYSTEM = `You are a security proof-of-concept generator. Given a confi
 export class PocGenerator {
   private client: Anthropic;
 
-  constructor(private config: MythosConfig) {
-    this.client = new Anthropic({ apiKey: config.apiKey });
+  // `client` is optional so tests can inject a scriptable mock via
+  // createMockClient (src/__tests__/llm-mock.ts).
+  constructor(
+    private config: MythosConfig,
+    client?: Anthropic
+  ) {
+    this.client = client ?? new Anthropic({ apiKey: config.apiKey });
   }
 
   async generate(vulnerability: Vulnerability, targetUrl?: string): Promise<ProofOfConcept> {

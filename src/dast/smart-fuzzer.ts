@@ -43,8 +43,13 @@ const MAX_PAYLOADS_PER_ROUND = 5;
 export class SmartFuzzer {
   private client: Anthropic;
 
-  constructor(private config: MythosConfig) {
-    this.client = new Anthropic({ apiKey: config.apiKey });
+  // `client` is optional so tests can inject a scriptable mock via
+  // createMockClient (src/__tests__/llm-mock.ts).
+  constructor(
+    private config: MythosConfig,
+    client?: Anthropic
+  ) {
+    this.client = client ?? new Anthropic({ apiKey: config.apiKey });
   }
 
   /**
