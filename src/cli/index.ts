@@ -88,6 +88,7 @@ program
   .option("--no-headers", "Skip HTTP security headers scanning")
   .option("--no-jwt", "Skip JWT security scanning")
   .option("--no-session", "Skip session security scanning")
+  .option("--no-biz-logic", "Skip business-logic scanning")
   .action(scanCommand);
 
 program

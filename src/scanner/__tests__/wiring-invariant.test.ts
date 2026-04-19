@@ -67,7 +67,6 @@ const KNOWN_EXPERIMENTAL = new Set<string>([
   "DnsRebindingScanner",
 
   // Specialized analyses — not wired.
-  "BusinessLogicScanner",
   "PermissionScanner",
   "RaceConditionScanner",
   "RedosScanner",

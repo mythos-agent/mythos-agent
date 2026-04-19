@@ -25,6 +25,7 @@ import { CloudSecurityScanner } from "../../scanner/cloud-scanner.js";
 import { HeadersScanner } from "../../scanner/headers-scanner.js";
 import { JwtScanner } from "../../scanner/jwt-scanner.js";
 import { SessionScanner } from "../../scanner/session-scanner.js";
+import { BusinessLogicScanner } from "../../scanner/business-logic-scanner.js";
 import type { ScanResult, Severity, Vulnerability } from "../../types/index.js";
 
 interface ScanOptions {
@@ -45,6 +46,7 @@ interface ScanOptions {
   headers: boolean;
   jwt: boolean;
   session: boolean;
+  bizLogic: boolean;
 }
 
 export async function scanCommand(scanPath: string, options: ScanOptions) {
@@ -302,6 +304,25 @@ export async function scanCommand(scanPath: string, options: ScanOptions) {
     }
   }
 
+  // Phase 1k: Business Logic Scan
+  let bizLogicFindings: Vulnerability[] = [];
+  if (options.bizLogic) {
+    const bizSpinner =
+      outputFormat === "terminal" ? ora("Phase 1k: Business Logic Scan").start() : null;
+    try {
+      const bizScanner = new BusinessLogicScanner();
+      const bizResult = await bizScanner.scan(projectPath);
+      bizLogicFindings = bizResult.findings;
+      if (bizSpinner) {
+        bizSpinner.succeed(
+          `Phase 1k: Business Logic ${chalk.dim(`—`)} ${bizLogicFindings.length > 0 ? chalk.red.bold(`${bizLogicFindings.length} biz-logic issues`) : "clean"}`
+        );
+      }
+    } catch (err) {
+      if (bizSpinner) bizSpinner.warn(`Phase 1k: Business Logic — skipped`);
+    }
+  }
+
   // Phase 2: AI Deep Analysis
   let phase2Findings: Vulnerability[] = [];
   let confirmed: Vulnerability[] = [
@@ -315,6 +336,7 @@ export async function scanCommand(scanPath: string, options: ScanOptions) {
     ...headersFindings,
     ...jwtFindings,
     ...sessionFindings,
+    ...bizLogicFindings,
   ];
   let dismissedCount = 0;
 
@@ -342,6 +364,7 @@ export async function scanCommand(scanPath: string, options: ScanOptions) {
         ...headersFindings,
         ...jwtFindings,
         ...sessionFindings,
+        ...bizLogicFindings,
         ...phase2Findings,
       ];
 
