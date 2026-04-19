@@ -1,4 +1,5 @@
 import type { ScanResult, Vulnerability, Severity } from "../types/index.js";
+import { VERSION } from "../version.js";
 
 interface SarifLevel {
   [key: string]: "error" | "warning" | "note" | "none";
@@ -22,7 +23,7 @@ export function renderSarifReport(result: ScanResult): string {
         tool: {
           driver: {
             name: "mythos-agent",
-            version: "0.2.0",
+            version: VERSION,
             informationUri: "https://github.com/mythos-agent/mythos-agent",
             rules: buildRules(result.confirmedVulnerabilities),
           },
