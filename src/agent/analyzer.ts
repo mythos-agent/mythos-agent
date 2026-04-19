@@ -38,8 +38,14 @@ export class AIAnalyzer {
   private client: Anthropic;
   private model: string;
 
-  constructor(private config: MythosConfig) {
-    this.client = new Anthropic({ apiKey: config.apiKey });
+  // `client` is optional so tests can inject a scriptable mock that satisfies
+  // the Anthropic.Client shape used by the agentic loop without touching
+  // the network. Production callers pass `config` only and get a real client.
+  constructor(
+    private config: MythosConfig,
+    client?: Anthropic
+  ) {
+    this.client = client ?? new Anthropic({ apiKey: config.apiKey });
     this.model = config.model;
   }
 
