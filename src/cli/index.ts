@@ -86,6 +86,7 @@ program
   .option("--no-api-sec", "Skip API security scanning")
   .option("--no-cloud", "Skip cloud misconfiguration scanning")
   .option("--no-headers", "Skip HTTP security headers scanning")
+  .option("--no-jwt", "Skip JWT security scanning")
   .action(scanCommand);
 
 program

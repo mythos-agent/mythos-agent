@@ -23,6 +23,7 @@ import { LlmSecurityScanner } from "../../scanner/llm-security-scanner.js";
 import { ApiSecurityScanner } from "../../scanner/api-security-scanner.js";
 import { CloudSecurityScanner } from "../../scanner/cloud-scanner.js";
 import { HeadersScanner } from "../../scanner/headers-scanner.js";
+import { JwtScanner } from "../../scanner/jwt-scanner.js";
 import type { ScanResult, Severity, Vulnerability } from "../../types/index.js";
 
 interface ScanOptions {
@@ -41,6 +42,7 @@ interface ScanOptions {
   apiSec: boolean;
   cloud: boolean;
   headers: boolean;
+  jwt: boolean;
 }
 
 export async function scanCommand(scanPath: string, options: ScanOptions) {
@@ -260,6 +262,25 @@ export async function scanCommand(scanPath: string, options: ScanOptions) {
     }
   }
 
+  // Phase 1i: JWT Security Scan
+  let jwtFindings: Vulnerability[] = [];
+  if (options.jwt) {
+    const jwtSpinner =
+      outputFormat === "terminal" ? ora("Phase 1i: JWT Security Scan").start() : null;
+    try {
+      const jwtScanner = new JwtScanner();
+      const jwtResult = await jwtScanner.scan(projectPath);
+      jwtFindings = jwtResult.findings;
+      if (jwtSpinner) {
+        jwtSpinner.succeed(
+          `Phase 1i: JWT Security ${chalk.dim(`—`)} ${jwtFindings.length > 0 ? chalk.red.bold(`${jwtFindings.length} JWT issues`) : "clean"}`
+        );
+      }
+    } catch (err) {
+      if (jwtSpinner) jwtSpinner.warn(`Phase 1i: JWT Security — skipped`);
+    }
+  }
+
   // Phase 2: AI Deep Analysis
   let phase2Findings: Vulnerability[] = [];
   let confirmed: Vulnerability[] = [
@@ -271,6 +292,7 @@ export async function scanCommand(scanPath: string, options: ScanOptions) {
     ...apiSecFindings,
     ...cloudFindings,
     ...headersFindings,
+    ...jwtFindings,
   ];
   let dismissedCount = 0;
 
@@ -296,6 +318,7 @@ export async function scanCommand(scanPath: string, options: ScanOptions) {
         ...apiSecFindings,
         ...cloudFindings,
         ...headersFindings,
+        ...jwtFindings,
         ...phase2Findings,
       ];
 
