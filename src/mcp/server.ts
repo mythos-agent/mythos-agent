@@ -43,9 +43,11 @@ interface McpResponse {
   error?: { code: number; message: string };
 }
 
-const TOOLS = [
-  {
-    name: "sphinx_scan",
+// Canonical tool specs keyed by their short name. Both `mythos_{short}` (the
+// preferred public name) and `sphinx_{short}` (the legacy alias kept for
+// back-compat through 3.x — dropped in 4.0) resolve to the same handler.
+const TOOL_SPECS: Record<string, { description: string; inputSchema: unknown }> = {
+  scan: {
     description:
       "Scan a project for security vulnerabilities. Returns findings with severity, location, and description.",
     inputSchema: {
@@ -60,8 +62,7 @@ const TOOLS = [
       },
     },
   },
-  {
-    name: "sphinx_secrets",
+  secrets: {
     description: "Scan for hardcoded secrets, API keys, passwords, and tokens in source code.",
     inputSchema: {
       type: "object",
@@ -70,8 +71,7 @@ const TOOLS = [
       },
     },
   },
-  {
-    name: "sphinx_endpoints",
+  endpoints: {
     description:
       "Discover all API endpoints in the codebase and assess their security (auth status, risk level).",
     inputSchema: {
@@ -81,8 +81,7 @@ const TOOLS = [
       },
     },
   },
-  {
-    name: "sphinx_iac",
+  iac: {
     description: "Scan Docker, Terraform, and Kubernetes files for security misconfigurations.",
     inputSchema: {
       type: "object",
@@ -91,8 +90,7 @@ const TOOLS = [
       },
     },
   },
-  {
-    name: "sphinx_results",
+  results: {
     description:
       "Get the latest scan results for a project. Returns all findings, chains, and trust score.",
     inputSchema: {
@@ -102,8 +100,7 @@ const TOOLS = [
       },
     },
   },
-  {
-    name: "sphinx_score",
+  score: {
     description: "Get a security score (0-100) with letter grade for the project.",
     inputSchema: {
       type: "object",
@@ -112,7 +109,20 @@ const TOOLS = [
       },
     },
   },
-];
+};
+
+function sphinxDeprecationNotice(legacyName: string, canonicalName: string): string {
+  return `⚠️  DEPRECATED: the '${legacyName}' MCP tool name is a legacy alias and will be removed in mythos-agent 4.0. Please migrate to '${canonicalName}' (same arguments, same output).`;
+}
+
+const TOOLS = Object.entries(TOOL_SPECS).flatMap(([short, spec]) => [
+  { name: `mythos_${short}`, description: spec.description, inputSchema: spec.inputSchema },
+  {
+    name: `sphinx_${short}`,
+    description: `${spec.description} (DEPRECATED legacy alias — use mythos_${short}.)`,
+    inputSchema: spec.inputSchema,
+  },
+]);
 
 export async function startMcpServer(): Promise<void> {
   let buffer = "";
@@ -183,11 +193,29 @@ async function handleToolCall(req: McpRequest): Promise<McpResponse> {
   const args = params.arguments || {};
   const projectPath = args.path || process.cwd();
 
+  // Normalize both `mythos_xxx` (preferred) and `sphinx_xxx` (legacy alias)
+  // to a single switch. Deprecation of the sphinx_* family is surfaced to
+  // the user in the response content so it's visible at call time, not
+  // only when they read the tools/list descriptions.
+  let canonical: string | null = null;
+  if (toolName.startsWith("mythos_")) canonical = toolName.slice("mythos_".length);
+  else if (toolName.startsWith("sphinx_")) canonical = toolName.slice("sphinx_".length);
+  const isDeprecatedAlias = toolName.startsWith("sphinx_");
+  const isKnownCanonical = canonical !== null && canonical in TOOL_SPECS;
+
   try {
     let result: unknown;
 
-    switch (toolName) {
-      case "sphinx_scan": {
+    if (!isKnownCanonical) {
+      return {
+        jsonrpc: "2.0",
+        id: req.id,
+        error: { code: -32602, message: `Unknown tool: ${toolName}` },
+      };
+    }
+
+    switch (canonical) {
+      case "scan": {
         const config = loadConfig(projectPath);
         const scanner = new PatternScanner(config);
         const { findings, filesScanned } = await scanner.scan(projectPath);
@@ -200,14 +228,14 @@ async function handleToolCall(req: McpRequest): Promise<McpResponse> {
         break;
       }
 
-      case "sphinx_secrets": {
+      case "secrets": {
         const scanner = new SecretsScanner();
         const { findings } = await scanner.scan(projectPath);
         result = formatFindings(findings, 0);
         break;
       }
 
-      case "sphinx_endpoints": {
+      case "endpoints": {
         const map = await parseCodebase(projectPath);
         const endpoints = mapEndpoints(map);
         const assessment = assessEndpointSecurity(endpoints);
@@ -223,14 +251,14 @@ async function handleToolCall(req: McpRequest): Promise<McpResponse> {
         break;
       }
 
-      case "sphinx_iac": {
+      case "iac": {
         const scanner = new IacScanner();
         const { findings } = await scanner.scan(projectPath);
         result = formatFindings(findings, 0);
         break;
       }
 
-      case "sphinx_results": {
+      case "results": {
         const scanResult = loadResults(projectPath);
         if (!scanResult) {
           result = "No scan results found. Run `mythos-agent scan` first.";
@@ -243,7 +271,7 @@ async function handleToolCall(req: McpRequest): Promise<McpResponse> {
         break;
       }
 
-      case "sphinx_score": {
+      case "score": {
         const config = loadConfig(projectPath);
         const scanner = new PatternScanner(config);
         const { findings } = await scanner.scan(projectPath, false);
@@ -294,16 +322,17 @@ async function handleToolCall(req: McpRequest): Promise<McpResponse> {
         };
     }
 
+    const rawText = typeof result === "string" ? result : JSON.stringify(result, null, 2);
+    const text =
+      isDeprecatedAlias && canonical
+        ? `${sphinxDeprecationNotice(toolName, `mythos_${canonical}`)}\n\n${rawText}`
+        : rawText;
+
     return {
       jsonrpc: "2.0",
       id: req.id,
       result: {
-        content: [
-          {
-            type: "text",
-            text: typeof result === "string" ? result : JSON.stringify(result, null, 2),
-          },
-        ],
+        content: [{ type: "text", text }],
       },
     };
   } catch (err) {

@@ -38,16 +38,14 @@ const rpc = (method: string, params?: Record<string, unknown>, id: number = 1) =
 });
 
 // Any MCP client (Claude Desktop, Cursor, Claude Code) calls these exact
-// tool names — renaming them is a breaking change, so this list pins
-// the currently-advertised surface. Extend this when 4.0 aliases land.
+// tool names — renaming or removing any of them is a breaking change.
+// 3.x advertises both the preferred `mythos_*` family and the deprecated
+// `sphinx_*` legacy aliases side-by-side; 4.0 drops the sphinx_* set.
+const CANONICAL_TOOLS = ["scan", "secrets", "endpoints", "iac", "results", "score"] as const;
 const PUBLIC_TOOL_NAMES = [
-  "sphinx_endpoints",
-  "sphinx_iac",
-  "sphinx_results",
-  "sphinx_scan",
-  "sphinx_score",
-  "sphinx_secrets",
-] as const;
+  ...CANONICAL_TOOLS.map((t) => `mythos_${t}`),
+  ...CANONICAL_TOOLS.map((t) => `sphinx_${t}`),
+].sort();
 
 function textContent(resp: Awaited<ReturnType<typeof handleRequest>>): string {
   const content = (resp.result as { content?: Array<{ text: string }> } | undefined)?.content;
@@ -71,15 +69,26 @@ describe("MCP server — protocol handlers", () => {
     expect(version).toMatch(/^\d+\.\d+\.\d+/);
   });
 
-  it("tools/list exposes exactly the 6 advertised sphinx_* tools with input schemas", async () => {
+  it("tools/list exposes all 12 tool names (6 mythos_* preferred + 6 sphinx_* deprecated aliases)", async () => {
     const resp = await handleRequest(rpc("tools/list"));
     expect(resp.error).toBeUndefined();
-    const tools = (resp.result as { tools: Array<{ name: string; inputSchema: unknown }> }).tools;
+    const tools = (
+      resp.result as {
+        tools: Array<{ name: string; description: string; inputSchema: unknown }>;
+      }
+    ).tools;
     const names = tools.map((t) => t.name).sort();
-    expect(names).toEqual([...PUBLIC_TOOL_NAMES]);
+    expect(names).toEqual(PUBLIC_TOOL_NAMES);
     // Every tool must declare an input schema or MCP clients throw at registration time.
     for (const t of tools) {
       expect(t.inputSchema).toMatchObject({ type: "object" });
+    }
+    // Deprecated aliases must be visibly marked so users who browse Claude
+    // Desktop's tool list know which ones to migrate off.
+    const sphinxTools = tools.filter((t) => t.name.startsWith("sphinx_"));
+    expect(sphinxTools).toHaveLength(6);
+    for (const t of sphinxTools) {
+      expect(t.description.toUpperCase()).toContain("DEPRECATED");
     }
   });
 
@@ -105,12 +114,12 @@ describe("MCP server — protocol handlers", () => {
 });
 
 describe("MCP server — tool handlers", () => {
-  it("sphinx_scan returns a finding block for a vulnerable file in the given path", async () => {
+  it("mythos_scan returns a finding block for a vulnerable file in the given path", async () => {
     const dir = fixture({
       "api.ts": "db.query(`SELECT * FROM users WHERE id = ${req.params.id}`);",
     });
     const resp = await handleRequest(
-      rpc("tools/call", { name: "sphinx_scan", arguments: { path: dir, severity: "low" } })
+      rpc("tools/call", { name: "mythos_scan", arguments: { path: dir, severity: "low" } })
     );
     expect(resp.error).toBeUndefined();
     const text = textContent(resp);
@@ -120,27 +129,27 @@ describe("MCP server — tool handlers", () => {
     expect(text.toLowerCase()).toMatch(/vulnerabilit|found|scanned/);
   });
 
-  it("sphinx_secrets surfaces a hardcoded AWS-style key", async () => {
+  it("mythos_secrets surfaces a hardcoded AWS-style key", async () => {
     // Split the literal so it can't be picked up by scanners of the test file itself.
     const fakeKey = "AKIA" + "IOSFODNN7EXAMPLE";
     const dir = fixture({
       "leak.ts": `const AWS_SECRET = "${fakeKey}";`,
     });
     const resp = await handleRequest(
-      rpc("tools/call", { name: "sphinx_secrets", arguments: { path: dir } })
+      rpc("tools/call", { name: "mythos_secrets", arguments: { path: dir } })
     );
     expect(resp.error).toBeUndefined();
     const text = textContent(resp);
     expect(text.toLowerCase()).toMatch(/found|secret|key|vulnerabilit/);
   });
 
-  it("sphinx_endpoints summarises routes discovered in the project", async () => {
+  it("mythos_endpoints summarises routes discovered in the project", async () => {
     const dir = fixture({
       "routes.ts":
         "import express from 'express';\nconst app = express();\napp.get('/users', (req, res) => res.json({}));\napp.post('/login', (req, res) => res.json({}));\n",
     });
     const resp = await handleRequest(
-      rpc("tools/call", { name: "sphinx_endpoints", arguments: { path: dir } })
+      rpc("tools/call", { name: "mythos_endpoints", arguments: { path: dir } })
     );
     expect(resp.error).toBeUndefined();
     const text = textContent(resp);
@@ -148,22 +157,22 @@ describe("MCP server — tool handlers", () => {
     expect(text).toContain("Endpoints:");
   });
 
-  it("sphinx_iac flags a Dockerfile misconfig", async () => {
+  it("mythos_iac flags a Dockerfile misconfig", async () => {
     const dir = fixture({
       Dockerfile: "FROM node:18\nUSER root\nRUN apt-get install -y curl\n",
     });
     const resp = await handleRequest(
-      rpc("tools/call", { name: "sphinx_iac", arguments: { path: dir } })
+      rpc("tools/call", { name: "mythos_iac", arguments: { path: dir } })
     );
     expect(resp.error).toBeUndefined();
     const text = textContent(resp);
     expect(text.length).toBeGreaterThan(0);
   });
 
-  it("sphinx_results returns a helpful message when no scan has been saved", async () => {
+  it("mythos_results returns a helpful message when no scan has been saved", async () => {
     const dir = fixture({ "empty.txt": "" });
     const resp = await handleRequest(
-      rpc("tools/call", { name: "sphinx_results", arguments: { path: dir } })
+      rpc("tools/call", { name: "mythos_results", arguments: { path: dir } })
     );
     expect(resp.error).toBeUndefined();
     const text = textContent(resp);
@@ -171,7 +180,7 @@ describe("MCP server — tool handlers", () => {
     expect(text).toContain("mythos-agent scan");
   });
 
-  it("sphinx_results reads back findings + chains from a saved scan", async () => {
+  it("mythos_results reads back findings + chains from a saved scan", async () => {
     const dir = fixture({ "src.ts": "// code" });
     const savedResult: ScanResult = {
       projectPath: dir,
@@ -199,7 +208,7 @@ describe("MCP server — tool handlers", () => {
     saveResults(dir, savedResult);
 
     const resp = await handleRequest(
-      rpc("tools/call", { name: "sphinx_results", arguments: { path: dir } })
+      rpc("tools/call", { name: "mythos_results", arguments: { path: dir } })
     );
     expect(resp.error).toBeUndefined();
     const text = textContent(resp);
@@ -207,10 +216,10 @@ describe("MCP server — tool handlers", () => {
     expect(text).toContain("Test finding");
   });
 
-  it("sphinx_score returns a numeric score and letter grade", async () => {
+  it("mythos_score returns a numeric score and letter grade", async () => {
     const dir = fixture({ "clean.ts": "export const x = 1;\n" });
     const resp = await handleRequest(
-      rpc("tools/call", { name: "sphinx_score", arguments: { path: dir } })
+      rpc("tools/call", { name: "mythos_score", arguments: { path: dir } })
     );
     expect(resp.error).toBeUndefined();
     const text = textContent(resp);
@@ -224,7 +233,7 @@ describe("MCP server — tool handlers", () => {
     // than returning a raw JSON-RPC error (per MCP spec for tool errors).
     const resp = await handleRequest(
       rpc("tools/call", {
-        name: "sphinx_scan",
+        name: "mythos_scan",
         arguments: { path: "/this/path/definitely/does/not/exist/anywhere" },
       })
     );
@@ -233,4 +242,46 @@ describe("MCP server — tool handlers", () => {
     expect(resp.jsonrpc).toBe("2.0");
     expect(resp.id).toBe(1);
   });
+});
+
+describe("MCP server — sphinx_* legacy alias behavior", () => {
+  // Any client configured during the sphinx-branded era must keep working
+  // through 3.x. The body should carry a visible deprecation notice so
+  // users see it at call time (not only if they re-read tools/list).
+
+  it.each(["scan", "secrets", "endpoints", "iac", "results", "score"])(
+    "sphinx_%s routes to the same handler as mythos_%s and prepends a deprecation notice",
+    async (shortName) => {
+      const dir = fixture({ "empty.ts": "export {};\n" });
+
+      const mythosResp = await handleRequest(
+        rpc("tools/call", { name: `mythos_${shortName}`, arguments: { path: dir } })
+      );
+      const sphinxResp = await handleRequest(
+        rpc("tools/call", { name: `sphinx_${shortName}`, arguments: { path: dir } })
+      );
+
+      expect(mythosResp.error).toBeUndefined();
+      expect(sphinxResp.error).toBeUndefined();
+
+      const mythosText = textContent(mythosResp);
+      const sphinxText = textContent(sphinxResp);
+
+      // Deprecation marker is present only on the sphinx_* path.
+      expect(mythosText).not.toContain("DEPRECATED");
+      expect(sphinxText).toContain("DEPRECATED");
+      expect(sphinxText).toContain("mythos-agent 4.0");
+      expect(sphinxText).toContain(`mythos_${shortName}`);
+
+      // Routing parity: strip the deprecation preamble from the sphinx_*
+      // response and the remainder should match the mythos_* body byte-for-byte.
+      // Both calls hit the same scanner with the same args on the same fixture,
+      // so any difference indicates the alias path diverged — a regression we
+      // specifically want this test to catch.
+      const preambleEnd = sphinxText.indexOf("\n\n");
+      expect(preambleEnd).toBeGreaterThan(0);
+      const sphinxBody = sphinxText.slice(preambleEnd + 2);
+      expect(sphinxBody).toBe(mythosText);
+    }
+  );
 });
