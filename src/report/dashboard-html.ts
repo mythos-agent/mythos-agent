@@ -1,5 +1,6 @@
 import path from "node:path";
 import type { ScanResult, Vulnerability, VulnChain } from "../types/index.js";
+import { BRAND, SEVERITY_HEX } from "./brand.js";
 
 export function buildDashboardHtml(result: ScanResult | null, projectPath: string): string {
   const projectName = path.basename(projectPath);
@@ -24,58 +25,76 @@ export function buildDashboardHtml(result: ScanResult | null, projectPath: strin
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>mythos-agent Dashboard — ${esc(projectName)}</title>
 <style>
+  :root {
+    --bg: ${BRAND.nearBlack};
+    --surface: ${BRAND.surface};
+    --surface-raised: ${BRAND.surfaceRaised};
+    --border: ${BRAND.border};
+    --border-strong: ${BRAND.borderStrong};
+    --text: ${BRAND.offWhite};
+    --muted: ${BRAND.muted};
+    --subtle: ${BRAND.subtle};
+    --brand: ${BRAND.violet};
+    --code: ${BRAND.cyan};
+    --critical: ${SEVERITY_HEX.critical};
+    --high: ${SEVERITY_HEX.high};
+    --medium: ${SEVERITY_HEX.medium};
+    --low: ${SEVERITY_HEX.low};
+    --good: ${SEVERITY_HEX.verified};
+    --mono: "Geist Mono", ui-monospace, SFMono-Regular, "SF Mono", "Cascadia Code", Menlo, Consolas, monospace;
+  }
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0a0a0f; color: #e0e0e0; min-height: 100vh; }
-  .header { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); padding: 1.5rem 2rem; border-bottom: 1px solid #1e293b; display: flex; justify-content: space-between; align-items: center; }
-  .header h1 { font-size: 1.4rem; color: #f8fafc; }
-  .header h1 span { color: #f43f5e; }
-  .header .meta { color: #64748b; font-size: 0.85rem; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+  .header { background: var(--surface); padding: 1.5rem 2rem; border-bottom: 2px solid var(--brand); display: flex; justify-content: space-between; align-items: center; }
+  .header h1 { font-size: 1.4rem; color: var(--text); }
+  .header h1 span { color: var(--brand); }
+  .header .meta { color: var(--muted); font-size: 0.85rem; }
   .container { max-width: 1200px; margin: 0 auto; padding: 2rem; }
   .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
-  .card { background: #111827; border: 1px solid #1e293b; border-radius: 12px; padding: 1.5rem; }
-  .card .label { font-size: 0.75rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.08em; }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; }
+  .card .label { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; }
   .card .value { font-size: 2.5rem; font-weight: 800; margin-top: 0.25rem; }
-  .critical-val { color: #ef4444; }
-  .high-val { color: #f97316; }
-  .medium-val { color: #eab308; }
-  .low-val { color: #3b82f6; }
-  .good-val { color: #22c55e; }
+  .critical-val { color: var(--critical); }
+  .high-val { color: var(--high); }
+  .medium-val { color: var(--medium); }
+  .low-val { color: var(--low); }
+  .good-val { color: var(--good); }
   .score-ring { width: 120px; height: 120px; margin: 0 auto; position: relative; }
   .score-ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
   .score-ring circle { fill: none; stroke-width: 8; }
-  .score-ring .bg { stroke: #1e293b; }
+  .score-ring .bg { stroke: var(--border); }
   .score-ring .fg { stroke-linecap: round; transition: stroke-dashoffset 0.5s; }
   .score-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 2rem; font-weight: 800; }
   .section { margin-bottom: 2rem; }
-  .section h2 { font-size: 1.1rem; color: #f8fafc; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid #1e293b; }
+  .section h2 { font-size: 1.1rem; color: var(--text); margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border); }
   .bar-chart { display: flex; flex-direction: column; gap: 0.5rem; }
   .bar-row { display: flex; align-items: center; gap: 0.75rem; }
-  .bar-label { width: 100px; font-size: 0.8rem; color: #94a3b8; text-align: right; }
-  .bar-track { flex: 1; height: 24px; background: #1e293b; border-radius: 4px; overflow: hidden; }
-  .bar-fill { height: 100%; border-radius: 4px; display: flex; align-items: center; padding-left: 8px; font-size: 0.75rem; font-weight: 600; color: #fff; min-width: fit-content; }
-  .bar-fill.critical { background: #ef4444; }
-  .bar-fill.high { background: #f97316; }
-  .bar-fill.medium { background: #eab308; }
-  .bar-fill.low { background: #3b82f6; }
+  .bar-label { width: 100px; font-size: 0.8rem; color: var(--muted); text-align: right; }
+  .bar-track { flex: 1; height: 24px; background: var(--surface-raised); border-radius: 4px; overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 4px; display: flex; align-items: center; padding-left: 8px; font-size: 0.75rem; font-weight: 600; color: var(--bg); min-width: fit-content; }
+  .bar-fill.critical { background: var(--critical); color: var(--text); }
+  .bar-fill.high { background: var(--high); }
+  .bar-fill.medium { background: var(--medium); }
+  .bar-fill.low { background: var(--low); color: var(--bg); }
   table { width: 100%; border-collapse: collapse; }
-  th { text-align: left; padding: 0.75rem; font-size: 0.75rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 1px solid #1e293b; }
-  td { padding: 0.75rem; border-bottom: 1px solid #111827; font-size: 0.875rem; }
-  tr:hover td { background: #111827; }
+  th { text-align: left; padding: 0.75rem; font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 1px solid var(--border); }
+  td { padding: 0.75rem; border-bottom: 1px solid var(--surface); font-size: 0.875rem; }
+  tr:hover td { background: var(--surface); }
   .badge { display: inline-block; padding: 0.15rem 0.5rem; border-radius: 4px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; }
-  .badge-critical { background: #ef444422; color: #ef4444; }
-  .badge-high { background: #f9731622; color: #f97316; }
-  .badge-medium { background: #eab30822; color: #eab308; }
-  .badge-low { background: #3b82f622; color: #3b82f6; }
-  .chain-card { background: #1a1020; border: 1px solid #2d1b3d; border-radius: 8px; padding: 1rem; margin-bottom: 0.75rem; }
-  .chain-title { font-weight: 600; color: #f8fafc; }
-  .chain-steps { margin: 0.5rem 0; padding-left: 1rem; border-left: 2px solid #374151; }
-  .chain-step { padding: 0.2rem 0; font-size: 0.85rem; color: #94a3b8; }
-  .chain-step code { color: #60a5fa; }
-  .chain-narrative { font-size: 0.85rem; color: #9ca3af; font-style: italic; }
-  footer { text-align: center; color: #374151; font-size: 0.75rem; margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid #1e293b; }
-  footer a { color: #60a5fa; text-decoration: none; }
-  .refresh-btn { background: #1e293b; color: #94a3b8; border: 1px solid #334155; padding: 0.4rem 1rem; border-radius: 6px; cursor: pointer; font-size: 0.8rem; }
-  .refresh-btn:hover { background: #334155; color: #f8fafc; }
+  .badge-critical { background: ${SEVERITY_HEX.critical}22; color: var(--critical); }
+  .badge-high { background: ${SEVERITY_HEX.high}22; color: var(--high); }
+  .badge-medium { background: ${SEVERITY_HEX.medium}22; color: var(--medium); }
+  .badge-low { background: ${SEVERITY_HEX.low}22; color: var(--low); }
+  .chain-card { background: var(--surface); border: 1px solid var(--brand); border-radius: 8px; padding: 1rem; margin-bottom: 0.75rem; }
+  .chain-title { font-weight: 600; color: var(--text); }
+  .chain-steps { margin: 0.5rem 0; padding-left: 1rem; border-left: 2px solid var(--border); }
+  .chain-step { padding: 0.2rem 0; font-size: 0.85rem; color: var(--muted); font-family: var(--mono); }
+  .chain-step code { color: var(--code); font-family: var(--mono); }
+  .chain-narrative { font-size: 0.85rem; color: var(--muted); font-style: italic; }
+  footer { text-align: center; color: var(--muted); font-size: 0.75rem; margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border); }
+  footer a { color: var(--code); text-decoration: none; }
+  .refresh-btn { background: var(--surface); color: var(--muted); border: 1px solid var(--border-strong); padding: 0.4rem 1rem; border-radius: 6px; cursor: pointer; font-size: 0.8rem; }
+  .refresh-btn:hover { background: var(--surface-raised); color: var(--text); }
 </style>
 </head>
 <body>
@@ -94,7 +113,7 @@ export function buildDashboardHtml(result: ScanResult | null, projectPath: strin
         <svg viewBox="0 0 120 120">
           <circle class="bg" cx="60" cy="60" r="52"/>
           <circle class="fg" cx="60" cy="60" r="52"
-            stroke="${trustScore >= 7 ? "#22c55e" : trustScore >= 4 ? "#eab308" : "#ef4444"}"
+            stroke="${trustScore >= 7 ? SEVERITY_HEX.verified : trustScore >= 4 ? SEVERITY_HEX.medium : SEVERITY_HEX.critical}"
             stroke-dasharray="${2 * Math.PI * 52}"
             stroke-dashoffset="${2 * Math.PI * 52 * (1 - trustScore / 10)}"/>
         </svg>
@@ -176,10 +195,10 @@ export function buildDashboardHtml(result: ScanResult | null, projectPath: strin
           .map(
             (v) => `
         <tr>
-          <td style="font-family:monospace;color:#64748b">${v.id}</td>
+          <td style="font-family:var(--mono);color:var(--muted)">${v.id}</td>
           <td><span class="badge badge-${v.severity}">${v.severity}</span></td>
           <td>${esc(v.title)}</td>
-          <td style="font-family:monospace;color:#60a5fa">${esc(v.location.file)}</td>
+          <td style="font-family:var(--mono);color:var(--code)">${esc(v.location.file)}</td>
           <td>${v.location.line}</td>
           <td>${v.aiVerified ? "✓" : ""}</td>
         </tr>`

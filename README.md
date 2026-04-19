@@ -1,5 +1,5 @@
 <p align="center">
-  <img alt="mythos-agent — Cerby the guard puppy" src="assets/cerby-hero.svg" width="200">
+  <img alt="mythos-agent — Cerby the guard puppy" src="assets/cerby-banner.svg" width="640">
 </p>
 
 <p align="center">
@@ -13,9 +13,9 @@
   <a href="https://www.npmjs.com/package/mythos-agent"><img src="https://img.shields.io/npm/v/mythos-agent" alt="npm"></a>
   <a href="https://github.com/mythos-agent/mythos-agent/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue" alt="License"></a>
   <img src="https://img.shields.io/badge/node-%3E%3D18-green" alt="Node">
-  <img src="https://img.shields.io/badge/scanners-15_wired-purple" alt="Wired scanners">
-  <img src="https://img.shields.io/badge/experimental-28-lightgrey" alt="Experimental scanners">
-  <img src="https://img.shields.io/badge/rules-329%2B-orange" alt="Rules">
+  <img src="https://img.shields.io/badge/scanners-15_wired-5B2A86" alt="Wired scanners">
+  <img src="https://img.shields.io/badge/experimental-28-6B7280" alt="Experimental scanners">
+  <img src="https://img.shields.io/badge/rules-329%2B-FB923C" alt="Rules">
 </p>
 
 <p align="center">
