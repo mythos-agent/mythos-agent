@@ -45,7 +45,6 @@ const KNOWN_EXPERIMENTAL = new Set<string>([
   "CorsScanner",
   "ClickjackingScanner",
   "OauthScanner",
-  "SessionScanner",
 
   // Protocol / transport — not wired.
   "WebsocketScanner",

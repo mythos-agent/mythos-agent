@@ -87,6 +87,7 @@ program
   .option("--no-cloud", "Skip cloud misconfiguration scanning")
   .option("--no-headers", "Skip HTTP security headers scanning")
   .option("--no-jwt", "Skip JWT security scanning")
+  .option("--no-session", "Skip session security scanning")
   .action(scanCommand);
 
 program

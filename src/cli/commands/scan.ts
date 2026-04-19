@@ -24,6 +24,7 @@ import { ApiSecurityScanner } from "../../scanner/api-security-scanner.js";
 import { CloudSecurityScanner } from "../../scanner/cloud-scanner.js";
 import { HeadersScanner } from "../../scanner/headers-scanner.js";
 import { JwtScanner } from "../../scanner/jwt-scanner.js";
+import { SessionScanner } from "../../scanner/session-scanner.js";
 import type { ScanResult, Severity, Vulnerability } from "../../types/index.js";
 
 interface ScanOptions {
@@ -43,6 +44,7 @@ interface ScanOptions {
   cloud: boolean;
   headers: boolean;
   jwt: boolean;
+  session: boolean;
 }
 
 export async function scanCommand(scanPath: string, options: ScanOptions) {
@@ -281,6 +283,25 @@ export async function scanCommand(scanPath: string, options: ScanOptions) {
     }
   }
 
+  // Phase 1j: Session Security Scan
+  let sessionFindings: Vulnerability[] = [];
+  if (options.session) {
+    const sessionSpinner =
+      outputFormat === "terminal" ? ora("Phase 1j: Session Security Scan").start() : null;
+    try {
+      const sessionScanner = new SessionScanner();
+      const sessionResult = await sessionScanner.scan(projectPath);
+      sessionFindings = sessionResult.findings;
+      if (sessionSpinner) {
+        sessionSpinner.succeed(
+          `Phase 1j: Session Security ${chalk.dim(`—`)} ${sessionFindings.length > 0 ? chalk.red.bold(`${sessionFindings.length} session issues`) : "clean"}`
+        );
+      }
+    } catch (err) {
+      if (sessionSpinner) sessionSpinner.warn(`Phase 1j: Session Security — skipped`);
+    }
+  }
+
   // Phase 2: AI Deep Analysis
   let phase2Findings: Vulnerability[] = [];
   let confirmed: Vulnerability[] = [
@@ -293,6 +314,7 @@ export async function scanCommand(scanPath: string, options: ScanOptions) {
     ...cloudFindings,
     ...headersFindings,
     ...jwtFindings,
+    ...sessionFindings,
   ];
   let dismissedCount = 0;
 
@@ -319,6 +341,7 @@ export async function scanCommand(scanPath: string, options: ScanOptions) {
         ...cloudFindings,
         ...headersFindings,
         ...jwtFindings,
+        ...sessionFindings,
         ...phase2Findings,
       ];
 
