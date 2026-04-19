@@ -26,6 +26,13 @@ jobs:
   check-sign-off:
     name: Check commits for DCO sign-off
     runs-on: ubuntu-latest
+    # Bot-authored PRs do not and cannot sign off on behalf of humans.
+    # Skip the check for the release-please and Dependabot PR branches
+    # — those commits are audited separately through CODEOWNERS review
+    # on the PR itself.
+    if: >-
+      !startsWith(github.head_ref, 'release-please--') &&
+      !startsWith(github.head_ref, 'dependabot/')
     steps:
       - name: Checkout
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
