@@ -1,0 +1,46 @@
+id: SPX-BENCH-0004
+title: Content-Security-Policy weakened with unsafe-inline and unsafe-eval
+cwe: CWE-693 # Protection Mechanism Failure
+severity: high
+languages:
+  - typescript
+  - javascript
+classes:
+  - headers
+  - csp
+  - xss-mitigation-failure
+sources:
+  - type: canonical_pattern
+    url: https://cwe.mitre.org/data/definitions/693.html
+  - type: canonical_pattern
+    url: https://owasp.org/www-project-secure-headers/
+  - type: canonical_pattern
+    url: https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP
+license: CC-BY-4.0
+expected_findings:
+  - file: vulnerable/app.ts
+    rule_class: header-csp-unsafe
+    severity: high
+notes: |
+  The server sets a Content-Security-Policy that includes
+  `'unsafe-inline'` and `'unsafe-eval'` in its script-src directive.
+  Both of those keywords re-enable the XSS vectors CSP was supposed
+  to prevent — inline <script> elements and event handlers, and
+  dynamic code evaluation via eval()/Function()/setTimeout(string).
+
+  A CSP that permits them is worse than no CSP at all: security
+  teams and compliance frameworks may treat the header's presence
+  as "we have CSP" without checking the directive values, producing
+  false confidence. The safe fixture uses the same header mechanism
+  but with a strict script-src restricted to 'self' (a production
+  system would also attach per-response nonces for any genuinely
+  required inline scripts).
+
+  Triggers headers-scanner rule `header-csp-unsafe`. This is a
+  misconfiguration rule (as opposed to the missing-header rules
+  in the same scanner) so it fires on the presence of the unsafe
+  pattern rather than its absence — which means this case is
+  robust to the scaffold scanning both vulnerable/ and safe/
+  directories together.
+contributed_by: "@zhijiewong"
+contributed_at: "2026-04-19"
