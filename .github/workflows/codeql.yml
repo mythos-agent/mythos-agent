@@ -16,6 +16,12 @@ jobs:
   analyze:
     name: Analyze (${{ matrix.language }})
     runs-on: ubuntu-latest
+    # CodeQL SARIF upload requires GitHub Advanced Security, which is a
+    # paid feature on private repos. Skip the whole job while the repo is
+    # private — the analysis runs but has nowhere to publish, so it just
+    # creates noise in the Actions log. Auto-re-enables when repo flips
+    # to public. Tracked in docs/security/threat-model.md § S4.
+    if: github.event.repository.visibility == 'public'
     timeout-minutes: 30
     permissions:
       security-events: write

@@ -43,13 +43,13 @@ jobs:
       - name: Build
         run: npm run build
 
-      # NOTE: `--provenance` is intentionally omitted while this repository
-      # is private. npm rejects provenance bundles from private GitHub repos
-      # (E422 "Unsupported GitHub Actions source repository visibility").
-      # Attestation is still produced out-of-band by sigstore-release.yml,
-      # which uses cosign keyless signing and works regardless of repo
-      # visibility. When the repo goes public, re-add `--provenance`.
+      # `--provenance` requires a public GitHub source repository — npm
+      # rejects provenance bundles from private repos with E422. The flag
+      # is auto-enabled on `push` events once the repository flips to
+      # public; until then, sigstore-release.yml provides cosign keyless
+      # attestation that works regardless of visibility.
       - name: Publish to npm
-        run: npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM }}
+          PROVENANCE_FLAG: ${{ github.event.repository.visibility == 'public' && '--provenance' || '' }}
+        run: npm publish --access public $PROVENANCE_FLAG
