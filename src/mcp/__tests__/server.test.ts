@@ -1,34 +1,19 @@
 import { describe, it, expect, afterEach } from "vitest";
-import fs from "node:fs";
-import os from "node:os";
-import path from "node:path";
 
 import { handleRequest } from "../server.js";
 import { saveResults } from "../../store/results-store.js";
 import { VERSION } from "../../version.js";
 import type { ScanResult } from "../../types/index.js";
-
-type Files = Record<string, string>;
+import { fixture as makeFixture, cleanupTmpDirs } from "../../__tests__/fixtures.js";
 
 const tmpDirs: string[] = [];
-
-function fixture(files: Files): string {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "mythos-mcp-"));
-  for (const [name, content] of Object.entries(files)) {
-    const filePath = path.join(dir, name);
-    fs.mkdirSync(path.dirname(filePath), { recursive: true });
-    fs.writeFileSync(filePath, content);
-  }
+const fixture = (files: Record<string, string>): string => {
+  const dir = makeFixture(files, "mythos-mcp-");
   tmpDirs.push(dir);
   return dir;
-}
+};
 
-afterEach(() => {
-  while (tmpDirs.length) {
-    const d = tmpDirs.pop();
-    if (d) fs.rmSync(d, { recursive: true, force: true });
-  }
-});
+afterEach(() => cleanupTmpDirs(tmpDirs));
 
 const rpc = (method: string, params?: Record<string, unknown>, id: number = 1) => ({
   jsonrpc: "2.0" as const,

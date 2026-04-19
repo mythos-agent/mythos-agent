@@ -1,4 +1,4 @@
-import type { Vulnerability, Severity } from "../types/index.js";
+import type { Vulnerability } from "../types/index.js";
 import type { Endpoint } from "../analysis/endpoint-mapper.js";
 import { getPayloads, generateTargetedPayloads, type TestPayload } from "./payload-generator.js";
 
