@@ -28,6 +28,7 @@ import { SessionScanner } from "../../scanner/session-scanner.js";
 import { BusinessLogicScanner } from "../../scanner/business-logic-scanner.js";
 import { CryptoScanner } from "../../scanner/crypto-scanner.js";
 import { PrivacyScanner } from "../../scanner/privacy-scanner.js";
+import { RaceConditionScanner } from "../../scanner/race-condition-scanner.js";
 import type { ScanResult, Severity, Vulnerability } from "../../types/index.js";
 
 interface ScanOptions {
@@ -51,6 +52,7 @@ interface ScanOptions {
   bizLogic: boolean;
   crypto: boolean;
   privacy: boolean;
+  raceConditions: boolean;
 }
 
 export async function scanCommand(scanPath: string, options: ScanOptions) {
@@ -365,6 +367,25 @@ export async function scanCommand(scanPath: string, options: ScanOptions) {
     }
   }
 
+  // Phase 1n: Race Condition Scan
+  let raceFindings: Vulnerability[] = [];
+  if (options.raceConditions) {
+    const raceSpinner =
+      outputFormat === "terminal" ? ora("Phase 1n: Race Condition Scan").start() : null;
+    try {
+      const raceScanner = new RaceConditionScanner();
+      const raceResult = await raceScanner.scan(projectPath);
+      raceFindings = raceResult.findings;
+      if (raceSpinner) {
+        raceSpinner.succeed(
+          `Phase 1n: Race Conditions ${chalk.dim(`—`)} ${raceFindings.length > 0 ? chalk.red.bold(`${raceFindings.length} race-condition issues`) : "clean"}`
+        );
+      }
+    } catch (err) {
+      if (raceSpinner) raceSpinner.warn(`Phase 1n: Race Conditions — skipped`);
+    }
+  }
+
   // Phase 2: AI Deep Analysis
   let phase2Findings: Vulnerability[] = [];
   let confirmed: Vulnerability[] = [
@@ -381,6 +402,7 @@ export async function scanCommand(scanPath: string, options: ScanOptions) {
     ...bizLogicFindings,
     ...cryptoFindings,
     ...privacyFindings,
+    ...raceFindings,
   ];
   let dismissedCount = 0;
 
@@ -411,6 +433,7 @@ export async function scanCommand(scanPath: string, options: ScanOptions) {
         ...bizLogicFindings,
         ...cryptoFindings,
         ...privacyFindings,
+        ...raceFindings,
         ...phase2Findings,
       ];
 

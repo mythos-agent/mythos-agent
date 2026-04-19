@@ -68,7 +68,6 @@ const KNOWN_EXPERIMENTAL = new Set<string>([
 
   // Specialized analyses — not wired.
   "PermissionScanner",
-  "RaceConditionScanner",
   "RedosScanner",
   "MemorySafetyScanner",
   "ZeroTrustScanner",

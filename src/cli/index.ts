@@ -91,6 +91,7 @@ program
   .option("--no-biz-logic", "Skip business-logic scanning")
   .option("--no-crypto", "Skip crypto audit scanning")
   .option("--no-privacy", "Skip privacy/GDPR scanning")
+  .option("--no-race-conditions", "Skip race-condition scanning")
   .action(scanCommand);
 
 program

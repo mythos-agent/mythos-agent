@@ -9,8 +9,8 @@
   <a href="https://www.npmjs.com/package/mythos-agent"><img src="https://img.shields.io/npm/v/mythos-agent" alt="npm"></a>
   <a href="https://github.com/mythos-agent/mythos-agent/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue" alt="License"></a>
   <img src="https://img.shields.io/badge/node-%3E%3D18-green" alt="Node">
-  <img src="https://img.shields.io/badge/scanners-13_wired-purple" alt="Wired scanners">
-  <img src="https://img.shields.io/badge/experimental-30-lightgrey" alt="Experimental scanners">
+  <img src="https://img.shields.io/badge/scanners-14_wired-purple" alt="Wired scanners">
+  <img src="https://img.shields.io/badge/experimental-29-lightgrey" alt="Experimental scanners">
   <img src="https://img.shields.io/badge/rules-329%2B-orange" alt="Rules">
 </p>
 
@@ -162,7 +162,7 @@ mythos-agent variants --auto
 
 The variant analyzer extracts the **root cause pattern** from the CVE (not the surface syntax) and searches your codebase for structurally similar code.
 
-## Scanners (13 wired + 30 experimental, 329+ rules)
+## Scanners (14 wired + 29 experimental, 329+ rules)
 
 The **Default** scanners run on every `mythos-agent scan`. **Experimental** scanners are implemented + unit-tested classes that ship in the tarball but are not yet reachable from any CLI, HTTP, MCP, or agent entry point — tracked by [`KNOWN_EXPERIMENTAL`](src/scanner/__tests__/wiring-invariant.test.ts) in the wiring-invariant test.
 
@@ -182,9 +182,9 @@ The **Default** scanners run on every `mythos-agent scan`. **Experimental** scan
 | Business Logic | Negative amounts, coupon reuse, inventory races, role escalation | 6 | Default |
 | Crypto Audit | Weak hashes, ECB mode, hardcoded keys, deprecated TLS | 11 | Default |
 | Privacy/GDPR | PII handling, consent, data retention (GDPR article mapping) | 9 | Default |
+| Race Conditions | TOCTOU, non-atomic ops, double-spend, missing transactions | 7 | Default |
 | Supply Chain | Typosquatting, dependency confusion, dangerous install scripts | 12 | Experimental |
 | Zero Trust | Service trust, mTLS, network segmentation, IP-based auth | 8 | Experimental |
-| Race Conditions | TOCTOU, non-atomic ops, double-spend, missing transactions | 7 | Experimental |
 | GraphQL | Introspection, depth limit, field auth, batching | 8 | Experimental |
 | WebSocket | Auth, origin check, message validation, broadcast XSS | 7 | Experimental |
 | CORS | Origin reflection, credentials handling, substring bypass | 7 | Experimental |
