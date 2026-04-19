@@ -2,20 +2,32 @@
 
 Everything you need to publish and promote mythos-agent on launch day.
 
+Positioning rule: **lead with your own value prop. Don't lean on other companies' products for framing.** Factual backend disclosure (*"works with Claude, GPT-4o, Ollama"*) is fine and necessary; marketing hooks that position this tool as an "open-source version" of a specific commercial product are not.
+
 ---
 
 ## Pre-Launch Checklist
 
-- [ ] Create GitHub org `mythos-agent` and transfer repo from `mythos-agent/mythos-agent`
-- [ ] Update `package.json` repository/homepage URLs to new org
-- [ ] Make repo public
-- [ ] `npm publish` (first publish claims the package name)
-- [ ] Buy domain: sphinx-agent.dev
-- [ ] Set GitHub repo description: "The AI security agent that guards your code. 49 scanners, 329+ rules, 58 commands. Open-source Mythos for everyone."
+**Prereqs (done):**
+- [x] GitHub org `mythos-agent` created, repo at `github.com/mythos-agent/mythos-agent`
+- [x] `package.json` repository/homepage URLs point to the org
+- [x] Repo made public
+- [x] Brand assets shipped (`cerby-hero.svg`, `cerby-banner.svg`, `cerby-banner-social.png`, favicons, `BRAND.md`)
+- [x] README banner + shields on-brand
+- [x] HTML reports brand-unified (violet + cyan + Cerby, Geist Mono code font)
+
+**Before posting anywhere:**
+- [ ] `npm publish` v3.1.0 (or tag `v1.0.0` as the launch version — cleaner first-impression number)
+- [ ] Upload `cerby-banner-social.png` at repo Settings → Social preview (needs repo public, which is done)
+- [ ] Upload `web-app-manifest-512x512.png` as GitHub org avatar + npm org avatar
+- [ ] Buy and point domain `sphinx-agent.dev` (optional for launch; nice-to-have)
+- [ ] Set GitHub repo description: *"AI code reviewer that reasons about security bugs instead of just matching patterns. 43 scanner categories, 329+ rules, 8 languages. MIT licensed."*
 - [ ] Add GitHub topics: `security`, `scanner`, `ai`, `sast`, `dast`, `vulnerability`, `owasp`, `cybersecurity`, `cli`, `typescript`, `devsecops`, `appsec`, `llm-security`
-- [ ] Upload social preview image (1280x640)
 - [ ] Enable GitHub Discussions
 - [ ] Pin repo on your GitHub profile
+- [ ] Record 15–30 second demo GIF, embed at top of README (see `docs/DEMO-SCRIPT.md` when written)
+- [ ] Create 3–5 `good first issue` labels on real issues
+- [ ] Pre-warm 5–10 dev friends via DM 48h before launch
 
 ---
 
@@ -23,28 +35,30 @@ Everything you need to publish and promote mythos-agent on launch day.
 
 ### Title (under 80 chars)
 ```
-Show HN: mythos-agent – AI security agent with 49 scanners and 329 rules (OSS)
+Show HN: mythos-agent – open-source AI code reviewer for security bugs
 ```
 
 ### Body
 ```
 Hi HN,
 
-I built mythos-agent, an open-source AI security agent inspired by Anthropic's Mythos. Unlike traditional scanners that match known patterns, mythos-agent reasons about your code like a security researcher.
+I built mythos-agent, an open-source AI code-review assistant for application security. It reasons about code the way a security reviewer on a focused team would — forming hypotheses about what could go wrong, looking for variants of known CVEs, ranking findings by confidence, and suggesting concrete fixes.
 
-What makes it different:
+What makes it different from pattern scanners like Semgrep/Snyk/CodeQL:
 
-- Hypothesis-driven scanning: AI generates security hypotheses about what COULD go wrong in each function (not just pattern matching)
-- Variant analysis: Given a known CVE, finds structurally similar code in your codebase (Google Big Sleep technique)
-- AI-guided fuzzing: Sends payloads, analyzes responses, generates smarter payloads in a feedback loop
-- PoC generation: Creates concrete exploit scripts that prove vulnerabilities are real
+- Hypothesis-driven scanning: for each function, the scanner generates specific security hypotheses ("this transaction doesn't lock the row — potential race condition") rather than matching a fixed regex library
+- Variant analysis: given a known CVE, finds structurally similar code patterns in your codebase
+- AI-guided fuzzing: sends payloads, analyzes responses, generates smarter payloads in a feedback loop
+- PoC generation: produces concrete exploit scripts that verify vulnerabilities are real, not theoretical
+- Multi-agent pipeline: Recon → Hypothesis → Analyzer → Exploit, each stage informs the next
 
-By the numbers:
-- 49 scanner categories (code, secrets, deps, IaC, AI/LLM, API, cloud, supply chain, crypto, zero trust, privacy/GDPR, GraphQL, WebSocket, JWT, CORS, OAuth, SSTI, session, race conditions, and more)
+Stack:
+- 43 scanner categories (15 production-wired, 28 experimental): code patterns, secrets, deps, IaC, AI/LLM security, API security, cloud misconfig, supply chain, crypto audit, zero trust, privacy/GDPR, GraphQL, WebSocket, JWT, CORS, OAuth, SSTI, session, race conditions, and more
 - 329+ built-in rules
-- 58 CLI commands
+- 59 CLI commands
 - 8 languages (TypeScript, JavaScript, Python, Go, Java, PHP, C/C++, Rust)
-- Works with Claude, GPT-4o, Ollama, or any OpenAI-compatible model
+- Works with Claude, GPT-4o, Ollama, or any OpenAI-compatible model — or pattern-only offline without any API key
+- SARIF 2.1.0 output for GitHub Code Scanning
 - VS Code extension, GitHub Action, MCP server, REST API
 - Full OWASP Top 10 coverage
 
@@ -55,25 +69,25 @@ Quick start:
 
 GitHub: https://github.com/mythos-agent/mythos-agent
 
-Built with TypeScript. MIT licensed. 25K lines, 96 tests, 4 code reviews.
+TypeScript, MIT licensed. ~25K lines, 33 test files.
 
-I'd love feedback on the scanning approach and what vulnerability categories I should add next.
+I'd love feedback on the hypothesis-generation approach and what vulnerability categories to prioritize adding next.
 ```
 
 ---
 
-## Twitter / X Posts
+## Twitter / X Thread
 
-### Main Launch Tweet
+### Tweet 1 — Launch
 ```
-🔐 Introducing mythos-agent — the AI security agent that guards your code.
+🔐 Introducing mythos-agent — open-source AI code reviewer for application security.
 
-Open-source Mythos for everyone.
+Reasons about code instead of just matching patterns.
 
-→ 49 scanner categories
+→ 43 scanner categories
 → 329+ built-in rules
-→ AI hypothesis scanning (not just pattern matching)
-→ CVE variant analysis (Big Sleep technique)
+→ Hypothesis-driven scanning
+→ CVE variant analysis
 → AI-guided fuzzing with PoC generation
 
 npx mythos-agent scan
@@ -81,20 +95,20 @@ npx mythos-agent scan
 github.com/mythos-agent/mythos-agent
 ```
 
-### Thread Post 2 — What Makes It Different
+### Tweet 2 — What Makes It Different
 ```
 What makes mythos-agent different from Semgrep/Snyk/CodeQL?
 
 1️⃣ It REASONS about code, not just matches patterns
-2️⃣ It generates hypotheses: "this function could be vulnerable because..."
-3️⃣ It finds variants of known CVEs
+2️⃣ It generates hypotheses: "this function could be vulnerable because…"
+3️⃣ It finds structural variants of known CVEs
 4️⃣ It proves vulnerabilities with concrete PoC exploits
 5️⃣ It chains findings into multi-step attack paths
 ```
 
-### Thread Post 3 — Scanner Categories
+### Tweet 3 — Scanner Categories
 ```
-49 scanner categories including:
+43 scanner categories including:
 
 🤖 AI/LLM Security (prompt injection, cost attacks)
 🔑 API Security (OWASP API Top 10)
@@ -106,7 +120,7 @@ What makes mythos-agent different from Semgrep/Snyk/CodeQL?
 ⚡ Race Conditions (TOCTOU, double-spend)
 ```
 
-### Thread Post 4 — Quick Demo
+### Tweet 4 — Quick Demo
 ```
 Try it in 10 seconds:
 
@@ -124,77 +138,78 @@ Output:
 One command. Instant results.
 ```
 
-### Thread Post 5 — Call to Action
+### Tweet 5 — Call to Action
 ```
 mythos-agent is MIT licensed and free forever.
 
 ⭐ Star if you want to see more AI-powered security tools
-🔧 Contribute: we have "good first issue" labels
+🔧 Contribute: "good first issue" labels are up
 📦 npm install -g mythos-agent
 
 github.com/mythos-agent/mythos-agent
 
-Built with Claude Opus 4.6 — 25K lines in a single coding session.
+Works with Claude, GPT-4o, Ollama — or runs pattern-only offline.
 ```
 
 ---
 
 ## Reddit Posts
 
-### r/netsec Post
+### r/netsec
 ```
-Title: mythos-agent: Open-source AI security scanner with 49 categories, 329+ rules, hypothesis-driven scanning
+Title: mythos-agent: open-source AI security scanner — 43 categories, 329+ rules, hypothesis-driven scanning
 
-I built an open-source security scanner that uses AI to reason about code rather than just matching patterns. It combines traditional SAST with AI-powered techniques inspired by Google's Big Sleep and Anthropic's Mythos.
+Open-source AI code reviewer that layers AI reasoning on top of traditional SAST. Combines hypothesis-driven scanning with CVE variant analysis.
 
 Key capabilities:
-- Hypothesis-driven scanning: AI generates security hypotheses per function
-- CVE variant analysis: finds code similar to known vulnerabilities
+- Hypothesis-driven scanning: AI generates specific security hypotheses per function
+- CVE variant analysis: finds code structurally similar to known vulnerabilities
 - AI-guided fuzzing with feedback loop
-- PoC exploit generation for confirmed vulnerabilities
+- PoC exploit generation for confirmed findings
 - Multi-agent pipeline: Recon → Hypothesize → Analyze → Exploit
 
 Covers: injection (SQL, NoSQL, command, SSTI), XSS (8 DOM patterns), auth (JWT, OAuth, session), crypto (11 rules), cloud (AWS/Azure/GCP), supply chain, zero trust, privacy/GDPR, GraphQL, WebSocket, and 30+ more categories.
 
-Works with Claude, GPT-4o, or local models (Ollama). Pattern scanning works without any API key.
+Works with Claude, GPT-4o, or local models (Ollama). Pattern scanning works offline without any API key.
 
 GitHub: https://github.com/mythos-agent/mythos-agent
 
 Feedback welcome — especially from pentesters on what rules/checks are missing.
 ```
 
-### r/programming Post
+### r/programming
 ```
-Title: I built a 25K-line AI security scanner with 49 vulnerability categories in TypeScript
+Title: I built an open-source AI security scanner with 43 vulnerability categories in TypeScript
 
-mythos-agent is an open-source AI security agent. Instead of just matching regex patterns like most SAST tools, it uses AI to reason about what could go wrong in your code.
+mythos-agent is an open-source AI code-review assistant. Instead of matching regex patterns like traditional SAST, it uses AI to reason about what could go wrong in each function — generating specific hypotheses rather than running a fixed rule library.
 
 Some numbers:
-- 25K lines of TypeScript
+- ~25K lines of TypeScript
 - 329+ built-in security rules
-- 49 scanner categories
-- 58 CLI commands
-- 96 tests, 4 code reviews
+- 43 scanner categories (15 production-wired, 28 experimental)
+- 59 CLI commands
+- 33 test files
 - Scans: TS, JS, Python, Go, Java, PHP, C/C++, Rust
 
-The most interesting part: the hypothesis agent reads your functions and generates security hypotheses like "this transaction doesn't lock the row — potential race condition" rather than just matching known patterns.
+The most interesting part: the hypothesis agent reads functions and generates security hypotheses like *"this endpoint doesn't validate the user ID — potential IDOR"* rather than matching against a static pattern library.
 
 Try it: npx mythos-agent scan
 
 GitHub: https://github.com/mythos-agent/mythos-agent
 ```
 
-### r/cybersecurity Post
+### r/cybersecurity
 ```
-Title: Open-source AI security agent with AI/LLM security scanning, supply chain detection, and zero-trust validation
+Title: Open-source AI code reviewer with AI/LLM security scanning, supply chain detection, and zero-trust validation
 
-Releasing mythos-agent — a CLI security tool that combines 49 scanner categories with AI-powered analysis. A few highlights for this community:
+Releasing mythos-agent — a CLI security tool that combines 43 scanner categories with AI-powered reasoning. Highlights for this community:
 
 - AI/LLM Security: detects prompt injection, unsafe eval of AI output, API key exposure in client code, cost attacks (13 rules)
 - Supply Chain: typosquatting detection, dependency confusion, dangerous install scripts
 - Zero Trust: implicit service trust, missing mTLS, overprivileged accounts
 - Privacy/GDPR: PII logging, missing consent, data retention (mapped to GDPR articles)
 - Compliance reports: SOC2, HIPAA, PCI-DSS, OWASP Top 10 mapping
+- SARIF 2.1.0 output for GitHub Code Scanning
 
 Also includes a STRIDE threat model generator, security scorecard with letter grades, and secrets rotation guides.
 
@@ -206,19 +221,19 @@ Free, open-source, MIT licensed: https://github.com/mythos-agent/mythos-agent
 ## LinkedIn Post
 
 ```
-🔐 Excited to announce mythos-agent — an open-source AI security agent.
+🔐 Excited to announce mythos-agent — an open-source AI code-review assistant for application security.
 
-While Anthropic's Mythos finds zero-days for 40 elite organizations, mythos-agent brings that capability to everyone.
+Security scanners mostly match patterns. mythos-agent reasons about code like a security reviewer: it forms hypotheses about what could go wrong in each function, looks for structural variants of known CVEs, and chains findings into multi-step attack paths.
 
 What makes it unique:
-→ Hypothesis-driven scanning (AI reasons about what COULD go wrong)
-→ CVE variant analysis (finds code similar to known vulnerabilities)
-→ 49 scanner categories covering OWASP Top 10, supply chain, AI/LLM security, cloud misconfig, zero trust, and more
+→ Hypothesis-driven scanning (AI reasons about what COULD go wrong per function)
+→ CVE variant analysis (finds code structurally similar to known vulnerabilities)
+→ 43 scanner categories covering OWASP Top 10, supply chain, AI/LLM security, cloud misconfig, zero trust, and more
 → 329+ built-in rules across 8 programming languages
 → Compliance reporting for SOC2, HIPAA, PCI-DSS, OWASP, and GDPR
 
 For security teams:
-• Drop-in CI/CD integration (GitHub Action + SARIF)
+• Drop-in CI/CD integration (GitHub Action + SARIF 2.1.0)
 • Policy-as-code with compliance mapping
 • VS Code extension with inline diagnostics
 • REST API and MCP server for tool integration
@@ -228,7 +243,7 @@ For developers:
 • npx mythos-agent fix --apply — AI-generated patches
 • npx mythos-agent ask "find auth bypasses" — natural language queries
 
-MIT licensed. Free forever.
+Works with Claude, GPT-4o, Ollama, or any OpenAI-compatible model. MIT licensed. Free forever.
 
 🔗 GitHub: https://github.com/mythos-agent/mythos-agent
 
@@ -237,46 +252,51 @@ MIT licensed. Free forever.
 
 ---
 
-## Product Hunt Tagline Options
+## Product Hunt
 
-1. "The AI security agent that guards your code — open-source Mythos for everyone"
-2. "49 security scanners, 329 rules, AI-powered — one npm install"
-3. "AI security scanner that reasons about code like a security researcher"
+### Tagline Options
+1. "The AI code reviewer that reasons about security bugs — open-source, 329+ rules"
+2. "43 security scanners, 329 rules, AI-powered — one npm install"
+3. "AI code reviewer that reasons about code like a security researcher"
 
-### Product Hunt Description (260 chars)
+### Description (260 chars)
 ```
-mythos-agent is an AI security agent with 49 scanner categories and 329+ rules. Unlike pattern matchers, it hypothesizes vulnerabilities, finds CVE variants, generates PoC exploits, and auto-fixes issues. Covers AI/LLM, API, cloud, supply chain, and more.
+mythos-agent is an open-source AI code-review assistant with 43 scanner categories and 329+ rules. Unlike pattern matchers, it hypothesizes vulnerabilities, finds CVE variants, generates PoC exploits, and auto-fixes issues. Covers AI/LLM, API, cloud, supply chain, and more.
 ```
 
 ---
 
 ## Dev.to / Blog Post Outline
 
-### Title: "I Built an Open-Source Mythos: 25K Lines, 49 Scanners, 329 Rules"
+### Title: "Why Pattern-Matching Scanners Miss Structural Bugs (and What We Built Instead)"
 
-1. **The Problem** — Mythos finds zero-days for 40 companies. Everyone else uses Semgrep.
-2. **The Gap** — Pattern matching vs. semantic reasoning. What Big Sleep proved.
-3. **The Solution** — mythos-agent: hypothesis-driven scanning + variant analysis
-4. **Architecture** — Multi-agent swarm: Recon → Hypothesize → Analyze → Exploit
-5. **Demo** — Walk through scanning a real project, showing hypothesis output
-6. **The Numbers** — 49 categories, 329 rules, 58 commands, 4 code reviews
-7. **What's Next** — Documentation site, more language support, community rules
-8. **Try It** — `npx mythos-agent scan`
+1. **Why pattern-matching scanners miss structural bugs** — Semgrep/Snyk are great at known patterns, but bugs come in variants the rulebook hasn't learned yet.
+2. **The gap: semantic reasoning vs. regex** — what variant-analysis research (including published work on Google Project Zero's Big Sleep) suggests about structure-aware scanning.
+3. **mythos-agent's approach** — hypothesis-driven scanning + variant analysis layered on top of traditional SAST/DAST tools.
+4. **Architecture** — multi-agent pipeline: Recon → Hypothesize → Analyze → Exploit.
+5. **Demo** — walk through scanning a real project, showing hypothesis output in the terminal.
+6. **What's in the box** — 43 scanner categories, 329+ rules, 59 commands, 8 languages.
+7. **What's next** — documentation site, more language support, community rule packs.
+8. **Try it** — `npx mythos-agent scan`.
 
 ---
 
 ## Email to Security Newsletters
 
-### Subject: "Open-source AI security agent with 49 scanner categories"
+### Subject
+```
+Open-source AI code reviewer for application security (43 categories, 329+ rules)
+```
 
+### Body
 ```
 Hi [Name],
 
-I'm launching mythos-agent, an open-source AI security agent that combines 49 vulnerability scanner categories with AI-powered analysis.
+I'm launching mythos-agent, an open-source AI code-review assistant that layers AI reasoning on top of traditional SAST — 43 scanner categories, 329+ rules, MIT licensed.
 
-Key differentiators from Semgrep/Snyk:
-- Hypothesis-driven scanning (AI reasons about each function)
-- CVE variant analysis (Google Big Sleep technique)
+What's different from pattern matchers:
+- Hypothesis-driven scanning (AI reasons about what could go wrong per function)
+- CVE variant analysis (finds structurally similar code)
 - AI-guided fuzzing with PoC generation
 - AI/LLM security scanner (prompt injection, cost attacks)
 - Compliance mapping (SOC2, HIPAA, PCI-DSS, OWASP, GDPR)
@@ -300,19 +320,27 @@ Best,
 
 ---
 
-## GitHub Release Notes (v2.0.0)
+## GitHub Release Notes (v3.1.0)
 
 ```markdown
-## mythos-agent v2.0.0 — The AI Security Agent
+## mythos-agent v3.1.0 — AI Code Reviewer for Application Security
 
-The most comprehensive open-source security scanner available.
+Open-source AI code reviewer that reasons about security bugs instead of just matching patterns.
 
 ### Highlights
-- 🧪 **Hypothesis-driven scanning** — AI reasons about what could go wrong
-- 🔬 **CVE variant analysis** — find code similar to known vulnerabilities
-- 🤖 **49 scanner categories** — from code patterns to AI/LLM security to zero trust
+- 🧪 **Hypothesis-driven scanning** — AI reasons about what could go wrong per function
+- 🔬 **CVE variant analysis** — find code structurally similar to known vulnerabilities
+- 🤖 **43 scanner categories** — 15 production-wired + 28 experimental — code patterns, AI/LLM security, zero trust, privacy, and more
 - 🎯 **329+ built-in rules** across 8 programming languages
-- 🛡️ **58 CLI commands** covering scanning, fixing, reporting, compliance, and more
+- 🛡️ **59 CLI commands** covering scanning, fixing, reporting, compliance, and more
+- 📦 **SARIF 2.1.0 output** — drop-in GitHub Code Scanning integration
+- 🎨 **First-class brand system** — Cerby the mascot, favicon, social preview (see [BRAND.md](./BRAND.md))
+
+### Backends supported
+- Claude (via Anthropic API)
+- GPT-4o (via OpenAI API)
+- Ollama and any OpenAI-compatible local model
+- Offline: pattern scanning works without any API key
 
 ### Quick Start
 ```bash
@@ -328,19 +356,34 @@ See [CHANGELOG.md](./CHANGELOG.md)
 
 ## Launch Day Schedule
 
-| Time | Action |
-|------|--------|
-| 8:00 AM | Make repo public + npm publish |
-| 8:05 AM | Post on Hacker News (Show HN) |
-| 8:10 AM | Post Twitter thread |
-| 8:15 AM | Post on Reddit (r/netsec, r/programming, r/cybersecurity) |
-| 8:30 AM | Post on LinkedIn |
-| 9:00 AM | Submit to Product Hunt |
-| 9:30 AM | Send emails to security newsletters |
-| 10:00 AM | Post on Dev.to |
-| 12:00 PM | Monitor HN comments, respond to questions |
-| 2:00 PM | Cross-post to Chinese dev communities (V2EX, Juejin) |
-| 5:00 PM | Post daily metrics update on Twitter |
+**Best day: Tuesday or Wednesday.**
+**Best time for Show HN: 6–9 AM US Eastern.**
 
-**Best day to launch: Tuesday or Wednesday**
-**Best time for HN: 6-9 AM ET**
+| Time (ET) | Action |
+|---|---|
+| T-48h | DM 5–10 dev friends with launch time + post links; ask for engaged comments (not just upvotes) |
+| T-24h | Final review of Show HN post; record/polish demo GIF; tag release on GitHub; `npm publish` |
+| T-0 (8:00 AM) | Post Show HN |
+| T+5 min | Post Twitter/X thread (5 tweets) |
+| T+10 min | Post to r/netsec, r/programming, r/cybersecurity (stagger by 5 min each) |
+| T+30 min | Post on LinkedIn |
+| T+1 h | Submit to Product Hunt (12:01 AM PT the following day is optimal for PH specifically; adjust if you're running separate PH launch) |
+| T+1.5 h | Send newsletter outreach emails |
+| T+2 h | Post on Dev.to |
+| Rolling 0–48h | Monitor HN/Reddit/Twitter, reply to every comment within 15 min |
+| T+5 h | Post metrics update in thread (stars, installs, feedback themes) |
+| T+1 day | Optional: cross-post to Chinese dev communities (V2EX, Juejin) and relevant Discord servers (OWASP, DevSecOps) |
+
+---
+
+## Response playbook for common comments
+
+| Comment pattern | Response frame |
+|---|---|
+| *"How is this different from Semgrep?"* | Pattern-matching vs. reasoning. Concrete example: "Semgrep finds `eval(req.body)`; mythos-agent also flags `new Function(userInput)` constructed three calls away via taint flow." |
+| *"Does it actually work or is it vaporware?"* | Link to a real scan output on a public repo. Have 2–3 examples pre-staged. |
+| *"API key required?"* | No. Pattern + secrets + deps + IaC scanning all work offline. AI reasoning is opt-in. |
+| *"What's the false positive rate?"* | Confidence scoring per finding; `--severity high` only shows high-confidence. Share your own data if you've measured. |
+| *"License? Can I use this commercially?"* | MIT. Yes. |
+| *"How do you compare to [paid commercial tool]?"* | Honest: paid tools have human-curated rulesets and dedicated teams. mythos-agent is a complement — use both, especially in CI. |
+| Hostile/trolling | Ignore once; if persistent, "thanks for the feedback, moving on" and disengage. Do not dogpile. |
