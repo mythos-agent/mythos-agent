@@ -1,0 +1,15 @@
+# Exclude compiled test files from the npm tarball.
+# These compile from src/**/__tests__/**/*.test.ts into dist/ but users
+# installing the package never need them — they only add download weight.
+**/__tests__/
+*.test.js
+*.test.js.map
+*.test.d.ts
+*.test.d.ts.map
+
+# Source maps — useful for debugging source, not needed at runtime.
+# Removing them cuts tarball size in half with no functional impact.
+*.map
+
+# TypeScript incremental build info — local-dev-only artifact.
+*.tsbuildinfo
