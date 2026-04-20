@@ -10,7 +10,14 @@
     "dist",
     "assets",
     "LICENSE",
-    "README.md"
+    "README.md",
+    "!dist/**/__tests__",
+    "!dist/**/*.test.js",
+    "!dist/**/*.test.d.ts",
+    "!dist/**/*.test.js.map",
+    "!dist/**/*.test.d.ts.map",
+    "!dist/**/*.map",
+    "!**/*.tsbuildinfo"
   ],
   "scripts": {
     "build": "tsc",

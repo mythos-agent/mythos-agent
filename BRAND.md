@@ -109,7 +109,7 @@ All visual assets live in [`assets/`](assets/):
 | `cerby-banner-social.svg` | 1280×640 source for social preview | Dark bg, render to `cerby-banner-social.png` for upload |
 | `cerby-banner-social.png` | 1280×640 GitHub social preview | Upload via repo Settings → Social preview |
 | `favicon.svg`, `favicon.ico`, `favicon-96x96.png` | Browser tab icons | Inlined into HTML reports as base64 |
-| `apple-touch-icon.png`, `web-app-manifest-*.png`, `site.webmanifest` | PWA icons | For future `sphinx-agent.dev` domain |
+| `apple-touch-icon.png`, `web-app-manifest-*.png`, `site.webmanifest` | PWA icons | For future `mythos-agent.com` domain |
 
 ## Don't-do rules
 

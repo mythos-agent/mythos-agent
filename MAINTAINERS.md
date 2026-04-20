@@ -6,7 +6,7 @@ This file lists the active maintainers of mythos-agent. Maintainer responsibilit
 
 | Name | GitHub | Areas | Conflicts of interest | Contact |
 |---|---|---|---|---|
-| Zhijie Wong | [@zhijiewong](https://github.com/zhijiewong) | Lead · scanner · analysis · CLI · agents (currently all areas — Phase 1) | None declared | conduct@sphinx-agent.dev |
+| Zhijie Wong | [@zhijiewong](https://github.com/zhijiewong) | Lead · scanner · analysis · CLI · agents (currently all areas — Phase 1) | None declared | conduct@mythos-agent.com |
 
 **Areas legend** (used when Phase 2 begins):
 
@@ -24,10 +24,10 @@ For continuity if a primary contact becomes unreachable. Listed in the order the
 
 | Function | Primary | Successor |
 |---|---|---|
-| **SECURITY** (vulnerability disclosure) | Zhijie Wong (security@sphinx-agent.dev) | _Pending — to be named when Phase 2 begins_ |
-| **CONDUCT** (Code of Conduct enforcement) | Zhijie Wong (conduct@sphinx-agent.dev) | _Pending — to be named when Phase 2 begins_ |
+| **SECURITY** (vulnerability disclosure) | Zhijie Wong (security@mythos-agent.com) | _Pending — to be named when Phase 2 begins_ |
+| **CONDUCT** (Code of Conduct enforcement) | Zhijie Wong (conduct@mythos-agent.com) | _Pending — to be named when Phase 2 begins_ |
 | **RELEASES** (npm publish, signing) | Zhijie Wong | _Pending — to be named when Phase 2 begins_ |
-| **TRADEMARK / DOMAIN** (sphinx-agent.dev, npm package owner) | Zhijie Wong (personally held) | _Transfer to fiscal host planned for Phase 2_ |
+| **TRADEMARK / DOMAIN** (mythos-agent.com, npm package owner) | Zhijie Wong (personally held) | _Transfer to fiscal host planned for Phase 2_ |
 
 If you are reading this in an emergency and the primary contact is unreachable for 7+ days, escalate publicly via:
 
@@ -56,10 +56,10 @@ Emeritus maintainers do **not** retain:
 |---|---|
 | Public questions, design discussions | [GitHub Discussions](https://github.com/mythos-agent/mythos-agent/discussions) |
 | Bug reports, feature requests | [GitHub Issues](https://github.com/mythos-agent/mythos-agent/issues) |
-| Security vulnerabilities | security@sphinx-agent.dev (see [SECURITY.md](./SECURITY.md)) |
-| Code of Conduct concerns | conduct@sphinx-agent.dev |
+| Security vulnerabilities | security@mythos-agent.com (see [SECURITY.md](./SECURITY.md)) |
+| Code of Conduct concerns | conduct@mythos-agent.com |
 | Trademark / commercial use of name | Lead maintainer (via security@ for now) |
-| Sponsorship / fiscal-host inquiries | conduct@sphinx-agent.dev |
+| Sponsorship / fiscal-host inquiries | conduct@mythos-agent.com |
 
 ## Conflict-of-Interest Declarations
 

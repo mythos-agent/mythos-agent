@@ -32,7 +32,7 @@ This Code of Conduct applies within all community spaces, and also applies when 
 
 ## Enforcement
 
-Instances of abusive, harassing, or otherwise unacceptable behavior may be reported to the community leaders at **conduct@sphinx-agent.dev**.
+Instances of abusive, harassing, or otherwise unacceptable behavior may be reported to the community leaders at **conduct@mythos-agent.com**.
 
 All complaints will be reviewed and investigated promptly and fairly.
 

@@ -6,9 +6,9 @@
 
 ### How to report
 
-1. **Email:** [security@sphinx-agent.dev](mailto:security@sphinx-agent.dev)
+1. **Email:** [security@mythos-agent.com](mailto:security@mythos-agent.com)
 2. **GitHub private vulnerability reporting:** [Report here](https://github.com/mythos-agent/mythos-agent/security/advisories/new)
-3. **PGP key:** A PGP public key for sensitive reports is published at `https://sphinx-agent.dev/.well-known/pgp-key.asc` (publication pending — until then, use GitHub's encrypted private reporting).
+3. **PGP key:** A PGP public key for sensitive reports is published at `https://mythos-agent.com/.well-known/pgp-key.asc` (publication pending — until then, use GitHub's encrypted private reporting).
 
 ### What to include
 

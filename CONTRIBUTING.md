@@ -208,7 +208,7 @@ This is not a moral statement; it is the project's position. People who build of
 
 ## Code of Conduct
 
-All project spaces follow the [Code of Conduct](./CODE_OF_CONDUCT.md). Be kind, be constructive, be collaborative. Reports of violations: conduct@sphinx-agent.dev.
+All project spaces follow the [Code of Conduct](./CODE_OF_CONDUCT.md). Be kind, be constructive, be collaborative. Reports of violations: conduct@mythos-agent.com.
 
 ## License
 

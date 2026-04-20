@@ -10,8 +10,8 @@ Thanks for using mythos-agent! Here's how to get help.
 | Share an idea or feature request | [GitHub Discussions → Ideas](https://github.com/mythos-agent/mythos-agent/discussions/categories/ideas) |
 | Report a reproducible bug | [Open a bug report issue](https://github.com/mythos-agent/mythos-agent/issues/new?template=bug_report.yml) |
 | Request a new feature | [Open a feature request issue](https://github.com/mythos-agent/mythos-agent/issues/new?template=feature_request.yml) |
-| Report a security vulnerability | Email **security@sphinx-agent.dev** — see [SECURITY.md](./SECURITY.md) |
-| Report a Code of Conduct violation | Email **conduct@sphinx-agent.dev** |
+| Report a security vulnerability | Email **security@mythos-agent.com** — see [SECURITY.md](./SECURITY.md) |
+| Report a Code of Conduct violation | Email **conduct@mythos-agent.com** |
 
 ## Before Opening an Issue
 

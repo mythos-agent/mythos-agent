@@ -10,5 +10,5 @@ contact_links:
     url: https://github.com/mythos-agent/mythos-agent/security/policy
     about: Do NOT file security issues here. See SECURITY.md for coordinated disclosure via email.
   - name: Code of Conduct report
-    url: mailto:conduct@sphinx-agent.dev
+    url: mailto:conduct@mythos-agent.com
     about: Report Code of Conduct violations privately by email.

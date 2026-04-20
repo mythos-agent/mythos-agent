@@ -59,7 +59,7 @@ These are voluntary contributions to make mythos-agent practically usable in CRA
 
 ### If you are a commercial entity that wants mythos-agent to take on Open-Source Steward obligations
 
-This requires a legal entity to provide sustained support. The lead maintainer is open to discussing fiscal-host arrangements (e.g., Open Source Collective, Sovereign Tech Fund support) that would make this feasible. Contact security@sphinx-agent.dev to start that conversation.
+This requires a legal entity to provide sustained support. The lead maintainer is open to discussing fiscal-host arrangements (e.g., Open Source Collective, Sovereign Tech Fund support) that would make this feasible. Contact security@mythos-agent.com to start that conversation.
 
 ## When this stance might change
 

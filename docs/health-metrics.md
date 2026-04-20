@@ -33,7 +33,7 @@ We considered **GrimoireLab** (more powerful, more setup) and rejected it for no
 ## Where the dashboard lives
 
 - **Public read-only summary:** `STATS.md` in this repo (regenerated quarterly from Augur)
-- **Live dashboard:** `https://stats.sphinx-agent.dev` (planned; lands once the domain is provisioned)
+- **Live dashboard:** `https://stats.mythos-agent.com` (planned; lands once the domain is provisioned)
 - **Machine-readable JSON:** `stats.json` at the dashboard URL, also committed quarterly to the repo for archival
 
 The `mythos-agent stats` CLI command (already in `src/cli/commands/stats.ts`) is extended to read `stats.json` and render the same numbers in the terminal — so the metric set is observable by users locally without leaving the CLI.

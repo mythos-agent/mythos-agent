@@ -23,6 +23,10 @@
 </p>
 
 <p align="center">
+  <strong><a href="https://mythos-agent.com">mythos-agent.com</a></strong>
+</p>
+
+<p align="center">
   <a href="#quick-start">Quick Start</a> &bull;
   <a href="#how-it-works">How It Works</a> &bull;
   <a href="#commands">Commands</a> &bull;
