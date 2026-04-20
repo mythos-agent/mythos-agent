@@ -20,7 +20,7 @@ Positioning rule: **lead with your own value prop. Don't lean on other companies
 - [ ] `npm publish` v3.1.0 (or tag `v1.0.0` as the launch version — cleaner first-impression number)
 - [ ] Upload `cerby-banner-social.png` at repo Settings → Social preview (needs repo public, which is done)
 - [ ] Upload `web-app-manifest-512x512.png` as GitHub org avatar + npm org avatar
-- [ ] Buy and point domain `sphinx-agent.dev` (optional for launch; nice-to-have)
+- [ ] Buy and point domain `mythos-agent.com` (optional for launch; nice-to-have)
 - [ ] Set GitHub repo description: *"AI code reviewer that reasons about security bugs instead of just matching patterns. 43 scanner categories, 329+ rules, 8 languages. MIT licensed."*
 - [ ] Add GitHub topics: `security`, `scanner`, `ai`, `sast`, `dast`, `vulnerability`, `owasp`, `cybersecurity`, `cli`, `typescript`, `devsecops`, `appsec`, `llm-security`
 - [ ] Enable GitHub Discussions

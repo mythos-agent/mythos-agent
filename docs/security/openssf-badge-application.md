@@ -53,7 +53,7 @@ Format: criterion → answer (Met / Unmet / N/A) → evidence URL or explanation
 | 16 | Acknowledged bug reports promptly | Met | response targets in SECURITY.md |
 | 17 | Maintainers respond to >50% of bug reports in last 2-12 months | Pending baseline | Will measure quarterly per docs/health-metrics.md |
 | 18 | Vulnerability reporting process documented | Met | SECURITY.md |
-| 19 | Vulnerability reporting includes private channel | Met | security@sphinx-agent.dev + GitHub private vulnerability reporting |
+| 19 | Vulnerability reporting includes private channel | Met | security@mythos-agent.com + GitHub private vulnerability reporting |
 | 20 | Initial vulnerability response within 14 days | Met | SECURITY.md SLA: ack within 48 hours, triage within 5 business days |
 | 21 | Software documentation includes architecture overview | Met | README.md "How It Works" + ROADMAP.md theme structure |
 | 22 | Vulnerabilities fixed within 60 days for issues publicly known >14 days | Met | SECURITY.md fix targets: critical/high within 14 days of triage |

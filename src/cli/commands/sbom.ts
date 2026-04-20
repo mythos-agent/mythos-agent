@@ -116,7 +116,7 @@ function generateSpdx(deps: Dependency[], projectPath: string): string {
       dataLicense: "CC0-1.0",
       SPDXID: "SPDXRef-DOCUMENT",
       name: `${projectName}-sbom`,
-      documentNamespace: `https://sphinx-agent.dev/sbom/${projectName}/${timestamp}`,
+      documentNamespace: `https://mythos-agent.com/sbom/${projectName}/${timestamp}`,
       creationInfo: {
         created: timestamp,
         creators: [`Tool: mythos-agent-${VERSION}`],

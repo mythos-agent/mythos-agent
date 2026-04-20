@@ -87,7 +87,7 @@ Maintainers who become inactive for 6+ months may be moved to "emeritus" status 
 
 ## Code of Conduct
 
-All project spaces (issues, PRs, discussions, chat) follow the [Code of Conduct](./CODE_OF_CONDUCT.md). Enforcement is handled by the current maintainers. Violations should be reported to **conduct@sphinx-agent.dev**.
+All project spaces (issues, PRs, discussions, chat) follow the [Code of Conduct](./CODE_OF_CONDUCT.md). Enforcement is handled by the current maintainers. Violations should be reported to **conduct@mythos-agent.com**.
 
 ## Trademark and Licensing
 

@@ -145,8 +145,8 @@ These cannot be enforced by repo-only artifacts but matter to the threat model:
 
 - npm publish account 2FA (FIDO2 preferred)
 - GitHub organization 2FA enforcement
-- DNS / domain control of `sphinx-agent.dev`
-- Email security (SPF / DKIM / DMARC) for `security@sphinx-agent.dev`
+- DNS / domain control of `mythos-agent.com`
+- Email security (SPF / DKIM / DMARC) for `security@mythos-agent.com`
 - Maintainer workstation: full-disk encryption, OS auto-updates, no shared accounts
 - Backup and recovery: signed backups of release-please manifest and `.npmrc` configuration
 

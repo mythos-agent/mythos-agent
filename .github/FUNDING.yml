@@ -8,8 +8,8 @@
 #   1. Create GitHub Sponsors profile at https://github.com/sponsors → uncomment `github:`
 #   2. Apply Open Collective via Open Source Collective fiscal host →
 #      uncomment `open_collective:` once the collective is approved
-#   3. (Optional) custom URL once sphinx-agent.dev/sponsor is live
+#   3. (Optional) custom URL once mythos-agent.com/sponsor is live
 
 # github: [zhijiewong]
 # open_collective: mythos-agent
-# custom: ["https://sphinx-agent.dev/sponsor"]
+# custom: ["https://mythos-agent.com/sponsor"]

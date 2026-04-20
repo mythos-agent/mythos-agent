@@ -64,12 +64,12 @@ Pioneers who become inactive for 12+ months are moved here with their consent. L
 
 Pioneers may opt in to receive an invitation when mythos-agent is presented at a conference (DEF CON AI Village, Black Hat Arsenal, USENIX Security WOOT, academic workshops). The invite covers a co-presenter slot for any Pioneer whose work is being demoed.
 
-To opt in, comment on a tracking issue (link to be added) or email conduct@sphinx-agent.dev. Opting out at any time is one email.
+To opt in, comment on a tracking issue (link to be added) or email conduct@mythos-agent.com. Opting out at any time is one email.
 
 ## How to claim corrections
 
-If the auto-updater missed you, mis-categorized you, or the wrong avatar shows up, open a Discussion with the `pioneers-correction` label or email conduct@sphinx-agent.dev. Corrections land in the next monthly run.
+If the auto-updater missed you, mis-categorized you, or the wrong avatar shows up, open a Discussion with the `pioneers-correction` label or email conduct@mythos-agent.com. Corrections land in the next monthly run.
 
 ## Privacy
 
-The auto-updater uses **only public GitHub data** — your username, avatar, and the metadata of merged PRs. It does not pull email, location, or any private profile field. If you'd like to be excluded from this page entirely, email conduct@sphinx-agent.dev — your contribution stands; the listing is opt-out-able.
+The auto-updater uses **only public GitHub data** — your username, avatar, and the metadata of merged PRs. It does not pull email, location, or any private profile field. If you'd like to be excluded from this page entirely, email conduct@mythos-agent.com — your contribution stands; the listing is opt-out-able.
