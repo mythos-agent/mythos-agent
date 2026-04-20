@@ -3,6 +3,10 @@
 </p>
 
 <p align="center">
+  <img alt="mythos-agent — 10-second security check demo" src="assets/demo.gif" width="720">
+</p>
+
+<p align="center">
   <h1 align="center">mythos-agent</h1>
   <p align="center"><strong>AI code-review assistant for application security.</strong></p>
   <p align="center"><em>Open-source. Reads your code, flags likely security issues, explains its reasoning, suggests fixes.</em></p>
