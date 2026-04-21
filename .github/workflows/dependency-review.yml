@@ -20,6 +20,6 @@ jobs:
         with:
           fail-on-severity: high
           comment-summary-in-pr: on-failure
-          license-check: true
-          # Reject GPL and other strong-copyleft licenses that conflict with MIT
-          deny-licenses: GPL-2.0, GPL-3.0, AGPL-1.0, AGPL-3.0
+          # Vulnerability-alerts only at launch; re-introduce license enforcement
+          # in a dedicated workflow once Dependabot is explicitly enabled in
+          # repo Settings -> Code security and analysis.
