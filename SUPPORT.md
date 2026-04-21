@@ -6,6 +6,7 @@ Thanks for using mythos-agent! Here's how to get help.
 
 | I want to... | Best channel |
 |---|---|
+| Chat in real time with other users and the maintainer | [Discord — `#help`](https://mythos-agent.com/discord) |
 | Ask a usage question | [GitHub Discussions → Q&A](https://github.com/mythos-agent/mythos-agent/discussions/categories/q-a) |
 | Share an idea or feature request | [GitHub Discussions → Ideas](https://github.com/mythos-agent/mythos-agent/discussions/categories/ideas) |
 | Report a reproducible bug | [Open a bug report issue](https://github.com/mythos-agent/mythos-agent/issues/new?template=bug_report.yml) |
