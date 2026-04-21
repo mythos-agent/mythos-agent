@@ -1,4 +1,8 @@
 <p align="center">
+  <strong>English</strong> · <a href="README.zh-CN.md">简体中文</a>
+</p>
+
+<p align="center">
   <img alt="mythos-agent — Cerby the guard puppy" src="assets/cerby-banner.svg" width="640">
 </p>
 
