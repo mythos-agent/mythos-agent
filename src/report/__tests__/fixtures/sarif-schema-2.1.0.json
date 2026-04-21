@@ -6,7 +6,6 @@
   "additionalProperties": false,
   "type": "object",
   "properties": {
-
     "$schema": {
       "description": "The URI of the JSON schema corresponding to the version.",
       "type": "string",
@@ -15,13 +14,13 @@
 
     "version": {
       "description": "The SARIF format version of this log file.",
-      "enum": [ "2.1.0" ],
+      "enum": ["2.1.0"],
       "type": "string"
     },
 
     "runs": {
       "description": "The set of runs contained in this log file.",
-      "type": [ "array", "null" ],
+      "type": ["array", "null"],
       "minItems": 0,
       "uniqueItems": false,
       "items": {
@@ -45,28 +44,24 @@
     }
   },
 
-  "required": [ "version", "runs" ],
+  "required": ["version", "runs"],
 
   "definitions": {
-
     "address": {
       "description": "A physical or virtual address, or a range of addresses, in an 'addressable region' (memory or a binary file).",
       "additionalProperties": false,
       "type": "object",
       "properties": {
-
         "absoluteAddress": {
           "description": "The address expressed as a byte offset from the start of the addressable region.",
           "type": "integer",
           "minimum": -1,
           "default": -1
-
         },
 
         "relativeAddress": {
           "description": "The address expressed as a byte offset from the absolute address of the top-most parent object.",
           "type": "integer"
-
         },
 
         "length": {
@@ -120,7 +115,6 @@
       "additionalProperties": false,
       "type": "object",
       "properties": {
-
         "description": {
           "description": "A short description of the artifact.",
           "$ref": "#/definitions/message"
@@ -234,7 +228,6 @@
       "additionalProperties": false,
       "type": "object",
       "properties": {
-
         "artifactLocation": {
           "description": "The location of the artifact to change.",
           "$ref": "#/definitions/artifactLocation"
@@ -254,10 +247,9 @@
           "description": "Key/value pairs that provide additional information about the change.",
           "$ref": "#/definitions/propertyBag"
         }
-
       },
 
-      "required": [ "artifactLocation", "replacements" ]
+      "required": ["artifactLocation", "replacements"]
     },
 
     "artifactContent": {
@@ -265,7 +257,6 @@
       "type": "object",
       "additionalProperties": false,
       "properties": {
-
         "text": {
           "description": "UTF-8-encoded content from a text artifact.",
           "type": "string"
@@ -293,7 +284,6 @@
       "additionalProperties": false,
       "type": "object",
       "properties": {
-
         "uri": {
           "description": "A string containing a valid relative or absolute URI.",
           "type": "string",
@@ -329,7 +319,6 @@
       "type": "object",
       "additionalProperties": false,
       "properties": {
-
         "description": {
           "description": "A message describing the role played by the attachment.",
           "$ref": "#/definitions/message"
@@ -368,7 +357,7 @@
         }
       },
 
-      "required": [ "artifactLocation" ]
+      "required": ["artifactLocation"]
     },
 
     "codeFlow": {
@@ -376,7 +365,6 @@
       "additionalProperties": false,
       "type": "object",
       "properties": {
-
         "message": {
           "description": "A message relevant to the code flow.",
           "$ref": "#/definitions/message"
@@ -398,7 +386,7 @@
         }
       },
 
-      "required": [ "threadFlows" ]
+      "required": ["threadFlows"]
     },
 
     "configurationOverride": {
@@ -406,7 +394,6 @@
       "type": "object",
       "additionalProperties": false,
       "properties": {
-
         "configuration": {
           "description": "Specifies how the rule or notification was configured during the scan.",
           "$ref": "#/definitions/reportingConfiguration"
@@ -422,7 +409,7 @@
           "$ref": "#/definitions/propertyBag"
         }
       },
-      "required": [ "configuration", "descriptor" ]
+      "required": ["configuration", "descriptor"]
     },
 
     "conversion": {
@@ -430,7 +417,6 @@
       "additionalProperties": false,
       "type": "object",
       "properties": {
-
         "tool": {
           "description": "A tool object that describes the converter.",
           "$ref": "#/definitions/tool"
@@ -456,10 +442,9 @@
           "description": "Key/value pairs that provide additional information about the conversion.",
           "$ref": "#/definitions/propertyBag"
         }
-
       },
 
-      "required": [ "tool" ]
+      "required": ["tool"]
     },
 
     "edge": {
@@ -467,7 +452,6 @@
       "type": "object",
       "additionalProperties": false,
       "properties": {
-
         "id": {
           "description": "A string that uniquely identifies the edge within its graph.",
           "type": "string"
@@ -494,7 +478,7 @@
         }
       },
 
-      "required": [ "id", "sourceNodeId", "targetNodeId" ]
+      "required": ["id", "sourceNodeId", "targetNodeId"]
     },
 
     "edgeTraversal": {
@@ -502,7 +486,6 @@
       "type": "object",
       "additionalProperties": false,
       "properties": {
-
         "edgeId": {
           "description": "Identifies the edge being traversed.",
           "type": "string"
@@ -533,7 +516,7 @@
         }
       },
 
-      "required": [ "edgeId" ]
+      "required": ["edgeId"]
     },
 
     "exception": {
@@ -541,7 +524,6 @@
       "type": "object",
       "additionalProperties": false,
       "properties": {
-
         "kind": {
           "type": "string",
           "description": "A string that identifies the kind of exception, for example, the fully qualified type name of an object that was thrown, or the symbolic name of a signal."
@@ -580,7 +562,6 @@
       "type": "object",
       "additionalProperties": false,
       "properties": {
-
         "schema": {
           "description": "The URI of the JSON schema corresponding to the version of the external property file format.",
           "type": "string",
@@ -589,7 +570,7 @@
 
         "version": {
           "description": "The SARIF format version of this external properties object.",
-          "enum": [ "2.1.0" ],
+          "enum": ["2.1.0"],
           "type": "string"
         },
 
@@ -774,7 +755,6 @@
       "type": "object",
       "additionalProperties": false,
       "properties": {
-
         "location": {
           "description": "The location of the external property file.",
           "$ref": "#/definitions/artifactLocation"
@@ -798,10 +778,7 @@
           "$ref": "#/definitions/propertyBag"
         }
       },
-      "anyOf": [
-        { "required": [ "location" ] },
-        { "required": [ "guid" ] }
-      ]
+      "anyOf": [{ "required": ["location"] }, { "required": ["guid"] }]
     },
 
     "externalPropertyFileReferences": {
@@ -809,7 +786,6 @@
       "additionalProperties": false,
       "type": "object",
       "properties": {
-
         "conversion": {
           "description": "An external property file containing a run.conversion object to be merged with the root log file.",
           "$ref": "#/definitions/externalPropertyFileReference"
@@ -980,7 +956,6 @@
       "additionalProperties": false,
       "type": "object",
       "properties": {
-
         "description": {
           "description": "A message that describes the proposed fix, enabling viewers to present the proposed change to an end user.",
           "$ref": "#/definitions/message"
@@ -1001,7 +976,7 @@
           "$ref": "#/definitions/propertyBag"
         }
       },
-      "required": [ "artifactChanges" ]
+      "required": ["artifactChanges"]
     },
 
     "graph": {
@@ -1009,7 +984,6 @@
       "type": "object",
       "additionalProperties": false,
       "properties": {
-
         "description": {
           "description": "A description of the graph.",
           "$ref": "#/definitions/message"
@@ -1049,7 +1023,6 @@
       "type": "object",
       "additionalProperties": false,
       "properties": {
-
         "runGraphIndex": {
           "description": "The index within the run.graphs to be associated with the result.",
           "type": "integer",
@@ -1101,10 +1074,7 @@
           "$ref": "#/definitions/propertyBag"
         }
       },
-      "oneOf": [
-        { "required": [ "runGraphIndex" ] },
-        { "required": [ "resultGraphIndex" ] }
-      ]
+      "oneOf": [{ "required": ["runGraphIndex"] }, { "required": ["resultGraphIndex"] }]
     },
 
     "invocation": {
@@ -1112,7 +1082,6 @@
       "additionalProperties": false,
       "type": "object",
       "properties": {
-
         "commandLine": {
           "description": "The command line used to invoke the tool.",
           "type": "string"
@@ -1282,7 +1251,7 @@
           "$ref": "#/definitions/propertyBag"
         }
       },
-      "required": [ "executionSuccessful" ]
+      "required": ["executionSuccessful"]
     },
 
     "location": {
@@ -1290,7 +1259,6 @@
       "additionalProperties": false,
       "type": "object",
       "properties": {
-
         "id": {
           "description": "Value that distinguishes this location from all other locations within a single result object.",
           "type": "integer",
@@ -1353,7 +1321,6 @@
       "type": "object",
       "additionalProperties": false,
       "properties": {
-
         "target": {
           "description": "A reference to the related location.",
           "type": "integer",
@@ -1363,7 +1330,7 @@
         "kinds": {
           "description": "A set of distinct strings that categorize the relationship. Well-known kinds include 'includes', 'isIncludedBy' and 'relevant'.",
           "type": "array",
-          "default": [ "relevant" ],
+          "default": ["relevant"],
           "uniqueItems": true,
           "items": {
             "type": "string"
@@ -1380,7 +1347,7 @@
           "$ref": "#/definitions/propertyBag"
         }
       },
-      "required": [ "target" ]
+      "required": ["target"]
     },
 
     "logicalLocation": {
@@ -1388,7 +1355,6 @@
       "additionalProperties": false,
       "type": "object",
       "properties": {
-
         "name": {
           "description": "Identifies the construct in which the result occurred. For example, this property might contain the name of a class or a method.",
           "type": "string"
@@ -1436,7 +1402,6 @@
       "additionalProperties": false,
 
       "properties": {
-
         "text": {
           "description": "A plain text message string.",
           "type": "string"
@@ -1468,10 +1433,7 @@
           "$ref": "#/definitions/propertyBag"
         }
       },
-      "anyOf": [
-        { "required": [ "text" ] },
-        { "required": [ "id" ] }
-      ]
+      "anyOf": [{ "required": ["text"] }, { "required": ["id"] }]
     },
 
     "multiformatMessageString": {
@@ -1480,7 +1442,6 @@
       "additionalProperties": false,
 
       "properties": {
-
         "text": {
           "description": "A plain text message string or format string.",
           "type": "string"
@@ -1496,7 +1457,7 @@
           "$ref": "#/definitions/propertyBag"
         }
       },
-      "required": [ "text" ]
+      "required": ["text"]
     },
 
     "node": {
@@ -1505,7 +1466,6 @@
       "additionalProperties": false,
 
       "properties": {
-
         "id": {
           "description": "A string that uniquely identifies the node within its graph.",
           "type": "string"
@@ -1538,7 +1498,7 @@
         }
       },
 
-      "required": [ "id" ]
+      "required": ["id"]
     },
 
     "notification": {
@@ -1546,7 +1506,6 @@
       "type": "object",
       "additionalProperties": false,
       "properties": {
-
         "locations": {
           "description": "The locations relevant to this notification.",
           "type": "array",
@@ -1566,7 +1525,7 @@
         "level": {
           "description": "A value specifying the severity level of the notification.",
           "default": "warning",
-          "enum": [ "none", "note", "warning", "error" ],
+          "enum": ["none", "note", "warning", "error"],
           "type": "string"
         },
 
@@ -1602,7 +1561,7 @@
         }
       },
 
-      "required": [ "message" ]
+      "required": ["message"]
     },
 
     "physicalLocation": {
@@ -1610,7 +1569,6 @@
       "additionalProperties": false,
       "type": "object",
       "properties": {
-
         "address": {
           "description": "The address of the location.",
           "$ref": "#/definitions/address"
@@ -1639,10 +1597,10 @@
 
       "anyOf": [
         {
-          "required": [ "address" ]
+          "required": ["address"]
         },
         {
-          "required": [ "artifactLocation" ]
+          "required": ["artifactLocation"]
         }
       ]
     },
@@ -1653,7 +1611,6 @@
       "additionalProperties": true,
       "properties": {
         "tags": {
-
           "description": "A set of distinct strings that provide additional information.",
           "type": "array",
           "minItems": 0,
@@ -1671,7 +1628,6 @@
       "additionalProperties": false,
       "type": "object",
       "properties": {
-
         "top": {
           "description": "The Y coordinate of the top edge of the rectangle, measured in the image's natural units.",
           "type": "number"
@@ -1709,7 +1665,6 @@
       "additionalProperties": false,
       "type": "object",
       "properties": {
-
         "startLine": {
           "description": "The line number of the first character in the region.",
           "type": "integer",
@@ -1782,9 +1737,9 @@
       },
 
       "anyOf": [
-        { "required": [ "startLine" ] },
-        { "required": [ "charOffset" ] },
-        { "required": [ "byteOffset" ] }
+        { "required": ["startLine"] },
+        { "required": ["charOffset"] },
+        { "required": ["byteOffset"] }
       ]
     },
 
@@ -1793,7 +1748,6 @@
       "additionalProperties": false,
       "type": "object",
       "properties": {
-
         "deletedRegion": {
           "description": "The region of the artifact to delete.",
           "$ref": "#/definitions/region"
@@ -1810,7 +1764,7 @@
         }
       },
 
-      "required": [ "deletedRegion" ]
+      "required": ["deletedRegion"]
     },
 
     "reportingDescriptor": {
@@ -1818,7 +1772,6 @@
       "additionalProperties": false,
       "type": "object",
       "properties": {
-
         "id": {
           "description": "A stable, opaque identifier for the report.",
           "type": "string"
@@ -1916,7 +1869,7 @@
           "$ref": "#/definitions/propertyBag"
         }
       },
-      "required": [ "id" ]
+      "required": ["id"]
     },
 
     "reportingConfiguration": {
@@ -1924,7 +1877,6 @@
       "type": "object",
       "additionalProperties": false,
       "properties": {
-
         "enabled": {
           "description": "Specifies whether the report may be produced during the scan.",
           "type": "boolean",
@@ -1934,7 +1886,7 @@
         "level": {
           "description": "Specifies the failure level for the report.",
           "default": "warning",
-          "enum": [ "none", "note", "warning", "error" ],
+          "enum": ["none", "note", "warning", "error"],
           "type": "string"
         },
 
@@ -1963,7 +1915,6 @@
       "type": "object",
       "additionalProperties": false,
       "properties": {
-
         "id": {
           "description": "The id of the descriptor.",
           "type": "string"
@@ -1992,11 +1943,7 @@
           "$ref": "#/definitions/propertyBag"
         }
       },
-      "anyOf": [
-        { "required": [ "index" ] },
-        { "required": [ "guid" ] },
-        { "required": [ "id" ] }
-      ]
+      "anyOf": [{ "required": ["index"] }, { "required": ["guid"] }, { "required": ["id"] }]
     },
 
     "reportingDescriptorRelationship": {
@@ -2004,7 +1951,6 @@
       "type": "object",
       "additionalProperties": false,
       "properties": {
-
         "target": {
           "description": "A reference to the related reporting descriptor.",
           "$ref": "#/definitions/reportingDescriptorReference"
@@ -2013,7 +1959,7 @@
         "kinds": {
           "description": "A set of distinct strings that categorize the relationship. Well-known kinds include 'canPrecede', 'canFollow', 'willPrecede', 'willFollow', 'superset', 'subset', 'equal', 'disjoint', 'relevant', and 'incomparable'.",
           "type": "array",
-          "default": [ "relevant" ],
+          "default": ["relevant"],
           "uniqueItems": true,
           "items": {
             "type": "string"
@@ -2030,7 +1976,7 @@
           "$ref": "#/definitions/propertyBag"
         }
       },
-      "required": [ "target" ]
+      "required": ["target"]
     },
 
     "result": {
@@ -2038,7 +1984,6 @@
       "additionalProperties": false,
       "type": "object",
       "properties": {
-
         "ruleId": {
           "description": "The stable, unique identifier of the rule, if any, to which this result is relevant.",
           "type": "string"
@@ -2059,14 +2004,14 @@
         "kind": {
           "description": "A value that categorizes results by evaluation state.",
           "default": "fail",
-          "enum": [ "notApplicable", "pass", "fail", "review", "open", "informational" ],
+          "enum": ["notApplicable", "pass", "fail", "review", "open", "informational"],
           "type": "string"
         },
 
         "level": {
           "description": "A value specifying the severity level of the result.",
           "default": "warning",
-          "enum": [ "none", "note", "warning", "error" ],
+          "enum": ["none", "note", "warning", "error"],
           "type": "string"
         },
 
@@ -2192,12 +2137,7 @@
 
         "baselineState": {
           "description": "The state of a result relative to a baseline of a previous run.",
-          "enum": [
-            "new",
-            "unchanged",
-            "updated",
-            "absent"
-          ],
+          "enum": ["new", "unchanged", "updated", "absent"],
           "type": "string"
         },
 
@@ -2279,7 +2219,7 @@
           "$ref": "#/definitions/propertyBag"
         }
       },
-      "required": [ "message" ]
+      "required": ["message"]
     },
 
     "resultProvenance": {
@@ -2287,7 +2227,6 @@
       "additionalProperties": false,
       "type": "object",
       "properties": {
-
         "firstDetectionTimeUtc": {
           "description": "The Coordinated Universal Time (UTC) date and time at which the result was first detected. See \"Date/time properties\" in the SARIF spec for the required format.",
           "type": "string",
@@ -2342,7 +2281,6 @@
       "additionalProperties": false,
       "type": "object",
       "properties": {
-
         "tool": {
           "description": "Information about the tool or tool pipeline that generated the results in this run. A run can only contain results produced by a single tool or tool pipeline. A run can aggregate results from multiple log files, as long as context around the tool run (tool command-line arguments and the like) is identical for all aggregated files.",
           "$ref": "#/definitions/tool"
@@ -2480,7 +2418,7 @@
           "type": "array",
           "minItems": 1,
           "uniqueItems": true,
-          "default": [ "\r\n", "\n" ],
+          "default": ["\r\n", "\n"],
           "items": {
             "type": "string"
           }
@@ -2488,7 +2426,7 @@
 
         "columnKind": {
           "description": "Specifies the unit in which the tool measures columns.",
-          "enum": [ "utf16CodeUnits", "unicodeCodePoints" ],
+          "enum": ["utf16CodeUnits", "unicodeCodePoints"],
           "type": "string"
         },
 
@@ -2585,7 +2523,7 @@
         }
       },
 
-      "required": [ "tool" ]
+      "required": ["tool"]
     },
 
     "runAutomationDetails": {
@@ -2593,7 +2531,6 @@
       "additionalProperties": false,
       "type": "object",
       "properties": {
-
         "description": {
           "description": "A description of the identity and role played within the engineering system by this object's containing run object.",
           "$ref": "#/definitions/message"
@@ -2628,7 +2565,6 @@
       "type": "object",
       "additionalProperties": false,
       "properties": {
-
         "displayBase": {
           "description": "Provides a suggestion to SARIF consumers to display file paths relative to the specified location.",
           "$ref": "#/definitions/artifactLocation"
@@ -2646,7 +2582,6 @@
       "additionalProperties": false,
       "type": "object",
       "properties": {
-
         "message": {
           "description": "A message relevant to this call stack.",
           "$ref": "#/definitions/message"
@@ -2667,7 +2602,7 @@
           "$ref": "#/definitions/propertyBag"
         }
       },
-      "required": [ "frames" ]
+      "required": ["frames"]
     },
 
     "stackFrame": {
@@ -2675,7 +2610,6 @@
       "additionalProperties": false,
       "type": "object",
       "properties": {
-
         "location": {
           "description": "The location to which this stack frame refers.",
           "$ref": "#/definitions/location"
@@ -2715,7 +2649,6 @@
       "additionalProperties": false,
       "type": "object",
       "properties": {
-
         "guid": {
           "description": "A stable, unique identifier for the suprression in the form of a GUID.",
           "type": "string",
@@ -2724,20 +2657,13 @@
 
         "kind": {
           "description": "A string that indicates where the suppression is persisted.",
-          "enum": [
-            "inSource",
-            "external"
-          ],
+          "enum": ["inSource", "external"],
           "type": "string"
         },
 
         "status": {
           "description": "A string that indicates the review status of the suppression.",
-          "enum": [
-            "accepted",
-            "underReview",
-            "rejected"
-          ],
+          "enum": ["accepted", "underReview", "rejected"],
           "type": "string"
         },
 
@@ -2756,7 +2682,7 @@
           "$ref": "#/definitions/propertyBag"
         }
       },
-      "required": [ "kind" ]
+      "required": ["kind"]
     },
 
     "threadFlow": {
@@ -2764,7 +2690,6 @@
       "type": "object",
       "additionalProperties": false,
       "properties": {
-
         "id": {
           "description": "An string that uniquely identifies the threadFlow within the codeFlow in which it occurs.",
           "type": "string"
@@ -2774,7 +2699,6 @@
           "description": "A message relevant to the thread flow.",
           "$ref": "#/definitions/message"
         },
-
 
         "initialState": {
           "description": "Values of relevant expressions at the start of the thread flow that may change during thread flow execution.",
@@ -2808,7 +2732,7 @@
         }
       },
 
-      "required": [ "locations" ]
+      "required": ["locations"]
     },
 
     "threadFlowLocation": {
@@ -2816,7 +2740,6 @@
       "additionalProperties": false,
       "type": "object",
       "properties": {
-
         "index": {
           "description": "The index within the run threadFlowLocations array.",
           "type": "integer",
@@ -2890,7 +2813,7 @@
 
         "importance": {
           "description": "Specifies the importance of this location in understanding the code flow in which it occurs. The order from most to least important is \"essential\", \"important\", \"unimportant\". Default: \"important\".",
-          "enum": [ "important", "essential", "unimportant" ],
+          "enum": ["important", "essential", "unimportant"],
           "default": "important",
           "type": "string"
         },
@@ -2917,7 +2840,6 @@
       "additionalProperties": false,
       "type": "object",
       "properties": {
-
         "driver": {
           "description": "The analysis tool that was run.",
           "$ref": "#/definitions/toolComponent"
@@ -2940,7 +2862,7 @@
         }
       },
 
-      "required": [ "driver" ]
+      "required": ["driver"]
     },
 
     "toolComponent": {
@@ -2948,7 +2870,6 @@
       "additionalProperties": false,
       "type": "object",
       "properties": {
-
         "guid": {
           "description": "A unique identifier for the tool component in the form of a GUID.",
           "type": "string",
@@ -3085,12 +3006,9 @@
           "description": "The kinds of data contained in this object.",
           "type": "array",
           "uniqueItems": true,
-          "default": [ "localizedData", "nonLocalizedData" ],
+          "default": ["localizedData", "nonLocalizedData"],
           "items": {
-            "enum": [
-              "localizedData",
-              "nonLocalizedData"
-            ],
+            "enum": ["localizedData", "nonLocalizedData"],
             "type": "string"
           }
         },
@@ -3138,7 +3056,7 @@
         }
       },
 
-      "required": [ "name" ]
+      "required": ["name"]
     },
 
     "toolComponentReference": {
@@ -3146,7 +3064,6 @@
       "type": "object",
       "additionalProperties": false,
       "properties": {
-
         "name": {
           "description": "The 'name' property of the referenced toolComponent.",
           "type": "string"
@@ -3177,7 +3094,6 @@
       "type": "object",
       "additionalProperties": false,
       "properties": {
-
         "name": {
           "description": "The name associated with the translation metadata.",
           "type": "string"
@@ -3215,7 +3131,7 @@
           "$ref": "#/definitions/propertyBag"
         }
       },
-      "required": [ "name" ]
+      "required": ["name"]
     },
 
     "versionControlDetails": {
@@ -3223,7 +3139,6 @@
       "type": "object",
       "additionalProperties": false,
       "properties": {
-
         "repositoryUri": {
           "description": "The absolute URI of the repository.",
           "type": "string",
@@ -3262,7 +3177,7 @@
         }
       },
 
-      "required": [ "repositoryUri" ]
+      "required": ["repositoryUri"]
     },
 
     "webRequest": {
@@ -3270,13 +3185,11 @@
       "type": "object",
       "additionalProperties": false,
       "properties": {
-
         "index": {
           "description": "The index within the run.webRequests array of the request object associated with this result.",
           "type": "integer",
           "default": -1,
           "minimum": -1
-
         },
 
         "protocol": {
@@ -3332,7 +3245,6 @@
       "type": "object",
       "additionalProperties": false,
       "properties": {
-
         "index": {
           "description": "The index within the run.webResponses array of the response object associated with this result.",
           "type": "integer",
