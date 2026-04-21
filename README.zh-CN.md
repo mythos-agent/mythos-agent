@@ -311,7 +311,6 @@ bot/              PR Review Bot
 - **GitHub Discussions**：[Q&A](https://github.com/mythos-agent/mythos-agent/discussions/categories/q-a) / [Ideas](https://github.com/mythos-agent/mythos-agent/discussions/categories/ideas) —— 长问答、设计讨论的持久留痕。
 - **安全漏洞上报**：`security@mythos-agent.com`（见 [SECURITY.md](SECURITY.md)，48 小时内确认）
 - **行为准则反馈**：`conduct@mythos-agent.com`
-- **微信群**：暂未开放。飞书能覆盖大多数中文使用场景；如有强烈的微信群需求，欢迎在飞书群或 [GitHub Discussions](https://github.com/mythos-agent/mythos-agent/discussions) 里留言，积累到 10+ 意向后会考虑开群。
 
 <a name="license"></a>
 ## 许可证
