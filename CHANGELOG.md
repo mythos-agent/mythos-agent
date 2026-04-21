@@ -2,6 +2,50 @@
 
 All notable changes to sphinx-agent are documented here. The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). Starting with the next release, entries are generated automatically by [release-please](https://github.com/googleapis/release-please) from [Conventional Commits](https://www.conventionalcommits.org/).
 
+## [4.0.0](https://github.com/mythos-agent/mythos-agent/compare/v3.1.0...v4.0.0) (2026-04-21)
+
+
+### ⚠ BREAKING CHANGES
+
+* **config:** No user-visible breakage in 3.x (all sphinx_* paths keep working). The bang in the subject is a semver pre-announcement: when 4.0 ships, this commit is the point where the sphinx_* → mythos_* deprecation clock started.
+
+### Added
+
+* **brand:** add Cerby mascot — hero illustration and favicon ([c394e24](https://github.com/mythos-agent/mythos-agent/commit/c394e24bdcc0cbdc40b4d1311a2b9dfc2472e772))
+* **brand:** unify palette, ship banner lockup + brand guide ([5b689da](https://github.com/mythos-agent/mythos-agent/commit/5b689daee47539137c2d06fda8556c8837426df0))
+* **config:** add mythos-branded surfaces alongside deprecated sphinx-* aliases (3.x breaking-prep) ([c93668a](https://github.com/mythos-agent/mythos-agent/commit/c93668aab213807da4bdd33deb2463066f76905e))
+* **launch:** add demo GIF to README hero ([021171c](https://github.com/mythos-agent/mythos-agent/commit/021171c4e8463bac65bc2431c2b348eed5d36944))
+* **mcp:** add mythos_* tool aliases alongside deprecated sphinx_* (3.x breaking-prep) ([a32a289](https://github.com/mythos-agent/mythos-agent/commit/a32a289e0fb4343023f5a4bde547fd70fab252aa))
+* **scan:** wire CryptoScanner and PrivacyScanner into default scan pipeline ([9425cd7](https://github.com/mythos-agent/mythos-agent/commit/9425cd748ac214365bece5b74b5c8a78e9e977a6))
+* **scan:** wire RaceConditionScanner into default scan pipeline ([0a128b6](https://github.com/mythos-agent/mythos-agent/commit/0a128b610898bfe002685902724aabf8eded9053))
+* **scan:** wire RedosScanner into default scan pipeline ([ac26295](https://github.com/mythos-agent/mythos-agent/commit/ac2629590301e849273feb109bb0b97e52bb5262))
+
+
+### Fixed
+
+* **mcp:** guard handleToolCall against missing or invalid params (HIGH) ([3dc1e8c](https://github.com/mythos-agent/mythos-agent/commit/3dc1e8c8989121c98a736dd6088703188d9cae44))
+
+
+### Changed
+
+* **agent:** extend LLM-mock DI pattern to 5 more AI classes + lift shared util ([a631360](https://github.com/mythos-agent/mythos-agent/commit/a6313608d64f2b237f88f5df81532c17bb489ff3))
+* **cli:** migrate scan.ts to runScan() — single orchestration for CLI and HTTP ([203fa4c](https://github.com/mythos-agent/mythos-agent/commit/203fa4c3f8f6968fb89f2d19d02f19e2d4b1cf55))
+* **server:** extract runScan() helper; close HTTP API scanner-coverage drift (review [#10](https://github.com/mythos-agent/mythos-agent/issues/10)) ([c4e90a4](https://github.com/mythos-agent/mythos-agent/commit/c4e90a432cbc8256856389a012bc04f2316ea6d8))
+
+
+### Documentation
+
+* **benchmark:** refresh to reflect shipped v0.1 scaffold + 4-case corpus ([a6afbef](https://github.com/mythos-agent/mythos-agent/commit/a6afbef6378368513cf113a78368d37bb620ca4b))
+* **launch:** add DEMO-SCRIPT.md for launch-day demo recording ([be7ec0f](https://github.com/mythos-agent/mythos-agent/commit/be7ec0f394e8c82621886a14268bdea00d84b4af))
+* **launch:** refactor DEMO-SCRIPT for Windows + marketing polish ([5e3e7da](https://github.com/mythos-agent/mythos-agent/commit/5e3e7dac9b61f26c1fbab0fedfce29fbad6287b8))
+* **launch:** refresh LAUNCH-KIT for v4.0.0 + add Discord ([#26](https://github.com/mythos-agent/mythos-agent/issues/26)) ([290056a](https://github.com/mythos-agent/mythos-agent/commit/290056a2b8d8d7763686c9e59ce8d34460bf3d04))
+* **launch:** strip Mythos leveraging + align numbers to v3.1.0 ([58318f4](https://github.com/mythos-agent/mythos-agent/commit/58318f4be9f0fc4431c5e76daac89ffd3de817ba))
+* point domain references at mythos-agent.com ([#25](https://github.com/mythos-agent/mythos-agent/issues/25)) ([ab02872](https://github.com/mythos-agent/mythos-agent/commit/ab0287239b9cf447199c5dd379a438ff9bde22d6))
+* **readme:** reconcile scanner count with runtime reality (13 wired + 30 experimental) ([0ae535c](https://github.com/mythos-agent/mythos-agent/commit/0ae535c9eb4cf704c672dd9a365e7fcbf1a69507))
+* **roadmap:** bump status to v3.1.0 + mark H1 2026 shipped items ([cd031f8](https://github.com/mythos-agent/mythos-agent/commit/cd031f8cfaee0fcc35822d299d54f0a59ac8171e))
+* **security:** mark OpenSSF criterion 25 as Met (testing policy already shipped) ([191b3b2](https://github.com/mythos-agent/mythos-agent/commit/191b3b214aba153a878cffbaa5f43def692b61db))
+* **security:** refresh OpenSSF Badge answers to reflect shipped criteria ([beeff30](https://github.com/mythos-agent/mythos-agent/commit/beeff30326eb0707fde33cdef6389d78c284693f))
+
 ## [3.1.0](https://github.com/mythos-agent/mythos-agent/compare/v3.0.1...v3.1.0) (2026-04-19)
 
 
