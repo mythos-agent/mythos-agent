@@ -15,19 +15,25 @@ Positioning rule: **lead with your own value prop. Don't lean on other companies
 - [x] Brand assets shipped (`cerby-hero.svg`, `cerby-banner.svg`, `cerby-banner-social.png`, favicons, `BRAND.md`)
 - [x] README banner + shields on-brand
 - [x] HTML reports brand-unified (violet + cyan + Cerby, Geist Mono code font)
+- [x] Domain `mythos-agent.com` purchased and live on Vercel (HSTS + CSP + short-URL redirects)
+- [x] Landing page shipped — https://mythos-agent.com
+- [x] Demo GIF recorded and embedded in README and landing `/#demo`
+- [x] GitHub Discussions enabled (Q&A + Ideas categories live)
+- [x] Cross-repo domain cleanup merged (PR #25)
+- [x] Email forwarders live: `security@mythos-agent.com`, `conduct@mythos-agent.com`
 
-**Before posting anywhere:**
-- [ ] `npm publish` v3.1.0 (or tag `v1.0.0` as the launch version — cleaner first-impression number)
-- [ ] Upload `cerby-banner-social.png` at repo Settings → Social preview (needs repo public, which is done)
+**Remaining before firing Show HN (aim 06:00 ET Wed 2026-04-22):**
+- [ ] Merge the `chore(main): release 4.0.0` release-please PR (triggers npm publish + Sigstore + SBOM)
+- [ ] Verify `npm view mythos-agent version` returns `4.0.0`
+- [ ] Upload `cerby-banner-social.png` at repo Settings → Social preview
 - [ ] Upload `web-app-manifest-512x512.png` as GitHub org avatar + npm org avatar
-- [ ] Buy and point domain `mythos-agent.com` (optional for launch; nice-to-have)
 - [ ] Set GitHub repo description: *"AI code reviewer that reasons about security bugs instead of just matching patterns. 43 scanner categories, 329+ rules, 8 languages. MIT licensed."*
+- [ ] Set GitHub repo Website field to `https://mythos-agent.com`
 - [ ] Add GitHub topics: `security`, `scanner`, `ai`, `sast`, `dast`, `vulnerability`, `owasp`, `cybersecurity`, `cli`, `typescript`, `devsecops`, `appsec`, `llm-security`
-- [ ] Enable GitHub Discussions
 - [ ] Pin repo on your GitHub profile
-- [ ] Record 15–30 second demo GIF, embed at top of README (see `docs/DEMO-SCRIPT.md` when written)
+- [ ] Stand up Discord server per `docs/DISCORD-SETUP.md`; paste the discord.gg invite into `mythos-agent-landing/vercel.json`'s `/discord` redirect
 - [ ] Create 3–5 `good first issue` labels on real issues
-- [ ] Pre-warm 5–10 dev friends via DM 48h before launch
+- [ ] Pre-warm 5–10 dev friends via DM 48h before launch (so: Monday 2026-04-20 evening or Tuesday 2026-04-21 morning)
 
 ---
 
@@ -40,7 +46,7 @@ Show HN: mythos-agent – open-source AI code reviewer for security bugs
 
 ### Body
 ```
-Hi HN,
+Demo: https://mythos-agent.com/#demo
 
 I built mythos-agent, an open-source AI code-review assistant for application security. It reasons about code the way a security reviewer on a focused team would — forming hypotheses about what could go wrong, looking for variants of known CVEs, ranking findings by confidence, and suggesting concrete fixes.
 
@@ -67,9 +73,11 @@ Quick start:
   npx mythos-agent hunt        # full AI-powered security hunt
   npx mythos-agent quick       # 10-second security check
 
-GitHub: https://github.com/mythos-agent/mythos-agent
+Landing:   https://mythos-agent.com
+GitHub:    https://github.com/mythos-agent/mythos-agent
+Community: https://mythos-agent.com/discord
 
-TypeScript, MIT licensed. ~25K lines, 33 test files.
+TypeScript, MIT licensed. ~25K lines, 33 test files. Released today as v4.0.0 with Sigstore-signed builds and CycloneDX SBOMs.
 
 I'd love feedback on the hypothesis-generation approach and what vulnerability categories to prioritize adding next.
 ```
@@ -90,9 +98,9 @@ Reasons about code instead of just matching patterns.
 → CVE variant analysis
 → AI-guided fuzzing with PoC generation
 
-npx mythos-agent scan
+mythos-agent.com
 
-github.com/mythos-agent/mythos-agent
+npx mythos-agent scan
 ```
 
 ### Tweet 2 — What Makes It Different
@@ -140,11 +148,11 @@ One command. Instant results.
 
 ### Tweet 5 — Call to Action
 ```
-mythos-agent is MIT licensed and free forever.
+mythos-agent is MIT licensed and free forever. v4.0.0 is live on npm today.
 
 ⭐ Star if you want to see more AI-powered security tools
 🔧 Contribute: "good first issue" labels are up
-📦 npm install -g mythos-agent
+💬 Join: mythos-agent.com/discord
 
 github.com/mythos-agent/mythos-agent
 
@@ -170,9 +178,11 @@ Key capabilities:
 
 Covers: injection (SQL, NoSQL, command, SSTI), XSS (8 DOM patterns), auth (JWT, OAuth, session), crypto (11 rules), cloud (AWS/Azure/GCP), supply chain, zero trust, privacy/GDPR, GraphQL, WebSocket, and 30+ more categories.
 
-Works with Claude, GPT-4o, or local models (Ollama). Pattern scanning works offline without any API key.
+Works with Claude, GPT-4o, or local models (Ollama). Pattern scanning works offline without any API key. Releases are Sigstore-signed with CycloneDX SBOMs attached.
 
+Landing page + demo: https://mythos-agent.com
 GitHub: https://github.com/mythos-agent/mythos-agent
+Community: https://mythos-agent.com/discord
 
 Feedback welcome — especially from pentesters on what rules/checks are missing.
 ```
@@ -195,6 +205,7 @@ The most interesting part: the hypothesis agent reads functions and generates se
 
 Try it: npx mythos-agent scan
 
+Website: https://mythos-agent.com
 GitHub: https://github.com/mythos-agent/mythos-agent
 ```
 
@@ -213,7 +224,9 @@ Releasing mythos-agent — a CLI security tool that combines 43 scanner categori
 
 Also includes a STRIDE threat model generator, security scorecard with letter grades, and secrets rotation guides.
 
-Free, open-source, MIT licensed: https://github.com/mythos-agent/mythos-agent
+Free, open-source, MIT licensed.
+Website: https://mythos-agent.com
+GitHub: https://github.com/mythos-agent/mythos-agent
 ```
 
 ---
@@ -245,7 +258,9 @@ For developers:
 
 Works with Claude, GPT-4o, Ollama, or any OpenAI-compatible model. MIT licensed. Free forever.
 
-🔗 GitHub: https://github.com/mythos-agent/mythos-agent
+🌐 Website: https://mythos-agent.com
+🔗 GitHub:  https://github.com/mythos-agent/mythos-agent
+💬 Community: https://mythos-agent.com/discord
 
 #cybersecurity #opensource #devsecops #appsec #ai
 ```
@@ -259,10 +274,17 @@ Works with Claude, GPT-4o, Ollama, or any OpenAI-compatible model. MIT licensed.
 2. "43 security scanners, 329 rules, AI-powered — one npm install"
 3. "AI code reviewer that reasons about code like a security researcher"
 
-### Description (260 chars)
+### Description (under 260 chars)
 ```
-mythos-agent is an open-source AI code-review assistant with 43 scanner categories and 329+ rules. Unlike pattern matchers, it hypothesizes vulnerabilities, finds CVE variants, generates PoC exploits, and auto-fixes issues. Covers AI/LLM, API, cloud, supply chain, and more.
+mythos-agent.com — open-source AI code-review assistant with 43 scanner categories and 329+ rules. Hypothesizes vulnerabilities, finds CVE variants, generates PoC exploits. Works with Claude, GPT-4o, Ollama. MIT, Sigstore-signed.
 ```
+
+### Gallery (prepare ahead)
+1. **Hero screenshot** of mythos-agent.com (1270×760) — shows Cerby + tagline + CTAs
+2. **demo.gif** — the 15-second terminal recording (PH allows up to 3 MB; current file is 235 KB, well under)
+3. **Trust signals row** screenshot — OpenSSF / Sigstore / SBOM / MIT badges in a single crop
+4. Optional: scanner matrix screenshot showing the 23-chip grid
+5. Optional: pipeline SVG (Recon → Exploit)
 
 ---
 
@@ -273,11 +295,12 @@ mythos-agent is an open-source AI code-review assistant with 43 scanner categori
 1. **Why pattern-matching scanners miss structural bugs** — Semgrep/Snyk are great at known patterns, but bugs come in variants the rulebook hasn't learned yet.
 2. **The gap: semantic reasoning vs. regex** — what variant-analysis research (including published work on Google Project Zero's Big Sleep) suggests about structure-aware scanning.
 3. **mythos-agent's approach** — hypothesis-driven scanning + variant analysis layered on top of traditional SAST/DAST tools.
+3.5. **How the landing page was built** (optional aside) — Astro 6 + Tailwind v4 + Cerby mascot system; 180 KB total payload with zero-JS defaults. Repo: https://github.com/mythos-agent/mythos-agent-landing
 4. **Architecture** — multi-agent pipeline: Recon → Hypothesize → Analyze → Exploit.
 5. **Demo** — walk through scanning a real project, showing hypothesis output in the terminal.
 6. **What's in the box** — 43 scanner categories, 329+ rules, 59 commands, 8 languages.
 7. **What's next** — documentation site, more language support, community rule packs.
-8. **Try it** — `npx mythos-agent scan`.
+8. **Try it** — `npx mythos-agent scan` · `mythos-agent.com` · `mythos-agent.com/discord`.
 
 ---
 
@@ -292,7 +315,7 @@ Open-source AI code reviewer for application security (43 categories, 329+ rules
 ```
 Hi [Name],
 
-I'm launching mythos-agent, an open-source AI code-review assistant that layers AI reasoning on top of traditional SAST — 43 scanner categories, 329+ rules, MIT licensed.
+I'm launching mythos-agent, an open-source AI code-review assistant that layers AI reasoning on top of traditional SAST — 43 scanner categories, 329+ rules, MIT licensed. v4.0.0 shipped 2026-04-22 with Sigstore-signed builds.
 
 What's different from pattern matchers:
 - Hypothesis-driven scanning (AI reasons about what could go wrong per function)
@@ -303,7 +326,8 @@ What's different from pattern matchers:
 
 Would this be a good fit for [newsletter name]? Happy to provide more details or a demo.
 
-GitHub: https://github.com/mythos-agent/mythos-agent
+Website: https://mythos-agent.com
+GitHub:  https://github.com/mythos-agent/mythos-agent
 
 Best,
 [Your name]
@@ -320,12 +344,15 @@ Best,
 
 ---
 
-## GitHub Release Notes (v3.1.0)
+## GitHub Release Notes (v4.0.0)
 
 ```markdown
-## mythos-agent v3.1.0 — AI Code Reviewer for Application Security
+## mythos-agent v4.0.0 — AI Code Reviewer for Application Security
 
 Open-source AI code reviewer that reasons about security bugs instead of just matching patterns.
+
+Landing: https://mythos-agent.com
+Community: https://mythos-agent.com/discord
 
 ### Highlights
 - 🧪 **Hypothesis-driven scanning** — AI reasons about what could go wrong per function
@@ -335,6 +362,11 @@ Open-source AI code reviewer that reasons about security bugs instead of just ma
 - 🛡️ **59 CLI commands** covering scanning, fixing, reporting, compliance, and more
 - 📦 **SARIF 2.1.0 output** — drop-in GitHub Code Scanning integration
 - 🎨 **First-class brand system** — Cerby the mascot, favicon, social preview (see [BRAND.md](./BRAND.md))
+- 🔐 **Sigstore-signed tarball + CycloneDX SBOM** attached to this release
+
+### Breaking changes in v4.0.0
+- SBOM `documentNamespace` moved from `sphinx-agent.dev` to `mythos-agent.com` (completes the v3.x rebrand). Downstream consumers parsing the namespace for provenance should update their pinning.
+- Security contact email is now `security@mythos-agent.com` (was `security@sphinx-agent.dev`, which never existed).
 
 ### Backends supported
 - Claude (via Anthropic API)
@@ -354,25 +386,27 @@ See [CHANGELOG.md](./CHANGELOG.md)
 
 ---
 
-## Launch Day Schedule
+## Launch Day Schedule — 2026-04-22 (Wed)
 
-**Best day: Tuesday or Wednesday.**
-**Best time for Show HN: 6–9 AM US Eastern.**
+All times in **US Eastern** with **Beijing** in parens (user's local tz; user awake during this window).
 
-| Time (ET) | Action |
-|---|---|
-| T-48h | DM 5–10 dev friends with launch time + post links; ask for engaged comments (not just upvotes) |
-| T-24h | Final review of Show HN post; record/polish demo GIF; tag release on GitHub; `npm publish` |
-| T-0 (8:00 AM) | Post Show HN |
-| T+5 min | Post Twitter/X thread (5 tweets) |
-| T+10 min | Post to r/netsec, r/programming, r/cybersecurity (stagger by 5 min each) |
-| T+30 min | Post on LinkedIn |
-| T+1 h | Submit to Product Hunt (12:01 AM PT the following day is optimal for PH specifically; adjust if you're running separate PH launch) |
-| T+1.5 h | Send newsletter outreach emails |
-| T+2 h | Post on Dev.to |
-| Rolling 0–48h | Monitor HN/Reddit/Twitter, reply to every comment within 15 min |
-| T+5 h | Post metrics update in thread (stars, installs, feedback themes) |
-| T+1 day | Optional: cross-post to Chinese dev communities (V2EX, Juejin) and relevant Discord servers (OWASP, DevSecOps) |
+| Time (ET) | Beijing | Action |
+|---|---|---|
+| **T-48h** (Mon 20, eve) | (Tue 21, AM) | DM 5–10 dev friends with launch time + post links; ask for **engaged comments**, not just upvotes |
+| **T-24h** (Tue 21, 06:00) | 18:00 | Final review of Show HN post; merge the v4.0.0 release-please PR; verify `npm view mythos-agent version` → `4.0.0`; push final README + Discord badge commits; sanity-check everything one more time |
+| **T-0** 06:00 | 18:00 | **Post Show HN** (first — HN is the hardest and benefits from a quiet window) |
+| T+5 min 06:05 | 18:05 | Post Twitter/X thread (5 tweets, thread-reply form) |
+| T+10 min 06:10 | 18:10 | Post r/netsec |
+| T+15 min 06:15 | 18:15 | Post r/programming |
+| T+20 min 06:20 | 18:20 | Post r/cybersecurity |
+| T+30 min 06:30 | 18:30 | Post LinkedIn |
+| T+1 h 07:00 | 19:00 | Send newsletter outreach emails (tl;dr sec, Console.dev, DevSecOps Weekly, SANS NewsBites, This Week in Security) |
+| T+1.5 h 07:30 | 19:30 | Post Dev.to blog |
+| T+2 h 08:00 | 20:00 | First metrics check-in reply to the HN thread |
+| Rolling 0–18h | 18:00 → 12:00 next day | Monitor HN + Reddit + Twitter; reply to every comment within 15 min when awake |
+| **T+18h** 23:59 | 12:59 Thu | Submit Product Hunt (Thursday PH launch — PH day starts midnight PT) |
+| T+24h Thu 06:00 | 18:00 Thu | Post a 24h retrospective reply in the HN thread: stars, installs, top feedback themes |
+| T+48h Fri | | Optional cross-post to V2EX / Juejin / OWASP Discord / DevSecOps Discord |
 
 ---
 
@@ -386,4 +420,6 @@ See [CHANGELOG.md](./CHANGELOG.md)
 | *"What's the false positive rate?"* | Confidence scoring per finding; `--severity high` only shows high-confidence. Share your own data if you've measured. |
 | *"License? Can I use this commercially?"* | MIT. Yes. |
 | *"How do you compare to [paid commercial tool]?"* | Honest: paid tools have human-curated rulesets and dedicated teams. mythos-agent is a complement — use both, especially in CI. |
+| *"Do you have a Discord?"* | Yes — `mythos-agent.com/discord`. `#help` for questions, `#rule-ideas` for scanner proposals. |
+| *"Is the project funded? Who pays you?"* | Unpaid individual maintainer; GitHub Sponsors is the one way to support today: `mythos-agent.com/sponsor`. Planning to apply to Open Source Collective + Sovereign Tech Fund — see `ROADMAP.md`. |
 | Hostile/trolling | Ignore once; if persistent, "thanks for the feedback, moving on" and disengage. Do not dogpile. |

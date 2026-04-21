@@ -16,6 +16,7 @@
   <a href="https://github.com/mythos-agent/mythos-agent/actions"><img src="https://github.com/mythos-agent/mythos-agent/workflows/CI/badge.svg" alt="CI"></a>
   <a href="https://www.npmjs.com/package/mythos-agent"><img src="https://img.shields.io/npm/v/mythos-agent" alt="npm"></a>
   <a href="https://github.com/mythos-agent/mythos-agent/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue" alt="License"></a>
+  <a href="https://mythos-agent.com/discord"><img src="https://img.shields.io/badge/discord-join-5865F2?logo=discord&logoColor=white" alt="Discord"></a>
   <img src="https://img.shields.io/badge/node-%3E%3D20-green" alt="Node">
   <img src="https://img.shields.io/badge/scanners-15_wired-5B2A86" alt="Wired scanners">
   <img src="https://img.shields.io/badge/experimental-28-6B7280" alt="Experimental scanners">
