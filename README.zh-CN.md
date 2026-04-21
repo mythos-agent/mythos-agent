@@ -306,11 +306,12 @@ bot/              PR Review Bot
 <a name="community"></a>
 ## 社区
 
-- **Discord**：[mythos-agent.com/discord](https://mythos-agent.com/discord) —— 主要交流渠道。`#help` 提问，`#rule-ideas` 提新扫描器规则，`#general` 闲聊。
-- **GitHub Discussions**：[Q&A](https://github.com/mythos-agent/mythos-agent/discussions/categories/q-a) / [Ideas](https://github.com/mythos-agent/mythos-agent/discussions/categories/ideas)
+- **飞书 (Feishu)**：[mythos-agent.com/feishu](https://mythos-agent.com/feishu) —— 中文社区主要聊天渠道。群公告里有快速链接；群规与机器人配置详见 [docs/FEISHU-SETUP.md](docs/FEISHU-SETUP.md)。
+- **Discord**：[mythos-agent.com/discord](https://mythos-agent.com/discord) —— 国际 / 英文社区。`#help` 提问，`#rule-ideas` 提新扫描器规则。
+- **GitHub Discussions**：[Q&A](https://github.com/mythos-agent/mythos-agent/discussions/categories/q-a) / [Ideas](https://github.com/mythos-agent/mythos-agent/discussions/categories/ideas) —— 长问答、设计讨论的持久留痕。
 - **安全漏洞上报**：`security@mythos-agent.com`（见 [SECURITY.md](SECURITY.md)，48 小时内确认）
 - **行为准则反馈**：`conduct@mythos-agent.com`
-- **微信群**：即将开放 —— 想第一时间拿到邀请，在 Discord `#general` 留言或在 GitHub Discussions 里回复 "WeChat please"，达到 10+ 意向后会开群。
+- **微信群**：暂未开放。飞书能覆盖大多数中文使用场景；如有强烈的微信群需求，欢迎在飞书群或 [GitHub Discussions](https://github.com/mythos-agent/mythos-agent/discussions) 里留言，积累到 10+ 意向后会考虑开群。
 
 <a name="license"></a>
 ## 许可证
