@@ -2,7 +2,7 @@
 
 What mythos-agent contributes back to the field of open security research, in addition to being a usable tool.
 
-> **Why publish this.** The Garak (NVIDIA) playbook — peer-reviewed paper plus DEF CON slides — drove adoption faster than the tool's features did. For mythos-agent to be the *open Mythos-Agent*, it should add to the literature, not just consume from it.
+> **Why publish this.** The Garak (NVIDIA) playbook (peer-reviewed paper plus DEF CON slides) drove adoption faster than the tool's features did. For mythos-agent to earn its place in open security research, it should add to the literature, not just consume from it.
 >
 > **Last reviewed:** 2026-04-18.
 

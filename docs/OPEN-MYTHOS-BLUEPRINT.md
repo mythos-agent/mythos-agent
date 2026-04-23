@@ -68,7 +68,7 @@ Build an open-source autonomous security agent by **orchestrating the best exist
 
 ## Architecture: Multi-Agent Swarm
 
-Inspired by Pentest Swarm AI and AWS multi-agent pentest architecture:
+Drawing on published patterns for multi-agent pentest architecture (Pentest Swarm, AWS multi-agent research):
 
 ```
                     ┌──────────────┐

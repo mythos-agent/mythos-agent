@@ -30,8 +30,8 @@ The CHANGELOG is auto-generated and committed alongside each release.
 | Branch | Purpose |
 |---|---|
 | `main` | Active development. CI gating before any merge. |
-| `release/2.x` | LTS branch for v2.x patch releases (created when v3.0 is in development) |
-| `release/1.x` | Maintenance for v1.x security fixes only (until EOL) |
+| `release/4.x` | LTS branch for v4.x patch releases |
+| `release/3.x` | Maintenance for v3.x security fixes only (until EOL on 2026-10-22) |
 
 Patch releases are cut from the corresponding `release/X.x` branch. Critical security fixes are back-ported to all in-support branches.
 
@@ -41,11 +41,12 @@ The latest major version is **Active**. The previous major version receives **se
 
 | Major | Phase | Status |
 |---|---|---|
-| **2.x** | Active | Default; receives all fixes |
-| **1.x** | EOL announced | Security-only until 2026-10-16 (6 months after v2.0 release) |
-| **0.x (pre-1.0)** | End of life | No fixes |
+| **4.x** | Active | Default; receives all fixes |
+| **3.x** | EOL announced | Security-only until 2026-10-22 (6 months after v4.0.0 release) |
+| **2.x** | End of life | No fixes |
+| **< 2.0** | End of life | No fixes |
 
-The schedule above is the default; actual EOL announcements are made in the CHANGELOG and pinned in [Discussions](https://github.com/mythos-agent/mythos-agent/discussions) when set.
+The schedule above is the default; actual EOL announcements are made in the CHANGELOG and pinned in [Discussions](https://github.com/mythos-agent/mythos-agent/discussions) when announced.
 
 ## Deprecation policy
 

@@ -8,7 +8,7 @@
 
 1. **Email:** [security@mythos-agent.com](mailto:security@mythos-agent.com)
 2. **GitHub private vulnerability reporting:** [Report here](https://github.com/mythos-agent/mythos-agent/security/advisories/new)
-3. **PGP key:** A PGP public key for sensitive reports is published at `https://mythos-agent.com/.well-known/pgp-key.asc` (publication pending — until then, use GitHub's encrypted private reporting).
+3. **PGP key:** Not yet available. Use email or GitHub private reporting for sensitive matters. We plan to publish a key at `https://mythos-agent.com/.well-known/pgp-key.asc` once established.
 
 ### What to include
 
@@ -72,9 +72,12 @@ The H1 2026 roadmap adds: GitHub Actions pinned to commit SHA, Sigstore-signed r
 
 | Version | Status | Receives security fixes until |
 |---|---|---|
-| 2.x | Active | TBD (see [RELEASES.md](RELEASES.md) once published) |
-| 1.x | Maintenance | EOL announced 6 months in advance |
-| < 1.0 | End of life | Not supported |
+| 4.x | Active | Default; all fixes |
+| 3.x | Security-only | 2026-10-22 (6 months after v4.0.0 release) |
+| 2.x | End of life | Not supported |
+| < 2.0 | End of life | Not supported |
+
+See [RELEASES.md](RELEASES.md) for the full LTS and EOL schedule.
 
 ## EU Cyber Resilience Act stance
 

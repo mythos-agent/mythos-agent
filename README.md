@@ -45,9 +45,9 @@
 
 ---
 
-mythos-agent **reviews your code the way a reviewer on a security-focused team would** — walking through likely issue patterns, checking for variants of known CVEs, ranking findings by confidence, and suggesting fixes you can accept or reject. Inspired by the same research direction as Anthropic's proprietary Mythos security agent; not a clone, not affiliated. See [VISION.md](VISION.md) for the full framing.
+mythos-agent **reviews your code the way a reviewer on a security-focused team would.** It walks through likely issue patterns, checks for variants of known CVEs, ranks findings by confidence, and suggests fixes you can accept or reject. See [VISION.md](VISION.md) for the full framing.
 
-> **For new contributors:** the active 6-month working plan is in the pinned issue **`[Roadmap] mythos-agent H1 2026 Goals`**. Look for 🙋 markers — those are items where help is wanted. New here? See [CONTRIBUTING.md](CONTRIBUTING.md) for `good-first-issue` guidance.
+> **For new contributors:** the active 6-month working plan is in the pinned issue **`[Roadmap] mythos-agent H1 2026 Goals`**. Look for 🙋 markers to spot items where help is wanted. New here? See [CONTRIBUTING.md](CONTRIBUTING.md) for `good-first-issue` guidance.
 >
 > **For security teams and EU CRA-compliant downstream manufacturers:** see [SECURITY.md](SECURITY.md) for our vulnerability disclosure SLAs, [docs/security/cra-stance.md](docs/security/cra-stance.md) for our EU CRA role declaration, [docs/security/threat-model.md](docs/security/threat-model.md) for our public threat model, and [RELEASES.md](RELEASES.md) for our versioning, LTS, and EOL policy. OpenSSF Best Practices Badge (Passing) submission targeted **June 2026**; releases are signed via [Sigstore](docs/security/sbom.md) and ship with [CycloneDX SBOMs](docs/security/sbom.md) for downstream Manufacturer compliance.
 
@@ -117,7 +117,7 @@ mythos-agent tools
 mythos-agent combines **three things no other open-source tool does together**:
 
 ### 1. Hypothesis-Driven Scanning
-Instead of matching known patterns, the AI **reasons about what COULD go wrong** — generating hypotheses like "this transaction doesn't lock the row, potential race condition" or "this auth check uses string comparison, potential timing attack."
+Instead of matching known patterns, the AI **reasons about what COULD go wrong**, generating hypotheses like "this transaction doesn't lock the row, potential race condition" or "this auth check uses string comparison, potential timing attack."
 
 ### 2. Variant Analysis (Big Sleep technique)
 Given a known CVE, mythos-agent finds **structurally similar but syntactically different** code in your codebase. Same root cause, different location. This is how Google's Big Sleep found 20 real zero-days.
@@ -141,7 +141,7 @@ Only findings that survive multiple stages are reported as "confirmed."
 | `fix [path]` | AI-generated patches with `--apply` |
 | `ask [question]` | Natural language security queries |
 | `taint [path]` | AI data flow / taint analysis |
-| `watch` | Continuous monitoring — scan on file save |
+| `watch` | Continuous monitoring that scans on file save |
 | `dashboard` | Local web UI with charts and findings table |
 | `report [path]` | Export as terminal / JSON / HTML / SARIF |
 | `policy` | Policy-as-code with SOC2/HIPAA/PCI/OWASP compliance |
@@ -181,7 +181,7 @@ The variant analyzer extracts the **root cause pattern** from the CVE (not the s
 
 ## Scanners (15 wired + 28 experimental, 329+ rules)
 
-The **Default** scanners run on every `mythos-agent scan`. **Experimental** scanners are implemented + unit-tested classes that ship in the tarball but are not yet reachable from any CLI, HTTP, MCP, or agent entry point — tracked by [`KNOWN_EXPERIMENTAL`](src/scanner/__tests__/wiring-invariant.test.ts) in the wiring-invariant test.
+The **Default** scanners run on every `mythos-agent scan`. **Experimental** scanners are implemented + unit-tested classes that ship in the tarball but are not yet reachable from any CLI, HTTP, MCP, or agent entry point. They are tracked by [`KNOWN_EXPERIMENTAL`](src/scanner/__tests__/wiring-invariant.test.ts) in the wiring-invariant test.
 
 | Category | What it finds | Rules | Status |
 |----------|---------------|-------|--------|
@@ -279,7 +279,7 @@ src/
   agents/         Multi-agent orchestrator + Recon/Hypothesis/Analyzer/Exploit agents
   analysis/       Code parser, call graph, taint engine, variant analyzer, service mapper
   agent/          AI integration, prompts, tools, fix validator
-  cli/            15 CLI commands
+  cli/            44 CLI commands
   dast/           Smart fuzzer, PoC generator, payload library
   policy/         Policy engine + compliance mapping
   report/         Terminal, JSON, HTML, SARIF, dashboard

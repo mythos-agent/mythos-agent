@@ -36,22 +36,22 @@ For anything beyond a bug fix or minor feature, open a **Discussion** first to g
 
 The governance model adapts as the project grows. Transitions are driven by **triggers**, not dates.
 
-### Phase 1 — Benevolent Maintainer (current)
+### Phase 1: Benevolent Maintainer (current)
 
 - Solo lead per [MAINTAINERS.md](./MAINTAINERS.md)
 - Lazy consensus on issues / PRs / Discussions
 - Final call on disagreement: lead maintainer
 - Valid while active maintainers count is < 3
 
-### Phase 2 — Multi-Maintainer (trigger: 3+ active maintainers)
+### Phase 2: Multi-Maintainer (trigger: 3+ active maintainers)
 
-- Maintainers specialize by area (scanner / analysis / CLI / agents — matched to MAINTAINERS.md columns)
+- Maintainers specialize by area (scanner / analysis / CLI / agents, matched to MAINTAINERS.md columns)
 - Lazy consensus continues; in-area decisions belong to the area maintainer
 - Cross-area decisions follow the existing 3–7 day window
 - Lead maintainer remains the tiebreaker; emeritus path opens
 - New CODEOWNERS structure reflects the area split
 
-### Phase 3 — Technical Steering Committee (trigger: 5+ active maintainers OR commercial posture declared)
+### Phase 3: Technical Steering Committee (trigger: 5+ active maintainers OR commercial posture declared)
 
 - TSC of 3–5 seats. Minimum allocation: ≥1 lead, ≥1 analysis-area, ≥1 scanner-area; remaining seats by lazy consensus of all active maintainers
 - TSC scope: roadmap direction, breaking changes, license posture, commercial-gate decisions, conflict resolution
@@ -83,7 +83,7 @@ Maintainers commit to:
 - Helping with releases
 - Upholding the [Code of Conduct](./CODE_OF_CONDUCT.md)
 
-Maintainers who become inactive for 6+ months may be moved to "emeritus" status with their consent. This is not punitive — life happens.
+Maintainers who become inactive for 6+ months may be moved to "emeritus" status with their consent. This is not punitive. Life happens.
 
 ## Code of Conduct
 
@@ -127,9 +127,9 @@ The full public threat model lives at [`docs/security/threat-model.md`](docs/sec
 
 Vulnerability handling, SLAs, and the EU Cyber Resilience Act stance live in:
 
-- [`SECURITY.md`](SECURITY.md) — disclosure process and SLAs
-- [`docs/security/cra-stance.md`](docs/security/cra-stance.md) — CRA role declaration
-- [`docs/security/sbom.md`](docs/security/sbom.md) — SBOM policy
+- [`SECURITY.md`](SECURITY.md): disclosure process and SLAs
+- [`docs/security/cra-stance.md`](docs/security/cra-stance.md): CRA role declaration
+- [`docs/security/sbom.md`](docs/security/sbom.md): SBOM policy
 
 ### Conflict of interest disclosure (for maintainers)
 
@@ -137,7 +137,7 @@ Maintainers who work for, consult for, or hold equity in a vendor that competes 
 
 ### License firewall
 
-The CLI, every scanner, every analysis module, and every prompt is MIT-licensed and **will remain MIT in perpetuity.** Any future commercial differentiation will come from new code contributed under a separate license, never from relicensing existing OSS code. This commitment requires a unanimous vote of all active maintainers and a 14-day public discussion period to change — the same process as a license change of the project itself.
+The CLI, every scanner, every analysis module, and every prompt is MIT-licensed and **will remain MIT in perpetuity.** Any future commercial differentiation will come from new code contributed under a separate license, never from relicensing existing OSS code. This commitment requires a unanimous vote of all active maintainers and a 14-day public discussion period to change, the same process as a license change of the project itself.
 
 This sentence exists to prevent an Opengrep-style fork. If a sponsor, employer, or future steward seeks to change it, every maintainer is empowered to publicly object.
 
