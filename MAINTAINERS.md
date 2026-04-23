@@ -6,15 +6,15 @@ This file lists the active maintainers of mythos-agent. Maintainer responsibilit
 
 | Name | GitHub | Areas | Conflicts of interest | Contact |
 |---|---|---|---|---|
-| Zhijie Wong | [@zhijiewong](https://github.com/zhijiewong) | Lead · scanner · analysis · CLI · agents (currently all areas — Phase 1) | None declared | conduct@mythos-agent.com |
+| Zhijie Wong | [@zhijiewong](https://github.com/zhijiewong) | Lead · scanner · analysis · CLI · agents (currently all areas, Phase 1) | None declared | conduct@mythos-agent.com |
 
 **Areas legend** (used when Phase 2 begins):
 
-- **Lead** — final tiebreaker, holds trademark/release keys, owns governance amendments
-- **Scanner** — `src/scanner/`, `src/rules/`, `src/tools/`, scanner SDK
-- **Analysis** — `src/analysis/` (taint, call graph, parser, knowledge graph)
-- **Agents** — `src/agents/`, `src/agent/` (orchestrator, providers, prompts, fix-validator)
-- **CLI** — `src/cli/`, `src/server/`, `src/mcp/`, user-facing UX
+- **Lead**: final tiebreaker, holds trademark/release keys, owns governance amendments
+- **Scanner**: `src/scanner/`, `src/rules/`, `src/tools/`, scanner SDK
+- **Analysis**: `src/analysis/` (taint, call graph, parser, knowledge graph)
+- **Agents**: `src/agents/`, `src/agent/` (orchestrator, providers, prompts, fix-validator)
+- **CLI**: `src/cli/`, `src/server/`, `src/mcp/`, user-facing UX
 
 A maintainer can hold multiple areas. The `Lead` role is held by exactly one person at a time.
 
@@ -24,9 +24,9 @@ For continuity if a primary contact becomes unreachable. Listed in the order the
 
 | Function | Primary | Successor |
 |---|---|---|
-| **SECURITY** (vulnerability disclosure) | Zhijie Wong (security@mythos-agent.com) | _Pending — to be named when Phase 2 begins_ |
-| **CONDUCT** (Code of Conduct enforcement) | Zhijie Wong (conduct@mythos-agent.com) | _Pending — to be named when Phase 2 begins_ |
-| **RELEASES** (npm publish, signing) | Zhijie Wong | _Pending — to be named when Phase 2 begins_ |
+| **SECURITY** (vulnerability disclosure) | Zhijie Wong (security@mythos-agent.com) | _Pending; to be named when Phase 2 begins_ |
+| **CONDUCT** (Code of Conduct enforcement) | Zhijie Wong (conduct@mythos-agent.com) | _Pending; to be named when Phase 2 begins_ |
+| **RELEASES** (npm publish, signing) | Zhijie Wong | _Pending; to be named when Phase 2 begins_ |
 | **TRADEMARK / DOMAIN** (mythos-agent.com, npm package owner) | Zhijie Wong (personally held) | _Transfer to fiscal host planned for Phase 2_ |
 
 If you are reading this in an emergency and the primary contact is unreachable for 7+ days, escalate publicly via:
@@ -38,7 +38,7 @@ If you are reading this in an emergency and the primary contact is unreachable f
 
 _No emeritus maintainers yet._
 
-Maintainers who become inactive for 6+ months may be moved to emeritus status with their consent (per [GOVERNANCE.md § Becoming a Maintainer](./GOVERNANCE.md#becoming-a-maintainer)). Emeritus is honorary, not punitive — it acknowledges past contribution while making the active list a true reflection of who is reachable now.
+Maintainers who become inactive for 6+ months may be moved to emeritus status with their consent (per [GOVERNANCE.md § Becoming a Maintainer](./GOVERNANCE.md#becoming-a-maintainer)). Emeritus is honorary, not punitive. It acknowledges past contribution while making the active list a true reflection of who is reachable now.
 
 Emeritus maintainers retain:
 - Listing in this file under the Emeritus section
@@ -63,7 +63,7 @@ Emeritus maintainers do **not** retain:
 
 ## Conflict-of-Interest Declarations
 
-Each maintainer is expected to disclose any employment, consulting, or equity relationship with vendors that compete with or sell alongside mythos-agent (see [GOVERNANCE.md § Security and Supply Chain — Conflict of interest disclosure](./GOVERNANCE.md#conflict-of-interest-disclosure-for-maintainers)).
+Each maintainer is expected to disclose any employment, consulting, or equity relationship with vendors that compete with or sell alongside mythos-agent (see [GOVERNANCE.md § Security and Supply Chain: Conflict of interest disclosure](./GOVERNANCE.md#conflict-of-interest-disclosure-for-maintainers)).
 
 Disclosures are listed in the "Conflicts of interest" column of the Active Maintainers table above. Updates to a disclosure go via PR, ideally with a co-signed acknowledgement from another maintainer when one exists.
 

@@ -48,7 +48,7 @@ We deliberately do **not** plan to:
 
 **Application outline for mythos-agent's STF application:**
 
-- **Project relevance to digital sovereignty.** mythos-agent is one of very few open-source AI security agents with multi-provider local-model support (Ollama / vLLM); it directly reduces EU dependence on closed-source US scanners (Snyk, Semgrep Cloud, Anthropic's proprietary Mythos).
+- **Project relevance to digital sovereignty.** mythos-agent is one of very few open-source AI security agents with multi-provider local-model support (Ollama / vLLM); it directly reduces EU dependence on closed-source US scanners (Snyk, Semgrep Cloud, GitHub CodeQL).
 - **Concrete deliverables to fund.** (a) deterministic taint engine v1 (the work in `src/analysis/taint-engine.ts`); (b) 500-vuln benchmark dataset; (c) third-party security audit; (d) contributor bounty pool seed for scanner rules. Each is a line item with hours/cost estimate.
 - **Maintenance model.** Public RFC process, multi-phase governance plan, OpenSSF Best Practices Badge progression — already documented in repo, link directly.
 - **Timeline.** 12-month engagement; quarterly reporting against the H1/H2 Goals issues.

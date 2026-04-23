@@ -1,8 +1,8 @@
 # Vision
 
-> *mythos-agent is the **Mythos-Agent**: an open-source autonomous security research agent. The reasoning depth of a senior pentester, the reach of a scanner, the licensing of a public good.*
+> *mythos-agent is an open-source autonomous security research agent. The reasoning depth of a senior pentester, the reach of a scanner, the licensing of a public good.*
 
-**Mythos-Agent** is a self-contained name. *Sphinx* and *mythos* are both ancient Greek words meaning *legend* or *story*. The compound describes the project's own arc — a code-reading creature that hunts vulnerabilities the way Theban myth hunted travelers' wits. It is *inspired by* the same research direction as Anthropic's proprietary Mythos security agent, but it is not a clone, not affiliated, and makes no claim of feature parity.[^1]
+The name is self-contained. *Sphinx* and *mythos* are both ancient Greek words meaning *legend* or *story*. The compound describes the project's own arc: a code-reading creature that hunts vulnerabilities the way Theban myth hunted travelers' wits.
 
 ## What mythos-agent aims to be
 
@@ -39,4 +39,3 @@ These non-goals are stable. They change only via [RFC](docs/rfcs/).
 - **Pinned GitHub Issue `[Roadmap] mythos-agent H1 2026 Goals`** — the active 6-month working plan. Items are claimable; markers indicate where help is wanted.
 - **[GOVERNANCE.md](GOVERNANCE.md)** — how decisions get made and how that evolves as the project grows.
 
-[^1]: *Mythos* is also the codename of Anthropic's internal security agent referenced in public Project Glasswing materials. mythos-agent is an independent open-source effort, not affiliated with or endorsed by Anthropic. The Mythos-Agent identity is offered as a self-contained tagline; remove the comparison whenever you are not explicitly framing the research lineage.

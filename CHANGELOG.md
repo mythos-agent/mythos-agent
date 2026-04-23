@@ -2,7 +2,7 @@
 
 All notable changes to sphinx-agent are documented here. The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). Starting with the next release, entries are generated automatically by [release-please](https://github.com/googleapis/release-please) from [Conventional Commits](https://www.conventionalcommits.org/).
 
-## [4.0.0](https://github.com/mythos-agent/mythos-agent/compare/v3.1.0...v4.0.0) (2026-04-21)
+## [4.0.0](https://github.com/mythos-agent/mythos-agent/compare/v3.1.0...v4.0.0) (2026-04-22)
 
 
 ### ⚠ BREAKING CHANGES

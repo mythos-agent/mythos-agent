@@ -1,8 +1,8 @@
 # Contributing to mythos-agent
 
-Thanks for your interest. mythos-agent — the **Mythos-Agent** — is an open-source AI security agent. We welcome code, rules, tests, docs, integrations, and ideas.
+Thanks for your interest. mythos-agent is an open-source AI security agent. We welcome code, rules, tests, docs, integrations, and ideas.
 
-> **New here?** Jump to [Where to start](#where-to-start). The fastest first contribution is adding a test for an untested CLI command — every command in `src/cli/commands/` without a `__tests__` directory is fair game.
+> **New here?** Jump to [Where to start](#where-to-start). The fastest first contribution is adding a test for an untested CLI command. Every command in `src/cli/commands/` without a `__tests__` directory is fair game.
 >
 > **Looking for the strategic context?** [VISION.md](VISION.md) is the north star; [ROADMAP.md](ROADMAP.md) is the multi-year frame; the pinned issue **`[Roadmap] mythos-agent H1 2026 Goals`** is the active 6-month plan.
 
@@ -83,7 +83,7 @@ src/
 
   cli/              44 CLI commands
   dast/             Dynamic analysis (fuzzer, PoC generator, payload library)
-  scanner/          Static scanners (49 categories)
+  scanner/          Static scanners (43 categories)
   tools/            External tool integrations (semgrep, gitleaks, trivy, checkov, nuclei)
   policy/           Policy-as-code engine (SOC2/HIPAA/PCI/GDPR/OWASP)
   report/           Output formatters (terminal, JSON, HTML, SARIF, dashboard)
@@ -162,11 +162,11 @@ To satisfy [OpenSSF Best Practices Passing tier](docs/security/openssf-badge-app
 
 PRs that touch only docs, comments, or formatting are exempt. PRs that fix a security regression must include a regression test for the specific vulnerability class.
 
-The `demo-vulnerable-app/` directory is a deliberate test fixture — use it freely for scanner tests.
+The `demo-vulnerable-app/` directory is a deliberate test fixture. Use it freely for scanner tests.
 
 ## RFC process (for substantial changes)
 
-Substantial changes — anything that will affect more than one area, change a public CLI / API surface, or alter governance — go through a lightweight RFC.
+Substantial changes go through a lightweight RFC. This includes anything that affects more than one area, changes a public CLI / API surface, or alters governance.
 
 - **Template:** [`docs/RFC-TEMPLATE.md`](docs/RFC-TEMPLATE.md)
 - **Process:** [`docs/rfcs/README.md`](docs/rfcs/README.md)
@@ -179,10 +179,10 @@ Optional for: scanner rules, integrations, bug fixes.
 
 1. Run `npm run build && npm test && npm run lint && npm run typecheck` before submitting
 2. Add or update tests per the [testing policy](#testing-policy) above
-3. Keep commits focused — one feature / fix per commit
-4. Use [Conventional Commits](https://www.conventionalcommits.org/) — `feat:`, `fix:`, `docs:`, `chore:`, `test:`, `refactor:`, `style:`, `ci:`, `perf:`. The `release-please` workflow uses these to drive semver and the CHANGELOG.
+3. Keep commits focused (one feature or fix per commit)
+4. Use [Conventional Commits](https://www.conventionalcommits.org/): `feat:`, `fix:`, `docs:`, `chore:`, `test:`, `refactor:`, `style:`, `ci:`, `perf:`. The `release-please` workflow uses these to drive semver and the CHANGELOG.
 5. Update README, VISION, or ROADMAP if your change shifts user-facing capability or strategic direction
-6. Sign your commits (`git commit -s`) — Developer Certificate of Origin sign-off. We do not require a CLA; sign-off is enough.
+6. Sign your commits (`git commit -s`) as a Developer Certificate of Origin sign-off. We do not require a CLA; sign-off is enough.
 
 ## Recognition
 
@@ -196,7 +196,7 @@ A scanner-rule and scanner-module **bounty program** is drafted but currently **
 
 ## Responsible use
 
-mythos-agent is a defensive tool. By contributing, you agree to use it — and to design contributions that — primarily serve defenders.
+mythos-agent is a defensive tool. By contributing, you agree to use it, and to design your contributions, primarily in service of defenders.
 
 - **Do not** use mythos-agent to scan systems you do not own or have explicit written permission to test.
 - **Do not** contribute scanners or AI prompts whose primary purpose is to enable offensive operations against systems the user does not control.

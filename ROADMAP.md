@@ -1,6 +1,6 @@
 # mythos-agent Roadmap
 
-> The multi-year strategic frame for the **Mythos-Agent** — see [VISION.md](VISION.md) for the north star.
+> The multi-year strategic frame for the **Mythos-Agent**. See [VISION.md](VISION.md) for the north star.
 > The active 6-month working plan lives in the pinned GitHub Issue **`[Roadmap] mythos-agent H1 2026 Goals`**.
 > This document is refreshed annually; material changes go through an [RFC](docs/rfcs/).
 
@@ -11,7 +11,7 @@
 
 ## 1. Vision in one paragraph
 
-mythos-agent aims to be the open-source equivalent of an autonomous security research agent: a tool that reasons about a codebase the way a senior pentester would — generating hypotheses, navigating evidence, chaining individual findings into real attack paths, and proving exploitability. It is not a replacement for Semgrep, CodeQL, or Snyk; it integrates them where appropriate and competes on the axis those tools do not occupy: **autonomous reasoning on open code**. See [VISION.md](VISION.md) for the full framing and the capability arcs that define each year.
+mythos-agent aims to be the open-source equivalent of an autonomous security research agent: a tool that reasons about a codebase the way a senior pentester would, generating hypotheses, navigating evidence, chaining individual findings into real attack paths, and proving exploitability. It is not a replacement for Semgrep, CodeQL, or Snyk; it integrates them where appropriate and competes on the axis those tools do not occupy: **autonomous reasoning on open code**. See [VISION.md](VISION.md) for the full framing and the capability arcs that define each year.
 
 | Axis | Semgrep | CodeQL | Snyk | Nuclei | mythos-agent |
 |---|---|---|---|---|---|
@@ -29,13 +29,13 @@ mythos-agent aims to be the open-source equivalent of an autonomous security res
 
 Four multi-year bets that define the project's arc. Each survives replanning; each has a single success metric.
 
-**B1 — Deterministic semantic core.** Move taint and call-graph construction out of AI prompts (currently `src/agent/taint-tracker.ts`) and into graph algorithms (`src/analysis/taint-engine.ts`, `src/analysis/call-graph.ts`). The AI then reasons *over* the graph rather than building it. **Success metric:** false-positive rate <10% on the published 500-vuln benchmark by end of 2026.
+**B1: Deterministic semantic core.** Move taint and call-graph construction out of AI prompts (currently `src/agent/taint-tracker.ts`) and into graph algorithms (`src/analysis/taint-engine.ts`, `src/analysis/call-graph.ts`). The AI then reasons *over* the graph rather than building it. **Success metric:** false-positive rate <10% on the published 500-vuln benchmark by end of 2026.
 
-**B2 — Persistent codebase knowledge graph.** Cross-run memory of entry points, auth boundaries, data stores, trust boundaries, so multi-turn reasoning accumulates across scans. **Success metric:** the second scan of a repo runs 3× faster than the first and surfaces at least one cross-reference finding the first missed.
+**B2: Persistent codebase knowledge graph.** Cross-run memory of entry points, auth boundaries, data stores, trust boundaries, so multi-turn reasoning accumulates across scans. **Success metric:** the second scan of a repo runs 3× faster than the first and surfaces at least one cross-reference finding the first missed.
 
-**B3 — Novel-vuln benchmark.** A curated, CC-BY-licensed dataset of 500 vulnerabilities (growing to 1000) for measuring scanner accuracy. Mix of CVE reproductions, intentional-vuln apps, and community-contributed cases. **Success metric:** cited in at least one external security research paper or blog post by end of 2027.
+**B3: Novel-vuln benchmark.** A curated, CC-BY-licensed dataset of 500 vulnerabilities (growing to 1000) for measuring scanner accuracy. Mix of CVE reproductions, intentional-vuln apps, and community-contributed cases. **Success metric:** cited in at least one external security research paper or blog post by end of 2027.
 
-**B4 — Validated remediation pipeline.** `src/agent/fix-validator.ts`: apply patch → generate test → run test → re-scan → report. **Success metric:** 70%+ of AI-generated fixes pass the validation pipeline in self-measurement by end of 2028.
+**B4: Validated remediation pipeline.** `src/agent/fix-validator.ts`: apply patch → generate test → run test → re-scan → report. **Success metric:** 70%+ of AI-generated fixes pass the validation pipeline in self-measurement by end of 2028.
 
 ---
 
@@ -43,19 +43,19 @@ Four multi-year bets that define the project's arc. Each survives replanning; ea
 
 Three multi-year themes. Themes are undated; stages advance when the work is ready.
 
-### Theme A — Foundation & Depth *(stage: in progress through H2 2026)*
+### Theme A: Foundation & Depth *(stage: in progress through H2 2026)*
 
 Deterministic taint and call graphs. Tests for every CLI command. CWE Top 25 coverage audited across all 49 scanners. Stub rules in `src/rules/registry.ts` and `CWE-XXX` placeholders in `src/agent/prompts.ts` resolved. Supply-chain hardening per Section 11. Quantified accuracy commitments published per release (see B3).
 
-**What a user gains as Theme A advances:** a scanner that can be trusted on real codebases — measurable false-positive rates, reproducible benchmarks, signed releases, SBOMs.
+**What a user gains as Theme A advances:** a scanner that can be trusted on real codebases: measurable false-positive rates, reproducible benchmarks, signed releases, SBOMs.
 
-### Theme B — Autonomy & Discovery *(stage: experimental through 2026, stabilizing 2027)*
+### Theme B: Autonomy & Discovery *(stage: experimental through 2026, stabilizing 2027)*
 
 Persistent codebase knowledge graph. 4-phase agent (Recon → Hypothesis → Analyze → Exploit) with backtracking. Vulnerability chain engine upgraded from AI-only to graph + AI. Novel-vuln benchmark expanded to 1000 cases. Targeted detection for AI-misuse risks (prompt-injection sinks, unsafe LangChain patterns, MCP-server misconfig).
 
-**What a user gains as Theme B advances:** the ability to ask mythos-agent to *hunt* — to investigate autonomously and report what it explored, not just what it matched.
+**What a user gains as Theme B advances:** the ability to ask mythos-agent to *hunt*, to investigate autonomously and report what it explored, not just what it matched.
 
-### Theme C — Ecosystem & Scale *(stage: 2027–2028 horizon)*
+### Theme C: Ecosystem & Scale *(stage: 2027–2028 horizon)*
 
 Cross-system / monorepo / trust-boundary analysis. Validated remediation pipeline general availability (see B4). Scanner-plugin SDK published with cookie-cutter examples. Research partnerships and at least one academic collaboration. Governance transition to a Technical Steering Committee (see Section 6). Y2 sustainability decision gate resolved (see Section 9).
 
@@ -199,7 +199,7 @@ EU CRA full obligations apply Dec 11, 2027.
 | 6 | **CVE-disclosure overload** as adoption grows | Low (2026), High (2028) | Medium | Formalize `SECURITY.md` triage process now; dedicated security-triage maintainer role at TSC phase. |
 | 7 | **tree-sitter grammar coverage gaps** | Medium | Medium | Pin grammar versions in `package.json`; test matrix per grammar; contribute upstream fixes. |
 | 8 | **Competing project absorbs community** | Medium | High | Differentiate on autonomy and reasoning, not rule count; maintain velocity on knowledge graph and agent work. |
-| 9 | **Trademark dispute over Mythos framing** | Low | Medium | Always *inspired by*, never parity claim; "Mythos-Agent" treated as a self-contained compound; affiliation disclaimer in `VISION.md` and `README.md`. |
+| 9 | **Trademark dispute over name overlap with Anthropic's internal "Mythos" codename** | Low | Medium | Self-contained naming across all public docs: no references to Anthropic's proprietary products as inspiration, research lineage, or comparison anchor. `VISION.md` describes the name purely via Greek etymology (*sphinx* + *mythos*). Anthropic is disclosed only as an integrated API backend, same class as OpenAI / Ollama. If Anthropic legal contact occurs, willing to rename project rather than escalate. |
 | 10 | **Governance entanglement with a sponsor** (Gitleaks lesson) | Low | Critical | License firewall sentence in `GOVERNANCE.md`; trademark held personally until Phase 2; fiscal-host transfer requires consensus. |
 
 ---
