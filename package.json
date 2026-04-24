@@ -31,6 +31,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
+    "benchmark:cve-replay": "tsc -p tsconfig.benchmarks.json && node dist-benchmarks/benchmarks/cve-replay/run.js",
     "prepare": "husky || true",
     "prepublishOnly": "npm run build"
   },

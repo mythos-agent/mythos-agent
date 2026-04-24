@@ -11,6 +11,21 @@
 >
 > **Last reviewed:** 2026-04-19.
 
+> **Related, not a replacement:** the Sphinx Benchmark is mythos-agent's
+> in-house corpus for AI-era and MCP-era vuln classes. The
+> complementary tracks are:
+>
+> - [`benchmarks/cve-replay/`](../benchmarks/cve-replay/README.md) —
+>   real-world GHSA advisories replayed against the scanner at their
+>   vulnerable commit. Answers "does it catch real CVEs?"
+> - [`benchmarks/external/`](../benchmarks/external/README.md) —
+>   OWASP Benchmark v1.2, CyberSecEval 3, Vul4J. Answers "how do our
+>   numbers compare to Semgrep / Snyk / CodeQL?"
+> - [`docs/benchmarks/external-scores.md`](benchmarks/external-scores.md) —
+>   the dashboard readers get pointed to from the README. The Sphinx
+>   Benchmark is a differentiator; external scores are the credibility
+>   baseline.
+
 ## Why a new benchmark
 
 Existing public vulnerability benchmarks are old, narrow, or both:
