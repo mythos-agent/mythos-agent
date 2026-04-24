@@ -2,6 +2,15 @@
 
 All notable changes to sphinx-agent are documented here. The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). Starting with the next release, entries are generated automatically by [release-please](https://github.com/googleapis/release-please) from [Conventional Commits](https://www.conventionalcommits.org/).
 
+## [4.0.1](https://github.com/mythos-agent/mythos-agent/compare/v4.0.0...v4.0.1) (2026-04-24)
+
+
+### Documentation
+
+* **community:** add Feishu as the CN primary chat channel ([#29](https://github.com/mythos-agent/mythos-agent/issues/29)) ([#31](https://github.com/mythos-agent/mythos-agent/issues/31)) ([940e598](https://github.com/mythos-agent/mythos-agent/commit/940e59865f95024448fcb4506929ee51d5323788))
+* normalize punctuation and phrasing across all docs ([#32](https://github.com/mythos-agent/mythos-agent/issues/32)) ([59d7be2](https://github.com/mythos-agent/mythos-agent/commit/59d7be25fca2ac3c614697e0f9a78606d4325310))
+* **readme:** add Chinese translation (README.zh-CN.md) ([#28](https://github.com/mythos-agent/mythos-agent/issues/28)) ([c24905e](https://github.com/mythos-agent/mythos-agent/commit/c24905e70288b715c9f4598d3bafa1c75ecc51a3))
+
 ## [4.0.0](https://github.com/mythos-agent/mythos-agent/compare/v3.1.0...v4.0.0) (2026-04-22)
 
 
