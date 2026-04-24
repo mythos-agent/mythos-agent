@@ -1,0 +1,17 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "rootDir": ".",
+    "outDir": "dist-benchmarks",
+    "noEmit": false
+  },
+  "include": ["src/**/*", "benchmarks/**/*.ts"],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "dist-benchmarks",
+    "src/**/__tests__/**",
+    "src/**/*.test.ts",
+    "benchmarks/**/fixtures/**"
+  ]
+}

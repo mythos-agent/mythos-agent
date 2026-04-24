@@ -263,6 +263,11 @@ Pattern scanning, secrets, deps, and IaC work without any API key.
 | DAST | Yes | No | No | No | Best |
 | Open source | Yes | Partial | No | Yes | Yes |
 
+This feature table is a capability comparison, not an accuracy claim.
+For reproducible, third-party-runnable accuracy numbers vs Semgrep CE /
+Snyk Code / CodeQL on OWASP Benchmark, CyberSecEval 3, Vul4J, and our
+CVE replay harness, see [docs/benchmarks/external-scores.md](docs/benchmarks/external-scores.md).
+
 ## Contributing
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for details.
