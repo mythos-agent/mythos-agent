@@ -47,7 +47,7 @@ This policy covers vulnerabilities **in mythos-agent itself**:
 
 **Out of scope** (please use the indicated channel):
 
-- **Vulnerabilities discovered *by* mythos-agent in code being scanned.** These are not vulnerabilities in mythos-agent. Use community [Discussions](https://github.com/mythos-agent/mythos-agent/discussions) or report directly to the affected upstream project.
+- **Vulnerabilities discovered *by* mythos-agent in code being scanned.** These are not vulnerabilities in mythos-agent. Use community [Discussions](https://github.com/mythos-agent/mythos-agent/discussions) or report directly to the affected upstream project. If *the mythos-agent project itself* discovers a vuln in upstream code (via hunt pipeline, variant analysis, or maintainer review), disclosure follows [`docs/security/outbound-disclosure.md`](docs/security/outbound-disclosure.md) — not this document.
 - **Demo / intentionally-vulnerable code** (`demo-vulnerable-app/`) — by design.
 - **Third-party tools integrated via subprocess** (Semgrep, Trivy, Gitleaks, Checkov, Nuclei) — report to the respective maintainers.
 - **Vulnerabilities in dependencies** — report to the dependency maintainer; we will update once a fix is available upstream.
