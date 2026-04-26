@@ -71,7 +71,7 @@ export class QueryEngine {
         const toolResults: Anthropic.ToolResultBlockParam[] = [];
         for (const block of assistantContent) {
           if (block.type === "tool_use") {
-            const result = executeToolCall(
+            const result = await executeToolCall(
               this.projectPath,
               block.name,
               block.input as Record<string, unknown>
