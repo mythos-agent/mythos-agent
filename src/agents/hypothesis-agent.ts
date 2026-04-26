@@ -1,5 +1,6 @@
-import Anthropic from "@anthropic-ai/sdk";
+import type Anthropic from "@anthropic-ai/sdk";
 import type { MythosConfig, Vulnerability, Severity } from "../types/index.js";
+import { type LLMClient, createLLMClient } from "../llm/index.js";
 import { createAgentTools, executeToolCall } from "../agent/tools.js";
 import type { ReconReport } from "./agent-protocol.js";
 
@@ -69,16 +70,21 @@ Only generate hypotheses you have genuine reason to believe based on the code. N
 const MAX_TURNS = 20;
 
 export class HypothesisAgent {
-  private client: Anthropic;
+  private client: LLMClient;
 
   // `client` is optional so tests can inject a scriptable mock via
-  // createMockClient (src/__tests__/llm-mock.ts).
+  // createMockClient (src/__tests__/llm-mock.ts). Production callers
+  // pass only (config, projectPath) and get a real client via the
+  // factory — Tier 1 (Anthropic) by default, Tier 2 (OpenAI-
+  // compatible) when `config.provider !== "anthropic"`. The injected
+  // signature accepts the historical Anthropic type as well so
+  // existing test mocks keep working without modification.
   constructor(
     private config: MythosConfig,
     private projectPath: string,
-    client?: Anthropic
+    client?: LLMClient | Anthropic
   ) {
-    this.client = client ?? new Anthropic({ apiKey: config.apiKey, baseURL: config.baseURL });
+    this.client = (client as LLMClient | undefined) ?? createLLMClient(config);
   }
 
   async execute(recon: ReconReport): Promise<HypothesisReport> {

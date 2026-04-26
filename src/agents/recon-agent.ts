@@ -1,6 +1,7 @@
-import Anthropic from "@anthropic-ai/sdk";
+import type Anthropic from "@anthropic-ai/sdk";
 import type { MythosConfig } from "../types/index.js";
 import type { ReconReport } from "./agent-protocol.js";
+import { type LLMClient, createLLMClient } from "../llm/index.js";
 import { createAgentTools, executeToolCall } from "../agent/tools.js";
 
 const RECON_SYSTEM = `You are a security reconnaissance agent. Your job is to map the attack surface of a codebase.
@@ -23,17 +24,21 @@ Output JSON:
 const MAX_TURNS = 15;
 
 export class ReconAgent {
-  private client: Anthropic;
+  private client: LLMClient;
 
   // `client` is optional so tests can inject a scriptable mock via
   // createMockClient (src/__tests__/llm-mock.ts). Production callers
-  // pass only (config, projectPath) and get a real client.
+  // pass only (config, projectPath) and get a real client via the
+  // factory — Tier 1 (Anthropic) by default, Tier 2 (OpenAI-
+  // compatible) when `config.provider !== "anthropic"`. The injected
+  // signature accepts the historical Anthropic type as well so
+  // existing test mocks keep working without modification.
   constructor(
     private config: MythosConfig,
     private projectPath: string,
-    client?: Anthropic
+    client?: LLMClient | Anthropic
   ) {
-    this.client = client ?? new Anthropic({ apiKey: config.apiKey, baseURL: config.baseURL });
+    this.client = (client as LLMClient | undefined) ?? createLLMClient(config);
   }
 
   async execute(): Promise<ReconReport> {
