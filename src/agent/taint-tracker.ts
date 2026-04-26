@@ -130,7 +130,7 @@ Be thorough — follow imports, function calls, and data transformations across 
         const toolResults: Anthropic.ToolResultBlockParam[] = [];
         for (const block of response.content) {
           if (block.type === "tool_use") {
-            const result = executeToolCall(
+            const result = await executeToolCall(
               projectPath,
               block.name,
               block.input as Record<string, unknown>

@@ -144,14 +144,15 @@ ${authInfo}
         const toolResults: Anthropic.ToolResultBlockParam[] = [];
         for (const block of response.content) {
           if (block.type === "tool_use") {
+            const result = await executeToolCall(
+              this.projectPath,
+              block.name,
+              block.input as Record<string, unknown>
+            );
             toolResults.push({
               type: "tool_result",
               tool_use_id: block.id,
-              content: executeToolCall(
-                this.projectPath,
-                block.name,
-                block.input as Record<string, unknown>
-              ),
+              content: result,
             });
           }
         }
