@@ -1,0 +1,6 @@
+# Live clones of upstream repos for the variants-calibration harness.
+# Same pattern as benchmarks/cve-replay/fixtures/: each clone has its
+# own license, and they can be large — kept out of the mythos-agent
+# repo. The harness recreates them on demand.
+*
+!.gitignore
