@@ -1,5 +1,6 @@
-import Anthropic from "@anthropic-ai/sdk";
+import type Anthropic from "@anthropic-ai/sdk";
 import type { MythosConfig, Vulnerability, Severity } from "../types/index.js";
+import { type LLMClient, createLLMClient } from "../llm/index.js";
 import { createAgentTools, executeToolCall } from "../agent/tools.js";
 
 export interface CveInfo {
@@ -54,13 +55,20 @@ const MAX_TURNS = 20;
 const OSV_API = "https://api.osv.dev/v1";
 
 export class VariantAnalyzer {
-  private client: Anthropic;
+  private client: LLMClient;
 
+  // Constructed via the multi-model factory so `provider: openai` users
+  // (Tier 2 per docs/multi-model.md) get a Qwen / OpenAI / OpenRouter
+  // backend just like the four hunt agents do post PRs #44/#46.
+  // `client` is optional so tests can inject a scriptable mock; the
+  // historical Anthropic type is accepted for back-compat with any
+  // pre-multi-model test that constructed an Anthropic mock directly.
   constructor(
     private config: MythosConfig,
-    private projectPath: string
+    private projectPath: string,
+    client?: LLMClient | Anthropic
   ) {
-    this.client = new Anthropic({ apiKey: config.apiKey });
+    this.client = (client as LLMClient | undefined) ?? createLLMClient(config);
   }
 
   /**
@@ -137,7 +145,7 @@ Output JSON with the same format as variant analysis.`,
 
       const text = response.content.find((b) => b.type === "text");
       if (text && text.type === "text") {
-        const variants = this.parseVariants(text.text, "auto-scan");
+        const variants = parseVariants(text.text, "auto-scan");
         if (variants.length > 0) {
           results.push({
             cve: {
@@ -209,7 +217,7 @@ Instructions:
 
       const text = response.content.find((b) => b.type === "text");
       if (text && text.type === "text") {
-        return this.parseVariants(text.text, cveInfo.id);
+        return parseVariants(text.text, cveInfo.id);
       }
       break;
     }
@@ -291,26 +299,42 @@ Instructions:
 
     return null;
   }
+}
 
-  private parseVariants(text: string, cveId: string): VariantMatch[] {
-    const jsonMatch = text.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) return [];
+/**
+ * Parses the LLM tool-loop final response into VariantMatch[].
+ * Module-level for testability (mirrors the parseAnalysisResponse
+ * pattern in src/agent/analyzer.ts) — tests can hit the JSON-parser
+ * tolerance without running the 20-turn agentic loop or hitting
+ * OSV/NVD over the network.
+ *
+ * Behavior:
+ *  - No JSON substring in text → returns []. Defensive default for
+ *    cases where the LLM returns prose-only on token-limit truncation.
+ *  - Malformed JSON → returns []. NOT a throw; the agentic loop
+ *    treats no-variants as a valid (if uninteresting) answer.
+ *  - Variants without required fields fall back to defaults
+ *    (similarity defaults to "medium", strings to "", numbers to 0).
+ *  - VAR-NNN ids start at 001, padded to 3 digits.
+ */
+export function parseVariants(text: string, cveId: string): VariantMatch[] {
+  const jsonMatch = text.match(/\{[\s\S]*\}/);
+  if (!jsonMatch) return [];
 
-    try {
-      const data = JSON.parse(jsonMatch[0]);
-      return (data.variants || []).map((v: any, i: number) => ({
-        id: `VAR-${String(i + 1).padStart(3, "0")}`,
-        cveId,
-        file: v.file || "",
-        line: v.line || 0,
-        code: v.code || "",
-        similarity: v.similarity || "medium",
-        explanation: v.explanation || "",
-        rootCauseMatch: v.rootCauseMatch || "",
-      }));
-    } catch {
-      return [];
-    }
+  try {
+    const data = JSON.parse(jsonMatch[0]);
+    return (data.variants || []).map((v: any, i: number) => ({
+      id: `VAR-${String(i + 1).padStart(3, "0")}`,
+      cveId,
+      file: v.file || "",
+      line: v.line || 0,
+      code: v.code || "",
+      similarity: v.similarity || "medium",
+      explanation: v.explanation || "",
+      rootCauseMatch: v.rootCauseMatch || "",
+    }));
+  } catch {
+    return [];
   }
 }
 
