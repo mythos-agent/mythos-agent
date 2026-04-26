@@ -14,7 +14,7 @@ can re-run.
 
 | Tool | OWASP Benchmark v1.2 (TPR / FPR / F1) | CyberSecEval 3 (F1) | Vul4J (caught / 79) | CVE Replay (caught / N) |
 |---|---|---|---|---|
-| **mythos-agent v4.0.1** (deterministic scanners only) | _pending_ | _pending_ | _pending_ | **1 / 5** |
+| **mythos-agent v4.0.1** (deterministic scanners only) | _pending_ | _pending_ | _pending_ | **2 / 5** |
 | Semgrep CE (OSS rules) | _pending_ | _pending_ | _pending_ | _pending_ |
 | Snyk Code (free tier) | _pending_ | _pending_ | _pending_ | _pending_ |
 | CodeQL (OSS queries) | _pending_ | _pending_ | _pending_ | _pending_ |
@@ -24,24 +24,25 @@ Numbers fill in as each runner lands. Each row is reproducible against
 the exact commit hashes published in the per-benchmark results JSONs
 under `benchmarks/external/<benchmark>/results/`.
 
-The `1 / 5` CVE Replay number for v4.0.1 — after RedosScanner's
-template-literal extraction improvement:
+The `2 / 5` CVE Replay number for v4.0.1 — after two scanner-gap PRs:
 
 | GHSA | CVE | Package | Bug class | Status | Notes |
 |---|---|---|---|---|---|
-| GHSA-c2qf-rxjj-qqgw | CVE-2022-25883 | semver | ReDoS | **caught** | Template-literal extractor + new "unbounded whitespace adjacent to template interpolation" indicator — the scanner change that moved this from miss to catch |
+| GHSA-c2qf-rxjj-qqgw | CVE-2022-25883 | semver | ReDoS | **caught** | RedosScanner template-literal extractor + "unbounded whitespace adjacent to template interpolation" indicator (PR #37) |
+| GHSA-cxjh-pqwp-8mfp | CVE-2024-28849 | follow-redirects | Cross-host credential forwarding | **caught** | New `RedirectHeadersScanner` flags any regex stripping `authorization` on redirect that omits `proxy`, gated by a redirect-context proximity check (this PR) |
 | GHSA-9wv6-86v2-598j | CVE-2024-45296 | path-to-regexp | ReDoS | missed | Vulnerable regex built at runtime from path segments; no template literal with `${}` is statically visible |
-| GHSA-cxjh-pqwp-8mfp | CVE-2024-28849 | follow-redirects | Cross-host credential forwarding | missed | No deterministic scanner covers this class; needs a new rule |
 | GHSA-hjrf-2m68-5959 | CVE-2022-23541 | jsonwebtoken | JWT key-type confusion | missed | JwtScanner rules target JWT *usage* patterns, not sign/verify implementation bugs |
 | GHSA-35jh-r3h4-6jhm | CVE-2021-23337 | lodash | Template / command injection | missed | lodash.js is a single megafile; current scanners don't trace `template()` argument flow |
 
-`fix-clean: 4 / 5`. Four cases have no finding at the fix commit. The
-fifth (semver) fix-clean is intentionally **NO**: upstream fixed
+`fix-clean: 4 / 5`. Four cases have no finding at the fix commit
+(including follow-redirects, where the upstream fix added `proxy-` to
+the strip regex and the new scanner correctly stays silent). The
+remaining `fix-clean: NO` is semver, intentionally: upstream fixed
 CVE-2022-25883 by adding a parallel `exports.safeRe` rather than
 replacing the vulnerable `exports.re`, so the original pattern is
 still present at the fix commit. The scanner correctly flags both —
-and the fix-clean NO is itself useful signal that the upstream fix
-was a partial mitigation, not a full remediation. Re-run with
+and `fix-clean: NO` is itself useful signal that the upstream fix was
+a partial mitigation, not a full remediation. Re-run with
 `npm run benchmark:cve-replay`.
 
 ## How to interpret this table

@@ -16,6 +16,7 @@ import { CryptoScanner } from "../crypto-scanner.js";
 import { PrivacyScanner } from "../privacy-scanner.js";
 import { RaceConditionScanner } from "../race-condition-scanner.js";
 import { RedosScanner } from "../redos-scanner.js";
+import { RedirectHeadersScanner } from "../redirect-headers-scanner.js";
 import type { Vulnerability } from "../../types/index.js";
 
 /**
@@ -90,6 +91,7 @@ const SCANNERS: Array<{
   { name: "privacy", make: () => new PrivacyScanner() },
   { name: "race-conditions", make: () => new RaceConditionScanner() },
   { name: "redos", make: () => new RedosScanner() },
+  { name: "redirect-headers", make: () => new RedirectHeadersScanner() },
 ];
 
 /**

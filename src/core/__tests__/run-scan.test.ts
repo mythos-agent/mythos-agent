@@ -87,7 +87,7 @@ describe("runScan — per-scanner opt-out flags", () => {
     expect(phases.filter((p) => p.id === "redos")).toHaveLength(0);
   });
 
-  it("runs all 15 deterministic scanners by default (pattern always on; 14 flag-gated)", async () => {
+  it("runs all 16 deterministic scanners by default (pattern always on; 15 flag-gated)", async () => {
     const dir = fixture({ "app.ts": "" });
     const phaseStarts = new Set<string>();
     await runScan(dir, {
@@ -114,6 +114,7 @@ describe("runScan — per-scanner opt-out flags", () => {
         "privacy",
         "race-conditions",
         "redos",
+        "redirect-headers",
       ])
     );
   });
@@ -179,6 +180,7 @@ describe("runScan — onPhase callback lifecycle", () => {
       privacy: false,
       raceConditions: false,
       redos: false,
+      redirectHeaders: false,
       onPhase: (e) => events.push(e),
     });
 
