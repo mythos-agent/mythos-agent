@@ -80,11 +80,18 @@ const SEEDS: RootCausePattern[] = [
     cwe: "CWE-1333",
     languages: ["javascript", "typescript"],
     astShape: {
-      kind: "regex_or_template_literal",
+      // The vulnerable code is the template literal that builds the
+      // regex source string (e.g. `(\\s*)${src[t.LONETILDE]}\\s+` in
+      // node-semver internal/re.js). The compiled `RegExp` itself
+      // isn't directly visible in the AST since it's built at module
+      // load via `new RegExp(value)`. A2's matcher fires on the
+      // template_string node; A3 calibration confirms this matches
+      // the upstream vulnerable lines.
+      kind: "template_string",
       constraints: [
-        "regex literal or `new RegExp(`...`)` whose source contains an unbounded whitespace class (`\\s*` or `\\s+`)",
-        "the unbounded class is adjacent to a `${}` interpolation slot in a template literal that builds the regex source",
-        "the compiled regex is later invoked via `RegExp.prototype.test` or `String.prototype.match` against attacker-influenced input",
+        "template literal whose source contains an unbounded whitespace class (`\\\\s*` or `\\\\s+`)",
+        "the unbounded class is adjacent to a `${}` interpolation slot",
+        "the resulting string is consumed as a regex source (passed to `new RegExp`, `re[i] = new RegExp(value)`, or assigned to a regex token map)",
       ],
     },
     dataFlow: {
@@ -104,12 +111,19 @@ const SEEDS: RootCausePattern[] = [
     cwe: "CWE-200",
     languages: ["javascript", "typescript"],
     astShape: {
-      kind: "object_or_array_literal",
+      // The bug shape in upstream follow-redirects (line 464 of the
+      // vulnerable commit) is a regex *literal* used to filter
+      // headers: `removeMatchingHeaders(/^(?:authorization|cookie)$/i, …)`.
+      // The fix added `proxy-authorization` to the alternation. Other
+      // implementations of the same bug class might use an array or
+      // object allowlist instead — those are A2.x territory; A1 seed
+      // pins the upstream-canonical shape for A3 calibration.
+      kind: "regex",
       constraints: [
-        "literal listing HTTP header names to strip on cross-origin redirect",
-        "list contains `authorization` and/or `cookie` (case-insensitive)",
-        "list omits `proxy-authorization`",
-        "the literal is consumed by a redirect-handler code path (function or method whose name contains `redirect`)",
+        "regex literal whose pattern is an alternation of HTTP header names (e.g. `^(?:authorization|cookie)$`)",
+        "alternation contains `authorization` and/or `cookie` (case-insensitive flag `/i`)",
+        "alternation omits `proxy-authorization`",
+        "the regex is consumed by a redirect-handler code path (function or method whose name contains `redirect`)",
       ],
     },
     dataFlow: {

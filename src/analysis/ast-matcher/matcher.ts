@@ -14,13 +14,16 @@ import { getParser, type SupportedLanguage } from "./parser.js";
  * Design choices:
  *
  *  - **Kind union, not a query DSL.** `kind` accepts a single string
- *    or an array of strings (matched against `node.type`). A1's
- *    seed-patterns.ts already uses union-shaped kinds for two of the
- *    five CVEs (`regex_or_template_literal`, `object_or_array_literal`)
- *    and treating these as `[kindA, kindB]` is cheaper than building
- *    a real query DSL. A real DSL (ast-grep YAML / tree-sitter
- *    queries) is a candidate for A2.x once we know which constraints
- *    repeat across the seed corpus — premature for v1.
+ *    or an array of strings (matched against `node.type`). A1's seeds
+ *    use single real tree-sitter kinds (`call_expression`, `regex`,
+ *    `template_string`, `function_declaration`, `new_expression`)
+ *    after A3 calibration tightened the schema to drop synthetic
+ *    union kinds. The union API is retained for hypothetical seeds
+ *    that genuinely span two real kinds (e.g. an allowlist that some
+ *    projects encode as an array literal and others as an object).
+ *    A real query DSL (ast-grep YAML / tree-sitter queries) is a
+ *    candidate for A2.x once we know which constraints repeat
+ *    across the seed corpus — premature for v1.
  *
  *  - **Text predicates are regexes against `node.text`.** A1's
  *    `astShape.constraints` are prose like "list contains

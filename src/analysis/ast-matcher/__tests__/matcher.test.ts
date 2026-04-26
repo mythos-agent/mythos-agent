@@ -11,9 +11,9 @@ import { getParser } from "../parser.js";
 //
 //  1. Single-kind matching (the common case for A1's
 //     `call_expression`, `new_expression`, `function_declaration` seeds).
-//  2. Union-kind matching (the API hook A1's synthetic
-//     `regex_or_template_literal` / `object_or_array_literal` kinds
-//     are translated into).
+//  2. Union-kind matching (retained for hypothetical seeds that
+//     genuinely span two real tree-sitter kinds; A1's current seeds
+//     all use single real kinds after A3 calibration tightened them).
 //  3. Text-predicate AND semantics (predicates narrow a kind match
 //     to a specific shape — e.g. callee identifier, parameter name).
 //  4. Match cap and parse-error tolerance.
@@ -93,9 +93,10 @@ describe("findAstPattern — kind matching", () => {
   });
 
   it("supports kind unions (array of kinds)", async () => {
-    // Mirrors what the agent loop would do for A1's synthetic
-    // `regex_or_template_literal` kind: pass both real kinds as a
-    // union and let the matcher return either.
+    // Demonstrates the kind-union API: a hypothetical seed where
+    // either node kind constitutes the same vulnerability shape can
+    // be encoded as an array. None of A1's current seeds use this
+    // (post A3 calibration), but the API is retained.
     const source = "const a = /abc/; const b = `template ${value}`;";
     const matches = await findAstPattern({
       kind: ["regex", "template_string"],
@@ -243,18 +244,22 @@ describe("findAstPattern — A1 seed CVE shape coverage", () => {
     expect(matches.length).toBeGreaterThan(0);
   });
 
-  it("CVE-2024-28849 follow-redirects: array literal listing headers to strip", async () => {
+  it("CVE-2024-28849 follow-redirects: regex literal filtering headers on redirect", async () => {
+    // The actual upstream shape (vulnerable commit, index.js line
+    // 464) is a regex literal in a redirect handler:
+    //   removeMatchingHeaders(/^(?:authorization|cookie)$/i, ...)
+    // A3 calibration runs the seeded pattern against this real file.
     const matches = await findAstPattern({
-      kind: "array",
+      kind: "regex",
       source: `
-        const STRIP_ON_REDIRECT = ['authorization', 'cookie'];
-        function followRedirect(req) { /* ... */ }
+        function fetchOnRedirect(req) {
+          removeMatchingHeaders(/^(?:authorization|cookie)$/i, req.headers);
+        }
       `,
       language: "javascript",
-      // Bug shape: list mentions authorization/cookie but not
-      // proxy-authorization. A real matcher would post-filter on
-      // 'no proxy-authorization member'; here we just verify the
-      // array-literal hit fires.
+      // Bug shape: regex alternation includes authorization/cookie
+      // but omits proxy-authorization. Predicate validates the
+      // alternation contains authorization.
       textPredicates: ["authorization"],
     });
     expect(matches.length).toBeGreaterThan(0);
