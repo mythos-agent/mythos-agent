@@ -1,0 +1,14 @@
+# Test fixtures imported unmodified from third-party upstream repos.
+# Reformatting them would defeat the purpose of fixtures (they're
+# supposed to match the upstream commit byte-for-byte). Each fixture
+# directory has its own NOTICE/README documenting source + license.
+src/analysis/calibration/__tests__/fixtures/
+
+# Tree-sitter grammar binaries + their docs are managed separately.
+assets/grammars/
+
+# Build outputs.
+dist/
+dist-benchmarks/
+coverage/
+node_modules/
