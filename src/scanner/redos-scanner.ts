@@ -12,18 +12,37 @@ import type { Vulnerability } from "../types/index.js";
  * 3. Greedy quantifiers with ambiguous repetition: .*.*
  */
 
-// Patterns that extract regex from code
-const REGEX_EXTRACTION_PATTERNS = [
-  // new RegExp("pattern")
-  /new\s+RegExp\s*\(\s*["'`]([^"'`]+)["'`]/g,
-  // /pattern/flags
-  /\/([^/\n]{3,})\/[gimsuy]*/g,
+// Patterns that extract regex source from JS/TS code. Each entry is a
+// regex that captures the regex source in group 1, plus an optional
+// `gate` second-pattern that must also match the captured source for
+// the extraction to count — used to prune false-positive matches from
+// extractors broader than `new RegExp(...)` (notably template literals).
+const REGEX_EXTRACTION_PATTERNS: Array<{ pattern: RegExp; gate?: RegExp }> = [
+  // new RegExp("literal") / new RegExp('literal') — also matches a
+  // backtick-delimited arg when there's no ${} interpolation inside.
+  { pattern: /new\s+RegExp\s*\(\s*["'`]([^"'`]+)["'`]/g },
+  // /pattern/flags regex literal.
+  { pattern: /\/([^/\n]{3,})\/[gimsuy]*/g },
+  // Bare template literal. Regex sources also flow into `new RegExp`
+  // indirectly via helper functions (e.g. semver's `createToken` wraps
+  // `new RegExp(value)` where `value` is a template literal built by
+  // the caller — CVE-2022-25883). We therefore extract ANY template
+  // literal and gate on REGEX_SOURCE_HEURISTIC so string-interpolation
+  // templates (JSX, SQL, log formatters) don't flood the scanner.
+  {
+    pattern: /`((?:\\`|[^`])+)`/g,
+    gate: /\\[sdwbSDWB]|\[[^\]]{1,}\]|\(\?[:=!]/,
+  },
 ];
 
-// Patterns within regex that indicate ReDoS vulnerability
+// Patterns within regex that indicate ReDoS vulnerability. When
+// `requires` is set, the indicator fires only if the regex source ALSO
+// matches that secondary pattern — used to scope template-literal
+// heuristics to cases where the risky construct is actually present.
 const REDOS_INDICATORS: Array<{
   pattern: RegExp;
   description: string;
+  requires?: RegExp;
 }> = [
   // Nested quantifiers: (a+)+, (a*)+, (a+)*, etc.
   { pattern: /\([^)]*[+*]\)[+*]/, description: "Nested quantifiers" },
@@ -42,6 +61,17 @@ const REDOS_INDICATORS: Array<{
   // Known dangerous patterns
   { pattern: /\(\.\*\)\+/, description: "Greedy capture repeated" },
   { pattern: /\([a-z]-[a-z]\]\+\)\+/i, description: "Character class repeated in repeated group" },
+
+  // CVE-2022-25883 (semver) class: unbounded whitespace next to a
+  // template interpolation slot. The ${...} can itself match
+  // whitespace at runtime, and the ambiguity with the adjacent \s*/\s+
+  // produces catastrophic backtracking. Gated on ${ presence so we
+  // don't flag every \s* in a regex literal.
+  {
+    pattern: /\\s[*+]/,
+    description: "Unbounded whitespace adjacent to template interpolation",
+    requires: /\$\{/,
+  },
 ];
 
 export interface RedosScanResult {
@@ -78,16 +108,22 @@ export class RedosScanner {
         const line = lines[i];
 
         // Extract regex patterns from the line
-        for (const extractor of REGEX_EXTRACTION_PATTERNS) {
+        for (const { pattern: extractor, gate } of REGEX_EXTRACTION_PATTERNS) {
           extractor.lastIndex = 0;
           let match;
           while ((match = extractor.exec(line)) !== null) {
             const regexStr = match[1];
             if (!regexStr || regexStr.length < 3) continue;
+            // Extractor-level gate: e.g., template literal must look
+            // like a regex source before we consider its contents.
+            if (gate && !gate.test(regexStr)) continue;
 
             // Check for ReDoS indicators
             for (const indicator of REDOS_INDICATORS) {
-              if (indicator.pattern.test(regexStr)) {
+              if (
+                indicator.pattern.test(regexStr) &&
+                (!indicator.requires || indicator.requires.test(regexStr))
+              ) {
                 // Check if this regex processes user input
                 const context = lines.slice(Math.max(0, i - 3), i + 4).join("\n");
                 const isUserFacing =

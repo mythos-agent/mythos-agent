@@ -214,6 +214,40 @@ if (emailRegex.test(req.query.input)) { }`,
     expect(findings.some((f) => f.rule.includes("redos"))).toBe(true);
     cleanup(dir);
   });
+
+  it("detects unbounded whitespace adjacent to template interpolation (CVE-2022-25883 class)", async () => {
+    // Mirrors the semver CVE-2022-25883 pattern: regex source is built
+    // as a template literal with \s* / \s+ adjacent to an ${...} slot,
+    // then handed to new RegExp() indirectly via a helper function.
+    // Pre-fix, RedosScanner only inspected string-literal / regex-literal
+    // sources and missed this class entirely.
+    const dir = createFixture({
+      "internal/re.js": `const src = [];
+src[0] = '[0-9]+';
+const makePattern = (name, value) => new RegExp(value);
+makePattern('TILDETRIM', \`(\\\\s*)\${src[0]}\\\\s+\`);`,
+    });
+    const scanner = new RedosScanner();
+    const { findings } = await scanner.scan(dir);
+    expect(
+      findings.some((f) => f.rule.includes("redos") && f.title.toLowerCase().includes("whitespace"))
+    ).toBe(true);
+    cleanup(dir);
+  });
+
+  it("does not flag non-regex template literals (JSX / SQL)", async () => {
+    // Guard against the new template-literal extractor firing on
+    // backtick strings that happen to contain a quantifier-adjacent-to-
+    // interpolation but aren't regex sources.
+    const dir = createFixture({
+      "component.tsx": `const msg = \`Hello \${name}  welcome\`;
+const sql = \`SELECT * FROM t WHERE id = \${id}  AND \${cond}\`;`,
+    });
+    const scanner = new RedosScanner();
+    const { findings } = await scanner.scan(dir);
+    expect(findings.some((f) => f.rule.includes("redos"))).toBe(false);
+    cleanup(dir);
+  });
 });
 
 describe("ErrorHandlingScanner", () => {
