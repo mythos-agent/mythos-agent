@@ -2,6 +2,13 @@
 
 All notable changes to sphinx-agent are documented here. The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). Starting with the next release, entries are generated automatically by [release-please](https://github.com/googleapis/release-please) from [Conventional Commits](https://www.conventionalcommits.org/).
 
+## [4.2.0](https://github.com/mythos-agent/mythos-agent/compare/v4.1.0...v4.2.0) (2026-04-26)
+
+
+### Added
+
+* **config:** add baseURL for Anthropic-compatible proxies (multi-model stage 1) ([#41](https://github.com/mythos-agent/mythos-agent/issues/41)) ([dfcdcbd](https://github.com/mythos-agent/mythos-agent/commit/dfcdcbd4b7d04185c42ae0c64cdc2cb20853c1cc))
+
 ## [4.1.0](https://github.com/mythos-agent/mythos-agent/compare/v4.0.1...v4.1.0) (2026-04-26)
 
 
