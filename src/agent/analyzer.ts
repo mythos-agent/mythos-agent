@@ -1,5 +1,6 @@
-import Anthropic from "@anthropic-ai/sdk";
+import type Anthropic from "@anthropic-ai/sdk";
 import type { MythosConfig, Vulnerability, Severity } from "../types/index.js";
+import { type LLMClient, createLLMClient } from "../llm/index.js";
 import { SYSTEM_PROMPT, buildAnalysisPrompt } from "./prompts.js";
 import { createAgentTools, executeToolCall } from "./tools.js";
 
@@ -35,14 +36,20 @@ interface AIAnalysisOutput {
 const MAX_TURNS = 20;
 
 export class AIAnalyzer {
-  private client: Anthropic;
+  private client: LLMClient;
   private model: string;
 
-  // `client` is optional so tests can inject a scriptable mock that satisfies
-  // the Anthropic.Client shape used by the agentic loop without touching
-  // the network. Production callers pass `config` only and get a real client.
-  constructor(config: MythosConfig, client?: Anthropic) {
-    this.client = client ?? new Anthropic({ apiKey: config.apiKey, baseURL: config.baseURL });
+  // `client` is optional so tests can inject a scriptable mock that
+  // satisfies the LLMClient shape used by the agentic loop without
+  // touching the network. Production callers pass `config` only and
+  // get a real client via the factory — Tier 1 (Anthropic) by default,
+  // Tier 2 (OpenAI-compatible) when `config.provider !== "anthropic"`.
+  // The injected-client signature accepts the historical `Anthropic`
+  // type as well as the new `LLMClient` interface (Anthropic
+  // structurally satisfies LLMClient), so existing test mocks keep
+  // working without modification.
+  constructor(config: MythosConfig, client?: LLMClient | Anthropic) {
+    this.client = (client as LLMClient | undefined) ?? createLLMClient(config);
     this.model = config.model;
   }
 
