@@ -2,6 +2,20 @@
 
 All notable changes to sphinx-agent are documented here. The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). Starting with the next release, entries are generated automatically by [release-please](https://github.com/googleapis/release-please) from [Conventional Commits](https://www.conventionalcommits.org/).
 
+## [4.1.0](https://github.com/mythos-agent/mythos-agent/compare/v4.0.1...v4.1.0) (2026-04-26)
+
+
+### Added
+
+* **benchmarks:** add CVE replay harness with 5 real GHSA cases ([#34](https://github.com/mythos-agent/mythos-agent/issues/34)) ([25b74c6](https://github.com/mythos-agent/mythos-agent/commit/25b74c65af86d15123464fe5f5c0352b4b35e485))
+* **redirect-headers:** catch incomplete header strip on cross-host redirect ([#39](https://github.com/mythos-agent/mythos-agent/issues/39)) ([3b09444](https://github.com/mythos-agent/mythos-agent/commit/3b0944473dd5e6d46ec3d23551a0bb0a9ee60f56))
+* **redos:** extract template literals + flag whitespace near interpolation ([#37](https://github.com/mythos-agent/mythos-agent/issues/37)) ([f3a1048](https://github.com/mythos-agent/mythos-agent/commit/f3a10486d9456f4b02f49ca461e528b610bf38a5))
+
+
+### Documentation
+
+* **security:** add outbound disclosure policy ([#36](https://github.com/mythos-agent/mythos-agent/issues/36)) ([753199f](https://github.com/mythos-agent/mythos-agent/commit/753199f87cd198cb751bae21492e28704472c8e5))
+
 ## [4.0.1](https://github.com/mythos-agent/mythos-agent/compare/v4.0.0...v4.0.1) (2026-04-24)
 
 
