@@ -42,7 +42,7 @@ export class AIAnalyzer {
   // the Anthropic.Client shape used by the agentic loop without touching
   // the network. Production callers pass `config` only and get a real client.
   constructor(config: MythosConfig, client?: Anthropic) {
-    this.client = client ?? new Anthropic({ apiKey: config.apiKey });
+    this.client = client ?? new Anthropic({ apiKey: config.apiKey, baseURL: config.baseURL });
     this.model = config.model;
   }
 

@@ -62,6 +62,14 @@ export interface RulePattern {
 
 export interface MythosConfig {
   apiKey?: string;
+  // Override the LLM provider's API base URL. Lets users route through an
+  // Anthropic-compatible proxy (LiteLLM, OpenRouter, AWS Bedrock with
+  // Anthropic models, Vercel AI Gateway, etc.) without code changes —
+  // typically to use a non-Anthropic backend (Qwen, Gemini, local Ollama)
+  // via a proxy that translates to Anthropic's wire format. Stage 1 of
+  // the multi-model rollout (docs/multi-model.md). Native non-Anthropic
+  // SDK support lands in stage 2 once Tier 2 demand is verified.
+  baseURL?: string;
   model: string;
   provider: string; // "anthropic" | "openai" | "ollama" | "lmstudio" | "vllm" | custom
   rules: {

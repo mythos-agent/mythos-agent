@@ -32,7 +32,9 @@ beforeEach(() => {
     "SPHINX_API_KEY",
     "ANTHROPIC_API_KEY",
     "MYTHOS_MODEL",
-    "SPHINX_MODEL"
+    "SPHINX_MODEL",
+    "MYTHOS_BASE_URL",
+    "ANTHROPIC_BASE_URL"
   );
 });
 
@@ -113,6 +115,44 @@ describe("loadConfig — env-var back-compat", () => {
     process.env.SPHINX_MODEL = "claude-3-5";
     const cfg = loadConfig(dir);
     expect(cfg.model).toBe("claude-4-7");
+  });
+});
+
+describe("loadConfig — baseURL (multi-model stage 1)", () => {
+  it("loads baseURL from .mythos.yml", () => {
+    const dir = tempDir();
+    fs.writeFileSync(path.join(dir, ".mythos.yml"), "baseURL: https://litellm.example/v1\n");
+    const cfg = loadConfig(dir);
+    expect(cfg.baseURL).toBe("https://litellm.example/v1");
+  });
+
+  it("MYTHOS_BASE_URL env var sets baseURL when no file value", () => {
+    const dir = tempDir();
+    process.env.MYTHOS_BASE_URL = "http://localhost:4000";
+    const cfg = loadConfig(dir);
+    expect(cfg.baseURL).toBe("http://localhost:4000");
+  });
+
+  it("ANTHROPIC_BASE_URL is the fallback when MYTHOS_BASE_URL is unset", () => {
+    const dir = tempDir();
+    process.env.ANTHROPIC_BASE_URL = "https://openrouter.ai/api/v1";
+    const cfg = loadConfig(dir);
+    expect(cfg.baseURL).toBe("https://openrouter.ai/api/v1");
+  });
+
+  it("file value wins over env (matches the file-precedence contract for non-secret fields)", () => {
+    const dir = tempDir();
+    fs.writeFileSync(path.join(dir, ".mythos.yml"), "baseURL: https://from-file/v1\n");
+    process.env.MYTHOS_BASE_URL = "https://from-env/v1";
+    process.env.ANTHROPIC_BASE_URL = "https://from-anthropic-env/v1";
+    const cfg = loadConfig(dir);
+    expect(cfg.baseURL).toBe("https://from-file/v1");
+  });
+
+  it("baseURL is undefined by default (zero-config behavior unchanged for non-opting users)", () => {
+    const dir = tempDir();
+    const cfg = loadConfig(dir);
+    expect(cfg.baseURL).toBeUndefined();
   });
 });
 

@@ -78,7 +78,7 @@ export class HypothesisAgent {
     private projectPath: string,
     client?: Anthropic
   ) {
-    this.client = client ?? new Anthropic({ apiKey: config.apiKey });
+    this.client = client ?? new Anthropic({ apiKey: config.apiKey, baseURL: config.baseURL });
   }
 
   async execute(recon: ReconReport): Promise<HypothesisReport> {
