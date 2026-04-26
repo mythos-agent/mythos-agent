@@ -33,7 +33,7 @@ export class ReconAgent {
     private projectPath: string,
     client?: Anthropic
   ) {
-    this.client = client ?? new Anthropic({ apiKey: config.apiKey });
+    this.client = client ?? new Anthropic({ apiKey: config.apiKey, baseURL: config.baseURL });
   }
 
   async execute(): Promise<ReconReport> {

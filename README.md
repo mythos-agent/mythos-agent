@@ -235,14 +235,15 @@ Beyond the scanners above, mythos-agent ships complementary analyses (not counte
 
 ## AI Providers
 
-| Provider | Models | Cost |
-|----------|--------|------|
-| **Anthropic** | Claude Sonnet 4, Claude Opus 4.6 | API pricing |
-| **OpenAI** | GPT-4o, GPT-4o-mini, o1 | API pricing |
-| **Ollama** | Llama, CodeLlama, DeepSeek, Qwen | Free (local) |
-| **LM Studio** | Any GGUF model | Free (local) |
+| Tier | Providers | Status |
+|---|---|---|
+| **1 — Primary** | Anthropic (Claude Sonnet / Opus / Haiku) | Fully tested. Published catch-rate numbers in [`docs/benchmarks/external-scores.md`](docs/benchmarks/external-scores.md) are produced with this tier. |
+| **2 — Compatible (proxy today, native in stage 2)** | Anything OpenAI-compatible — OpenAI, Qwen via DashScope/OpenRouter, Gemini, Mistral, vLLM, Ollama, LM Studio, Bedrock, etc. | Today: route through any Anthropic-compatible proxy (LiteLLM, OpenRouter, Vercel AI Gateway, Bedrock) by setting `baseURL` in `.mythos.yml` or `ANTHROPIC_BASE_URL` env. Native OpenAI SDK support lands in stage 2. |
+| **3 — Local / community** | Local Ollama / LM Studio / vLLM | Same code path as Tier 2; called out separately because privacy and cost-of-zero are the use case. Best-effort; agentic tool-use quality depends on local model size. |
 
 Pattern scanning, secrets, deps, and IaC work without any API key.
+
+See [`docs/multi-model.md`](docs/multi-model.md) for the full tier-system policy + the staged rollout (this README is the summary; that doc is the canonical reference).
 
 ## Comparison
 

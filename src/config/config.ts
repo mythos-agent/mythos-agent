@@ -34,6 +34,7 @@ export function loadConfig(projectPath: string): MythosConfig {
     const fileConfig = yaml.load(raw) as Record<string, unknown>;
     if (fileConfig) {
       if (fileConfig.apiKey) config.apiKey = fileConfig.apiKey as string;
+      if (fileConfig.baseURL) config.baseURL = fileConfig.baseURL as string;
       if (fileConfig.model) config.model = fileConfig.model as string;
       if (fileConfig.provider) config.provider = fileConfig.provider as string;
       if (fileConfig.rules && typeof fileConfig.rules === "object") {
@@ -56,6 +57,19 @@ export function loadConfig(projectPath: string): MythosConfig {
   }
   const envModel = process.env.MYTHOS_MODEL || process.env.SPHINX_MODEL;
   if (envModel) config.model = envModel;
+
+  // Optional base-URL override — lets users route through an Anthropic-
+  // compatible proxy (LiteLLM, OpenRouter, AWS Bedrock with Anthropic
+  // models, Vercel AI Gateway, etc.). MYTHOS_BASE_URL is the explicit
+  // mythos-agent variable; ANTHROPIC_BASE_URL is the upstream fallback
+  // (the @anthropic-ai/sdk also auto-reads it, so this branch is
+  // belt-and-suspenders for callers that depend on config.baseURL).
+  // File-set value takes precedence over env (matches the file-wins
+  // contract used elsewhere in this loader for non-secret fields).
+  if (!config.baseURL) {
+    const envBaseURL = process.env.MYTHOS_BASE_URL || process.env.ANTHROPIC_BASE_URL;
+    if (envBaseURL) config.baseURL = envBaseURL;
+  }
 
   return config;
 }
