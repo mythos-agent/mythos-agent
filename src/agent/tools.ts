@@ -300,9 +300,13 @@ async function executeFindAstPattern(
 
     let source: string;
     try {
-      const stat = fs.statSync(file);
-      if (stat.size > FIND_AST_FILE_SIZE_CAP) continue;
-      source = fs.readFileSync(file, "utf-8");
+      // Single read avoids the stat/read TOCTOU CodeQL flags
+      // (js/file-system-race) and the wasted decode pass when a huge
+      // file would have been skipped anyway. Buffer length is a
+      // strict upper bound on UTF-8 character count.
+      const buf = fs.readFileSync(file);
+      if (buf.length > FIND_AST_FILE_SIZE_CAP) continue;
+      source = buf.toString("utf-8");
     } catch {
       continue;
     }
