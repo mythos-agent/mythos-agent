@@ -64,12 +64,28 @@ export class RedirectHeadersScanner {
 
     for (const file of files) {
       let content: string;
+      // Open the file once, fstat the descriptor, then read from the
+      // same handle so the size check and the read agree on the same
+      // file content (avoids the TOCTOU pattern CodeQL js/file-system-race
+      // flags on stat → read sequences against named paths).
+      let fd: number | null = null;
       try {
-        const stats = fs.statSync(file);
+        fd = fs.openSync(file, "r");
+        const stats = fs.fstatSync(fd);
         if (stats.size > 500_000) continue;
-        content = fs.readFileSync(file, "utf-8");
+        const buf = Buffer.alloc(stats.size);
+        fs.readSync(fd, buf, 0, stats.size, 0);
+        content = buf.toString("utf-8");
       } catch {
         continue;
+      } finally {
+        if (fd !== null) {
+          try {
+            fs.closeSync(fd);
+          } catch {
+            // ignore: descriptor may already be closed if openSync failed
+          }
+        }
       }
 
       const lines = content.split("\n");
