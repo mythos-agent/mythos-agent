@@ -76,22 +76,22 @@ export async function completionCommand(options: CompletionOptions) {
 
 function generateBash(commands: string[]): string {
   return `# mythos-agent bash completion
-_sphinx_agent() {
+_mythos_agent() {
   local cur=\${COMP_WORDS[COMP_CWORD]}
   COMPREPLY=( $(compgen -W "${commands.join(" ")}" -- "$cur") )
 }
-complete -F _sphinx_agent mythos-agent
-complete -F _sphinx_agent npx\\ mythos-agent`;
+complete -F _mythos_agent mythos-agent
+complete -F _mythos_agent npx\\ mythos-agent`;
 }
 
 function generateZsh(commands: string[]): string {
   return `# mythos-agent zsh completion
-_sphinx_agent() {
+_mythos_agent() {
   local -a commands
   commands=(${commands.map((c) => `'${c}'`).join(" ")})
   _describe 'command' commands
 }
-compdef _sphinx_agent mythos-agent`;
+compdef _mythos_agent mythos-agent`;
 }
 
 function generateFish(commands: string[]): string {
