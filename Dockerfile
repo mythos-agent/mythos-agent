@@ -9,9 +9,9 @@ RUN npm run build
 
 FROM node:22-slim
 
-LABEL org.opencontainers.image.title="sphinx-agent"
-LABEL org.opencontainers.image.description="AI security agent — open-source Mythos for everyone"
-LABEL org.opencontainers.image.source="https://github.com/sphinx-agent/sphinx-agent"
+LABEL org.opencontainers.image.title="mythos-agent"
+LABEL org.opencontainers.image.description="Open-source AI code-review assistant for application security"
+LABEL org.opencontainers.image.source="https://github.com/mythos-agent/mythos-agent"
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     git \
@@ -29,8 +29,8 @@ COPY --from=builder /app/node_modules node_modules/
 COPY package.json ./
 
 # Create non-root user
-RUN groupadd -r sphinx && useradd -r -g sphinx sphinx
-USER sphinx
+RUN groupadd -r mythos && useradd -r -g mythos mythos
+USER mythos
 
 ENV NODE_ENV=production
 
