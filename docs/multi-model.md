@@ -63,13 +63,31 @@ The catch is that "supports N providers" without acknowledging quality different
 
 **Quality caveat.** Tool-use protocol translation (Anthropic `tool_use` blocks → OpenAI `tool_calls` → back) introduces edge cases. Some hunt runs through a proxy may degrade vs. native Tier 1; track findings via the CVE Replay scoreboard (which currently runs Tier 1 only).
 
-## Stage 2: native OpenAI SDK code path (planned)
+## Stage 2: native OpenAI SDK code path (in progress)
 
-**Trigger to start:** stage 1 ships AND the user has verified Qwen-via-LiteLLM-proxy works for at least one hunt run.
+**Trigger satisfied 2026-04-26:** Qwen-via-LiteLLM-proxy verified working end-to-end on `demo-vulnerable-app/` (10 entry points correctly identified, 34 findings produced, 6 chains, 8 PoCs, ~3 min runtime). Stage 2 is in progress; tracked in issue #43.
 
-**What it will ship.** When `provider === "openai"` (or any non-`"anthropic"` value), instantiate the OpenAI SDK directly with `baseURL` + `apiKey` + `model` from config. No LiteLLM dependency. Translates the four agents' tool-use loop from Anthropic's `tool_use` blocks to OpenAI's `tool_calls` format. Tested against Qwen 3.6 Plus + gpt-4o.
+**Sub-PR sequence:**
 
-**Why a trigger and not "now":** stage 2's design depends on what stage 1 reveals. If most users are happy with Anthropic-via-LiteLLM-proxy (because it Just Works with the existing prompt tuning), stage 2's effort is wasted. If users hit proxy-translation bugs, stage 2's design needs to address them specifically. Build the bridge after the river is mapped.
+- [x] **2a — `LLMClient` abstraction interface + AnthropicClient adapter.** Refactor only, zero behavior change. `src/llm/llm-client.ts` + `src/llm/anthropic-client.ts`. Migrates `src/agent/analyzer.ts` to use the abstraction. (Shipped alongside 2b/2c-partial in the proof-of-pattern PR.)
+- [x] **2b — OpenAIClient adapter implementing the same interface.** `src/llm/openai-client.ts`. Translates the 5 differences (system message, content blocks, tool defs, tool-result threading, stop reasons). Unit tests with mocked OpenAI responses cover the translation matrix.
+- [x] **2c (partial) — wired into `analyzer.ts` only.** `recon-agent.ts`, `hypothesis-agent.ts`, `exploit-agent.ts` still construct `Anthropic` directly; their migration follows in subsequent PRs (one per agent or bundled).
+- [ ] **2c (rest) — wire into the remaining 3 agents.** Same pattern as analyzer.ts.
+- [ ] **2d — update this doc to mark stage 2 fully shipped.** Stage 3 trigger fires once 2c is complete and at least one Tier 2 catch rate is measured.
+
+**Configuration:** when `provider !== "anthropic"` in `MythosConfig`, the factory `createLLMClient(config)` returns an `OpenAILLMClient` instead of `AnthropicLLMClient`. Example:
+
+```yaml
+# .mythos.yml — Qwen via DashScope's OpenAI-compatible endpoint
+provider: openai
+apiKey: <dashscope-key>
+baseURL: https://dashscope.aliyuncs.com/compatible-mode/v1
+model: qwen-plus
+```
+
+No LiteLLM in the loop. The translation happens inside `OpenAILLMClient` between the agent layer's Anthropic-shaped requests and the OpenAI SDK.
+
+**Live verification.** Unit tests cover the translation logic with mocked responses (`src/llm/__tests__/openai-client.test.ts`, 25 tests). Live verification requires a real Tier 2 provider key; no live API in CI. Recommended sequence after each sub-PR lands: set `provider: openai` + `baseURL` + `apiKey` + `model`, run `npx mythos-agent@latest hunt ./demo-vulnerable-app --json`, confirm all 4 phases complete and entry-point recon is non-empty, compare to a Tier 1 (Anthropic) run for catch-rate sanity.
 
 ## Stage 3: cross-provider scoreboard + tier docs (planned)
 
