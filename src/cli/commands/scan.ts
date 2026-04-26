@@ -76,6 +76,11 @@ const PHASE_DISPLAY: Record<PhaseId, { prefix: string; label: string; findingNou
     label: "ReDoS Scan",
     findingNoun: "ReDoS-vulnerable regex patterns",
   },
+  "redirect-headers": {
+    prefix: "Phase 1p",
+    label: "Redirect Header Strip",
+    findingNoun: "redirect-header credential-leak risks",
+  },
   "external-tools": {
     prefix: "Phase 1x",
     label: "External Tools",

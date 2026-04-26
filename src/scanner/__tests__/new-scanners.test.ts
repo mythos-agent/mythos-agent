@@ -10,6 +10,7 @@ import { CryptoScanner } from "../crypto-scanner.js";
 import { PrivacyScanner } from "../privacy-scanner.js";
 import { RaceConditionScanner } from "../race-condition-scanner.js";
 import { RedosScanner } from "../redos-scanner.js";
+import { RedirectHeadersScanner } from "../redirect-headers-scanner.js";
 import { ErrorHandlingScanner } from "../error-handling-scanner.js";
 import { ZeroTrustScanner } from "../zero-trust-scanner.js";
 
@@ -246,6 +247,60 @@ const sql = \`SELECT * FROM t WHERE id = \${id}  AND \${cond}\`;`,
     const scanner = new RedosScanner();
     const { findings } = await scanner.scan(dir);
     expect(findings.some((f) => f.rule.includes("redos"))).toBe(false);
+    cleanup(dir);
+  });
+});
+
+describe("RedirectHeadersScanner", () => {
+  it("flags regex stripping authorization|cookie but not proxy-authorization in redirect handling (CVE-2024-28849 class)", async () => {
+    // Mirrors the follow-redirects vulnerable shape: a regex used by
+    // redirect logic strips authorization/cookie but omits
+    // proxy-authorization, so proxy creds leak across hosts.
+    const dir = createFixture({
+      "lib/redirect.js": `function followRedirect(response) {
+  var location = response.headers.location;
+  if (!location) return;
+  // Drop confidential headers when redirecting to a different domain
+  removeMatchingHeaders(/^(?:authorization|cookie)$/i, this._options.headers);
+  this._options.location = location;
+}`,
+    });
+    const scanner = new RedirectHeadersScanner();
+    const { findings } = await scanner.scan(dir);
+    expect(findings.some((f) => f.rule.includes("incomplete-redirect-header-strip"))).toBe(true);
+    cleanup(dir);
+  });
+
+  it("does not flag a regex that already lists proxy-authorization", async () => {
+    // Post-fix shape: proxy-authorization is in the strip list, so
+    // the bug is patched and the scanner should stay quiet.
+    const dir = createFixture({
+      "lib/redirect.js": `function followRedirect(response) {
+  var location = response.headers.location;
+  if (!location) return;
+  removeMatchingHeaders(/^(?:authorization|cookie|proxy-authorization)$/i, this._options.headers);
+}`,
+    });
+    const scanner = new RedirectHeadersScanner();
+    const { findings } = await scanner.scan(dir);
+    expect(findings.length).toBe(0);
+    cleanup(dir);
+  });
+
+  it("does not flag an authorization regex outside redirect context", async () => {
+    // A generic auth-header validator (no redirect / location nearby)
+    // is not in scope — the scanner must require the redirect-context
+    // gate. Otherwise every middleware in the world false-positives.
+    const dir = createFixture({
+      "lib/auth.js": `function validateHeaders(req) {
+  if (!/authorization/i.test(req.headers)) {
+    throw new Error("missing auth");
+  }
+}`,
+    });
+    const scanner = new RedirectHeadersScanner();
+    const { findings } = await scanner.scan(dir);
+    expect(findings.length).toBe(0);
     cleanup(dir);
   });
 });

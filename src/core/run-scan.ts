@@ -15,6 +15,7 @@ import { CryptoScanner } from "../scanner/crypto-scanner.js";
 import { PrivacyScanner } from "../scanner/privacy-scanner.js";
 import { RaceConditionScanner } from "../scanner/race-condition-scanner.js";
 import { RedosScanner } from "../scanner/redos-scanner.js";
+import { RedirectHeadersScanner } from "../scanner/redirect-headers-scanner.js";
 import { runAllTools } from "../tools/index.js";
 import type { Vulnerability } from "../types/index.js";
 
@@ -49,6 +50,7 @@ export interface RunScanOptions {
   privacy?: boolean;
   raceConditions?: boolean;
   redos?: boolean;
+  redirectHeaders?: boolean;
 
   // External tools (Semgrep, Gitleaks, Trivy, Checkov, Nuclei) default OFF
   // because their availability is environment-dependent — CLI's default
@@ -92,6 +94,7 @@ export type PhaseId =
   | "privacy"
   | "race-conditions"
   | "redos"
+  | "redirect-headers"
   | "external-tools";
 
 export interface RunScanOutput {
@@ -302,6 +305,14 @@ export async function runScan(
     deterministicFindings.push(
       ...(await runPhase("redos", "ReDoS Scan", opts.onPhase, () =>
         new RedosScanner().scan(projectPath)
+      ))
+    );
+  }
+
+  if (on(opts.redirectHeaders)) {
+    deterministicFindings.push(
+      ...(await runPhase("redirect-headers", "Redirect Header Strip", opts.onPhase, () =>
+        new RedirectHeadersScanner().scan(projectPath)
       ))
     );
   }
