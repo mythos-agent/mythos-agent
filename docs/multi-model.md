@@ -71,9 +71,10 @@ The catch is that "supports N providers" without acknowledging quality different
 
 - [x] **2a — `LLMClient` abstraction interface + AnthropicClient adapter.** Refactor only, zero behavior change. `src/llm/llm-client.ts` + `src/llm/anthropic-client.ts`. Migrates `src/agent/analyzer.ts` to use the abstraction. (Shipped alongside 2b/2c-partial in the proof-of-pattern PR.)
 - [x] **2b — OpenAIClient adapter implementing the same interface.** `src/llm/openai-client.ts`. Translates the 5 differences (system message, content blocks, tool defs, tool-result threading, stop reasons). Unit tests with mocked OpenAI responses cover the translation matrix.
-- [x] **2c (partial) — wired into `analyzer.ts` only.** `recon-agent.ts`, `hypothesis-agent.ts`, `exploit-agent.ts` still construct `Anthropic` directly; their migration follows in subsequent PRs (one per agent or bundled).
-- [ ] **2c (rest) — wire into the remaining 3 agents.** Same pattern as analyzer.ts.
-- [ ] **2d — update this doc to mark stage 2 fully shipped.** Stage 3 trigger fires once 2c is complete and at least one Tier 2 catch rate is measured.
+- [x] **2c — wire into all 4 agents.** `analyzer.ts` (initial proof-of-pattern PR), then `recon-agent.ts`, `hypothesis-agent.ts`, `exploit-agent.ts` (bundled follow-up PR). All 4 now use `createLLMClient(config)` via the factory.
+- [x] **2d — this doc updated to mark stage 2 shipped.** Stage 3 trigger fires once at least one Tier 2 catch rate is measured.
+
+**Stage 2 status: SHIPPED.** A user setting `provider: openai` in `.mythos.yml` (or `MYTHOS_PROVIDER` env equivalent) now gets the full hunt pipeline running through the OpenAI SDK against any OpenAI-compatible endpoint, with no LiteLLM dependency. Native, end-to-end, all 4 agents.
 
 **Configuration:** when `provider !== "anthropic"` in `MythosConfig`, the factory `createLLMClient(config)` returns an `OpenAILLMClient` instead of `AnthropicLLMClient`. Example:
 
