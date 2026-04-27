@@ -31,26 +31,45 @@ semver CVE-2022-25883 and follow-redirects CVE-2024-28849):
 ## Cost
 
 This harness performs **paid LLM calls**. Each case is one full
-variant-analyzer loop (capped at 20 turns). Empirically that's **\$0.50–\$2
-per case** with Claude Sonnet 4.6 — see
+variant-analyzer loop (capped at 20 turns).
+
+| Provider                           | Per-case cost | 2-case run |
+| ---------------------------------- | ------------- | ---------- |
+| Anthropic (Claude Sonnet 4.6)      | \$0.50–\$2    | \$1–\$4    |
+| Qwen via DashScope (`qwen-plus`)   | \$0.05–\$0.30 | \$0.10–\$0.60 |
+
+Numbers above are derived from the prior data in
 [`docs/research/2026-04-26-variant-hunt-experiment.md`](../../docs/research/2026-04-26-variant-hunt-experiment.md)
-for the prior order-of-magnitude data. With 2 calibration cases, expect
-**\$1–\$4 per full run**.
+(8-run experiment cost ~\$5–\$7 across both providers). Treat them as
+order-of-magnitude estimates; actual cost depends on how many tool turns
+the agent spends per case.
 
 ## How to run
 
 ```sh
-# Anthropic (default)
+# Anthropic (default — claude-sonnet-4-6)
 ANTHROPIC_API_KEY=sk-ant-... npm run benchmark:variants-calibration
 
-# A single case, OpenAI-compat backend
+# OpenAI / OpenRouter / vLLM / LM Studio (any OpenAI-compatible endpoint)
 OPENAI_API_KEY=sk-... npm run benchmark:variants-calibration -- \
-  --case GHSA-c2qf-rxjj-qqgw --provider openai --model gpt-4o
+  --provider openai --model gpt-4o
 
-# Force a stable results subdir name (instead of an ISO timestamp)
+# Qwen via Alibaba DashScope (Tier 2 path from docs/multi-model.md).
+# Roughly an order of magnitude cheaper than Claude per the multi-model
+# doc; per-case runs land in the ~$0.10–$0.50 range.
+DASHSCOPE_API_KEY=sk-... npm run benchmark:variants-calibration -- \
+  --provider openai --model qwen-plus \
+  --base-url https://dashscope.aliyuncs.com/compatible-mode/v1
+
+# A single case, stable results subdir name
 ANTHROPIC_API_KEY=sk-ant-... npm run benchmark:variants-calibration -- \
+  --case GHSA-c2qf-rxjj-qqgw \
   --results-subdir 2026-04-26-claude-sonnet-4-6
 ```
+
+`--base-url` can also be set via `MYTHOS_BASE_URL` or `OPENAI_BASE_URL`
+env vars when shelling out from a script. `--help` prints the full
+flag/env reference.
 
 The first run clones the upstream repos; subsequent runs reuse the clones
 and just re-fetch the vulnerable commit if needed.
