@@ -91,7 +91,12 @@ export interface MythosConfig {
 export type SphinxConfig = MythosConfig;
 
 export const DEFAULT_CONFIG: MythosConfig = {
-  model: "claude-sonnet-4-20250514",
+  // claude-sonnet-4-20250514 is the legacy Sonnet 4.0 ID — deprecated by
+  // Anthropic and scheduled for retirement on 2026-06-15. Calling it
+  // already 404s in some routing tiers, so the default ships against the
+  // current Sonnet 4.6 alias. Multi-model factory (createLLMClient) lets
+  // any caller override via .mythos.yml or the --model CLI flag.
+  model: "claude-sonnet-4-6",
   provider: "anthropic",
   rules: {
     enabled: ["*"],
