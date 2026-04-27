@@ -1,3 +1,4 @@
+import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { Parser, Language } from "web-tree-sitter";
@@ -24,15 +25,61 @@ import { Parser, Language } from "web-tree-sitter";
  *    no scenario where two parts of the codebase want different
  *    grammar bundles in the same process.
  *
+ * Grammar-directory resolution (see `findGrammarsDir` below):
+ *  - The naive `path.resolve(__dirname, "../../../assets/grammars")`
+ *    works when the module is at `src/analysis/ast-matcher/parser.ts`
+ *    or `dist/analysis/ast-matcher/parser.js` — both layouts have the
+ *    same depth from `assets/grammars` at the repo root. It DOES NOT
+ *    work when the module is compiled to `dist-benchmarks/src/...`
+ *    (the benchmark tsconfig preserves the `src/` prefix), where the
+ *    fixed hop count lands on `dist-benchmarks/assets/grammars/`,
+ *    which doesn't exist.
+ *  - This silent miss surfaced in the A3b calibration runs as the
+ *    agent reporting *"The AST engine has file access issues"* and
+ *    falling back to regex search — defeating the whole point of
+ *    sub-PR A2. Walking up looking for `assets/grammars` in a parent
+ *    is robust to any compiled layout that keeps the bundle a peer
+ *    or descendant of the repo root.
+ *
  * Test ergonomics: `resetParserForTesting()` lets tests reset the
  * cached state between cases when they need to verify init/load
  * behavior. Production code never calls it.
  */
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const GRAMMARS_DIR = path.resolve(__dirname, "../../../assets/grammars");
-
 export type SupportedLanguage = "javascript" | "typescript";
+
+/**
+ * Walk up from `start` looking for an `assets/grammars` directory.
+ * Returns the first one found. Throws if none exists by the time we
+ * hit the filesystem root — callers convert that into the user-facing
+ * "wasm files weren't bundled" error inside `loadLanguage`, where it
+ * has the language id as additional context.
+ *
+ * Exported for direct testing — verifying the walk-up against synthetic
+ * directory layouts is much cleaner than mocking `import.meta.url`.
+ */
+export function findGrammarsDir(start: string): string {
+  let dir = start;
+  while (dir !== path.dirname(dir)) {
+    const candidate = path.join(dir, "assets", "grammars");
+    if (fs.existsSync(candidate)) return candidate;
+    dir = path.dirname(dir);
+  }
+  throw new Error(
+    `Could not locate assets/grammars/ walking up from ${start}. ` +
+      `Tree-sitter grammar wasm files must be reachable from a parent ` +
+      `directory of the parser module — see assets/grammars/README.md ` +
+      `in the mythos-agent repo for the expected layout.`
+  );
+}
+
+let cachedGrammarsDir: string | null = null;
+function getGrammarsDir(): string {
+  if (cachedGrammarsDir === null) {
+    cachedGrammarsDir = findGrammarsDir(path.dirname(fileURLToPath(import.meta.url)));
+  }
+  return cachedGrammarsDir;
+}
 
 const GRAMMAR_FILES: Record<SupportedLanguage, string> = {
   javascript: "tree-sitter-javascript.wasm",
@@ -52,7 +99,7 @@ async function loadLanguage(language: SupportedLanguage): Promise<Language> {
   if (cached) return cached;
   const promise = (async () => {
     await ensureInit();
-    const grammarPath = path.join(GRAMMARS_DIR, GRAMMAR_FILES[language]);
+    const grammarPath = path.join(getGrammarsDir(), GRAMMAR_FILES[language]);
     return Language.load(grammarPath);
   })();
   languageCache.set(language, promise);
@@ -101,12 +148,13 @@ export function inferLanguage(filePath: string): SupportedLanguage | null {
 }
 
 /**
- * Test-only: clear the init promise and language cache. Production
- * code never calls this. Tests use it to verify cold-start behavior
- * or to recover from a `Language.load` rejection without polluting
- * subsequent test cases.
+ * Test-only: clear the init promise, language cache, and resolved
+ * grammars directory. Production code never calls this. Tests use it
+ * to verify cold-start behavior or to recover from a `Language.load`
+ * rejection without polluting subsequent test cases.
  */
 export function resetParserForTesting(): void {
   initPromise = null;
   languageCache.clear();
+  cachedGrammarsDir = null;
 }
