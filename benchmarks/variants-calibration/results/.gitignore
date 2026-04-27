@@ -1,0 +1,6 @@
+# Per-run result JSONs land here. Each run lives in its own
+# timestamped subdirectory (or one named via --results-subdir). They
+# are not committed by default since they're an experiment artifact;
+# notable runs should be summarized in docs/research/ instead.
+*
+!.gitignore

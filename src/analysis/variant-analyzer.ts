@@ -164,7 +164,15 @@ Output JSON with the same format as variant analysis.`,
     return results;
   }
 
-  private async searchForVariants(cveInfo: CveInfo): Promise<VariantMatch[]> {
+  /**
+   * Run the variant-search agent loop for an externally-supplied
+   * `CveInfo` instead of fetching one via OSV/NVD. Used by the A3b
+   * calibration harness (see `src/analysis/calibration/agent-runner.ts`)
+   * which builds a richer `CveInfo` from A1's seed `RootCausePattern`
+   * and bypasses the network round-trip. Equivalent to
+   * `findVariants(cveId)` minus step 1.
+   */
+  async searchForVariants(cveInfo: CveInfo): Promise<VariantMatch[]> {
     const tools = createAgentTools(this.projectPath);
 
     const prompt = `Find variants of this vulnerability in the target codebase:
