@@ -74,6 +74,51 @@ flag/env reference.
 The first run clones the upstream repos; subsequent runs reuse the clones
 and just re-fetch the vulnerable commit if needed.
 
+## Diagnosing a 0-variants result with `--log-turns`
+
+When a case completes with `matched: false, variantsFound: 0`, the result
+JSON alone can't tell you whether the agent **reached for the seeded AST
+pattern** (`find_ast_pattern`) and missed, or **never used it at all**
+(stayed on regex `search_code`). That distinction matters for the kill
+criterion: only the first is a real test of the structured-root-cause
+design.
+
+Pass `--log-turns` to write a per-turn JSONL log alongside each result:
+
+```sh
+ANTHROPIC_API_KEY=sk-ant-... npm run benchmark:variants-calibration -- --log-turns
+# results/<run-id>/
+#   GHSA-c2qf-rxjj-qqgw.json        ← outcome (matched, variants, target)
+#   GHSA-c2qf-rxjj-qqgw.turns.jsonl ← per-turn diagnostics (NEW)
+```
+
+Each line is one `messages.create` round-trip:
+
+```jsonl
+{"turn":1,"timestamp":"...","durationMs":4321,"stopReason":"tool_use",
+ "toolCalls":[{"name":"find_ast_pattern","input":{"kind":"regex"}}],
+ "textPreview":"I'll search for regex literals filtering headers...",
+ "usage":{"inputTokens":1247,"outputTokens":89}}
+{"turn":2,...}
+```
+
+Quick analysis recipes:
+
+```sh
+# Did the agent ever call find_ast_pattern?
+jq -r '.toolCalls[].name' GHSA-cxjh-pqwp-8mfp.turns.jsonl | sort | uniq -c
+
+# Total token spend per turn over a run:
+jq -r '[.turn, .usage.inputTokens, .usage.outputTokens] | @tsv' *.turns.jsonl
+```
+
+The log captures stop reason, tool calls (name + input), a 400-char text
+preview, and token usage. **It never contains your API key** — the wrapper
+sits at the LLMClient interface boundary, where credentials are not
+visible. Long tool inputs are truncated with an explicit `__truncated`
+marker so a reader can tell "model emitted exactly this" from "we
+shortened this on the way out."
+
 ## What "matched" means
 
 A case is matched when the agent returns at least one variant whose `file`

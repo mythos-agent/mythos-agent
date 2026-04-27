@@ -39,6 +39,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { execFileSync } from "node:child_process";
 import { runAgentCalibration } from "../../src/analysis/calibration/agent-runner.js";
+import type { TurnRecord } from "../../src/analysis/calibration/logging-client.js";
 import type { CalibrationCaseFile } from "../../src/analysis/calibration/types.js";
 import { DEFAULT_CONFIG, type MythosConfig } from "../../src/types/index.js";
 
@@ -64,11 +65,12 @@ interface CliOptions {
   model?: string;
   baseUrl?: string;
   resultsSubdir?: string;
+  logTurns: boolean;
   json: boolean;
 }
 
 function parseArgs(argv: string[]): CliOptions {
-  const opts: CliOptions = { provider: "anthropic", json: false };
+  const opts: CliOptions = { provider: "anthropic", logTurns: false, json: false };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
     if (a === "--case") opts.caseFilter = argv[++i];
@@ -76,10 +78,18 @@ function parseArgs(argv: string[]): CliOptions {
     else if (a === "--model") opts.model = argv[++i];
     else if (a === "--base-url") opts.baseUrl = argv[++i];
     else if (a === "--results-subdir") opts.resultsSubdir = argv[++i];
+    else if (a === "--log-turns") opts.logTurns = true;
     else if (a === "--json") opts.json = true;
     else if (a === "--help" || a === "-h") {
       console.log(
-        `Usage: variants-calibration [--case GHSA-xxxx] [--provider anthropic|openai|...] [--model NAME] [--base-url URL] [--results-subdir DIR] [--json]\n\n` +
+        `Usage: variants-calibration [--case GHSA-xxxx] [--provider anthropic|openai|...] [--model NAME] [--base-url URL] [--results-subdir DIR] [--log-turns] [--json]\n\n` +
+          `Diagnostic flags:\n` +
+          `  --log-turns   Write per-turn JSONL log (<ghsa>.turns.jsonl) alongside\n` +
+          `                each result. Captures stop reason, tool calls (name +\n` +
+          `                input), text preview, and token usage — useful for\n` +
+          `                diagnosing 0-variants outcomes (did the agent reach\n` +
+          `                for find_ast_pattern, or stay on regex search?). The\n` +
+          `                log never contains your API key.\n\n` +
           `Env-var fallbacks for credentials:\n` +
           `  ANTHROPIC_API_KEY  (default provider)\n` +
           `  OPENAI_API_KEY     (provider: openai / openrouter / vllm / lmstudio)\n` +
@@ -231,7 +241,31 @@ async function main(): Promise<void> {
       continue;
     }
 
-    const result = await runAgentCalibration(c, { projectPath: repoPath, config });
+    let turnLogStream: fs.WriteStream | undefined;
+    let onTurn: ((record: TurnRecord) => void) | undefined;
+    if (opts.logTurns) {
+      const turnLogPath = path.join(resultsPath, `${c.ghsa_id}.turns.jsonl`);
+      // `flags: "a"` is defensive — the per-case loop runs sequentially
+      // with a fresh path per case, but appending matches user
+      // expectations if --log-turns is somehow re-used on the same
+      // results dir (e.g. a manual re-run with --results-subdir).
+      turnLogStream = fs.createWriteStream(turnLogPath, { flags: "a" });
+      onTurn = (record): void => {
+        turnLogStream!.write(`${JSON.stringify(record)}\n`);
+      };
+    }
+
+    const result = await runAgentCalibration(c, {
+      projectPath: repoPath,
+      config,
+      onTurn,
+    });
+
+    if (turnLogStream) {
+      // Close before writing the result JSON so the JSONL is
+      // guaranteed flushed by the time the per-case files appear.
+      await new Promise<void>((resolve) => turnLogStream!.end(resolve));
+    }
 
     const outPath = path.join(resultsPath, `${c.ghsa_id}.json`);
     fs.writeFileSync(outPath, JSON.stringify(result, null, 2));

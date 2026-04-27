@@ -5,4 +5,5 @@ export {
   type AgentCalibrationOptions,
   type AgentCalibrationResult,
 } from "./agent-runner.js";
+export { wrapLLMClientWithLogging, type TurnRecord } from "./logging-client.js";
 export type { CalibrationCaseFile, CalibrationResult } from "./types.js";

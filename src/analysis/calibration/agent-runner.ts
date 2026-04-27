@@ -1,10 +1,11 @@
 import type Anthropic from "@anthropic-ai/sdk";
-import type { LLMClient } from "../../llm/index.js";
+import { type LLMClient, createLLMClient } from "../../llm/index.js";
 import type { MythosConfig } from "../../types/index.js";
 import { VariantAnalyzer, type CveInfo, type VariantMatch } from "../variant-analyzer.js";
 import { getSeedPattern } from "../root-cause/seed-patterns.js";
 import type { RootCausePattern } from "../root-cause/types.js";
 import type { CalibrationCaseFile } from "./types.js";
+import { wrapLLMClientWithLogging, type TurnRecord } from "./logging-client.js";
 
 /**
  * Sub-PR A3b of variants v2 — the *agent-driven* calibration runner.
@@ -49,6 +50,16 @@ export interface AgentCalibrationOptions {
   config: MythosConfig;
   /** Inject a pre-built LLM client; tests use a scriptable mock. */
   client?: LLMClient | Anthropic;
+  /**
+   * Optional per-turn diagnostic logger. When set, the LLM client is
+   * wrapped (see `logging-client.ts`) and `onTurn` fires after every
+   * `messages.create` round-trip with the stop reason, tool calls,
+   * text preview, and usage. The CLI harness uses this to write
+   * `<ghsa>.turns.jsonl` alongside each result, so a 0-variants
+   * outcome can be diagnosed (did the agent reach for
+   * `find_ast_pattern`?) without re-running.
+   */
+  onTurn?: (record: TurnRecord) => void;
 }
 
 export interface AgentCalibrationResult {
@@ -152,7 +163,18 @@ export async function runAgentCalibration(
   }
 
   const cveInfo = buildCveInfoFromSeed(caseFile, seed);
-  const analyzer = new VariantAnalyzer(opts.config, opts.projectPath, opts.client);
+
+  // Resolve the client here (rather than inside VariantAnalyzer) so we
+  // can wrap it with the per-turn logger when `onTurn` is set. Without
+  // resolution at this layer, `wrapLLMClientWithLogging` would not see
+  // a constructed client to delegate to.
+  let resolvedClient: LLMClient | Anthropic | undefined = opts.client;
+  if (opts.onTurn) {
+    const base = (resolvedClient as LLMClient | undefined) ?? createLLMClient(opts.config);
+    resolvedClient = wrapLLMClientWithLogging(base, opts.onTurn);
+  }
+
+  const analyzer = new VariantAnalyzer(opts.config, opts.projectPath, resolvedClient);
 
   let variants: VariantMatch[];
   try {
