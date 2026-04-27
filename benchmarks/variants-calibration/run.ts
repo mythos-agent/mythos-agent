@@ -62,6 +62,7 @@ interface CliOptions {
   caseFilter?: string;
   provider: string;
   model?: string;
+  baseUrl?: string;
   resultsSubdir?: string;
   json: boolean;
 }
@@ -73,11 +74,22 @@ function parseArgs(argv: string[]): CliOptions {
     if (a === "--case") opts.caseFilter = argv[++i];
     else if (a === "--provider") opts.provider = argv[++i];
     else if (a === "--model") opts.model = argv[++i];
+    else if (a === "--base-url") opts.baseUrl = argv[++i];
     else if (a === "--results-subdir") opts.resultsSubdir = argv[++i];
     else if (a === "--json") opts.json = true;
     else if (a === "--help" || a === "-h") {
       console.log(
-        `Usage: variants-calibration [--case GHSA-xxxx] [--provider anthropic|openai|...] [--model NAME] [--results-subdir DIR] [--json]`
+        `Usage: variants-calibration [--case GHSA-xxxx] [--provider anthropic|openai|...] [--model NAME] [--base-url URL] [--results-subdir DIR] [--json]\n\n` +
+          `Env-var fallbacks for credentials:\n` +
+          `  ANTHROPIC_API_KEY  (default provider)\n` +
+          `  OPENAI_API_KEY     (provider: openai / openrouter / vllm / lmstudio)\n` +
+          `  DASHSCOPE_API_KEY  (Qwen via Alibaba DashScope OpenAI-compat endpoint)\n` +
+          `  MYTHOS_BASE_URL    (overrides --base-url; useful when shelling out)\n\n` +
+          `Examples:\n` +
+          `  ANTHROPIC_API_KEY=sk-ant-... npm run benchmark:variants-calibration\n` +
+          `  DASHSCOPE_API_KEY=sk-... npm run benchmark:variants-calibration -- \\\n` +
+          `    --provider openai --model qwen-plus \\\n` +
+          `    --base-url https://dashscope.aliyuncs.com/compatible-mode/v1`
       );
       process.exit(0);
     }
@@ -143,10 +155,29 @@ function checkout(repoPath: string, sha: string): void {
 function buildConfig(opts: CliOptions): MythosConfig {
   const config: MythosConfig = { ...DEFAULT_CONFIG, provider: opts.provider };
   if (opts.model) config.model = opts.model;
-  // The factory in src/llm/index.ts picks the correct env var based
-  // on provider; we just set whichever API key the user supplied so
-  // the analyzer's createLLMClient call gets a usable credential.
-  config.apiKey = process.env.ANTHROPIC_API_KEY || process.env.OPENAI_API_KEY;
+
+  // API key resolution:
+  //  - Anthropic provider (default) → ANTHROPIC_API_KEY
+  //  - Anything else → OPENAI_API_KEY first (canonical), then
+  //    DASHSCOPE_API_KEY (Qwen), then ANTHROPIC_API_KEY as a last
+  //    resort for users who proxy DashScope through LiteLLM keyed by
+  //    the Anthropic env name (the Tier-1 path documented in
+  //    docs/multi-model.md § "LiteLLM proxying to Qwen").
+  config.apiKey =
+    opts.provider === "anthropic"
+      ? process.env.ANTHROPIC_API_KEY
+      : process.env.OPENAI_API_KEY ||
+        process.env.DASHSCOPE_API_KEY ||
+        process.env.ANTHROPIC_API_KEY;
+
+  // Base URL resolution: explicit --base-url wins, else MYTHOS_BASE_URL
+  // env (matches the wider mythos config naming), else OPENAI_BASE_URL
+  // (pyhon/openai-sdk compatible env), else undefined (let the adapter
+  // pick its default for the provider). Required for Qwen/DashScope,
+  // OpenRouter, vLLM, etc. — anywhere the OpenAI adapter needs to point
+  // at a non-api.openai.com endpoint.
+  config.baseURL =
+    opts.baseUrl || process.env.MYTHOS_BASE_URL || process.env.OPENAI_BASE_URL;
   return config;
 }
 
@@ -156,9 +187,13 @@ async function main(): Promise<void> {
     if (!opts.json) console.error(s);
   };
 
-  if (!process.env.ANTHROPIC_API_KEY && !process.env.OPENAI_API_KEY) {
+  if (
+    !process.env.ANTHROPIC_API_KEY &&
+    !process.env.OPENAI_API_KEY &&
+    !process.env.DASHSCOPE_API_KEY
+  ) {
     console.error(
-      "Error: set ANTHROPIC_API_KEY or OPENAI_API_KEY before running this harness."
+      "Error: set ANTHROPIC_API_KEY, OPENAI_API_KEY, or DASHSCOPE_API_KEY before running this harness. See --help for examples."
     );
     process.exit(2);
   }
@@ -217,7 +252,22 @@ async function main(): Promise<void> {
   }
 
   const summaryPath = path.join(resultsPath, "summary.json");
-  fs.writeFileSync(summaryPath, JSON.stringify({ runAt: new Date().toISOString(), config: { provider: config.provider, model: config.model }, results: summary }, null, 2));
+  fs.writeFileSync(
+    summaryPath,
+    JSON.stringify(
+      {
+        runAt: new Date().toISOString(),
+        config: {
+          provider: config.provider,
+          model: config.model,
+          baseURL: config.baseURL,
+        },
+        results: summary,
+      },
+      null,
+      2
+    )
+  );
 
   if (opts.json) {
     process.stdout.write(JSON.stringify(summary, null, 2) + "\n");
