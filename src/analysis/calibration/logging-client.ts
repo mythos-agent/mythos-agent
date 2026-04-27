@@ -55,7 +55,25 @@ export interface TurnRecord {
   error?: string;
 }
 
+/**
+ * Per-turn text preview cap for intermediate (tool-use) turns. Most
+ * intermediate text is short — the agent's "I'll check this next"
+ * narration — so 400 chars is plenty and keeps the JSONL log compact.
+ */
 const TEXT_PREVIEW_CAP = 400;
+
+/**
+ * End-turn (final-response) text cap. The variant-analyzer's final
+ * answer is the actual variants payload — capping it at 400 chars
+ * was the bug that made the A3b-post-fix run impossible to diagnose:
+ * we couldn't see whether the model emitted JSON, markdown, or prose
+ * because the preview ended before the variants block.
+ *
+ * 64KB is generous (a typical final response is 4-8KB) but bounded so
+ * a runaway response can't blow up the log.
+ */
+const FINAL_TEXT_CAP = 64 * 1024;
+
 const TOOL_INPUT_PREVIEW_CAP = 1024;
 
 function truncate(s: string, cap: number): string {
@@ -114,6 +132,10 @@ export function wrapLLMClientWithLogging(
           const toolUses = response.content.filter(
             (b): b is Anthropic.ToolUseBlock => b.type === "tool_use"
           );
+          // Use the larger cap for end_turn so the final response — the
+          // actual variants payload — is captured in full. Intermediate
+          // tool-use turns keep the smaller cap to keep the log compact.
+          const textCap = response.stop_reason === "end_turn" ? FINAL_TEXT_CAP : TEXT_PREVIEW_CAP;
           onTurn({
             turn,
             timestamp,
@@ -123,8 +145,7 @@ export function wrapLLMClientWithLogging(
               name: t.name,
               input: previewToolInput(t.input),
             })),
-            textPreview:
-              text && text.type === "text" ? truncate(text.text, TEXT_PREVIEW_CAP) : null,
+            textPreview: text && text.type === "text" ? truncate(text.text, textCap) : null,
             usage: {
               inputTokens: response.usage.input_tokens,
               outputTokens: response.usage.output_tokens,

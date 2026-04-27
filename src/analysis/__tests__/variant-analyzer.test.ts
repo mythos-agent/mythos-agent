@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { parseVariants, VariantAnalyzer } from "../variant-analyzer.js";
+import { parseVariants, collectJsonCandidates, VariantAnalyzer } from "../variant-analyzer.js";
 import { DEFAULT_CONFIG } from "../../types/index.js";
 
 // First test coverage for variant-analyzer.ts (was 0% pre-PR). Per the
@@ -92,6 +92,119 @@ describe("parseVariants — JSON parser tolerance", () => {
     }));
     const out = parseVariants(JSON.stringify({ variants }), "CVE-x");
     expect(out.map((v) => v.id)).toEqual(["VAR-001", "VAR-002", "VAR-003", "VAR-004", "VAR-005"]);
+  });
+});
+
+describe("parseVariants — markdown-fence + prose-mixed extraction", () => {
+  // A3b post-fix runs surfaced this: Sonnet 4.6 sometimes ignores
+  // "JSON only" instructions and emits markdown-formatted analysis
+  // with code-fence-wrapped JSON. The pre-fix parser's greedy
+  // `\{[\s\S]*\}` regex grabbed the wrong span and JSON.parse failed,
+  // producing a 0-variants result indistinguishable from a real
+  // clean miss. These cases pin the recovery paths.
+
+  it("extracts variants from a markdown response with a json code fence", () => {
+    const text = [
+      "## Variant Analysis Report",
+      "",
+      "After thorough analysis, here are the variants:",
+      "",
+      "```json",
+      JSON.stringify({
+        rootCauseAnalysis: "ReDoS pattern",
+        variants: [
+          {
+            file: "internal/re.js",
+            line: 138,
+            code: "createToken('TILDETRIM', `(\\\\s*)${...}\\\\s+`, true)",
+            similarity: "high",
+            explanation: "matched",
+            rootCauseMatch: "unbounded whitespace + interpolation",
+          },
+        ],
+      }),
+      "```",
+      "",
+      "End of report.",
+    ].join("\n");
+    const out = parseVariants(text, "CVE-2022-25883");
+    expect(out).toHaveLength(1);
+    expect(out[0].file).toBe("internal/re.js");
+    expect(out[0].line).toBe(138);
+  });
+
+  it("extracts from a code fence with no language tag", () => {
+    const text = [
+      "Here are the variants:",
+      "```",
+      JSON.stringify({ rootCauseAnalysis: "x", variants: [{ file: "a.js", line: 1 }] }),
+      "```",
+    ].join("\n");
+    const out = parseVariants(text, "CVE-x");
+    expect(out).toHaveLength(1);
+    expect(out[0].file).toBe("a.js");
+  });
+
+  it("parses a JSON-only response (the post-prompt-fix happy path)", () => {
+    const text = JSON.stringify({
+      rootCauseAnalysis: "x",
+      variants: [{ file: "a.js", line: 5, similarity: "high" }],
+    });
+    const out = parseVariants(text, "CVE-x");
+    expect(out).toHaveLength(1);
+  });
+
+  it("returns [] when prose contains a JSON-shaped object that lacks a variants ARRAY", () => {
+    // Pre-fix, the greedy regex would happily JSON.parse `{...}` from
+    // prose and call (data.variants || []) — which yielded [] only by
+    // accident when `variants` happened to be missing. The new check
+    // requires Array.isArray, so a `variants: "string"` field doesn't
+    // pass. Pins the contract that empty array results from "no JSON
+    // with a real variants array found", not "JSON.parse happened to
+    // succeed on something."
+    const text = '## Header\n\nThe map { variants: "string" } looks like JSON but isn\'t.';
+    expect(parseVariants(text, "CVE-x")).toEqual([]);
+  });
+
+  it("prefers the whole-text parse over fence extraction when both work", () => {
+    // If the model follows instructions and emits a single JSON
+    // object, that's the candidate we want — even if the JSON happens
+    // to contain a string field with markdown fences in it.
+    const text = JSON.stringify({
+      rootCauseAnalysis: "Some analysis with ```json fenced content``` inside",
+      variants: [{ file: "real.js", line: 42 }],
+    });
+    const out = parseVariants(text, "CVE-x");
+    expect(out).toHaveLength(1);
+    expect(out[0].file).toBe("real.js");
+  });
+});
+
+describe("collectJsonCandidates — extraction order", () => {
+  it("yields the trimmed whole text first when it looks like a JSON object", () => {
+    const json = '{"variants":[]}';
+    const candidates = collectJsonCandidates(`  ${json}  `);
+    expect(candidates[0]).toBe(json);
+  });
+
+  it("yields fence bodies in document order", () => {
+    const text = [
+      "intro",
+      "```json",
+      '{"variants":[{"file":"a"}]}',
+      "```",
+      "middle",
+      "```",
+      '{"variants":[{"file":"b"}]}',
+      "```",
+    ].join("\n");
+    const candidates = collectJsonCandidates(text);
+    expect(candidates[0]).toContain('"file":"a"');
+    expect(candidates[1]).toContain('"file":"b"');
+  });
+
+  it("returns [] when there is no JSON-shaped substring at all", () => {
+    expect(collectJsonCandidates("Just prose. No braces.")).toEqual([]);
   });
 });
 
