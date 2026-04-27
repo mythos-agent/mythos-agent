@@ -37,6 +37,12 @@ const VARIANT_SYSTEM = `You are a variant analysis engine, inspired by Google's 
 Don't match surface syntax. Match the UNDERLYING MISTAKE. A buffer overflow in a URL parser and a buffer overflow in a JSON parser have the same root cause pattern even though the code looks completely different.
 
 ## Output Format
+
+You MUST respond with a single JSON object and NOTHING ELSE. No markdown
+headers, no prose explanation outside JSON fields, no code fences (no
+\`\`\`json wrapper). The first character of your response MUST be '{' and
+the last character MUST be '}'. Schema:
+
 {
   "rootCauseAnalysis": "Description of the root cause pattern extracted from the CVE",
   "variants": [
@@ -49,7 +55,13 @@ Don't match surface syntax. Match the UNDERLYING MISTAKE. A buffer overflow in a
       "rootCauseMatch": "Unchecked length → buffer allocation"
     }
   ]
-}`;
+}
+
+If you find no variants, respond with: {"rootCauseAnalysis": "...", "variants": []}.
+Do not respond with prose explaining why you found nothing — the empty
+array IS the explanation. The harness parses your output as JSON, and
+prose responses produce a 0-variants result that is indistinguishable
+from a clean miss.`;
 
 const MAX_TURNS = 20;
 const OSV_API = "https://api.osv.dev/v1";
@@ -318,9 +330,28 @@ Instructions:
  * tolerance without running the 20-turn agentic loop or hitting
  * OSV/NVD over the network.
  *
- * Behavior:
- *  - No JSON substring in text → returns []. Defensive default for
- *    cases where the LLM returns prose-only on token-limit truncation.
+ * Extraction strategy (most-likely-correct first):
+ *
+ *  1. **Whole-text parse.** When the system prompt is followed (post
+ *     A3b-fix prompt forces JSON-only output), the entire response is
+ *     a JSON object. Try parsing it as-is — fastest path, handles the
+ *     common case.
+ *  2. **Markdown code fences.** If the model emits `\`\`\`json … \`\`\``
+ *     blocks, scan each one. This is the second-most-common shape
+ *     when prompt instructions partially fail.
+ *  3. **Outer-brace regex.** Last resort — greedy `{[\s\S]*\}` match
+ *     against the full text. Brittle when prose contains `{` chars,
+ *     so it's tried only after the more reliable paths.
+ *
+ * For every candidate, only accept ones whose parsed JSON has a
+ * `variants` ARRAY (not just any `variants` field). That avoids the
+ * pre-A3b-fix failure mode where the regex matched a prose `{...}`
+ * that happened to contain "variants" elsewhere.
+ *
+ * Behavior contract:
+ *  - No parseable variants object → returns []. Defensive default for
+ *    cases where the LLM emits prose-only on token-limit truncation
+ *    or refuses for safety reasons.
  *  - Malformed JSON → returns []. NOT a throw; the agentic loop
  *    treats no-variants as a valid (if uninteresting) answer.
  *  - Variants without required fields fall back to defaults
@@ -328,24 +359,66 @@ Instructions:
  *  - VAR-NNN ids start at 001, padded to 3 digits.
  */
 export function parseVariants(text: string, cveId: string): VariantMatch[] {
-  const jsonMatch = text.match(/\{[\s\S]*\}/);
-  if (!jsonMatch) return [];
-
-  try {
-    const data = JSON.parse(jsonMatch[0]);
-    return (data.variants || []).map((v: any, i: number) => ({
+  const candidates = collectJsonCandidates(text);
+  for (const candidate of candidates) {
+    let data: unknown;
+    try {
+      data = JSON.parse(candidate);
+    } catch {
+      continue;
+    }
+    if (data === null || typeof data !== "object") continue;
+    const variantsField = (data as { variants?: unknown }).variants;
+    if (!Array.isArray(variantsField)) continue;
+    return variantsField.map((v: any, i: number) => ({
       id: `VAR-${String(i + 1).padStart(3, "0")}`,
       cveId,
-      file: v.file || "",
-      line: v.line || 0,
-      code: v.code || "",
-      similarity: v.similarity || "medium",
-      explanation: v.explanation || "",
-      rootCauseMatch: v.rootCauseMatch || "",
+      file: v?.file || "",
+      line: v?.line || 0,
+      code: v?.code || "",
+      similarity: v?.similarity || "medium",
+      explanation: v?.explanation || "",
+      rootCauseMatch: v?.rootCauseMatch || "",
     }));
-  } catch {
-    return [];
   }
+  return [];
+}
+
+/**
+ * Yield JSON-shaped string candidates from `text`, ordered by
+ * likelihood of being the intended payload. Exported for direct
+ * testing of the candidate-extraction logic.
+ */
+export function collectJsonCandidates(text: string): string[] {
+  const candidates: string[] = [];
+  const trimmed = text.trim();
+
+  // 1. Whole-text parse — covers the post-prompt-fix happy path where
+  //    the model returns a single JSON object with no surrounding
+  //    prose.
+  if (trimmed.startsWith("{") && trimmed.endsWith("}")) {
+    candidates.push(trimmed);
+  }
+
+  // 2. Markdown code fences — covers the "model added ```json wrapper
+  //    despite the instructions" case. The regex tolerates an
+  //    optional language tag after the opening fence.
+  const fenceRegex = /```(?:json)?\s*\n?([\s\S]*?)```/g;
+  for (const match of trimmed.matchAll(fenceRegex)) {
+    const body = match[1]?.trim();
+    if (body && body.startsWith("{") && body.endsWith("}")) {
+      candidates.push(body);
+    }
+  }
+
+  // 3. Outer-brace regex — last resort for prose-mixed responses.
+  //    Greedy match from first `{` to last `}` in the whole text.
+  const greedyMatch = trimmed.match(/\{[\s\S]*\}/);
+  if (greedyMatch && !candidates.includes(greedyMatch[0])) {
+    candidates.push(greedyMatch[0]);
+  }
+
+  return candidates;
 }
 
 /**

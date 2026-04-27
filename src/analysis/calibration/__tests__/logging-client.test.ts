@@ -141,18 +141,51 @@ describe("wrapLLMClientWithLogging — turn counter", () => {
 });
 
 describe("wrapLLMClientWithLogging — truncation", () => {
-  it("truncates long text previews with a marker", async () => {
+  it("truncates long text previews on intermediate (tool-use) turns with a marker", async () => {
+    // Intermediate turns keep the small cap so the JSONL log stays
+    // compact across what may be 20+ tool-use turns. Exact cap
+    // (TEXT_PREVIEW_CAP, currently 400) is intentionally not asserted
+    // so the constant can be tuned without breaking this test.
     const longText = "x".repeat(500);
-    const fakeResponse = buildResponse({ text: longText });
+    const fakeResponse = buildResponse({ stop_reason: "tool_use", text: longText });
     const records: TurnRecord[] = [];
     const wrapped = wrapLLMClientWithLogging(buildClient(fakeResponse), (r) => records.push(r));
 
     await wrapped.messages.create({} as never);
 
-    // Exact number depends on TEXT_PREVIEW_CAP (400); assert behavior
-    // (capped + truncation marker), not the exact length, so the cap
-    // can be tuned without breaking the test.
     expect(records[0].textPreview!.length).toBeLessThan(longText.length);
+    expect(records[0].textPreview).toMatch(/…\[\+\d+\]$/);
+  });
+
+  it("captures the full final response on end_turn (the actual variants payload)", async () => {
+    // The whole point of A3b diagnostic logging is to see the
+    // variant-analyzer's final answer — capping it at the same 400
+    // chars as intermediate turns was the bug that made post-fix
+    // calibration runs impossible to diagnose. End-turn responses get
+    // a much larger cap (currently 64KB), so a normal 4-8KB final
+    // answer round-trips intact.
+    const finalAnswer = '{"rootCauseAnalysis":"' + "x".repeat(4000) + '","variants":[]}';
+    const fakeResponse = buildResponse({ stop_reason: "end_turn", text: finalAnswer });
+    const records: TurnRecord[] = [];
+    const wrapped = wrapLLMClientWithLogging(buildClient(fakeResponse), (r) => records.push(r));
+
+    await wrapped.messages.create({} as never);
+
+    expect(records[0].textPreview).toBe(finalAnswer);
+    expect(records[0].textPreview).not.toMatch(/…\[\+\d+\]$/);
+  });
+
+  it("still caps end_turn responses that exceed the final-text limit", async () => {
+    // Even on end_turn, a runaway response must not blow up the log.
+    // 256KB is well above the 64KB cap → must be truncated.
+    const runawayText = "z".repeat(256 * 1024);
+    const fakeResponse = buildResponse({ stop_reason: "end_turn", text: runawayText });
+    const records: TurnRecord[] = [];
+    const wrapped = wrapLLMClientWithLogging(buildClient(fakeResponse), (r) => records.push(r));
+
+    await wrapped.messages.create({} as never);
+
+    expect(records[0].textPreview!.length).toBeLessThan(runawayText.length);
     expect(records[0].textPreview).toMatch(/…\[\+\d+\]$/);
   });
 
