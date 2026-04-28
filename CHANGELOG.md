@@ -2,6 +2,34 @@
 
 All notable changes to sphinx-agent are documented here. The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). Starting with the next release, entries are generated automatically by [release-please](https://github.com/googleapis/release-please) from [Conventional Commits](https://www.conventionalcommits.org/).
 
+## [4.3.0](https://github.com/mythos-agent/mythos-agent/compare/v4.2.0...v4.3.0) (2026-04-28)
+
+
+### Added
+
+* **llm:** native OpenAI SDK code path + LLMClient abstraction (multi-model stage 2 partial) ([#44](https://github.com/mythos-agent/mythos-agent/issues/44)) ([15c7689](https://github.com/mythos-agent/mythos-agent/commit/15c7689adbeff435e6eea1316c8d0732487d7600))
+* **llm:** wire LLMClient into recon/hypothesis/exploit agents (multi-model stage 2 complete) ([#46](https://github.com/mythos-agent/mythos-agent/issues/46)) ([d9715e1](https://github.com/mythos-agent/mythos-agent/commit/d9715e120e1457416da3096605e111789a89d122))
+* **variants-calibration:** per-turn diagnostic logging (--log-turns) ([#56](https://github.com/mythos-agent/mythos-agent/issues/56)) ([3bf8bf8](https://github.com/mythos-agent/mythos-agent/commit/3bf8bf86d28a67a71f336d3637cdc696c2f8f472))
+* **variants:** A1+A2 calibration harness (variants v2 sub-PR A3a) ([#52](https://github.com/mythos-agent/mythos-agent/issues/52)) ([a146413](https://github.com/mythos-agent/mythos-agent/commit/a14641328cb4a028fde6d16021dc8270ae338d2d))
+* **variants:** add --base-url + Qwen/DashScope wiring to A3b harness ([#54](https://github.com/mythos-agent/mythos-agent/issues/54)) ([5ec3eb5](https://github.com/mythos-agent/mythos-agent/commit/5ec3eb5242841d9a92d84314ae5777f829fd1c68))
+* **variants:** add agent-driven calibration harness (variants v2 A3b) ([#53](https://github.com/mythos-agent/mythos-agent/issues/53)) ([9ace063](https://github.com/mythos-agent/mythos-agent/commit/9ace06307058069bb361a7a625fea78eeb74d4fb))
+* **variants:** add CVE root-cause pattern extraction module (variants v2 A1) ([#50](https://github.com/mythos-agent/mythos-agent/issues/50)) ([0bdd2dd](https://github.com/mythos-agent/mythos-agent/commit/0bdd2dd3f68efdbe713283b729d10cf6653908c9))
+* **variants:** AST-based pattern matcher + find_ast_pattern tool (variants v2 A2) ([#51](https://github.com/mythos-agent/mythos-agent/issues/51)) ([6fa3339](https://github.com/mythos-agent/mythos-agent/commit/6fa33399219b5923c61902fe9d65c162791811b6))
+* **variants:** wire VariantAnalyzer through createLLMClient + add test coverage ([#47](https://github.com/mythos-agent/mythos-agent/issues/47)) ([cb452d7](https://github.com/mythos-agent/mythos-agent/commit/cb452d7597c778f8ad84289acdc147c34d6f3ef6))
+
+
+### Fixed
+
+* **ast-matcher:** walk up to find assets/grammars (dist-benchmarks fix) ([#57](https://github.com/mythos-agent/mythos-agent/issues/57)) ([820dd24](https://github.com/mythos-agent/mythos-agent/commit/820dd2414931804d386c574dc95713bbadb078c8))
+* **config:** replace retired claude-sonnet-4-20250514 with claude-sonnet-4-6 ([#55](https://github.com/mythos-agent/mythos-agent/issues/55)) ([7bf8c6c](https://github.com/mythos-agent/mythos-agent/commit/7bf8c6cc643d7bdef7019f1dd7dbca773ba10978))
+* **variants:** force JSON-only output, robust parser, uncap end_turn log ([#58](https://github.com/mythos-agent/mythos-agent/issues/58)) ([3ba9a88](https://github.com/mythos-agent/mythos-agent/commit/3ba9a88733eb79ad983609b6cedab2738dbb7ef4))
+
+
+### Documentation
+
+* **research:** variant-hunt experiment writeup + comprehensive path-forward plan ([#49](https://github.com/mythos-agent/mythos-agent/issues/49)) ([3c54684](https://github.com/mythos-agent/mythos-agent/commit/3c546848da029f3241994d0e61b383da5650f514))
+* **research:** variants v2 first-match writeup (2026-04-27 calibration) ([#59](https://github.com/mythos-agent/mythos-agent/issues/59)) ([811460d](https://github.com/mythos-agent/mythos-agent/commit/811460d71e5309c06a3d91bf98470c41f6597ac5))
+
 ## [4.2.0](https://github.com/mythos-agent/mythos-agent/compare/v4.1.0...v4.2.0) (2026-04-26)
 
 
