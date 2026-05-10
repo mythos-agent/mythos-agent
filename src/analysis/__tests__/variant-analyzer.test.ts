@@ -178,6 +178,29 @@ describe("parseVariants — markdown-fence + prose-mixed extraction", () => {
     expect(out).toHaveLength(1);
     expect(out[0].file).toBe("real.js");
   });
+
+  it("recovers variants from prose containing { in template-literal text then a JSON object", () => {
+    // The exact failure mode that lost the semver MATCH on the
+    // 2026-04-27 A3b run (see docs/research/2026-04-27-variants-v2-
+    // first-match.md). The agent emitted long prose quoting source
+    // code with `${src[t.LONETILDE]}` template-literal substrings —
+    // each one introduces a literal `{` mid-prose — then the JSON
+    // payload. The pre-fix greedy `\{[\s\S]*\}` regex matched from
+    // the FIRST `{` (mid-prose) to the LAST `}` (end of JSON), which
+    // JSON.parse rejected, and the harness reported MISS even though
+    // the JSON contained a clean MATCH on the calibration target.
+    const text =
+      "Analysis: Line 138: `(\\s*)${src[t.LONETILDE]}\\s+` — `\\s*` adjacent to interpolation.\n" +
+      "Line 148: `(\\s*)${src[t.LONECARET]}\\s+` — same pattern.\n\n" +
+      JSON.stringify({
+        rootCauseAnalysis: "ReDoS via unbounded whitespace + interpolation",
+        variants: [{ file: "internal/re.js", line: 138, similarity: "high" }],
+      });
+    const out = parseVariants(text, "CVE-2022-25883");
+    expect(out).toHaveLength(1);
+    expect(out[0].file).toBe("internal/re.js");
+    expect(out[0].line).toBe(138);
+  });
 });
 
 describe("collectJsonCandidates — extraction order", () => {

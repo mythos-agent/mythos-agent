@@ -339,9 +339,15 @@ Instructions:
  *  2. **Markdown code fences.** If the model emits `\`\`\`json … \`\`\``
  *     blocks, scan each one. This is the second-most-common shape
  *     when prompt instructions partially fail.
- *  3. **Outer-brace regex.** Last resort — greedy `{[\s\S]*\}` match
- *     against the full text. Brittle when prose contains `{` chars,
- *     so it's tried only after the more reliable paths.
+ *  3. **Balanced-brace walk from end.** Last resort — scan `{` opens
+ *     from end-of-text toward the start, emit each balanced (string-
+ *     aware) JSON-shaped substring. Replaces the prior greedy
+ *     `\{[\s\S]*\}` regex, which broke when prose preceded the JSON
+ *     and contained literal `{` chars (e.g. `${src[t.LONETILDE]}`
+ *     template-literal text quoted in markdown), causing the regex
+ *     to span from a mid-prose `{` to the JSON's closing `}` and
+ *     emit un-parseable text. The walk-from-end approach finds the
+ *     real JSON object even when prose around it has stray braces.
  *
  * For every candidate, only accept ones whose parsed JSON has a
  * `variants` ARRAY (not just any `variants` field). That avoids the
@@ -411,14 +417,53 @@ export function collectJsonCandidates(text: string): string[] {
     }
   }
 
-  // 3. Outer-brace regex — last resort for prose-mixed responses.
-  //    Greedy match from first `{` to last `}` in the whole text.
-  const greedyMatch = trimmed.match(/\{[\s\S]*\}/);
-  if (greedyMatch && !candidates.includes(greedyMatch[0])) {
-    candidates.push(greedyMatch[0]);
+  // 3. Balanced-brace walk from end-of-text. Each `{` open position
+  //    is tried (latest first, so the JSON near the end wins over any
+  //    stray `{` in earlier prose). Brace matching is string-aware —
+  //    `{` and `}` inside JSON string literals don't change depth.
+  const seen = new Set<string>(candidates);
+  for (let i = trimmed.length - 1; i >= 0; i--) {
+    if (trimmed[i] !== "{") continue;
+    const matched = matchBalancedBraces(trimmed, i);
+    if (matched && !seen.has(matched)) {
+      candidates.push(matched);
+      seen.add(matched);
+    }
   }
 
   return candidates;
+}
+
+/**
+ * Find the substring starting at `start` (which must be a `{`) up to
+ * and including its matching `}`. String-aware: `{` and `}` inside
+ * JSON string literals don't affect depth, and escaped quotes inside
+ * strings (`\"`) don't terminate them. Returns null when no balanced
+ * close exists (truncated input, malformed text).
+ */
+function matchBalancedBraces(text: string, start: number): string | null {
+  let depth = 0;
+  let inString = false;
+  let escape = false;
+  for (let i = start; i < text.length; i++) {
+    const c = text[i];
+    if (escape) {
+      escape = false;
+      continue;
+    }
+    if (inString) {
+      if (c === "\\") escape = true;
+      else if (c === '"') inString = false;
+      continue;
+    }
+    if (c === '"') inString = true;
+    else if (c === "{") depth++;
+    else if (c === "}") {
+      depth--;
+      if (depth === 0) return text.slice(start, i + 1);
+    }
+  }
+  return null;
 }
 
 /**
