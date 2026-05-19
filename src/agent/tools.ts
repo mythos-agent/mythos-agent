@@ -4,6 +4,51 @@ import { glob } from "glob";
 import type Anthropic from "@anthropic-ai/sdk";
 import { findAstPattern, inferLanguage } from "../analysis/ast-matcher/index.js";
 
+/**
+ * `find_ast_pattern`'s `kind` schema description is selectable for the
+ * fix-C isolation experiment — see
+ * docs/research/2026-05-19-qwen-fix-c-on-variant-b.md. `baseline` is the
+ * original terse description; `worked-examples` is the fix-C variant
+ * from PR #62 that lists worked AST-kind shapes (keyed off "pick the
+ * kind that holds the LITERAL TEXT being changed in the fix"). The
+ * active description is resolved once at module load from
+ * MYTHOS_FIND_AST_KIND_DOC (unset -> baseline, unchanged behavior) and
+ * logged to stderr so each calibration run records which doc it used.
+ */
+export type FindAstKindDoc = "baseline" | "worked-examples";
+
+export const KIND_DOC_BASELINE =
+  'tree-sitter node kind to match (e.g. "call_expression", "new_expression", "function_declaration", "regex", "template_string"). May be a single string or an array of strings for union matching.';
+
+export const KIND_DOC_WORKED_EXAMPLES =
+  "tree-sitter node kind to match. Pick the kind that holds the LITERAL TEXT being changed in the fix, not the kind that describes the bug class. Examples:\n" +
+  '- ReDoS in template-literal regex builders → kind: "template_string"\n' +
+  '- Header allowlist/denylist as inline strings → kind: "array" or "string" (NOT "regex" — the headers are array elements, not a regex literal)\n' +
+  '- Comparison flaw → kind: "binary_expression"\n' +
+  '- new RegExp(userInput) → kind: "new_expression"\n' +
+  '- Function declaration with a specific parameter name → kind: "function_declaration"\n' +
+  "May be a single string or an array of strings for union matching.";
+
+/**
+ * Resolve the MYTHOS_FIND_AST_KIND_DOC env value to a FindAstKindDoc.
+ * Unset or empty -> `baseline`. An unrecognized value throws, so a typo
+ * fails loud instead of silently running the baseline arm.
+ */
+export function resolveFindAstKindDoc(raw: string | undefined): FindAstKindDoc {
+  if (raw === undefined || raw === "") return "baseline";
+  if (raw === "baseline" || raw === "worked-examples") return raw;
+  throw new Error(
+    `Invalid MYTHOS_FIND_AST_KIND_DOC="${raw}". Valid values: baseline, worked-examples (or unset for baseline).`
+  );
+}
+
+const ACTIVE_FIND_AST_KIND_DOC: FindAstKindDoc = resolveFindAstKindDoc(
+  process.env.MYTHOS_FIND_AST_KIND_DOC
+);
+const KIND_DESCRIPTION =
+  ACTIVE_FIND_AST_KIND_DOC === "worked-examples" ? KIND_DOC_WORKED_EXAMPLES : KIND_DOC_BASELINE;
+process.stderr.write(`[tools] find_ast kind doc: ${ACTIVE_FIND_AST_KIND_DOC}\n`);
+
 export function createAgentTools(projectPath: string): Anthropic.Tool[] {
   return [
     {
@@ -82,8 +127,7 @@ export function createAgentTools(projectPath: string): Anthropic.Tool[] {
           kind: {
             type: ["string", "array"],
             items: { type: "string" },
-            description:
-              'tree-sitter node kind to match (e.g. "call_expression", "new_expression", "function_declaration", "regex", "template_string"). May be a single string or an array of strings for union matching.',
+            description: KIND_DESCRIPTION,
           },
           text_predicates: {
             type: "array",
