@@ -90,14 +90,17 @@ export function loadPolicy(projectPath: string): Policy | null {
       !parsed ||
       typeof parsed.name !== "string" ||
       !Array.isArray(parsed.rules) ||
-      !parsed.rules.every(
-        (r) =>
-          r &&
-          typeof (r as Record<string, unknown>).id === "string" &&
-          typeof (r as Record<string, unknown>).description === "string" &&
-          typeof (r as Record<string, unknown>).action === "string" &&
-          typeof (r as Record<string, unknown>).condition === "object"
-      )
+      !parsed.rules.every((r): boolean => {
+        if (!r || typeof r !== "object") return false;
+        const rule = r as Record<string, unknown>;
+        return (
+          typeof rule.id === "string" &&
+          typeof rule.description === "string" &&
+          typeof rule.action === "string" &&
+          typeof rule.condition === "object" &&
+          rule.condition !== null
+        );
+      })
     ) {
       return null;
     }

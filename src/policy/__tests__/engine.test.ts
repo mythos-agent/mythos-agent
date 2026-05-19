@@ -252,6 +252,25 @@ describe("loadPolicy — structural validation", () => {
     expect(result!.rules).toEqual([]);
   });
 
+  it("returns null when a rule has condition: null", () => {
+    const dir = tempDir();
+    const policyDir = path.join(dir, ".mythos");
+    fs.mkdirSync(policyDir, { recursive: true });
+    fs.writeFileSync(
+      path.join(policyDir, "policy.yml"),
+      [
+        "name: null-condition-policy",
+        "rules:",
+        "  - id: bad-rule",
+        "    description: Rule with null condition",
+        "    action: block",
+        "    condition: null",
+      ].join("\n") + "\n"
+    );
+    const result = loadPolicy(dir);
+    expect(result).toBeNull();
+  });
+
   it("loads a well-formed policy with a valid rule successfully", () => {
     const dir = tempDir();
     const policyDir = path.join(dir, ".mythos");
