@@ -10,6 +10,8 @@ interface LlmRule {
   severity: Severity;
   cwe: string;
   patterns: RegExp[];
+  /** Override the default "high" confidence for rules that are broad heuristics. */
+  confidence?: "high" | "medium" | "low";
 }
 
 const LLM_RULES: LlmRule[] = [
@@ -153,6 +155,10 @@ const LLM_RULES: LlmRule[] = [
       "LLM output is used without content moderation or filtering. AI may generate harmful, biased, or inappropriate content.",
     severity: "medium",
     cwe: "CWE-20",
+    // "low": the pattern fires on any bare response.content / completion.text access and
+    // cannot see filtering done on an adjacent line, in a wrapper, or upstream — most
+    // matches are false positives.
+    confidence: "low",
     patterns: [
       /(?:response|completion|result)\.(?:content|text|message)\b(?!\s*(?:filter|moderat|sanitiz))/gi,
     ],
@@ -249,7 +255,7 @@ export class LlmSecurityScanner {
                 severity: rule.severity,
                 category: "llm-security",
                 cwe: rule.cwe,
-                confidence: "high",
+                confidence: rule.confidence ?? "high",
                 location: {
                   file: relativePath,
                   line: i + 1,

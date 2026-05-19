@@ -133,8 +133,11 @@ describe("JwtScanner", () => {
   });
 
   it("flags jwt-none-algorithm via second pattern even when another jwt rule matches first", async () => {
-    // File has a benign jwt.verify call (triggers other rules like no-audience/no-issuer)
-    // AND a none-algorithm call. The jwt-none-algorithm rule must still fire.
+    // No production-code change needed: jwt-scanner's loop already evaluates every rule
+    // independently. This test documents that invariant so a future refactor can't
+    // silently break it.
+    // The file has a benign jwt.verify call (triggers other rules like no-audience/no-issuer)
+    // AND a none-algorithm call. Both must fire.
     const dir = fixture({
       "auth.ts": [
         'import jwt from "jsonwebtoken";',

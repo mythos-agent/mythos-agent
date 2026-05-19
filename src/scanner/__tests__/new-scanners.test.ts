@@ -73,6 +73,32 @@ describe("LlmSecurityScanner", () => {
     expect(findings.some((f) => f.rule.includes("llm-no-content-filter"))).toBe(true);
     cleanup(dir);
   });
+
+  it("emits low confidence for llm-no-content-filter and high confidence for llm-unsafe-eval", async () => {
+    // llm-no-content-filter is a broad heuristic that fires on any bare response.content
+    // access and cannot detect filtering done elsewhere — it must stay "low" to avoid
+    // overwhelming users with false-positive noise.
+    // llm-unsafe-eval (eval on AI output) is a concrete code pattern and should remain "high".
+    const dir = createFixture({
+      "handler.ts": [
+        "// openai integration",
+        "const out = response.content;", // triggers llm-no-content-filter
+        "eval(result.text);", // triggers llm-unsafe-eval
+      ].join("\n"),
+    });
+    const scanner = new LlmSecurityScanner();
+    const { findings } = await scanner.scan(dir);
+
+    const noFilterFinding = findings.find((f) => f.rule.includes("llm-no-content-filter"));
+    expect(noFilterFinding).toBeDefined();
+    expect(noFilterFinding?.confidence).toBe("low");
+
+    const unsafeEvalFinding = findings.find((f) => f.rule.includes("llm-unsafe-eval"));
+    expect(unsafeEvalFinding).toBeDefined();
+    expect(unsafeEvalFinding?.confidence).toBe("high");
+
+    cleanup(dir);
+  });
 });
 
 describe("ApiSecurityScanner", () => {
