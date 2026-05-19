@@ -1,5 +1,5 @@
-import Anthropic from "@anthropic-ai/sdk";
 import type { MythosConfig, Vulnerability, VulnChain, Severity } from "../types/index.js";
+import { type LLMClient, createLLMClient } from "../llm/index.js";
 
 const CHAIN_PROMPT = `You are a security expert analyzing confirmed vulnerabilities in a codebase. Your job is to identify **vulnerability chains** — sequences of individually exploitable (or seemingly minor) vulnerabilities that, when combined, create a more severe attack path.
 
@@ -37,11 +37,11 @@ Respond with a JSON object:
 If no meaningful chains exist, return: { "chains": [] }`;
 
 export class ChainAnalyzer {
-  private client: Anthropic;
+  private client: LLMClient;
   private model: string;
 
   constructor(private config: MythosConfig) {
-    this.client = new Anthropic({ apiKey: config.apiKey });
+    this.client = createLLMClient(config);
     this.model = config.model;
   }
 

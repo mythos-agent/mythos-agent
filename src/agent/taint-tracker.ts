@@ -1,5 +1,6 @@
-import Anthropic from "@anthropic-ai/sdk";
+import type Anthropic from "@anthropic-ai/sdk";
 import type { MythosConfig, Vulnerability, Severity } from "../types/index.js";
+import { type LLMClient, createLLMClient } from "../llm/index.js";
 import { createAgentTools, executeToolCall } from "./tools.js";
 
 export interface TaintFlow {
@@ -86,11 +87,11 @@ Respond with JSON:
 const MAX_TURNS = 25;
 
 export class TaintTracker {
-  private client: Anthropic;
+  private client: LLMClient;
   private model: string;
 
   constructor(private config: MythosConfig) {
-    this.client = new Anthropic({ apiKey: config.apiKey });
+    this.client = createLLMClient(config);
     this.model = config.model;
   }
 

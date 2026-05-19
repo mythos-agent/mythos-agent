@@ -1,5 +1,6 @@
-import Anthropic from "@anthropic-ai/sdk";
+import type Anthropic from "@anthropic-ai/sdk";
 import type { MythosConfig } from "../types/index.js";
+import { type LLMClient, createLLMClient } from "../llm/index.js";
 import { createAgentTools, executeToolCall } from "./tools.js";
 
 const QUERY_SYSTEM_PROMPT = `You are mythos-agent, an expert AI security analyst. The user is asking security questions about their codebase. You have access to tools to read files, search code, and list files.
@@ -29,7 +30,7 @@ const MAX_TURNS = 15;
 const MAX_HISTORY_TURNS = 10;
 
 export class QueryEngine {
-  private client: Anthropic;
+  private client: LLMClient;
   private model: string;
   private conversationHistory: Anthropic.MessageParam[] = [];
 
@@ -37,7 +38,7 @@ export class QueryEngine {
     private config: MythosConfig,
     private projectPath: string
   ) {
-    this.client = new Anthropic({ apiKey: config.apiKey });
+    this.client = createLLMClient(config);
     this.model = config.model;
   }
 

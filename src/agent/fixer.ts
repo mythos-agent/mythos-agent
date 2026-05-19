@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
-import Anthropic from "@anthropic-ai/sdk";
 import type { MythosConfig, Vulnerability } from "../types/index.js";
+import { type LLMClient, createLLMClient } from "../llm/index.js";
 
 export interface Patch {
   vulnerabilityId: string;
@@ -40,11 +40,11 @@ Respond with a JSON array of patches:
 If a vulnerability cannot be safely auto-fixed (e.g., requires architectural changes), return a patch with fixed set to null and a description explaining why.`;
 
 export class AIFixer {
-  private client: Anthropic;
+  private client: LLMClient;
   private model: string;
 
   constructor(private config: MythosConfig) {
-    this.client = new Anthropic({ apiKey: config.apiKey });
+    this.client = createLLMClient(config);
     this.model = config.model;
   }
 
