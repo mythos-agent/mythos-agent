@@ -46,7 +46,14 @@ export class ChainAnalyzer {
   }
 
   async analyzeChains(vulnerabilities: Vulnerability[], projectPath: string): Promise<VulnChain[]> {
-    if (!this.config.apiKey || vulnerabilities.length < 2) {
+    // Only the business-logic guard remains: a chain requires at least 2
+    // vulnerabilities. The previous `!this.config.apiKey` check has been
+    // removed because `createLLMClient` also serves OpenAI-compatible
+    // providers (Ollama, LMStudio, vLLM, …) that legitimately need no API
+    // key — silently returning [] for those was wrong. The caller in
+    // scan.ts wraps this method in try/catch, so any genuine auth/config
+    // error surfaces as a warning rather than crashing the scan.
+    if (vulnerabilities.length < 2) {
       return [];
     }
 
