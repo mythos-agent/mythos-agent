@@ -1,15 +1,17 @@
 import fs from "node:fs";
 import nodePath from "node:path";
-import { describe, it, expect, afterEach } from "vitest";
+import { describe, it, expect, afterEach, vi } from "vitest";
 
 import { handleRequest } from "../server.js";
+import { PatternScanner } from "../../scanner/pattern-scanner.js";
 import { saveResults } from "../../store/results-store.js";
 import { VERSION } from "../../version.js";
 import type { ScanResult } from "../../types/index.js";
 import { cleanupTmpDirs } from "../../__tests__/fixtures.js";
 
-// Fixtures must live inside process.cwd() so they pass the MCP path guard
-// (which rejects any path that is not the workspace root or a descendant).
+// Fixtures intentionally use process.cwd() — NOT os.tmpdir() — because the MCP
+// server's path guard rejects any path outside the workspace root. Changing this
+// to os.tmpdir() would cause all tool-call tests to receive a -32602 guard error.
 const tmpDirs: string[] = [];
 const fixture = (files: Record<string, string>): string => {
   const dir = fs.mkdtempSync(nodePath.join(process.cwd(), "mythos-mcp-test-"));
@@ -242,20 +244,48 @@ describe("MCP server — tool handlers", () => {
     expect(text).toContain("Findings:");
   });
 
-  it("surfaces scanner errors via isError=true on the tool-call response", async () => {
-    // Point the handler at a path that does not exist — the scanner should throw,
-    // the handler should translate that into an MCP error content block rather
-    // than returning a raw JSON-RPC error (per MCP spec for tool errors).
+  it("path guard fires before the scanner for an out-of-workspace absolute path", async () => {
+    // An absolute path that is not the workspace root or a descendant must be
+    // rejected with -32602 BEFORE the scanner is ever reached.
     const resp = await handleRequest(
       rpc("tools/call", {
         name: "mythos_scan",
         arguments: { path: "/this/path/definitely/does/not/exist/anywhere" },
       })
     );
-    // Either the content-block error path or an empty-clean response is acceptable;
-    // what must NOT happen is a thrown exception bubbling up to the RPC layer.
-    expect(resp.jsonrpc).toBe("2.0");
-    expect(resp.id).toBe(1);
+    expect(resp.result).toBeUndefined();
+    expect(resp.error?.code).toBe(-32602);
+    expect(resp.error?.message).toMatch(/outside|allowed/i);
+  });
+
+  it("surfaces scanner errors via isError=true on the tool-call response", async () => {
+    // The MCP spec requires tool execution errors to be returned as a content
+    // block with isError:true rather than a JSON-RPC error object. This test
+    // verifies that code path by forcing the scanner to throw while using a
+    // path that is inside the workspace (passes the guard).
+    const inWorkspacePath = nodePath.join(process.cwd(), "does-not-exist-" + Date.now());
+    const scanSpy = vi
+      .spyOn(PatternScanner.prototype, "scan")
+      .mockRejectedValueOnce(new Error("simulated scanner failure"));
+    try {
+      const resp = await handleRequest(
+        rpc("tools/call", {
+          name: "mythos_scan",
+          arguments: { path: inWorkspacePath },
+        })
+      );
+      // Must NOT be a JSON-RPC error — per MCP spec, tool errors are content blocks.
+      expect(resp.error).toBeUndefined();
+      expect(resp.result).toBeDefined();
+      const result = resp.result as {
+        content: Array<{ type: string; text: string }>;
+        isError: boolean;
+      };
+      expect(result.isError).toBe(true);
+      expect(result.content[0].text).toMatch(/simulated scanner failure/);
+    } finally {
+      scanSpy.mockRestore();
+    }
   });
 });
 

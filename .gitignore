@@ -10,3 +10,4 @@ coverage/
 .sphinx/
 .sphinx.yml
 .claude/
+mythos-mcp-test-*/
