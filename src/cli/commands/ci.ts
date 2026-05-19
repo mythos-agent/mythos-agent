@@ -3,15 +3,11 @@ import fs from "node:fs";
 import chalk from "chalk";
 import ora from "ora";
 import { loadConfig } from "../../config/config.js";
-import { PatternScanner } from "../../scanner/pattern-scanner.js";
-import { SecretsScanner } from "../../scanner/secrets-scanner.js";
-import { DepScanner } from "../../scanner/dep-scanner.js";
-import { IacScanner } from "../../scanner/iac-scanner.js";
-import { runAllTools } from "../../tools/index.js";
+import { runScan } from "../../core/run-scan.js";
 import { loadPolicy, evaluatePolicy } from "../../policy/engine.js";
 import { renderSarifReport } from "../../report/sarif-reporter.js";
 import { saveResults } from "../../store/results-store.js";
-import type { Vulnerability, ScanResult, Severity } from "../../types/index.js";
+import type { ScanResult, Severity } from "../../types/index.js";
 
 interface CiOptions {
   path?: string;
@@ -23,6 +19,10 @@ interface CiOptions {
 /**
  * One command for CI/CD: scan + policy check + SARIF output.
  * Designed to be the only command needed in a CI pipeline.
+ *
+ * Delegates the full scanner set to runScan() (pattern + 15 deterministic
+ * scanners + external tools) so this command cannot silently miss scanners
+ * as the scanner list grows.
  */
 export async function ciCommand(options: CiOptions) {
   const projectPath = path.resolve(options.path || ".");
@@ -31,34 +31,17 @@ export async function ciCommand(options: CiOptions) {
 
   console.log(chalk.bold("🔐 mythos-agent ci\n"));
 
-  // Run all scanners
+  // Run the full scanner set via the canonical orchestrator.
+  // includeExternalTools: true preserves the prior ci behavior of running
+  // Semgrep / Gitleaks / Trivy / Checkov / Nuclei when available.
   const spinner = ora("Scanning...").start();
-  const allFindings: Vulnerability[] = [];
 
-  // Built-in scanners
-  const patternScanner = new PatternScanner(config);
-  const { findings: patterns } = await patternScanner.scan(projectPath);
-  allFindings.push(...patterns);
+  const scanOutput = await runScan(projectPath, {
+    config,
+    includeExternalTools: true,
+  });
 
-  const secretsScanner = new SecretsScanner();
-  const { findings: secrets } = await secretsScanner.scan(projectPath);
-  allFindings.push(...secrets);
-
-  try {
-    const depScanner = new DepScanner();
-    const { findings: deps } = await depScanner.scan(projectPath);
-    allFindings.push(...deps);
-  } catch {
-    /* optional */
-  }
-
-  const iacScanner = new IacScanner();
-  const { findings: iac } = await iacScanner.scan(projectPath);
-  allFindings.push(...iac);
-
-  // External tools
-  const { findings: external, toolsRun } = await runAllTools(projectPath);
-  allFindings.push(...external);
+  const { findings: allFindings, toolsRun, filesScanned, languages } = scanOutput;
 
   spinner.succeed(
     `Found ${allFindings.length} findings` +
@@ -72,8 +55,8 @@ export async function ciCommand(options: CiOptions) {
     projectPath,
     timestamp: new Date().toISOString(),
     duration,
-    languages: [],
-    filesScanned: 0,
+    languages,
+    filesScanned,
     phase1Findings: allFindings,
     phase2Findings: [],
     confirmedVulnerabilities: allFindings,
@@ -166,4 +149,6 @@ export async function ciCommand(options: CiOptions) {
       })
     );
   }
+
+  process.exit(0);
 }
