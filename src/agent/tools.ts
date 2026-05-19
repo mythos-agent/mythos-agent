@@ -83,7 +83,13 @@ export function createAgentTools(projectPath: string): Anthropic.Tool[] {
             type: ["string", "array"],
             items: { type: "string" },
             description:
-              'tree-sitter node kind to match (e.g. "call_expression", "new_expression", "function_declaration", "regex", "template_string"). May be a single string or an array of strings for union matching.',
+              "tree-sitter node kind to match. Pick the kind that holds the LITERAL TEXT being changed in the fix, not the kind that describes the bug class. Examples:\n" +
+              '- ReDoS in template-literal regex builders → kind: "template_string"\n' +
+              '- Header allowlist/denylist as inline strings → kind: "array" or "string" (NOT "regex" — the headers are array elements, not a regex literal)\n' +
+              '- Comparison flaw → kind: "binary_expression"\n' +
+              '- new RegExp(userInput) → kind: "new_expression"\n' +
+              '- Function declaration with a specific parameter name → kind: "function_declaration"\n' +
+              "May be a single string or an array of strings for union matching.",
           },
           text_predicates: {
             type: "array",
