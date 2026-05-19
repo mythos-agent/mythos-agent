@@ -153,7 +153,9 @@ const LLM_RULES: LlmRule[] = [
       "LLM output is used without content moderation or filtering. AI may generate harmful, biased, or inappropriate content.",
     severity: "medium",
     cwe: "CWE-20",
-    patterns: [/(?:response|completion|result)\.(?:content|text|message)\s*(?:\.trim\(\))?$/gm],
+    patterns: [
+      /(?:response|completion|result)\.(?:content|text|message)\b(?!\s*(?:filter|moderat|sanitiz))/gi,
+    ],
   },
 
   // Hardcoded model endpoints

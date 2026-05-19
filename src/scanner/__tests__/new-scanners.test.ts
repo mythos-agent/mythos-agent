@@ -57,6 +57,22 @@ describe("LlmSecurityScanner", () => {
     expect(findings.some((f) => f.rule.includes("system-prompt"))).toBe(true);
     cleanup(dir);
   });
+
+  it("detects llm-no-content-filter when LLM output is used without filtering", async () => {
+    // Realistic code: AI response accessed directly with trailing punctuation on the line.
+    // The old pattern had $+m which required end-of-line, so "response.content;" never matched.
+    const dir = createFixture({
+      "handler.ts": [
+        "// openai integration",
+        "const out = response.content;",
+        "res.send(out);",
+      ].join("\n"),
+    });
+    const scanner = new LlmSecurityScanner();
+    const { findings } = await scanner.scan(dir);
+    expect(findings.some((f) => f.rule.includes("llm-no-content-filter"))).toBe(true);
+    cleanup(dir);
+  });
 });
 
 describe("ApiSecurityScanner", () => {
