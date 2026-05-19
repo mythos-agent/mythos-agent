@@ -2,6 +2,7 @@ import type Anthropic from "@anthropic-ai/sdk";
 import type { MythosConfig, Vulnerability, Severity } from "../types/index.js";
 import { type LLMClient, createLLMClient } from "../llm/index.js";
 import { createAgentTools, executeToolCall } from "../agent/tools.js";
+import { buildVariantSystem, resolvePromptVariant } from "./variant-prompt.js";
 
 export interface CveInfo {
   id: string;
@@ -23,54 +24,14 @@ export interface VariantMatch {
   rootCauseMatch: string;
 }
 
-const VARIANT_SYSTEM = `You are a variant analysis engine, inspired by Google's Big Sleep project. Given a known CVE (vulnerability), you find STRUCTURALLY SIMILAR but SYNTACTICALLY DIFFERENT code in the target codebase.
-
-## How Variant Analysis Works
-
-1. Extract the ROOT CAUSE of the known vulnerability (not the surface pattern)
-   - Example: CVE describes "buffer overflow in URL parser" → root cause is "length not checked before copy into fixed-size buffer"
-2. Search the codebase for code that shares the SAME ROOT CAUSE
-   - Same type of mistake, different function, different variable names
-3. Rate similarity: high (same root cause + same data flow), medium (same root cause, different context), low (similar pattern, unclear if exploitable)
-
-## Key Insight
-Don't match surface syntax. Match the UNDERLYING MISTAKE. A buffer overflow in a URL parser and a buffer overflow in a JSON parser have the same root cause pattern even though the code looks completely different.
-
-## Workflow — REQUIRED
-
-1. Identify the root cause from the CVE (one sentence in \`rootCauseAnalysis\`).
-2. Call \`find_ast_pattern\` (or \`search_code\` if the AST kind is unclear) AT LEAST ONCE to find candidate sites in the codebase.
-3. Only after a tool call has returned, emit your final JSON answer.
-
-An empty \`variants\` array is a valid answer — but only AFTER step 2. Emitting \`variants: []\` without calling any search tool is treated as a failed run, not a "no variants found" result. Identifying the root cause is step 1; mechanically searching for instances of it is step 2. Do NOT skip step 2.
-
-## Output Format
-
-You MUST respond with a single JSON object and NOTHING ELSE. No markdown
-headers, no prose explanation outside JSON fields, no code fences (no
-\`\`\`json wrapper). The first character of your response MUST be '{' and
-the last character MUST be '}'. Schema:
-
-{
-  "rootCauseAnalysis": "Description of the root cause pattern extracted from the CVE",
-  "variants": [
-    {
-      "file": "src/parser.ts",
-      "line": 42,
-      "code": "the matching code snippet",
-      "similarity": "high",
-      "explanation": "This code has the same root cause: user-controlled length passed to buffer allocation without bounds check",
-      "rootCauseMatch": "Unchecked length → buffer allocation"
-    }
-  ]
-}
-
-If you find no variants, respond with: {"rootCauseAnalysis": "...", "variants": []}.
-Do not respond with prose explaining why you found nothing — the empty
-array IS the explanation. The harness parses your output as JSON, and
-prose responses produce a 0-variants result that is indistinguishable
-from a clean miss.`;
-
+// The active system prompt is selected at module load from the
+// MYTHOS_VARIANT_PROMPT env var (unset → "control"). This drives the
+// fix-A isolation experiment — see
+// docs/research/2026-05-19-qwen-fix-a-isolation.md. The resolved arm is
+// logged to stderr so each calibration run records which prompt it used.
+const ACTIVE_PROMPT_VARIANT = resolvePromptVariant(process.env.MYTHOS_VARIANT_PROMPT);
+const VARIANT_SYSTEM = buildVariantSystem(ACTIVE_PROMPT_VARIANT);
+process.stderr.write(`[variant-analyzer] prompt variant: ${ACTIVE_PROMPT_VARIANT}\n`);
 const MAX_TURNS = 20;
 const OSV_API = "https://api.osv.dev/v1";
 
