@@ -124,14 +124,41 @@ export class FixValidator {
         testCode = await this.generateTest(vulnerability, patch, fixedContent);
       }
 
-      const status =
-        vulnGone && compileOk && testsOk ? "verified" : vulnGone ? "partial" : "failed";
+      // When runProjectTests is false, compile and test results are synthetic
+      // "true" values (the checks never ran).  Treat them as "skipped" for
+      // the purpose of status and message so we do not overclaim.
+      const compileChecked = runProjectTests;
+      const testsChecked = runProjectTests;
+
+      // status: "verified"  — vuln gone AND compile+tests genuinely passed
+      //         "partial"   — vuln gone BUT compile/test checks were skipped
+      //         "failed"    — vuln still present (or patch not applicable)
+      const status: "verified" | "partial" | "failed" = vulnGone
+        ? compileChecked && testsChecked && compileOk && testsOk
+          ? "verified"
+          : "partial"
+        : "failed";
+
+      const compilationFragment = compileChecked
+        ? compileOk
+          ? "code compiles"
+          : "compilation failed"
+        : "compilation not checked";
+
+      const testsFragment = testsChecked
+        ? testsOk
+          ? "existing tests pass"
+          : "test failures detected"
+        : "project tests not run (runProjectTests: false)";
 
       const message = [
         vulnGone ? "Vulnerability pattern removed" : "Vulnerability pattern still present",
-        compileOk ? "code compiles" : "compilation failed",
-        testsOk ? "existing tests pass" : "test failures detected",
+        compilationFragment,
+        testsFragment,
       ].join(", ");
+
+      // regressionsFree: true only when checks actually ran and both passed.
+      const regressionsFree = compileChecked && testsChecked && compileOk && testsOk;
 
       return makeResult(
         vulnerability,
@@ -139,7 +166,7 @@ export class FixValidator {
         testCode,
         testsOk,
         vulnGone,
-        testsOk && compileOk,
+        regressionsFree,
         status,
         message
       );

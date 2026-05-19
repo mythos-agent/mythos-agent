@@ -115,7 +115,7 @@ describe("FixValidator.validate — default options (runProjectTests: false)", (
     expect(npmCalls).toHaveLength(0);
   });
 
-  it("returns status 'verified' and regressionsFree=true even when no tests run", async () => {
+  it("returns status 'partial' and regressionsFree=false when vuln is fixed but no tests ran", async () => {
     const validator = new FixValidator(makeConfig());
     const result = await validator.validate(
       tmpDir,
@@ -131,11 +131,35 @@ describe("FixValidator.validate — default options (runProjectTests: false)", (
       }
     );
 
-    // vulnerabilityFixed = true because original string no longer present
-    // compileOk = true (skipped) + testsOk = true (skipped) → verified
-    expect(result.regressionsFree).toBe(true);
+    // Vuln pattern removed → vulnerabilityFixed: true
+    // Compile and test checks were SKIPPED → regressionsFree must NOT be true
+    // and status must be "partial" (not "verified") to avoid overclaiming.
     expect(result.vulnerabilityFixed).toBe(true);
-    expect(result.status).toBe("verified");
+    expect(result.regressionsFree).toBe(false);
+    expect(result.status).toBe("partial");
+  });
+
+  it("message does NOT claim 'code compiles' or 'existing tests pass' when runProjectTests is false", async () => {
+    const validator = new FixValidator(makeConfig());
+    const result = await validator.validate(
+      tmpDir,
+      makeVuln({ location: { file: "app.ts", line: 1 } }),
+      {
+        vulnerabilityId: "SPX-0001",
+        file: "app.ts",
+        original: "const q = `SELECT * WHERE id = ${userInput}`;",
+        fixed: "const q = db.prepare('SELECT * WHERE id = ?').get(userInput);",
+        description: "Use parameterized query",
+        startLine: 1,
+        endLine: 1,
+      }
+      // default options — runProjectTests omitted (false)
+    );
+
+    expect(result.message).not.toContain("code compiles");
+    expect(result.message).not.toContain("existing tests pass");
+    expect(result.message).toContain("compilation not checked");
+    expect(result.message).toContain("project tests not run (runProjectTests: false)");
   });
 });
 
@@ -206,5 +230,33 @@ describe("FixValidator.validate — runProjectTests: true", () => {
     // --ignore-scripts must be present to prevent lifecycle hooks from firing
     const firstNpmTestArgs = npmTestCalls[0][1] as string[];
     expect(firstNpmTestArgs).toContain("--ignore-scripts");
+  });
+
+  it("returns status 'verified', regressionsFree=true, and honest message when runProjectTests is true and all checks pass", async () => {
+    // spawnSync is already mocked to return { status: 0 } in beforeEach
+    const validator = new FixValidator(makeConfig());
+    const result = await validator.validate(
+      tmpDir,
+      makeVuln({ location: { file: "app.ts", line: 1 } }),
+      {
+        vulnerabilityId: "SPX-0001",
+        file: "app.ts",
+        original: "const q = `SELECT * WHERE id = ${userInput}`;",
+        fixed: "const q = db.prepare('SELECT * WHERE id = ?').get(userInput);",
+        description: "Use parameterized query",
+        startLine: 1,
+        endLine: 1,
+      },
+      { runProjectTests: true }
+    );
+
+    expect(result.vulnerabilityFixed).toBe(true);
+    expect(result.regressionsFree).toBe(true);
+    expect(result.status).toBe("verified");
+    // Message must reflect the real checks, not the skipped-check fragments
+    expect(result.message).toContain("code compiles");
+    expect(result.message).toContain("existing tests pass");
+    expect(result.message).not.toContain("compilation not checked");
+    expect(result.message).not.toContain("project tests not run");
   });
 });
