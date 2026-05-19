@@ -1,15 +1,24 @@
+import fs from "node:fs";
+import nodePath from "node:path";
 import { describe, it, expect, afterEach } from "vitest";
 
 import { handleRequest } from "../server.js";
 import { saveResults } from "../../store/results-store.js";
 import { VERSION } from "../../version.js";
 import type { ScanResult } from "../../types/index.js";
-import { fixture as makeFixture, cleanupTmpDirs } from "../../__tests__/fixtures.js";
+import { cleanupTmpDirs } from "../../__tests__/fixtures.js";
 
+// Fixtures must live inside process.cwd() so they pass the MCP path guard
+// (which rejects any path that is not the workspace root or a descendant).
 const tmpDirs: string[] = [];
 const fixture = (files: Record<string, string>): string => {
-  const dir = makeFixture(files, "mythos-mcp-");
+  const dir = fs.mkdtempSync(nodePath.join(process.cwd(), "mythos-mcp-test-"));
   tmpDirs.push(dir);
+  for (const [name, content] of Object.entries(files)) {
+    const filePath = nodePath.join(dir, name);
+    fs.mkdirSync(nodePath.dirname(filePath), { recursive: true });
+    fs.writeFileSync(filePath, content);
+  }
   return dir;
 };
 
@@ -247,6 +256,19 @@ describe("MCP server — tool handlers", () => {
     // what must NOT happen is a thrown exception bubbling up to the RPC layer.
     expect(resp.jsonrpc).toBe("2.0");
     expect(resp.id).toBe(1);
+  });
+});
+
+describe("MCP server — path validation", () => {
+  it("returns JSON-RPC -32602 for a tools/call path outside the workspace root", async () => {
+    // The MCP server must reject any path that is not the workspace root or
+    // a descendent of it, preventing directory-traversal to e.g. "/" or "C:\".
+    const resp = await handleRequest(
+      rpc("tools/call", { name: "mythos_scan", arguments: { path: "/" } })
+    );
+    expect(resp.result).toBeUndefined();
+    expect(resp.error?.code).toBe(-32602);
+    expect(resp.error?.message).toMatch(/outside|allowed/i);
   });
 });
 
