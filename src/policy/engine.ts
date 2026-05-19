@@ -94,6 +94,7 @@ export function loadPolicy(projectPath: string): Policy | null {
         (r) =>
           r &&
           typeof (r as Record<string, unknown>).id === "string" &&
+          typeof (r as Record<string, unknown>).description === "string" &&
           typeof (r as Record<string, unknown>).action === "string" &&
           typeof (r as Record<string, unknown>).condition === "object"
       )

@@ -213,6 +213,25 @@ describe("loadPolicy — structural validation", () => {
     expect(result).toBeNull();
   });
 
+  it("returns null when a rule is missing the description field", () => {
+    const dir = tempDir();
+    const policyDir = path.join(dir, ".mythos");
+    fs.mkdirSync(policyDir, { recursive: true });
+    fs.writeFileSync(
+      path.join(policyDir, "policy.yml"),
+      [
+        "name: test",
+        "rules:",
+        "  - id: no-critical",
+        "    action: block",
+        "    condition:",
+        "      type: severity_threshold",
+      ].join("\n") + "\n"
+    );
+    const result = loadPolicy(dir);
+    expect(result).toBeNull();
+  });
+
   it("returns null when rules field is missing entirely", () => {
     const dir = tempDir();
     const policyDir = path.join(dir, ".mythos");
