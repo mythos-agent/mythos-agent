@@ -85,7 +85,22 @@ export function loadPolicy(projectPath: string): Policy | null {
 
   try {
     const raw = fs.readFileSync(policyPath, "utf-8");
-    return yaml.load(raw) as Policy;
+    const parsed = yaml.load(raw) as Record<string, unknown> | undefined;
+    if (
+      !parsed ||
+      typeof parsed.name !== "string" ||
+      !Array.isArray(parsed.rules) ||
+      !parsed.rules.every(
+        (r) =>
+          r &&
+          typeof (r as Record<string, unknown>).id === "string" &&
+          typeof (r as Record<string, unknown>).action === "string" &&
+          typeof (r as Record<string, unknown>).condition === "object"
+      )
+    ) {
+      return null;
+    }
+    return parsed as unknown as Policy;
   } catch {
     return null;
   }

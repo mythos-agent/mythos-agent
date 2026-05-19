@@ -165,6 +165,52 @@ describe("loadConfig — default excludes", () => {
   });
 });
 
+describe("loadConfig — type-validation of YAML fields", () => {
+  it("ignores apiKey when the YAML value is an object (not a string)", () => {
+    const dir = tempDir();
+    // YAML mapping: apiKey is an object, not a string — should be rejected
+    fs.writeFileSync(path.join(dir, ".mythos.yml"), "apiKey:\n  nested: evil\n");
+    const cfg = loadConfig(dir);
+    expect(typeof cfg.apiKey).not.toBe("object");
+    expect(cfg.apiKey).toBeUndefined();
+  });
+
+  it("ignores baseURL when the YAML value is an object (not a string)", () => {
+    const dir = tempDir();
+    fs.writeFileSync(path.join(dir, ".mythos.yml"), "baseURL:\n  host: evil\n  port: 9999\n");
+    const cfg = loadConfig(dir);
+    expect(typeof cfg.baseURL).not.toBe("object");
+    expect(cfg.baseURL).toBeUndefined();
+  });
+
+  it("ignores model when the YAML value is an array (not a string)", () => {
+    const dir = tempDir();
+    fs.writeFileSync(path.join(dir, ".mythos.yml"), "model:\n  - bad\n  - value\n");
+    const cfg = loadConfig(dir);
+    expect(typeof cfg.model).not.toBe("object");
+  });
+
+  it("ignores provider when the YAML value is a number (not a string)", () => {
+    const dir = tempDir();
+    fs.writeFileSync(path.join(dir, ".mythos.yml"), "provider: 42\n");
+    const cfg = loadConfig(dir);
+    expect(typeof cfg.provider).not.toBe("number");
+  });
+
+  it("still loads valid string values normally", () => {
+    const dir = tempDir();
+    fs.writeFileSync(
+      path.join(dir, ".mythos.yml"),
+      "apiKey: sk-valid\nmodel: claude-3-5-sonnet\nprovider: anthropic\nbaseURL: https://example.com/v1\n"
+    );
+    const cfg = loadConfig(dir);
+    expect(cfg.apiKey).toBe("sk-valid");
+    expect(cfg.model).toBe("claude-3-5-sonnet");
+    expect(cfg.provider).toBe("anthropic");
+    expect(cfg.baseURL).toBe("https://example.com/v1");
+  });
+});
+
 describe("writeConfig — canonical filename", () => {
   it("writes to .mythos.yml (the canonical name), not .sphinx.yml", () => {
     const dir = tempDir();

@@ -33,10 +33,10 @@ export function loadConfig(projectPath: string): MythosConfig {
     const raw = fs.readFileSync(configFile, "utf-8");
     const fileConfig = yaml.load(raw) as Record<string, unknown>;
     if (fileConfig) {
-      if (fileConfig.apiKey) config.apiKey = fileConfig.apiKey as string;
-      if (fileConfig.baseURL) config.baseURL = fileConfig.baseURL as string;
-      if (fileConfig.model) config.model = fileConfig.model as string;
-      if (fileConfig.provider) config.provider = fileConfig.provider as string;
+      if (typeof fileConfig.apiKey === "string") config.apiKey = fileConfig.apiKey;
+      if (typeof fileConfig.baseURL === "string") config.baseURL = fileConfig.baseURL;
+      if (typeof fileConfig.model === "string") config.model = fileConfig.model;
+      if (typeof fileConfig.provider === "string") config.provider = fileConfig.provider;
       if (fileConfig.rules && typeof fileConfig.rules === "object") {
         Object.assign(config.rules, fileConfig.rules);
       }
