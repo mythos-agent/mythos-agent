@@ -71,7 +71,7 @@
     "inquirer": "^12.3.0",
     "js-yaml": "^4.1.0",
     "openai": "^6.34.0",
-    "ora": "^8.2.0",
+    "ora": "^9.4.0",
     "web-tree-sitter": "^0.26.8"
   },
   "devDependencies": {
