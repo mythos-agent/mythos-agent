@@ -77,7 +77,7 @@ export class PermissionScanner {
     const files = await glob(["**/*.ts", "**/*.js", "**/*.py", "**/*.go"], {
       cwd: projectPath,
       absolute: true,
-      ignore: ["node_modules/**", "dist/**", ".git/**", ".sphinx/**", "**/*.test.*"],
+      ignore: ["node_modules/**", "dist/**", ".git/**", ".sphinx/**", ".mythos/**", "**/*.test.*"],
       nodir: true,
     });
     const findings: Vulnerability[] = [];

@@ -40,3 +40,21 @@ export const SEVERITY_HEX = {
 } as const;
 
 export type SeverityKey = keyof typeof SEVERITY_HEX;
+
+/**
+ * HTML-escape a value for safe interpolation into HTML templates.
+ *
+ * Canonical superset: escapes both `"` and `'` (the inline copies in
+ * html-reporter.ts and dashboard-html.ts only escaped `"` — the consolidated
+ * version adds `'` → `&#39;` for completeness).
+ *
+ * Accepts `unknown` so callers can pass raw user-data without an explicit cast.
+ */
+export function escapeHtml(s: unknown): string {
+  return String(s ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}

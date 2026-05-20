@@ -207,10 +207,6 @@ describe("HTTP API — API key auth (separate server instance)", () => {
   const SECRET = "test-secret-123";
 
   beforeAll(async () => {
-    // Note: createServer mutates a module-level serverConfig — so this suite
-    // must run AFTER the main-server tests have finished, which Vitest
-    // guarantees inside the same file for sequential describe blocks.
-    // Intentionally NOT isolated, because the route registry is module state.
     authServer = createServer({ port: 0, host: "127.0.0.1", projectPath, apiKey: SECRET });
     await new Promise<void>((resolve) => authServer.listen(0, "127.0.0.1", () => resolve()));
     const addr = authServer.address() as AddressInfo;
@@ -240,5 +236,94 @@ describe("HTTP API — API key auth (separate server instance)", () => {
       headers: { Authorization: `Bearer ${SECRET}` },
     });
     expect(resp.status).toBe(200);
+  });
+});
+
+describe("HTTP API — two-server config isolation", () => {
+  // This test verifies that creating a second server does NOT corrupt the
+  // first server's config (the module-level singleton bug). Each server must
+  // serve data scoped to its OWN projectPath, independently.
+  let serverA: Server;
+  let serverB: Server;
+  let baseA: string;
+  let baseB: string;
+  let pathA: string;
+  let pathB: string;
+
+  beforeAll(async () => {
+    // Create dirs directly (not via fixture()) so afterEach doesn't clean them up.
+    pathA = fs.mkdtempSync(path.join(os.tmpdir(), "mythos-api-A-"));
+    fs.writeFileSync(path.join(pathA, "a.ts"), "export const a = 1;\n");
+    pathB = fs.mkdtempSync(path.join(os.tmpdir(), "mythos-api-B-"));
+    fs.writeFileSync(path.join(pathB, "b.ts"), "export const b = 2;\n");
+
+    // Seed results for pathA only — pathB intentionally has none.
+    const findingA: import("../../types/index.js").Vulnerability = {
+      id: "a:1",
+      rule: "a:1",
+      title: "Finding in A",
+      description: "Only in project A",
+      severity: "high",
+      category: "test",
+      confidence: "high",
+      location: { file: "a.ts", line: 1 },
+    };
+    const resultA: import("../../types/index.js").ScanResult = {
+      projectPath: pathA,
+      timestamp: new Date().toISOString(),
+      duration: 0,
+      languages: ["typescript"],
+      filesScanned: 1,
+      phase1Findings: [findingA],
+      phase2Findings: [],
+      confirmedVulnerabilities: [findingA],
+      dismissedCount: 0,
+      chains: [],
+    };
+    saveResults(pathA, resultA);
+
+    serverA = createServer({ port: 0, host: "127.0.0.1", projectPath: pathA });
+    serverB = createServer({ port: 0, host: "127.0.0.1", projectPath: pathB });
+
+    await new Promise<void>((resolve) => serverA.listen(0, "127.0.0.1", () => resolve()));
+    await new Promise<void>((resolve) => serverB.listen(0, "127.0.0.1", () => resolve()));
+
+    baseA = `http://127.0.0.1:${(serverA.address() as import("node:net").AddressInfo).port}`;
+    baseB = `http://127.0.0.1:${(serverB.address() as import("node:net").AddressInfo).port}`;
+  });
+
+  afterAll(async () => {
+    await new Promise<void>((resolve) => serverA.close(() => resolve()));
+    await new Promise<void>((resolve) => serverB.close(() => resolve()));
+    for (const p of [pathA, pathB]) {
+      if (p) fs.rmSync(p, { recursive: true, force: true });
+    }
+  });
+
+  it("server A returns its own results (finding in A)", async () => {
+    const resp = await fetch(`${baseA}/api/results`);
+    expect(resp.status).toBe(200);
+    const body = (await resp.json()) as import("../../types/index.js").ScanResult;
+    expect(body.confirmedVulnerabilities).toHaveLength(1);
+    expect(body.confirmedVulnerabilities[0].title).toBe("Finding in A");
+  });
+
+  it("server B returns 404 — no results seeded for its projectPath", async () => {
+    // If the module-singleton bug were present, creating serverB would have
+    // overwritten the global config, making serverA also point at pathB.
+    // This assertion catches that: serverB must NOT see pathA's results.
+    const resp = await fetch(`${baseB}/api/results`);
+    expect(resp.status).toBe(404);
+    const body = (await resp.json()) as { error: string };
+    expect(body.error).toContain("No scan results");
+  });
+
+  it("server A is unaffected after server B was created (no config bleed)", async () => {
+    // Re-query server A after both servers are up to confirm the singleton
+    // overwrite did not corrupt server A's state.
+    const resp = await fetch(`${baseA}/api/results`);
+    expect(resp.status).toBe(200);
+    const body = (await resp.json()) as import("../../types/index.js").ScanResult;
+    expect(body.projectPath).toBe(pathA);
   });
 });

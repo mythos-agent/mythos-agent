@@ -1,6 +1,8 @@
 import { describe, it, expect } from "vitest";
+import path from "node:path";
 import {
   createAgentTools,
+  executeToolCall,
   resolveFindAstKindDoc,
   KIND_DOC_BASELINE,
   KIND_DOC_WORKED_EXAMPLES,
@@ -38,6 +40,20 @@ describe("find_ast_pattern kind descriptions", () => {
     expect(KIND_DOC_WORKED_EXAMPLES).toContain("Pick the kind that holds the LITERAL TEXT");
     expect(KIND_DOC_WORKED_EXAMPLES).toContain("Header allowlist/denylist as inline strings");
     expect(KIND_DOC_WORKED_EXAMPLES).toContain('(NOT "regex"');
+  });
+});
+
+describe("path-traversal guard — sibling directory", () => {
+  it("denies read_file to a sibling directory that shares a name prefix", async () => {
+    const sibling = `../${path.basename(process.cwd())}-evil/x`;
+    const out = await executeToolCall(process.cwd(), "read_file", { file_path: sibling });
+    expect(out).toContain("Access denied");
+  });
+
+  it("denies list_files to a sibling directory that shares a name prefix", async () => {
+    const sibling = `../${path.basename(process.cwd())}-evil`;
+    const out = await executeToolCall(process.cwd(), "list_files", { directory: sibling });
+    expect(out).toContain("Access denied");
   });
 });
 

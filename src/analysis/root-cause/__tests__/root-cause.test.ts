@@ -6,6 +6,70 @@ import { RootCauseExtractor, parsePattern, buildExtractionPrompt } from "../extr
 import { SEED_PATTERNS, SEEDED_IDS, getSeedPattern } from "../seed-patterns.js";
 import { DEFAULT_CONFIG } from "../../../types/index.js";
 
+// ---------------------------------------------------------------------------
+// parsePattern — brace-walk regression: early `{` in prose must not clobber
+// the real JSON payload.
+// ---------------------------------------------------------------------------
+describe("parsePattern — brace-walk extraction (regression: early-brace prose)", () => {
+  // This is the canonical regression scenario from the Task-13 spec:
+  // an LLM response that contains a `${template}` reference in prose
+  // BEFORE the real JSON object. The old greedy regex matched from the
+  // `{` inside `${template}` to the final `}` of the JSON, producing
+  // unparseable text and returning null. The brace-walk must ignore that
+  // stray open-brace and correctly find the real JSON object.
+  it("extracts JSON that follows a ${...} template reference in prose", () => {
+    const text = [
+      "Here is the analysis with a ${template} ref.",
+      "",
+      JSON.stringify({
+        bugClass: "sql-injection-string-concat",
+        cwe: "CWE-89",
+        languages: ["javascript"],
+        astShape: {
+          kind: "call_expression",
+          constraints: ["callee is db.query", "argument built by + concatenation"],
+        },
+        dataFlow: {
+          source: "user-input flows to query unchecked",
+          sink: "db.query call",
+        },
+        summary: "Classic string-concatenation SQL injection.",
+      }),
+    ].join("\n");
+
+    const result = parsePattern(text, "CVE-9999-00001");
+    expect(result).not.toBeNull();
+    expect(result?.bugClass).toBe("sql-injection-string-concat");
+    expect(result?.cwe).toBe("CWE-89");
+    expect(result?.languages).toEqual(["javascript"]);
+    expect(result?.dataFlow.source).toBe("user-input flows to query unchecked");
+  });
+
+  it("extracts JSON that follows multiple stray braces in prose", () => {
+    // Harder variant: multiple `{...}` fragments in the prose, none of
+    // which parse as valid JSON. Only the final well-formed JSON should
+    // be returned.
+    const text = [
+      "The function signature is foo({ arg }) and bar({x, y}).",
+      "See also: ${config.path} for details.",
+      "",
+      JSON.stringify({
+        bugClass: "path-traversal",
+        cwe: "CWE-22",
+        languages: ["python"],
+        astShape: { kind: "call_expression", constraints: ["os.path.join with user input"] },
+        dataFlow: { source: "request.args", sink: "open()" },
+        summary: "Path traversal via unsanitized user input.",
+      }),
+    ].join("\n");
+
+    const result = parsePattern(text, "CVE-9999-00002");
+    expect(result).not.toBeNull();
+    expect(result?.bugClass).toBe("path-traversal");
+    expect(result?.cwe).toBe("CWE-22");
+  });
+});
+
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const CVE_REPLAY_CASES = path.resolve(__dirname, "../../../../benchmarks/cve-replay/cases");
 

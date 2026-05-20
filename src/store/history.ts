@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import type { ScanResult } from "../types/index.js";
+import { calculateTrustScore } from "../report/trust-score.js";
 
 interface HistoryEntry {
   timestamp: string;
@@ -31,24 +32,7 @@ export function recordScan(projectPath: string, result: ScanResult): void {
   const history = loadHistory(projectPath);
   const vulns = result.confirmedVulnerabilities;
 
-  let trustScore = 10;
-  for (const v of vulns) {
-    switch (v.severity) {
-      case "critical":
-        trustScore -= 2;
-        break;
-      case "high":
-        trustScore -= 1;
-        break;
-      case "medium":
-        trustScore -= 0.5;
-        break;
-      case "low":
-        trustScore -= 0.2;
-        break;
-    }
-  }
-  trustScore = Math.max(0, Math.min(10, trustScore));
+  const trustScore = calculateTrustScore(vulns, result.chains);
 
   history.scans.push({
     timestamp: result.timestamp,

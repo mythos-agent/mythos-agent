@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import type { ScanResult, Vulnerability, VulnChain, Severity } from "../types/index.js";
+import { VERSION } from "../version.js";
 
 export function renderMarkdownReport(result: ScanResult, projectPath: string): string {
   const vulns = result.confirmedVulnerabilities;
@@ -24,7 +25,7 @@ export function renderMarkdownReport(result: ScanResult, projectPath: string): s
   let md = `# Security Report: ${projectName}
 
 **Date:** ${date}
-**Scanned by:** mythos-agent v1.0.0
+**Scanned by:** mythos-agent v${VERSION}
 **Duration:** ${duration}s | **Files:** ${result.filesScanned} | **Languages:** ${result.languages.join(", ") || "N/A"}
 
 ---

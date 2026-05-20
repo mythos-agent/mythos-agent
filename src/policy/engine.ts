@@ -2,6 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import yaml from "js-yaml";
 import type { ScanResult, Vulnerability, Severity } from "../types/index.js";
+import { calculateTrustScore } from "../report/trust-score.js";
 
 export interface Policy {
   name: string;
@@ -85,7 +86,26 @@ export function loadPolicy(projectPath: string): Policy | null {
 
   try {
     const raw = fs.readFileSync(policyPath, "utf-8");
-    return yaml.load(raw) as Policy;
+    const parsed = yaml.load(raw) as Record<string, unknown> | undefined;
+    if (
+      !parsed ||
+      typeof parsed.name !== "string" ||
+      !Array.isArray(parsed.rules) ||
+      !parsed.rules.every((r): boolean => {
+        if (!r || typeof r !== "object") return false;
+        const rule = r as Record<string, unknown>;
+        return (
+          typeof rule.id === "string" &&
+          typeof rule.description === "string" &&
+          typeof rule.action === "string" &&
+          typeof rule.condition === "object" &&
+          rule.condition !== null
+        );
+      })
+    ) {
+      return null;
+    }
+    return parsed as unknown as Policy;
   } catch {
     return null;
   }
@@ -157,39 +177,6 @@ function evaluateCondition(
     default:
       return [];
   }
-}
-
-function calculateTrustScore(vulns: Vulnerability[], chains: ScanResult["chains"]): number {
-  let score = 10;
-  for (const v of vulns) {
-    switch (v.severity) {
-      case "critical":
-        score -= 2;
-        break;
-      case "high":
-        score -= 1;
-        break;
-      case "medium":
-        score -= 0.5;
-        break;
-      case "low":
-        score -= 0.2;
-        break;
-    }
-  }
-  for (const chain of chains) {
-    switch (chain.severity) {
-      case "critical":
-        score -= 1.5;
-        break;
-      case "high":
-        score -= 1;
-        break;
-      default:
-        score -= 0.5;
-    }
-  }
-  return Math.max(0, Math.min(10, score));
 }
 
 export function getComplianceMapping(finding: Vulnerability, frameworks: string[]): string[] {

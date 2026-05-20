@@ -1,6 +1,24 @@
-import { describe, it, expect } from "vitest";
-import { evaluatePolicy, getComplianceMapping } from "../engine.js";
+import { describe, it, expect, afterEach } from "vitest";
+import fs from "node:fs";
+import os from "node:os";
+import path from "node:path";
+import { evaluatePolicy, getComplianceMapping, loadPolicy } from "../engine.js";
 import type { ScanResult, Vulnerability, VulnChain } from "../../types/index.js";
+
+const tmpDirs: string[] = [];
+
+function tempDir(): string {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "mythos-policy-"));
+  tmpDirs.push(dir);
+  return dir;
+}
+
+afterEach(() => {
+  while (tmpDirs.length) {
+    const d = tmpDirs.pop();
+    if (d) fs.rmSync(d, { recursive: true, force: true });
+  }
+});
 
 function mockVuln(overrides: Partial<Vulnerability> = {}): Vulnerability {
   return {
@@ -152,6 +170,130 @@ describe("evaluatePolicy", () => {
       mockResult(vulns)
     );
     expect(result.passed).toBe(false);
+  });
+});
+
+describe("loadPolicy — structural validation", () => {
+  it("returns null when the policy file has rules as a string (not an array)", () => {
+    const dir = tempDir();
+    const policyDir = path.join(dir, ".mythos");
+    fs.mkdirSync(policyDir, { recursive: true });
+    fs.writeFileSync(path.join(policyDir, "policy.yml"), "name: bad-policy\nrules: not-an-array\n");
+    const result = loadPolicy(dir);
+    expect(result).toBeNull();
+  });
+
+  it("returns null when the policy file has no name field", () => {
+    const dir = tempDir();
+    const policyDir = path.join(dir, ".mythos");
+    fs.mkdirSync(policyDir, { recursive: true });
+    fs.writeFileSync(
+      path.join(policyDir, "policy.yml"),
+      "rules:\n  - id: r1\n    action: block\n    condition:\n      type: severity_threshold\n"
+    );
+    const result = loadPolicy(dir);
+    expect(result).toBeNull();
+  });
+
+  it("returns null when a rule is missing the id field", () => {
+    const dir = tempDir();
+    const policyDir = path.join(dir, ".mythos");
+    fs.mkdirSync(policyDir, { recursive: true });
+    fs.writeFileSync(
+      path.join(policyDir, "policy.yml"),
+      [
+        "name: test",
+        "rules:",
+        "  - action: block",
+        "    condition:",
+        "      type: severity_threshold",
+      ].join("\n") + "\n"
+    );
+    const result = loadPolicy(dir);
+    expect(result).toBeNull();
+  });
+
+  it("returns null when a rule is missing the description field", () => {
+    const dir = tempDir();
+    const policyDir = path.join(dir, ".mythos");
+    fs.mkdirSync(policyDir, { recursive: true });
+    fs.writeFileSync(
+      path.join(policyDir, "policy.yml"),
+      [
+        "name: test",
+        "rules:",
+        "  - id: no-critical",
+        "    action: block",
+        "    condition:",
+        "      type: severity_threshold",
+      ].join("\n") + "\n"
+    );
+    const result = loadPolicy(dir);
+    expect(result).toBeNull();
+  });
+
+  it("returns null when rules field is missing entirely", () => {
+    const dir = tempDir();
+    const policyDir = path.join(dir, ".mythos");
+    fs.mkdirSync(policyDir, { recursive: true });
+    fs.writeFileSync(path.join(policyDir, "policy.yml"), "name: empty-policy\n");
+    const result = loadPolicy(dir);
+    expect(result).toBeNull();
+  });
+
+  it("loads a well-formed policy with empty rules array successfully", () => {
+    const dir = tempDir();
+    const policyDir = path.join(dir, ".mythos");
+    fs.mkdirSync(policyDir, { recursive: true });
+    fs.writeFileSync(path.join(policyDir, "policy.yml"), "name: minimal\nrules: []\n");
+    const result = loadPolicy(dir);
+    expect(result).not.toBeNull();
+    expect(result!.name).toBe("minimal");
+    expect(result!.rules).toEqual([]);
+  });
+
+  it("returns null when a rule has condition: null", () => {
+    const dir = tempDir();
+    const policyDir = path.join(dir, ".mythos");
+    fs.mkdirSync(policyDir, { recursive: true });
+    fs.writeFileSync(
+      path.join(policyDir, "policy.yml"),
+      [
+        "name: null-condition-policy",
+        "rules:",
+        "  - id: bad-rule",
+        "    description: Rule with null condition",
+        "    action: block",
+        "    condition: null",
+      ].join("\n") + "\n"
+    );
+    const result = loadPolicy(dir);
+    expect(result).toBeNull();
+  });
+
+  it("loads a well-formed policy with a valid rule successfully", () => {
+    const dir = tempDir();
+    const policyDir = path.join(dir, ".mythos");
+    fs.mkdirSync(policyDir, { recursive: true });
+    fs.writeFileSync(
+      path.join(policyDir, "policy.yml"),
+      [
+        "name: valid-policy",
+        "description: A valid policy",
+        "rules:",
+        "  - id: no-critical",
+        "    description: No critical vulns",
+        "    action: block",
+        "    condition:",
+        "      type: severity_threshold",
+        "      severity: critical",
+      ].join("\n") + "\n"
+    );
+    const result = loadPolicy(dir);
+    expect(result).not.toBeNull();
+    expect(result!.name).toBe("valid-policy");
+    expect(result!.rules).toHaveLength(1);
+    expect(result!.rules[0].id).toBe("no-critical");
   });
 });
 

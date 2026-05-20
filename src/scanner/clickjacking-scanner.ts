@@ -55,7 +55,7 @@ export class ClickjackingScanner {
     const files = await glob(["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx", "**/*.html"], {
       cwd: projectPath,
       absolute: true,
-      ignore: ["node_modules/**", "dist/**", ".git/**", ".sphinx/**"],
+      ignore: ["node_modules/**", "dist/**", ".git/**", ".sphinx/**", ".mythos/**"],
       nodir: true,
     });
     const findings: Vulnerability[] = [];

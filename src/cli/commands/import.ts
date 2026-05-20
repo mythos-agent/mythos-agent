@@ -13,12 +13,35 @@ export async function importCommand(filePath: string, options: ImportOptions) {
   const absPath = path.resolve(filePath);
   const projectPath = path.resolve(options.path || ".");
 
-  if (!fs.existsSync(absPath)) {
-    console.log(chalk.yellow(`\n⚠️  File not found: ${absPath}\n`));
-    return;
+  // Open, stat-and-read on the same fd to avoid TOCTOU. We do NOT pre-check
+  // with `existsSync` — that introduces a check-then-use race between the
+  // exists check and the open. Instead, let `openSync` fail naturally and
+  // translate ENOENT into the friendly user message.
+  let fd: number;
+  try {
+    fd = fs.openSync(absPath, "r");
+  } catch (err) {
+    if ((err as NodeJS.ErrnoException).code === "ENOENT") {
+      console.log(chalk.yellow(`\n⚠️  File not found: ${absPath}\n`));
+      return;
+    }
+    throw err;
   }
 
-  const content = fs.readFileSync(absPath, "utf-8");
+  let content: string;
+  try {
+    const st = fs.fstatSync(fd);
+    if (st.size > 50 * 1024 * 1024) {
+      throw new Error(
+        `Import file too large (${(st.size / 1024 / 1024).toFixed(1)} MB). Maximum allowed size is 50 MB.`
+      );
+    }
+    const buf = Buffer.alloc(st.size);
+    fs.readSync(fd, buf, 0, st.size, 0);
+    content = buf.toString("utf-8");
+  } finally {
+    fs.closeSync(fd);
+  }
   let findings: Vulnerability[] = [];
 
   switch (options.format) {
@@ -79,11 +102,16 @@ export async function importCommand(filePath: string, options: ImportOptions) {
 }
 
 function importSarif(content: string): Vulnerability[] {
-  const data = JSON.parse(content);
+  let data: unknown;
+  try {
+    data = JSON.parse(content);
+  } catch (e) {
+    throw new Error(`Failed to parse SARIF file as JSON: ${(e as Error).message}`);
+  }
   const findings: Vulnerability[] = [];
   let id = 1;
 
-  for (const run of data.runs || []) {
+  for (const run of (data as any).runs || []) {
     for (const result of run.results || []) {
       const loc = result.locations?.[0]?.physicalLocation;
       findings.push({
@@ -105,8 +133,13 @@ function importSarif(content: string): Vulnerability[] {
 }
 
 function importSemgrep(content: string): Vulnerability[] {
-  const data = JSON.parse(content);
-  return (data.results || []).map((r: any, i: number) => ({
+  let data: unknown;
+  try {
+    data = JSON.parse(content);
+  } catch (e) {
+    throw new Error(`Failed to parse Semgrep file as JSON: ${(e as Error).message}`);
+  }
+  return ((data as any).results || []).map((r: any, i: number) => ({
     id: `IMP-${String(i + 1).padStart(4, "0")}`,
     rule: `imported:${r.check_id}`,
     title: r.check_id?.split(".").pop() || r.check_id,
@@ -118,15 +151,28 @@ function importSemgrep(content: string): Vulnerability[] {
   }));
 }
 
+const VALID_SEVERITIES: ReadonlySet<string> = new Set([
+  "critical",
+  "high",
+  "medium",
+  "low",
+  "info",
+]);
+
 function importSnyk(content: string): Vulnerability[] {
-  const data = JSON.parse(content);
-  const vulns = data.vulnerabilities || [];
+  let data: unknown;
+  try {
+    data = JSON.parse(content);
+  } catch (e) {
+    throw new Error(`Failed to parse Snyk file as JSON: ${(e as Error).message}`);
+  }
+  const vulns = (data as any).vulnerabilities || [];
   return vulns.map((v: any, i: number) => ({
     id: `IMP-${String(i + 1).padStart(4, "0")}`,
     rule: `imported:${v.id || "snyk"}`,
     title: v.title || v.id,
     description: v.description || "",
-    severity: (v.severity || "medium") as Severity,
+    severity: (VALID_SEVERITIES.has(v.severity) ? v.severity : "info") as Severity,
     category: "imported",
     cwe: v.identifiers?.CWE?.[0],
     confidence: "high" as const,
@@ -135,10 +181,15 @@ function importSnyk(content: string): Vulnerability[] {
 }
 
 function importTrivy(content: string): Vulnerability[] {
-  const data = JSON.parse(content);
+  let data: unknown;
+  try {
+    data = JSON.parse(content);
+  } catch (e) {
+    throw new Error(`Failed to parse Trivy file as JSON: ${(e as Error).message}`);
+  }
   const findings: Vulnerability[] = [];
   let id = 1;
-  for (const result of data.Results || []) {
+  for (const result of (data as any).Results || []) {
     for (const v of result.Vulnerabilities || []) {
       findings.push({
         id: `IMP-${String(id++).padStart(4, "0")}`,

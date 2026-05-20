@@ -1,8 +1,9 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import type { ScanResult, Vulnerability, VulnChain, Severity } from "../types/index.js";
-import { BRAND, SEVERITY_HEX } from "./brand.js";
+import type { ScanResult, Vulnerability, VulnChain } from "../types/index.js";
+import { BRAND, SEVERITY_HEX, escapeHtml } from "./brand.js";
+import { calculateTrustScore } from "./trust-score.js";
 
 const HERO_SVG_DATA_URI = loadAssetAsDataUri("cerby-hero.svg", "image/svg+xml");
 const FAVICON_SVG_DATA_URI = loadAssetAsDataUri("favicon.svg", "image/svg+xml");
@@ -30,7 +31,7 @@ export function renderHtmlReport(result: ScanResult, projectPath: string): strin
   return outputPath;
 }
 
-function buildHtml(result: ScanResult): string {
+export function buildHtml(result: ScanResult): string {
   const { confirmedVulnerabilities: vulns, chains } = result;
   const duration = (result.duration / 1000).toFixed(1);
 
@@ -202,7 +203,7 @@ function renderVulnHtml(vuln: Vulnerability): string {
   return `<div class="vuln">
       <div class="vuln-header">
         <span class="badge badge-${vuln.severity}">${vuln.severity}</span>
-        <span class="vuln-id">${vuln.id}</span>
+        <span class="vuln-id">${escapeHtml(vuln.id)}</span>
         <span class="vuln-title">${escapeHtml(vuln.title)}</span>
         ${vuln.aiVerified ? '<span class="vuln-verified">AI Verified</span>' : ""}
         ${vuln.cwe ? `<span class="vuln-cwe">${vuln.cwe}</span>` : ""}
@@ -210,45 +211,4 @@ function renderVulnHtml(vuln: Vulnerability): string {
       <div class="vuln-location">${escapeHtml(vuln.location.file)}:${vuln.location.line}</div>
       ${vuln.location.snippet ? `<div class="vuln-snippet">${escapeHtml(vuln.location.snippet)}</div>` : ""}
     </div>`;
-}
-
-function escapeHtml(str: string): string {
-  return str
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
-}
-
-function calculateTrustScore(vulns: Vulnerability[], chains: VulnChain[]): number {
-  let score = 10;
-  for (const v of vulns) {
-    switch (v.severity) {
-      case "critical":
-        score -= 2.0;
-        break;
-      case "high":
-        score -= 1.0;
-        break;
-      case "medium":
-        score -= 0.5;
-        break;
-      case "low":
-        score -= 0.2;
-        break;
-    }
-  }
-  for (const chain of chains) {
-    switch (chain.severity) {
-      case "critical":
-        score -= 1.5;
-        break;
-      case "high":
-        score -= 1.0;
-        break;
-      default:
-        score -= 0.5;
-    }
-  }
-  return Math.max(0, Math.min(10, score));
 }

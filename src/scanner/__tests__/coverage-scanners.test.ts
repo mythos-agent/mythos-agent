@@ -131,6 +131,23 @@ describe("JwtScanner", () => {
     const { findings } = await new JwtScanner().scan(dir);
     expect(hasRule(findings, "jwt-stored-localstorage")).toBe(true);
   });
+
+  it("flags jwt-none-algorithm via second pattern even when another jwt rule matches first", async () => {
+    // No production-code change needed: jwt-scanner's loop already evaluates every rule
+    // independently. This test documents that invariant so a future refactor can't
+    // silently break it.
+    // The file has a benign jwt.verify call (triggers other rules like no-audience/no-issuer)
+    // AND a none-algorithm call. Both must fire.
+    const dir = fixture({
+      "auth.ts": [
+        'import jwt from "jsonwebtoken";',
+        'jwt.verify(t, k, { algorithms: ["HS256"] });',
+        'jwt.verify(t2, k2, { algorithm: "none" });',
+      ].join("\n"),
+    });
+    const { findings } = await new JwtScanner().scan(dir);
+    expect(hasRule(findings, "jwt-none-algorithm")).toBe(true);
+  });
 });
 
 describe("PathScanner", () => {

@@ -2,6 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import type { ScanResult, Vulnerability } from "../types/index.js";
 import { getComplianceMapping } from "../policy/engine.js";
+import { VERSION } from "../version.js";
 
 export interface ComplianceControl {
   framework: string;
@@ -154,7 +155,7 @@ export function renderComplianceMarkdown(
   });
 
   let md = `# Compliance Report: ${projectName}\n\n`;
-  md += `**Date:** ${date}\n**Tool:** mythos-agent v1.0.0\n\n---\n\n`;
+  md += `**Date:** ${date}\n**Tool:** mythos-agent v${VERSION}\n\n---\n\n`;
 
   for (const report of reports) {
     md += `## ${report.framework} Compliance (${report.passRate}% pass rate)\n\n`;

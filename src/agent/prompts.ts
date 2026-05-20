@@ -54,7 +54,7 @@ Respond with a JSON object:
  * inject follow-on instructions to the model. Opening tags in user content
  * are harmless (the model uses close tags as terminators).
  */
-function escapeForSentinel(text: string): string {
+export function escapeForSentinel(text: string): string {
   return text.replace(/<\/untrusted_code>/gi, "[[sentinel-close-stripped]]");
 }
 

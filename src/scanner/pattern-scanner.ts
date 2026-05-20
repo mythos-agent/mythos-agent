@@ -5,7 +5,7 @@ import type { MythosConfig, Vulnerability, RuleDefinition, Severity } from "../t
 import { loadBuiltinRules } from "../rules/builtin-rules.js";
 import { loadFrameworkRules } from "../rules/framework-rules.js";
 import { loadCustomRules } from "../rules/custom-rules.js";
-import { ScanCache } from "../store/scan-cache.js";
+import { ScanCache, hashRuleConfig } from "../store/scan-cache.js";
 
 interface ScanOutput {
   findings: Vulnerability[];
@@ -48,6 +48,7 @@ export class PatternScanner {
     let cacheHits = 0;
 
     const cache = useCache ? new ScanCache(projectPath) : null;
+    const rulesHash = hashRuleConfig(this.config.rules);
 
     for (const file of files) {
       const ext = path.extname(file);
@@ -58,7 +59,7 @@ export class PatternScanner {
 
       // Check cache
       if (cache) {
-        const cached = cache.getCached(relativePath, file);
+        const cached = cache.getCached(relativePath, file, rulesHash);
         if (cached) {
           findings.push(...cached);
           cacheHits++;
@@ -102,7 +103,7 @@ export class PatternScanner {
 
       // Cache the per-file findings
       if (cache) {
-        cache.set(relativePath, file, fileFindings);
+        cache.set(relativePath, file, fileFindings, rulesHash);
       }
       findings.push(...fileFindings);
     }

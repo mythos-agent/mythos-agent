@@ -3,6 +3,7 @@ import type { MythosConfig } from "../../types/index.js";
 import { type LLMClient, createLLMClient } from "../../llm/index.js";
 import type { CveInput, RootCausePattern } from "./types.js";
 import { SEED_PATTERNS, getSeedPattern } from "./seed-patterns.js";
+import { collectJsonCandidates } from "../variant-analyzer.js";
 
 /**
  * Sub-PR A1 of variants v2 — see docs/path-forward.md Track A.
@@ -157,15 +158,52 @@ Output JSON only.`;
  *    a degenerate parse.
  */
 export function parsePattern(text: string, cveId: string): RootCausePattern | null {
-  const jsonMatch = text.match(/\{[\s\S]*\}/);
-  if (!jsonMatch) return null;
-
+  // Use the canonical brace-walk helper (same algorithm as parseVariants in
+  // variant-analyzer.ts) instead of a greedy /\{[\s\S]*\}/ regex.  The
+  // greedy regex fails when prose before the JSON contains a `{` — e.g. a
+  // `${template}` reference — causing it to match from that stray `{` to
+  // the JSON's closing `}` and produce unparseable text.  collectJsonCandidates
+  // enumerates balanced-brace substrings (whole-text → fences → walk-from-end)
+  // so the real JSON object is found even when surrounded by prose.
+  //
+  // Shape guard: accept the first candidate that (a) parses as JSON AND (b)
+  // is an object that contains at least one RootCausePattern top-level key.
+  // This prevents accepting a parseable inner fragment (e.g. the nested
+  // `astShape` object) before the outer root-cause object when the brace-
+  // walk emits nested substrings before the enclosing one.
+  const ROOT_CAUSE_KEYS = new Set([
+    "bugClass",
+    "cwe",
+    "languages",
+    "astShape",
+    "dataFlow",
+    "summary",
+    "cveId",
+    "ghsaId",
+  ]);
+  const candidates = collectJsonCandidates(text);
   let data: unknown;
-  try {
-    data = JSON.parse(jsonMatch[0]);
-  } catch {
-    return null;
+  let parsed = false;
+  for (const candidate of candidates) {
+    let parsed_candidate: unknown;
+    try {
+      parsed_candidate = JSON.parse(candidate);
+    } catch {
+      continue;
+    }
+    if (
+      parsed_candidate === null ||
+      typeof parsed_candidate !== "object" ||
+      Array.isArray(parsed_candidate)
+    )
+      continue;
+    const keys = Object.keys(parsed_candidate as Record<string, unknown>);
+    if (!keys.some((k) => ROOT_CAUSE_KEYS.has(k))) continue;
+    data = parsed_candidate;
+    parsed = true;
+    break;
   }
+  if (!parsed) return null;
   if (typeof data !== "object" || data === null) return null;
   const obj = data as Record<string, unknown>;
 

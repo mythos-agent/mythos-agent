@@ -80,13 +80,13 @@ export function buildCallGraph(map: CodebaseMap, projectPath: string): CallGraph
   const callees = new Map<string, CallEdge[]>();
 
   for (const edge of edges) {
-    const callerList = callees.get(edge.caller) || [];
-    callerList.push(edge);
-    callees.set(edge.caller, callerList);
+    const edgesForCaller = callees.get(edge.caller) || [];
+    edgesForCaller.push(edge);
+    callees.set(edge.caller, edgesForCaller);
 
-    const calleeList = callers.get(edge.callee) || [];
-    calleeList.push(edge);
-    callers.set(edge.callee, calleeList);
+    const edgesForCallee = callers.get(edge.callee) || [];
+    edgesForCallee.push(edge);
+    callers.set(edge.callee, edgesForCallee);
   }
 
   return { nodes, edges, callers, callees };

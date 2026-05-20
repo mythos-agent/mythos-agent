@@ -19,6 +19,7 @@
  *   }
  */
 
+import path from "node:path";
 import { loadConfig } from "../config/config.js";
 import { PatternScanner } from "../scanner/pattern-scanner.js";
 import { SecretsScanner } from "../scanner/secrets-scanner.js";
@@ -206,7 +207,16 @@ async function handleToolCall(req: McpRequest): Promise<McpResponse> {
     };
   }
   const args = params.arguments || {};
-  const projectPath = args.path || process.cwd();
+  const root = path.resolve(process.cwd());
+  const requested = typeof args.path === "string" ? path.resolve(args.path) : root;
+  if (requested !== root && !requested.startsWith(root + path.sep)) {
+    return {
+      jsonrpc: "2.0",
+      id: req.id,
+      error: { code: -32602, message: "Path outside allowed workspace" },
+    };
+  }
+  const projectPath = requested;
 
   // Normalize both `mythos_xxx` (preferred) and `sphinx_xxx` (legacy alias)
   // to a single switch. Deprecation of the sphinx_* family is surfaced to

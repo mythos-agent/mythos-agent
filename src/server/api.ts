@@ -23,139 +23,134 @@ type RouteHandler = (
   body: string
 ) => Promise<{ status: number; data: unknown }>;
 
-const routes: Array<{
-  method: string;
-  path: string;
-  handler: RouteHandler;
-}> = [];
-
-function route(method: string, routePath: string, handler: RouteHandler) {
-  routes.push({ method, path: routePath, handler });
-}
-
-// Module-level config set by createServer — single-instance only
-let serverConfig: ServerConfig;
-
-// === API Routes ===
-
-route("GET", "/api/health", async () => ({
-  status: 200,
-  data: { status: "ok", version: VERSION, timestamp: new Date().toISOString() },
-}));
-
-route("GET", "/api/results", async () => {
-  const result = loadResults(serverConfig.projectPath);
-  return { status: result ? 200 : 404, data: result || { error: "No scan results" } };
-});
-
-route("GET", "/api/results/sarif", async () => {
-  const result = loadResults(serverConfig.projectPath);
-  if (!result) return { status: 404, data: { error: "No scan results" } };
-  return { status: 200, data: JSON.parse(renderSarifReport(result)) };
-});
-
-route("GET", "/api/results/markdown", async () => {
-  const result = loadResults(serverConfig.projectPath);
-  if (!result) return { status: 404, data: { error: "No scan results" } };
-  return {
-    status: 200,
-    data: { markdown: renderMarkdownReport(result, serverConfig.projectPath) },
-  };
-});
-
-route("GET", "/api/baseline", async () => {
-  const result = loadResults(serverConfig.projectPath);
-  if (!result) return { status: 404, data: { error: "No scan results" } };
-  const diff = compareToBaseline(serverConfig.projectPath, result);
-  if (!diff) return { status: 404, data: { error: "No baseline saved" } };
-  return {
-    status: 200,
-    data: {
-      newFindings: diff.newFindings.length,
-      fixedFindings: diff.fixedFindings.length,
-      unchanged: diff.unchangedCount,
-    },
-  };
-});
-
-route("GET", "/api/policy", async () => {
-  const result = loadResults(serverConfig.projectPath);
-  if (!result) return { status: 404, data: { error: "No scan results" } };
-  const policy = loadPolicy(serverConfig.projectPath);
-  if (!policy) return { status: 404, data: { error: "No policy configured" } };
-  const policyResult = evaluatePolicy(policy, result);
-  return { status: policyResult.passed ? 200 : 422, data: policyResult };
-});
-
-route("POST", "/api/scan", async (_req, _params, body) => {
-  if (body) {
-    try {
-      JSON.parse(body);
-    } catch {
-      return { status: 400, data: { error: "Invalid JSON body" } };
-    }
-  }
-  // Restrict scanning to the configured project path (prevent path traversal
-  // via a client-supplied path in the request body).
-  const projectPath = serverConfig.projectPath;
-
-  // Delegate to the shared Phase-1 orchestrator. Before this refactor the
-  // HTTP API ran 4 scanners while the CLI ran 15; every new scanner added
-  // to the CLI silently widened that gap. Now both go through runScan().
-  const { findings, filesScanned, languages, toolsRun, durationMs } = await runScan(projectPath, {
-    includeExternalTools: true,
-  });
-
-  const result: ScanResult = {
-    projectPath,
-    timestamp: new Date().toISOString(),
-    duration: durationMs,
-    languages,
-    filesScanned,
-    phase1Findings: findings,
-    phase2Findings: [],
-    confirmedVulnerabilities: findings,
-    dismissedCount: 0,
-    chains: [],
-  };
-
-  saveResults(projectPath, result);
-
-  return {
-    status: 200,
-    data: {
-      findings: findings.length,
-      filesScanned,
-      languages,
-      tools: ["built-in", ...toolsRun],
-      duration: result.duration,
-      critical: findings.filter((f) => f.severity === "critical").length,
-      high: findings.filter((f) => f.severity === "high").length,
-      medium: findings.filter((f) => f.severity === "medium").length,
-      low: findings.filter((f) => f.severity === "low").length,
-    },
-  };
-});
-
-route("GET", "/api/history", async () => {
-  const historyPath = path.join(serverConfig.projectPath, ".sphinx", "history.json");
-  const fs = await import("node:fs");
-  if (!fs.existsSync(historyPath)) return { status: 200, data: { scans: [] } };
-  try {
-    const data = JSON.parse(fs.readFileSync(historyPath, "utf-8"));
-    return { status: 200, data };
-  } catch {
-    return { status: 200, data: { scans: [] } };
-  }
-});
-
 // === Server ===
 
 const MAX_BODY_SIZE = 1024 * 1024; // 1MB limit
 
 export function createServer(config: ServerConfig): http.Server {
-  serverConfig = config;
-  const activeConfig = config;
+  // Routes are built per-instance so each server closes over its own config.
+  const routes: Array<{
+    method: string;
+    path: string;
+    handler: RouteHandler;
+  }> = [];
+
+  function route(method: string, routePath: string, handler: RouteHandler) {
+    routes.push({ method, path: routePath, handler });
+  }
+
+  // === API Routes ===
+
+  route("GET", "/api/health", async () => ({
+    status: 200,
+    data: { status: "ok", version: VERSION, timestamp: new Date().toISOString() },
+  }));
+
+  route("GET", "/api/results", async () => {
+    const result = loadResults(config.projectPath);
+    return { status: result ? 200 : 404, data: result || { error: "No scan results" } };
+  });
+
+  route("GET", "/api/results/sarif", async () => {
+    const result = loadResults(config.projectPath);
+    if (!result) return { status: 404, data: { error: "No scan results" } };
+    return { status: 200, data: JSON.parse(renderSarifReport(result)) };
+  });
+
+  route("GET", "/api/results/markdown", async () => {
+    const result = loadResults(config.projectPath);
+    if (!result) return { status: 404, data: { error: "No scan results" } };
+    return {
+      status: 200,
+      data: { markdown: renderMarkdownReport(result, config.projectPath) },
+    };
+  });
+
+  route("GET", "/api/baseline", async () => {
+    const result = loadResults(config.projectPath);
+    if (!result) return { status: 404, data: { error: "No scan results" } };
+    const diff = compareToBaseline(config.projectPath, result);
+    if (!diff) return { status: 404, data: { error: "No baseline saved" } };
+    return {
+      status: 200,
+      data: {
+        newFindings: diff.newFindings.length,
+        fixedFindings: diff.fixedFindings.length,
+        unchanged: diff.unchangedCount,
+      },
+    };
+  });
+
+  route("GET", "/api/policy", async () => {
+    const result = loadResults(config.projectPath);
+    if (!result) return { status: 404, data: { error: "No scan results" } };
+    const policy = loadPolicy(config.projectPath);
+    if (!policy) return { status: 404, data: { error: "No policy configured" } };
+    const policyResult = evaluatePolicy(policy, result);
+    return { status: policyResult.passed ? 200 : 422, data: policyResult };
+  });
+
+  route("POST", "/api/scan", async (_req, _params, body) => {
+    if (body) {
+      try {
+        JSON.parse(body);
+      } catch {
+        return { status: 400, data: { error: "Invalid JSON body" } };
+      }
+    }
+    // Restrict scanning to the configured project path (prevent path traversal
+    // via a client-supplied path in the request body).
+    const projectPath = config.projectPath;
+
+    // Delegate to the shared Phase-1 orchestrator. Before this refactor the
+    // HTTP API ran 4 scanners while the CLI ran 15; every new scanner added
+    // to the CLI silently widened that gap. Now both go through runScan().
+    const { findings, filesScanned, languages, toolsRun, durationMs } = await runScan(projectPath, {
+      includeExternalTools: true,
+    });
+
+    const result: ScanResult = {
+      projectPath,
+      timestamp: new Date().toISOString(),
+      duration: durationMs,
+      languages,
+      filesScanned,
+      phase1Findings: findings,
+      phase2Findings: [],
+      confirmedVulnerabilities: findings,
+      dismissedCount: 0,
+      chains: [],
+    };
+
+    saveResults(projectPath, result);
+
+    return {
+      status: 200,
+      data: {
+        findings: findings.length,
+        filesScanned,
+        languages,
+        tools: ["built-in", ...toolsRun],
+        duration: result.duration,
+        critical: findings.filter((f) => f.severity === "critical").length,
+        high: findings.filter((f) => f.severity === "high").length,
+        medium: findings.filter((f) => f.severity === "medium").length,
+        low: findings.filter((f) => f.severity === "low").length,
+      },
+    };
+  });
+
+  route("GET", "/api/history", async () => {
+    const historyPath = path.join(config.projectPath, ".sphinx", "history.json");
+    const fs = await import("node:fs");
+    if (!fs.existsSync(historyPath)) return { status: 200, data: { scans: [] } };
+    try {
+      const data = JSON.parse(fs.readFileSync(historyPath, "utf-8"));
+      return { status: 200, data };
+    } catch {
+      return { status: 200, data: { scans: [] } };
+    }
+  });
 
   const server = http.createServer(async (req, res) => {
     const url = new URL(req.url || "/", `http://${req.headers.host}`);
@@ -176,9 +171,9 @@ export function createServer(config: ServerConfig): http.Server {
     }
 
     // API key auth (optional)
-    if (activeConfig.apiKey) {
+    if (config.apiKey) {
       const authHeader = req.headers.authorization;
-      if (authHeader !== `Bearer ${activeConfig.apiKey}`) {
+      if (authHeader !== `Bearer ${config.apiKey}`) {
         res.writeHead(401, { "Content-Type": "application/json" });
         res.end(JSON.stringify({ error: "Unauthorized" }));
         return;

@@ -174,8 +174,12 @@ function executeReadFile(projectPath: string, input: Record<string, unknown>): s
   const filePath = input.file_path as string;
   const absPath = path.resolve(projectPath, filePath);
 
-  // Security: prevent path traversal
-  if (!absPath.startsWith(path.resolve(projectPath))) {
+  // Security: prevent path traversal. Include path.sep so a sibling
+  // directory sharing a name prefix (e.g. /work/proj-evil) is rejected.
+  // No `absPath === root` exemption here: reading the project root
+  // directory as a file is never valid, unlike executeListFiles where
+  // the default directory "." legitimately resolves to root.
+  if (!absPath.startsWith(path.resolve(projectPath) + path.sep)) {
     return "Error: Access denied — path is outside project directory";
   }
 
@@ -249,7 +253,8 @@ function executeListFiles(projectPath: string, input: Record<string, unknown>): 
   const globPattern = (input.glob_pattern as string) || "*";
   const absDir = path.resolve(projectPath, dir);
 
-  if (!absDir.startsWith(path.resolve(projectPath))) {
+  const root = path.resolve(projectPath);
+  if (absDir !== root && !absDir.startsWith(root + path.sep)) {
     return "Error: Access denied — path is outside project directory";
   }
 

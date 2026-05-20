@@ -237,6 +237,7 @@ const SECRET_EXCLUDE = [
   "build/**",
   ".git/**",
   ".sphinx/**",
+  ".mythos/**",
   "**/*.min.js",
   "**/package-lock.json",
   "**/yarn.lock",

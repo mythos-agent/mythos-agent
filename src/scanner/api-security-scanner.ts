@@ -210,6 +210,7 @@ export class ApiSecurityScanner {
           "dist/**",
           ".git/**",
           ".sphinx/**",
+          ".mythos/**",
           "**/*.test.*",
           "**/*.spec.*",
         ],

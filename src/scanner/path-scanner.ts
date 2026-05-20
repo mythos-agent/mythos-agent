@@ -10,6 +10,14 @@ const PATH_RULES: Array<{
   severity: Severity;
   cwe: string;
   patterns: RegExp[];
+  /**
+   * Optional post-match mitigation check. Called after a pattern fires.
+   * Receives the file's lines array and the 1-based line number of the match.
+   * Return true when a mitigation is detected — suppresses the finding.
+   * Replaces the single-line (?!...) negative lookaheads that could not see
+   * mitigations on the following line.
+   */
+  mitigationCheck?: (lines: string[], lineNum: number) => boolean;
 }> = [
   {
     id: "path-traversal-join",
@@ -27,9 +35,14 @@ const PATH_RULES: Array<{
       "path.resolve with user input but no check that result stays within the intended directory.",
     severity: "high",
     cwe: "CWE-22",
-    patterns: [
-      /path\.resolve\s*\(.*(?:req\.|params\.|query\.|body\.|input)(?![\s\S]{0,100}startsWith)/gi,
-    ],
+    // Removed (?![\s\S]{0,100}startsWith) — that lookahead only scanned the
+    // same line and missed the common idiom of a startsWith guard on the next line.
+    // The mitigationCheck below inspects a 5-line window instead.
+    patterns: [/path\.resolve\s*\(.*(?:req\.|params\.|query\.|body\.|input)/gi],
+    mitigationCheck(lines: string[], lineNum: number): boolean {
+      const window = lines.slice(Math.max(0, lineNum - 1), lineNum - 1 + 5).join("\n");
+      return window.includes("startsWith") || window.includes("normalize");
+    },
   },
   {
     id: "path-dot-dot",
@@ -38,9 +51,19 @@ const PATH_RULES: Array<{
       "User input used in file path without stripping '..' sequences. Always validate the resolved path stays within bounds.",
     severity: "high",
     cwe: "CWE-22",
+    // Removed (?![\s\S]{0,100}(?:startsWith|includes\s*\(\s*['"]\.\.['"]|sanitize|normalize)) — same-line only.
     patterns: [
-      /(?:readFile|writeFile|createReadStream|createWriteStream|unlink|rmdir)\s*\(.*(?:req\.|input|user|data|params)(?![\s\S]{0,100}(?:startsWith|includes\s*\(\s*['"]\.\.['"]|sanitize|normalize))/gi,
+      /(?:readFile|writeFile|createReadStream|createWriteStream|unlink|rmdir)\s*\(.*(?:req\.|input|user|data|params)/gi,
     ],
+    mitigationCheck(lines: string[], lineNum: number): boolean {
+      const window = lines.slice(Math.max(0, lineNum - 1), lineNum - 1 + 5).join("\n");
+      return (
+        window.includes("startsWith") ||
+        /includes\s*\(\s*['"]\.\.['"]/.test(window) ||
+        window.includes("sanitize") ||
+        window.includes("normalize")
+      );
+    },
   },
   {
     id: "path-null-byte",
@@ -49,9 +72,18 @@ const PATH_RULES: Array<{
       "File path from user input without null byte filtering. In older systems, null bytes can truncate paths to bypass extensions.",
     severity: "medium",
     cwe: "CWE-626",
-    patterns: [
-      /(?:readFile|open|access)\s*\(.*(?:req\.|input|user)(?![\s\S]{0,100}(?:replace.*\\0|replace.*%00|sanitize))/gi,
-    ],
+    // Removed (?![\s\S]{0,100}(?:replace.*\\0|replace.*%00|sanitize)) — same-line only.
+    patterns: [/(?:readFile|open|access)\s*\(.*(?:req\.|input|user)/gi],
+    mitigationCheck(lines: string[], lineNum: number): boolean {
+      const window = lines.slice(Math.max(0, lineNum - 1), lineNum - 1 + 5).join("\n");
+      return (
+        window.includes("\\0") ||
+        window.includes("%00") ||
+        window.includes("sanitize") ||
+        /replace.*\0/.test(window) ||
+        /replace.*%00/.test(window)
+      );
+    },
   },
   {
     id: "path-symlink",
@@ -60,9 +92,12 @@ const PATH_RULES: Array<{
       "File operations follow symbolic links by default. Attackers can create symlinks to escape the intended directory.",
     severity: "medium",
     cwe: "CWE-59",
-    patterns: [
-      /(?:readFile|writeFile|stat|access)\s*\(.*(?:upload|user|public|tmp)(?![\s\S]{0,100}(?:lstat|realpath|readlink))/gi,
-    ],
+    // Removed (?![\s\S]{0,100}(?:lstat|realpath|readlink)) — same-line only.
+    patterns: [/(?:readFile|writeFile|stat|access)\s*\(.*(?:upload|user|public|tmp)/gi],
+    mitigationCheck(lines: string[], lineNum: number): boolean {
+      const window = lines.slice(Math.max(0, lineNum - 1), lineNum - 1 + 5).join("\n");
+      return window.includes("lstat") || window.includes("realpath") || window.includes("readlink");
+    },
   },
 ];
 
@@ -76,7 +111,7 @@ export class PathScanner {
     const files = await glob(["**/*.ts", "**/*.js", "**/*.py"], {
       cwd: projectPath,
       absolute: true,
-      ignore: ["node_modules/**", "dist/**", ".git/**", ".sphinx/**", "**/*.test.*"],
+      ignore: ["node_modules/**", "dist/**", ".git/**", ".sphinx/**", ".mythos/**", "**/*.test.*"],
       nodir: true,
     });
     const findings: Vulnerability[] = [];
@@ -99,6 +134,9 @@ export class PathScanner {
           for (let i = 0; i < lines.length; i++) {
             p.lastIndex = 0;
             if (p.test(lines[i])) {
+              // Bounded-window mitigation check (replaces single-line negative lookaheads
+              // that could not see mitigations on adjacent lines).
+              if (rule.mitigationCheck && rule.mitigationCheck(lines, i + 1)) continue;
               findings.push({
                 id: `PATH-${String(id++).padStart(4, "0")}`,
                 rule: `path:${rule.id}`,

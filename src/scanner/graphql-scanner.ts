@@ -112,7 +112,7 @@ export class GraphqlScanner {
     const files = await glob(["**/*.ts", "**/*.js", "**/*.py"], {
       cwd: projectPath,
       absolute: true,
-      ignore: ["node_modules/**", "dist/**", ".git/**", ".sphinx/**"],
+      ignore: ["node_modules/**", "dist/**", ".git/**", ".sphinx/**", ".mythos/**"],
       nodir: true,
     });
 

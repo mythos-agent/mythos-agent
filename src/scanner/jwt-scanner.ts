@@ -10,6 +10,13 @@ const JWT_RULES: Array<{
   severity: Severity;
   cwe: string;
   patterns: RegExp[];
+  /**
+   * Optional post-match mitigation check. Called after a pattern fires.
+   * Receives the file's lines array and the 1-based line number of the match.
+   * Return true when a mitigation is detected — suppresses the finding.
+   * Use this instead of negative lookaheads to avoid ReDoS.
+   */
+  mitigationCheck?: (lines: string[], lineNum: number) => boolean;
 }> = [
   {
     id: "jwt-none-algorithm",
@@ -47,7 +54,12 @@ const JWT_RULES: Array<{
     description: "JWT signed without expiresIn/exp claim. Tokens are valid forever if not expired.",
     severity: "high",
     cwe: "CWE-613",
-    patterns: [/jwt\.sign\s*\(\s*\{(?![\s\S]{0,200}(?:expiresIn|exp\s*:))/gi],
+    patterns: [/jwt\.sign\s*\(\s*\{/gi],
+    // ~200 chars ≈ 10 lines; check that window for expiry options.
+    mitigationCheck(lines: string[], lineNum: number): boolean {
+      const windowStr = lines.slice(Math.max(0, lineNum - 1), lineNum - 1 + 10).join("\n");
+      return windowStr.includes("expiresIn") || /exp\s*:/.test(windowStr);
+    },
   },
   {
     id: "jwt-stored-localstorage",
@@ -95,9 +107,19 @@ const JWT_RULES: Array<{
       "JWT-based auth without token blacklist or revocation. Compromised tokens remain valid until expiry.",
     severity: "medium",
     cwe: "CWE-613",
-    patterns: [
-      /jwt\.verify(?![\s\S]{0,500}(?:blacklist|revoke|invalidate|redis|cache|blocklist))/gi,
-    ],
+    patterns: [/jwt\.verify/gi],
+    // ~500 chars ≈ 20 lines; check that window for a revocation mechanism.
+    mitigationCheck(lines: string[], lineNum: number): boolean {
+      const window = lines.slice(Math.max(0, lineNum - 1), lineNum - 1 + 20).join("\n");
+      return (
+        window.includes("blacklist") ||
+        window.includes("revoke") ||
+        window.includes("invalidate") ||
+        window.includes("redis") ||
+        window.includes("cache") ||
+        window.includes("blocklist")
+      );
+    },
   },
 ];
 
@@ -111,7 +133,7 @@ export class JwtScanner {
     const files = await glob(["**/*.ts", "**/*.js"], {
       cwd: projectPath,
       absolute: true,
-      ignore: ["node_modules/**", "dist/**", ".git/**", ".sphinx/**", "**/*.test.*"],
+      ignore: ["node_modules/**", "dist/**", ".git/**", ".sphinx/**", ".mythos/**", "**/*.test.*"],
       nodir: true,
     });
     const findings: Vulnerability[] = [];
@@ -134,6 +156,9 @@ export class JwtScanner {
           const match = p.exec(content);
           if (match) {
             const ln = content.slice(0, match.index).split("\n").length;
+            // Bounded-window mitigation check (replaces wide negative lookaheads
+            // that caused quadratic backtracking on adversarial input).
+            if (rule.mitigationCheck && rule.mitigationCheck(lines, ln)) break;
             findings.push({
               id: `JWT-${String(id++).padStart(4, "0")}`,
               rule: `jwt:${rule.id}`,

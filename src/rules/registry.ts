@@ -70,18 +70,33 @@ export async function installRulePack(
   }
 
   try {
-    spawnSync("npm", ["pack", packageName, "--pack-destination", tempDir], {
+    const packResult = spawnSync("npm", ["pack", packageName, "--pack-destination", tempDir], {
       encoding: "utf-8",
       timeout: 30000,
       stdio: "pipe",
     });
+    if (packResult.error || packResult.status !== 0) {
+      const stderr = packResult.stderr ? String(packResult.stderr).trim() : "";
+      throw new Error(
+        `npm pack failed for "${packageName}" (exit ${packResult.status ?? "unknown"})${stderr ? ": " + stderr : ""}`
+      );
+    }
 
     // Find the downloaded tarball
     const tarball = fs.readdirSync(tempDir).find((f) => f.endsWith(".tgz"));
     if (!tarball) throw new Error("Package download failed");
 
     // Extract rules from the tarball
-    spawnSync("tar", ["-xzf", path.join(tempDir, tarball), "-C", tempDir], { stdio: "pipe" });
+    const tarResult = spawnSync("tar", ["-xzf", path.join(tempDir, tarball), "-C", tempDir], {
+      stdio: "pipe",
+      encoding: "utf-8",
+    });
+    if (tarResult.error || tarResult.status !== 0) {
+      const stderr = tarResult.stderr ? String(tarResult.stderr).trim() : "";
+      throw new Error(
+        `tar extraction failed (exit ${tarResult.status ?? "unknown"})${stderr ? ": " + stderr : ""}`
+      );
+    }
 
     // Copy rule files to local rules directory
     const packageDir = path.join(tempDir, "package");

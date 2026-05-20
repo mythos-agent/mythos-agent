@@ -51,6 +51,12 @@ export async function exportCommand(options: ExportOptions) {
   }
 }
 
+function csv(s: unknown): string {
+  const str = String(s ?? "");
+  if (/[",\r\n]/.test(str)) return `"${str.replace(/"/g, '""')}"`;
+  return str;
+}
+
 function exportCsv(
   vulns: Array<{
     id: string;
@@ -64,7 +70,7 @@ function exportCsv(
   const header = "ID,Severity,Title,Category,CWE,File,Line,Snippet";
   const rows = vulns.map(
     (v) =>
-      `${v.id},${v.severity},"${v.title.replace(/"/g, '""')}",${v.category},${v.cwe || ""},${v.location.file},${v.location.line},"${(v.location.snippet || "").replace(/"/g, '""')}"`
+      `${csv(v.id)},${csv(v.severity)},${csv(v.title)},${csv(v.category)},${csv(v.cwe)},${csv(v.location.file)},${csv(v.location.line)},${csv(v.location.snippet)}`
   );
   return [header, ...rows].join("\n");
 }

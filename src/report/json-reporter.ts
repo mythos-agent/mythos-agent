@@ -1,8 +1,9 @@
 import type { ScanResult } from "../types/index.js";
+import { VERSION } from "../version.js";
 
-export function renderJsonReport(result: ScanResult): void {
+export function renderJsonReport(result: ScanResult): string {
   const output = {
-    version: "0.1.0",
+    version: VERSION,
     timestamp: result.timestamp,
     project: result.projectPath,
     duration_ms: result.duration,
@@ -47,5 +48,5 @@ export function renderJsonReport(result: ScanResult): void {
     })),
   };
 
-  console.log(JSON.stringify(output, null, 2));
+  return JSON.stringify(output, null, 2);
 }

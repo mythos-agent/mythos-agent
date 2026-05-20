@@ -33,6 +33,21 @@ function testSqlInjectionFix() {
 }
 \`\`\``;
 
+export interface ValidateOptions {
+  /**
+   * When true, the validator runs the scanned project's compile check (`npx
+   * tsc --noEmit`) and test suite (`npm test`) to detect regressions.
+   *
+   * **Default: false.**
+   *
+   * Leave this at the default unless you explicitly trust the repository
+   * being scanned — both commands execute untrusted code from the scanned
+   * project and can be weaponised by a malicious `pretest`/`posttest` or
+   * other lifecycle hook.
+   */
+  runProjectTests?: boolean;
+}
+
 export class FixValidator {
   private client: Anthropic | null;
 
@@ -46,12 +61,20 @@ export class FixValidator {
    * 2. Generate a test for the fix
    * 3. Run existing tests (if any) to check for regressions
    * 4. Re-scan to verify vulnerability is gone
+   *
+   * **Important:** compile and test commands from the scanned project are
+   * executed ONLY when `options.runProjectTests` is `true`.  Those commands
+   * run untrusted repository code.  The safe default (`runProjectTests:
+   * false`) skips them and treats the absence of test failures as "no
+   * regressions detected".
    */
   async validate(
     projectPath: string,
     vulnerability: Vulnerability,
-    patch: Patch
+    patch: Patch,
+    options: ValidateOptions = {}
   ): Promise<ValidatedFix> {
+    const { runProjectTests = false } = options;
     // Step 1: Create backup of original file
     const absPath = path.resolve(projectPath, patch.file);
     if (!fs.existsSync(absPath)) {
@@ -86,10 +109,10 @@ export class FixValidator {
 
     try {
       // Step 3: Check if the fixed code compiles/parses
-      const compileOk = checkCompilation(projectPath);
+      const compileOk = checkCompilation(projectPath, runProjectTests);
 
       // Step 4: Run existing tests if available
-      const testsOk = runExistingTests(projectPath);
+      const testsOk = runExistingTests(projectPath, runProjectTests);
 
       // Step 5: Re-scan the fixed file to check if vulnerability is gone
       const fixedContent = fs.readFileSync(absPath, "utf-8");
@@ -101,14 +124,41 @@ export class FixValidator {
         testCode = await this.generateTest(vulnerability, patch, fixedContent);
       }
 
-      const status =
-        vulnGone && compileOk && testsOk ? "verified" : vulnGone ? "partial" : "failed";
+      // When runProjectTests is false, compile and test results are synthetic
+      // "true" values (the checks never ran).  Treat them as "skipped" for
+      // the purpose of status and message so we do not overclaim.
+      const compileChecked = runProjectTests;
+      const testsChecked = runProjectTests;
+
+      // status: "verified"  — vuln gone AND compile+tests genuinely passed
+      //         "partial"   — vuln gone BUT compile/test checks were skipped
+      //         "failed"    — vuln still present (or patch not applicable)
+      const status: "verified" | "partial" | "failed" = vulnGone
+        ? compileChecked && testsChecked && compileOk && testsOk
+          ? "verified"
+          : "partial"
+        : "failed";
+
+      const compilationFragment = compileChecked
+        ? compileOk
+          ? "code compiles"
+          : "compilation failed"
+        : "compilation not checked";
+
+      const testsFragment = testsChecked
+        ? testsOk
+          ? "existing tests pass"
+          : "test failures detected"
+        : "project tests not run (runProjectTests: false)";
 
       const message = [
         vulnGone ? "Vulnerability pattern removed" : "Vulnerability pattern still present",
-        compileOk ? "code compiles" : "compilation failed",
-        testsOk ? "existing tests pass" : "test failures detected",
+        compilationFragment,
+        testsFragment,
       ].join(", ");
+
+      // regressionsFree: true only when checks actually ran and both passed.
+      const regressionsFree = compileChecked && testsChecked && compileOk && testsOk;
 
       return makeResult(
         vulnerability,
@@ -116,7 +166,7 @@ export class FixValidator {
         testCode,
         testsOk,
         vulnGone,
-        testsOk && compileOk,
+        regressionsFree,
         status,
         message
       );
@@ -166,7 +216,11 @@ Generate a test that verifies this fix.`,
   }
 }
 
-function checkCompilation(projectPath: string): boolean {
+function checkCompilation(projectPath: string, runProjectTests: boolean): boolean {
+  // Skip when project test/compile execution is not opted in.
+  // Semantics: "not checked" == "no compilation errors detected, OK to proceed".
+  if (!runProjectTests) return true;
+
   // Try TypeScript compilation check
   const tscResult = spawnSync("npx", ["tsc", "--noEmit"], {
     cwd: projectPath,
@@ -184,14 +238,20 @@ function checkCompilation(projectPath: string): boolean {
   return true;
 }
 
-function runExistingTests(projectPath: string): boolean {
+function runExistingTests(projectPath: string, runProjectTests: boolean): boolean {
+  // Skip when project test/compile execution is not opted in.
+  // Semantics: "not checked" == "no regressions detected, OK to proceed".
+  if (!runProjectTests) return true;
+
   // Check for package.json with test script
   const pkgPath = path.join(projectPath, "package.json");
   if (fs.existsSync(pkgPath)) {
     try {
       const pkg = JSON.parse(fs.readFileSync(pkgPath, "utf-8"));
       if (pkg.scripts?.test && pkg.scripts.test !== 'echo "Error: no test specified" && exit 1') {
-        const result = spawnSync("npm", ["test", "--", "--run"], {
+        // --ignore-scripts prevents lifecycle hooks (pretest/posttest) in the
+        // scanned repo from running arbitrary code with the user's credentials.
+        const result = spawnSync("npm", ["test", "--ignore-scripts", "--", "--run"], {
           cwd: projectPath,
           encoding: "utf-8",
           timeout: 60000,
