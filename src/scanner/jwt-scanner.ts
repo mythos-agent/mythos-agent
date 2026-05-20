@@ -3,7 +3,7 @@ import path from "node:path";
 import { glob } from "glob";
 import type { Vulnerability, Severity } from "../types/index.js";
 
-const JWT_RULES: Array<{
+export interface JwtRule {
   id: string;
   title: string;
   description: string;
@@ -17,7 +17,9 @@ const JWT_RULES: Array<{
    * Use this instead of negative lookaheads to avoid ReDoS.
    */
   mitigationCheck?: (lines: string[], lineNum: number) => boolean;
-}> = [
+}
+
+const JWT_RULES: JwtRule[] = [
   {
     id: "jwt-none-algorithm",
     title: "JWT: None Algorithm Accepted",
@@ -123,6 +125,30 @@ const JWT_RULES: Array<{
   },
 ];
 
+/**
+ * Return the first unmitigated match across all patterns of `rule`, or null
+ * if every match is either absent or suppressed by `mitigationCheck`.
+ *
+ * Decouples per-pattern matching from per-pattern mitigation checking, so a
+ * multi-pattern rule with a `mitigationCheck` that fires on one pattern can
+ * still surface a finding from a later pattern at an unmitigated site.
+ */
+export function findUnmitigatedMatch(
+  rule: JwtRule,
+  content: string,
+  lines: string[]
+): { line: number; index: number } | null {
+  for (const p of rule.patterns) {
+    p.lastIndex = 0;
+    const match = p.exec(content);
+    if (!match) continue;
+    const ln = content.slice(0, match.index).split("\n").length;
+    if (rule.mitigationCheck?.(lines, ln)) continue;
+    return { line: ln, index: match.index };
+  }
+  return null;
+}
+
 export interface JwtScanResult {
   findings: Vulnerability[];
   filesScanned: number;
@@ -151,28 +177,19 @@ export class JwtScanner {
       const lines = content.split("\n");
       const rel = path.relative(projectPath, file);
       for (const rule of JWT_RULES) {
-        for (const p of rule.patterns) {
-          p.lastIndex = 0;
-          const match = p.exec(content);
-          if (match) {
-            const ln = content.slice(0, match.index).split("\n").length;
-            // Bounded-window mitigation check (replaces wide negative lookaheads
-            // that caused quadratic backtracking on adversarial input).
-            if (rule.mitigationCheck && rule.mitigationCheck(lines, ln)) break;
-            findings.push({
-              id: `JWT-${String(id++).padStart(4, "0")}`,
-              rule: `jwt:${rule.id}`,
-              title: rule.title,
-              description: rule.description,
-              severity: rule.severity,
-              category: "jwt",
-              cwe: rule.cwe,
-              confidence: "medium",
-              location: { file: rel, line: ln, snippet: lines[ln - 1]?.trim() || "" },
-            });
-            break;
-          }
-        }
+        const m = findUnmitigatedMatch(rule, content, lines);
+        if (!m) continue;
+        findings.push({
+          id: `JWT-${String(id++).padStart(4, "0")}`,
+          rule: `jwt:${rule.id}`,
+          title: rule.title,
+          description: rule.description,
+          severity: rule.severity,
+          category: "jwt",
+          cwe: rule.cwe,
+          confidence: "medium",
+          location: { file: rel, line: m.line, snippet: lines[m.line - 1]?.trim() || "" },
+        });
       }
     }
     return { findings, filesScanned: files.length };
