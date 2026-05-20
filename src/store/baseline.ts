@@ -89,7 +89,10 @@ export function compareToBaseline(projectPath: string, current: ScanResult): Bas
     }
   }
 
-  const unchangedCount = current.confirmedVulnerabilities.length - newFindings.length;
+  let unchangedCount = 0;
+  for (const fp of baselineFingerprints) {
+    if (currentFingerprints.has(fp)) unchangedCount++;
+  }
 
   return { newFindings, fixedFindings, unchangedCount };
 }

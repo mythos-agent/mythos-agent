@@ -97,6 +97,49 @@ describe("baseline", () => {
     expect(diff!.fixedFindings).toHaveLength(1);
     expect(diff!.fixedFindings[0].rule).toBe("sqli:sqli-template-literal");
   });
+
+  it("computes unchangedCount as fingerprint intersection (not raw count minus new)", () => {
+    // Bug scenario: baseline has 1 finding with fingerprint A (rule:a.ts:10).
+    // Current has 2 raw findings that BOTH collapse to fingerprint B (rule:b.ts:10 and
+    // rule:b.ts:11 share the same lineGroup=10), which is NOT in the baseline.
+    //
+    // currentFingerprints Map deduplicates to 1 entry (B).
+    // newFindings = [B]  (B not in baseline)
+    // fixedFindings = [A]  (A not in current)
+    // CORRECT unchangedCount = 0  (no fingerprint is in both sets)
+    //
+    // OLD formula: current.confirmedVulnerabilities.length (2) - newFindings.length (1) = 1  → WRONG
+    const dir = makeProject();
+
+    // Baseline: one finding on b.ts line 10 (fingerprint: sqli:sqli-template-literal:b.ts:10)
+    // NOTE: we use a.ts for the baseline finding so fingerprint A = "sqli:sqli-template-literal:a.ts:10"
+    const baselineVuln = makeVuln({
+      id: "BASE-1",
+      location: { file: "a.ts", line: 10, snippet: "" },
+    });
+    saveBaseline(dir, makeResult([baselineVuln]));
+
+    // Current: two raw findings that map to the SAME fingerprint B = "sqli:sqli-template-literal:b.ts:10"
+    // (lines 10 and 11 both floor to lineGroup 10)
+    const currentVuln1 = makeVuln({
+      id: "CUR-1",
+      location: { file: "b.ts", line: 10, snippet: "" },
+    });
+    const currentVuln2 = makeVuln({
+      id: "CUR-2",
+      location: { file: "b.ts", line: 11, snippet: "" },
+    });
+    const diff = compareToBaseline(dir, makeResult([currentVuln1, currentVuln2]));
+
+    expect(diff).not.toBeNull();
+    // B is new (not in baseline A)
+    expect(diff!.newFindings).toHaveLength(1);
+    // A is fixed (not in current B)
+    expect(diff!.fixedFindings).toHaveLength(1);
+    // No fingerprint is shared between baseline {A} and current {B} → unchangedCount must be 0
+    // The OLD formula returns current.length (2) - newFindings.length (1) = 1, which is WRONG.
+    expect(diff!.unchangedCount).toBe(0);
+  });
 });
 
 describe("history", () => {
