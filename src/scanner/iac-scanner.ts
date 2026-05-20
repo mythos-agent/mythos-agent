@@ -310,7 +310,7 @@ export class IacScanner {
     const files = await glob(allPatterns, {
       cwd: projectPath,
       absolute: true,
-      ignore: ["node_modules/**", "dist/**", ".git/**", ".sphinx/**"],
+      ignore: ["node_modules/**", "dist/**", ".git/**", ".sphinx/**", ".mythos/**"],
       nodir: true,
     });
 

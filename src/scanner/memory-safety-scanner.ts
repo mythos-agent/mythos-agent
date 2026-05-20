@@ -127,7 +127,15 @@ export class MemorySafetyScanner {
     const files = await glob(patterns, {
       cwd: projectPath,
       absolute: true,
-      ignore: ["node_modules/**", "dist/**", ".git/**", ".sphinx/**", "target/**", "build/**"],
+      ignore: [
+        "node_modules/**",
+        "dist/**",
+        ".git/**",
+        ".sphinx/**",
+        ".mythos/**",
+        "target/**",
+        "build/**",
+      ],
       nodir: true,
     });
 

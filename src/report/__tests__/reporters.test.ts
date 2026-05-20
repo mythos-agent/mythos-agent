@@ -3,6 +3,8 @@ import { renderSarifReport } from "../sarif-reporter.js";
 import { renderMarkdownReport } from "../markdown-reporter.js";
 import { renderComplianceMarkdown } from "../compliance-reporter.js";
 import { renderJsonReport } from "../json-reporter.js";
+import { buildDashboardHtml } from "../dashboard-html.js";
+import { buildHtml } from "../html-reporter.js";
 import { VERSION } from "../../version.js";
 import type { ScanResult, Vulnerability } from "../../types/index.js";
 
@@ -135,5 +137,21 @@ describe("SARIF Reporter", () => {
 
     expect(sarif.runs[0].results).toHaveLength(0);
     expect(sarif.runs[0].tool.driver.rules).toHaveLength(0);
+  });
+});
+
+describe("HTML escaping of vuln.id", () => {
+  const xssId = "<script>alert(1)</script>";
+
+  it("html-reporter: escapes vuln.id — does not emit raw script tag", () => {
+    const html = buildHtml(mockResult([mockVuln({ id: xssId })]));
+    expect(html).not.toContain(xssId);
+    expect(html).toContain("&lt;script&gt;alert(1)&lt;/script&gt;");
+  });
+
+  it("dashboard-html: escapes v.id — does not emit raw script tag", () => {
+    const html = buildDashboardHtml(mockResult([mockVuln({ id: xssId })]), "/test/project");
+    expect(html).not.toContain(xssId);
+    expect(html).toContain("&lt;script&gt;alert(1)&lt;/script&gt;");
   });
 });

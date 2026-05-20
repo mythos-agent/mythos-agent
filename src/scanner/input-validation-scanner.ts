@@ -111,7 +111,7 @@ export class InputValidationScanner {
     const files = await glob(["**/*.ts", "**/*.js"], {
       cwd: projectPath,
       absolute: true,
-      ignore: ["node_modules/**", "dist/**", ".git/**", ".sphinx/**", "**/*.test.*"],
+      ignore: ["node_modules/**", "dist/**", ".git/**", ".sphinx/**", ".mythos/**", "**/*.test.*"],
       nodir: true,
     });
     const findings: Vulnerability[] = [];

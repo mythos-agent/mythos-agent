@@ -1,6 +1,6 @@
 import path from "node:path";
 import type { ScanResult, Vulnerability } from "../types/index.js";
-import { BRAND, SEVERITY_HEX } from "./brand.js";
+import { BRAND, SEVERITY_HEX, escapeHtml } from "./brand.js";
 import { calculateTrustScore } from "./trust-score.js";
 
 export function buildDashboardHtml(result: ScanResult | null, projectPath: string): string {
@@ -24,7 +24,7 @@ export function buildDashboardHtml(result: ScanResult | null, projectPath: strin
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>mythos-agent Dashboard — ${esc(projectName)}</title>
+<title>mythos-agent Dashboard — ${escapeHtml(projectName)}</title>
 <style>
   :root {
     --bg: ${BRAND.nearBlack};
@@ -102,7 +102,7 @@ export function buildDashboardHtml(result: ScanResult | null, projectPath: strin
 <div class="header">
   <h1><span>mythos-agent</span> Dashboard</h1>
   <div>
-    <span class="meta">${esc(projectName)} &bull; ${timestamp}</span>
+    <span class="meta">${escapeHtml(projectName)} &bull; ${timestamp}</span>
     <button class="refresh-btn" onclick="location.reload()">Refresh</button>
   </div>
 </div>
@@ -151,7 +151,7 @@ export function buildDashboardHtml(result: ScanResult | null, projectPath: strin
           const pct = maxCount > 0 ? (c.count / maxCount) * 100 : 0;
           const sev = c.topSeverity;
           return `<div class="bar-row">
-          <div class="bar-label">${esc(c.category)}</div>
+          <div class="bar-label">${escapeHtml(c.category)}</div>
           <div class="bar-track">
             <div class="bar-fill ${sev}" style="width:${Math.max(pct, 8)}%">${c.count}</div>
           </div>
@@ -173,11 +173,11 @@ export function buildDashboardHtml(result: ScanResult | null, projectPath: strin
         (c) => `
     <div class="chain-card">
       <span class="badge badge-${c.severity}">${c.severity}</span>
-      <span class="chain-title">${esc(c.title)}</span>
+      <span class="chain-title">${escapeHtml(c.title)}</span>
       <div class="chain-steps">
-        ${c.vulnerabilities.map((v) => `<div class="chain-step"><code>${esc(v.location.file)}:${v.location.line}</code> — ${esc(v.title)}</div>`).join("")}
+        ${c.vulnerabilities.map((v) => `<div class="chain-step"><code>${escapeHtml(v.location.file)}:${v.location.line}</code> — ${escapeHtml(v.title)}</div>`).join("")}
       </div>
-      <div class="chain-narrative">${esc(c.narrative)}</div>
+      <div class="chain-narrative">${escapeHtml(c.narrative)}</div>
     </div>`
       )
       .join("")}
@@ -196,10 +196,10 @@ export function buildDashboardHtml(result: ScanResult | null, projectPath: strin
           .map(
             (v) => `
         <tr>
-          <td style="font-family:var(--mono);color:var(--muted)">${v.id}</td>
+          <td style="font-family:var(--mono);color:var(--muted)">${escapeHtml(v.id)}</td>
           <td><span class="badge badge-${v.severity}">${v.severity}</span></td>
-          <td>${esc(v.title)}</td>
-          <td style="font-family:var(--mono);color:var(--code)">${esc(v.location.file)}</td>
+          <td>${escapeHtml(v.title)}</td>
+          <td style="font-family:var(--mono);color:var(--code)">${escapeHtml(v.location.file)}</td>
           <td>${v.location.line}</td>
           <td>${v.aiVerified ? "✓" : ""}</td>
         </tr>`
@@ -215,14 +215,6 @@ export function buildDashboardHtml(result: ScanResult | null, projectPath: strin
 </div>
 </body>
 </html>`;
-}
-
-function esc(str: string): string {
-  return str
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
 }
 
 function getCategoryCounts(
