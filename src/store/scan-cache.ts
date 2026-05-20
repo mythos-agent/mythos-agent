@@ -18,6 +18,23 @@ const CACHE_VERSION = 1;
 const CACHE_DIR = ".sphinx";
 const CACHE_FILE = "scan-cache.json";
 
+/**
+ * Compute a short hash of the active rule configuration so that a change in
+ * enabled/disabled rules automatically busts all stale cache entries.
+ */
+export function hashRuleConfig(rules: { enabled: string[]; disabled: string[] }): string {
+  const canonical = JSON.stringify({
+    enabled: [...rules.enabled].sort(),
+    disabled: [...rules.disabled].sort(),
+  });
+  return crypto.createHash("sha256").update(canonical).digest("hex").slice(0, 16);
+}
+
+/** Build the compound cache-entry key from file path and rule-config hash. */
+function entryKey(filePath: string, rulesHash: string): string {
+  return `${filePath}::${rulesHash}`;
+}
+
 export class ScanCache {
   private data: CacheData;
   private cachePath: string;
@@ -31,9 +48,14 @@ export class ScanCache {
   /**
    * Check if a file has changed since the last scan.
    * Returns cached findings if unchanged, null if the file needs scanning.
+   *
+   * @param rulesHash - opaque hash of the active rule config (see hashRuleConfig).
+   *   When the rule config changes the hash changes, producing a different entry
+   *   key and therefore a cache miss for every file — forcing a fresh scan.
    */
-  getCached(filePath: string, absPath: string): Vulnerability[] | null {
-    const entry = this.data.entries[filePath];
+  getCached(filePath: string, absPath: string, rulesHash = ""): Vulnerability[] | null {
+    const key = entryKey(filePath, rulesHash);
+    const entry = this.data.entries[key];
     if (!entry) return null;
 
     const currentHash = this.hashFile(absPath);
@@ -48,12 +70,15 @@ export class ScanCache {
 
   /**
    * Store findings for a file along with its content hash.
+   *
+   * @param rulesHash - must match the value passed to getCached.
    */
-  set(filePath: string, absPath: string, findings: Vulnerability[]): void {
+  set(filePath: string, absPath: string, findings: Vulnerability[], rulesHash = ""): void {
     const hash = this.hashFile(absPath);
     if (!hash) return;
 
-    this.data.entries[filePath] = {
+    const key = entryKey(filePath, rulesHash);
+    this.data.entries[key] = {
       hash,
       timestamp: new Date().toISOString(),
       findings,
@@ -63,11 +88,16 @@ export class ScanCache {
 
   /**
    * Remove stale entries for files that no longer exist.
+   * Keys are compound ("filePath::rulesHash"), so we extract the file-path
+   * portion (everything before the last "::") when checking against the set.
    */
   prune(existingFiles: Set<string>): number {
     let removed = 0;
     for (const key of Object.keys(this.data.entries)) {
-      if (!existingFiles.has(key)) {
+      // Extract the file-path portion from the compound key.
+      const separatorIdx = key.lastIndexOf("::");
+      const filePath = separatorIdx >= 0 ? key.slice(0, separatorIdx) : key;
+      if (!existingFiles.has(filePath)) {
         delete this.data.entries[key];
         removed++;
         this.dirty = true;
