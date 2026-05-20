@@ -4,7 +4,7 @@
 > The active 6-month working plan lives in the pinned GitHub Issue **`[Roadmap] mythos-agent H1 2026 Goals`**.
 > This document is refreshed annually; material changes go through an [RFC](docs/rfcs/).
 
-**Status:** v3.1.0 (April 2026) · MIT · TypeScript · single maintainer building toward a multi-maintainer team.
+**Status:** v4.2.0 (April 2026) · MIT · TypeScript · single maintainer building toward a multi-maintainer team.
 **Reading time:** ~10 minutes for the full document. Section 1 alone gives you the gist.
 
 ---
