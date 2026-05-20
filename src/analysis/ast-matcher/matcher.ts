@@ -111,7 +111,16 @@ const PREDICATE_TEXT_CAP = 8192;
 
 export async function findAstPattern(opts: FindAstPatternOptions): Promise<AstMatch[]> {
   const kinds = Array.isArray(opts.kind) ? new Set(opts.kind) : new Set([opts.kind]);
-  const predicates = (opts.textPredicates ?? []).map((p) => new RegExp(p, "u"));
+  const predicates = (opts.textPredicates ?? []).flatMap((p) => {
+    try {
+      return [new RegExp(p, "u")];
+    } catch (e) {
+      // Malformed regex from LLM — skip rather than aborting the variant hunt.
+      // The caller gets a silently narrower predicate set; a future A2.x can
+      // surface these as warnings in the tool-result payload.
+      return [];
+    }
+  });
   const maxMatches = opts.maxMatches ?? DEFAULT_MAX_MATCHES;
 
   const parser = await getParser(opts.language);

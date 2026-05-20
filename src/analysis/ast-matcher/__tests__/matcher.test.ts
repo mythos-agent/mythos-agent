@@ -152,6 +152,52 @@ describe("findAstPattern — text predicates", () => {
   });
 });
 
+describe("findAstPattern — malformed textPredicates (Fix 3)", () => {
+  it("does not throw when a predicate is a malformed regex (e.g. '[unclosed')", async () => {
+    // A bad regex from the LLM must not abort the variant hunt. The function
+    // must return normally (empty result or results without the bad predicate)
+    // rather than propagating a SyntaxError.
+    await expect(
+      findAstPattern({
+        kind: "call_expression",
+        source: "foo(1);",
+        language: "javascript",
+        textPredicates: ["[unclosed"],
+      })
+    ).resolves.not.toThrow();
+  });
+
+  it("skips the bad predicate and still matches when valid predicates remain", async () => {
+    // With a mix of one bad and one valid predicate, the bad one is dropped
+    // silently and the valid one is applied. Matching behavior is preserved
+    // for the remaining predicates.
+    const matches = await findAstPattern({
+      kind: "call_expression",
+      source: "foo(1); bar(2);",
+      language: "javascript",
+      // "[unclosed" is invalid — should be skipped.
+      // "^foo" is valid — should still narrow results to foo() calls only.
+      textPredicates: ["[unclosed", "^foo"],
+    });
+    // Because the bad predicate is skipped, we effectively only apply "^foo".
+    // foo(1) matches; bar(2) does not.
+    expect(matches).toHaveLength(1);
+    expect(matches[0].text).toBe("foo(1)");
+  });
+
+  it("returns all kind matches when ALL predicates are malformed (all skipped)", async () => {
+    // With every predicate invalid, all are dropped and the kind match alone
+    // applies — returns all call_expressions.
+    const matches = await findAstPattern({
+      kind: "call_expression",
+      source: "foo(1); bar(2);",
+      language: "javascript",
+      textPredicates: ["[unclosed", "(bad"],
+    });
+    expect(matches.length).toBeGreaterThanOrEqual(2);
+  });
+});
+
 describe("findAstPattern — caps and edge cases", () => {
   it("respects maxMatches", async () => {
     const source = "a();b();c();d();e();f();g();h();i();j();";
