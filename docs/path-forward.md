@@ -1,6 +1,8 @@
 # Path Forward — what mythos-agent needs to actually find a real 0-day
 
-> **Status (2026-04-26):** comprehensive plan informed by the [variant-hunt experiment](research/2026-04-26-variant-hunt-experiment.md) which proved variants v1 isn't ready for real bug discovery. This doc lays out the tracks, sequencing, kill criteria, and honest framing for the multi-month path to genuine capability.
+> **Status (2026-05-20):** Track A's A1+A2+A3 have all shipped. A3 calibration is validated on Claude Sonnet 4.6 at **8/8 across n=4** ([reliability writeup](research/2026-05-19-sonnet-4-6-reliability.md), [PR #65](https://github.com/mythos-agent/mythos-agent/pull/65)) — the 2026-04-27 n=1 "2/2" is now confirmed real and stable. qwen-max is ruled out for this design across three negative experiments ([PR #62](https://github.com/mythos-agent/mythos-agent/pull/62) · [#63](https://github.com/mythos-agent/mythos-agent/pull/63) · [#64](https://github.com/mythos-agent/mythos-agent/pull/64)); the agent-loop depth, not model size, is the differentiator. **A4 — the unknown-variant hunt — is the next concrete experiment and the actual test of variants v2.** Tracks B–E are unchanged from the 2026-04-26 plan and B's trigger condition is now met.
+>
+> **Status (2026-04-26, original):** comprehensive plan informed by the [variant-hunt experiment](research/2026-04-26-variant-hunt-experiment.md) which proved variants v1 isn't ready for real bug discovery. This doc lays out the tracks, sequencing, kill criteria, and honest framing for the multi-month path to genuine capability.
 
 ## Honest framing first
 
@@ -25,16 +27,16 @@ Each track is independently shippable. They can be pursued sequentially (recomme
 
 **Scope:**
 
-- **A1: CVE pattern extraction layer.** New module `src/analysis/root-cause/` that takes a CVE id and produces a structured pattern: the bug class (CWE), the AST shape that's vulnerable, the data-flow direction (source → sink), the language(s) affected. Initial coverage: the 5 CVEs in the existing CVE Replay corpus, used as both seed and validation.
-- **A2: AST-based pattern matcher.** Replace `search_code(regex)` (or augment it) with `find_ast_pattern(pattern)` that uses tree-sitter (already a project dependency) to find AST shapes matching the pattern from A1. Tools-layer change in `src/agent/tools.ts`.
-- **A3: Calibration corpus.** Take the 2 / 5 caught CVE Replay cases (CVE-2022-25883 semver, CVE-2024-28849 follow-redirects), use them as both seed and target. The variants-v2 tool should produce ≥1 candidate that maps back to the actual fix commit. If it doesn't, the design isn't working.
-- **A4: Re-run the variant-hunt experiment.** Same 4 targets, same 2 seeds, same models. Compare to the v1 baseline (0 / 8). Goal: ≥1 verified-real candidate across the 8 runs.
+- **A1: CVE pattern extraction layer.** New module `src/analysis/root-cause/` that takes a CVE id and produces a structured pattern: the bug class (CWE), the AST shape that's vulnerable, the data-flow direction (source → sink), the language(s) affected. Initial coverage: the 5 CVEs in the existing CVE Replay corpus, used as both seed and validation. **✅ Shipped — [PR #50](https://github.com/mythos-agent/mythos-agent/pull/50).**
+- **A2: AST-based pattern matcher.** Replace `search_code(regex)` (or augment it) with `find_ast_pattern(pattern)` that uses tree-sitter (already a project dependency) to find AST shapes matching the pattern from A1. Tools-layer change in `src/agent/tools.ts`. **✅ Shipped — [PR #51](https://github.com/mythos-agent/mythos-agent/pull/51).**
+- **A3: Calibration corpus.** Take the 2 / 5 caught CVE Replay cases (CVE-2022-25883 semver, CVE-2024-28849 follow-redirects), use them as both seed and target. The variants-v2 tool should produce ≥1 candidate that maps back to the actual fix commit. If it doesn't, the design isn't working. **✅ Shipped + validated — harness [PR #52](https://github.com/mythos-agent/mythos-agent/pull/52) / [#53](https://github.com/mythos-agent/mythos-agent/pull/53); reliability writeup [PR #65](https://github.com/mythos-agent/mythos-agent/pull/65) records 8/8 on Sonnet 4.6 across n=4.**
+- **A4: Re-run the variant-hunt experiment.** Same 4 targets, same 2 seeds, same models. Compare to the v1 baseline (0 / 8). Goal: ≥1 verified-real candidate across the 8 runs. **⏳ Next — model choice settled on Sonnet 4.6 by A3's reliability result; estimated paid spend ≈ $20–$30.**
 
-**Cost estimate:** $20–$40 of API credit across calibration + experiment re-runs. Multi-week wall-time mostly in maintainer engineering.
+**Cost estimate:** $20–$40 of API credit across calibration + experiment re-runs. Multi-week wall-time mostly in maintainer engineering. **Cost actuals through A3:** ≈$30 of API across the seven research writeups; A1+A2+A3 engineering done.
 
-**Kill criteria:** if A3 (calibration on known cases) produces 0 candidates after a serious attempt at the AST matcher, the structured-root-cause approach also isn't enough. At that point, the next bet is Track C (differential fuzzing), not deeper Track A iteration.
+**Kill criteria:** if A3 (calibration on known cases) produces 0 candidates after a serious attempt at the AST matcher, the structured-root-cause approach also isn't enough. At that point, the next bet is Track C (differential fuzzing), not deeper Track A iteration. **Kill criterion cleared by A3** — calibration produces hits on 8/8 attempts with no variance in the hit outcome; the 2026-10-26 kill date stands but Track A is not at risk on the calibration corpus. What remains genuinely open is A4 (test against *unknown* variants).
 
-**Trigger to start:** now. Tracking issue: TBD (filed alongside this doc).
+**Trigger to start:** now. Tracking issue: [#48](https://github.com/mythos-agent/mythos-agent/issues/48).
 
 ### Track B — Wire `SmartFuzzer` into the hunt pipeline (~2–4 weeks)
 
@@ -51,7 +53,7 @@ Each track is independently shippable. They can be pursued sequentially (recomme
 
 **Kill criteria:** if B1 (sandbox) turns into a multi-week security minefield (sandbox escapes, resource exhaustion attacks against the host), pivot to using an external sandboxing service (e.g., E2B, Modal) instead of rolling our own.
 
-**Trigger to start:** Track A's A2 (AST matcher) lands, OR Track A is killed at A3. Whichever is first. (Reason: A2's AST matcher informs what kinds of PoCs the exploit agent generates, which informs what the sandbox needs to support.)
+**Trigger to start:** Track A's A2 (AST matcher) lands, OR Track A is killed at A3. Whichever is first. (Reason: A2's AST matcher informs what kinds of PoCs the exploit agent generates, which informs what the sandbox needs to support.) **Trigger met (2026-05-20)** — A2 shipped in PR #51 and A3 cleared kill criterion; Track B is now eligible to start. Not yet scoped into an active phase pending A4 sequencing call.
 
 ### Track C — Differential fuzzing for spec-compliant parsers (~6–10 weeks)
 
@@ -107,12 +109,12 @@ Each track is independently shippable. They can be pursued sequentially (recomme
 
 For a single maintainer, attempting all 5 tracks in parallel is a recipe for nothing finishing. Sequence:
 
-| Phase | Tracks active | Trigger to advance | Wall-time estimate |
-|---|---|---|---|
-| 1 (now) | E (continuous), file all tracking issues | none — phase 1 is structural prep | 1 week |
-| 2 | A (variants v2) + E | A1 + A2 land | 4–6 weeks |
-| 3 | A3 (calibration) + B (sandbox) + E | A3 hit-rate measured + B1 sandbox secure | 4–6 weeks |
-| 4 | C (differential fuzzing) + D (supply chain) + E | A4 re-run shows ≥1 verified candidate | indefinite |
+| Phase | Tracks active | Trigger to advance | Wall-time estimate | Status |
+|---|---|---|---|---|
+| 1 | E (continuous), file all tracking issues | none — phase 1 is structural prep | 1 week | ✅ done |
+| 2 | A (variants v2) + E | A1 + A2 land | 4–6 weeks | ✅ done — A1 #50, A2 #51 |
+| 3 (now) | A3 (calibration) + B (sandbox) + E | A3 hit-rate measured + B1 sandbox secure | 4–6 weeks | A3 ✅ done at 8/8 Sonnet n=4 (#65); B not started; A4 ⏳ next paid experiment |
+| 4 | C (differential fuzzing) + D (supply chain) + E | A4 re-run shows ≥1 verified candidate | indefinite | gated on A4 |
 
 Phases 2–3 are the multi-month commit. The phase 1 work (this PR) is structural — write the plan, file issues, set expectations.
 
