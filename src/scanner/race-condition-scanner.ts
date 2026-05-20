@@ -89,9 +89,17 @@ const RACE_RULES: RaceRule[] = [
       "Payment or state-changing operation without idempotency key or duplicate check. Concurrent requests can process the same operation twice.",
     severity: "high",
     cwe: "CWE-362",
-    patterns: [
-      /(?:payment|charge|transfer|withdraw|debit)\s*(?:async)?\s*(?:function|\()(?![\s\S]{0,300}(?:idempotency|deduplicate|nonce|requestId))/gi,
-    ],
+    patterns: [/(?:payment|charge|transfer|withdraw|debit)\s*(?:async)?\s*(?:function|\()/gi],
+    // ~300 chars ≈ 12 lines; check that window for idempotency keywords.
+    mitigationCheck(lines: string[], lineNum: number): boolean {
+      const window = lines.slice(Math.max(0, lineNum - 1), lineNum - 1 + 12).join("\n");
+      return (
+        window.includes("idempotency") ||
+        window.includes("deduplicate") ||
+        window.includes("nonce") ||
+        window.includes("requestId")
+      );
+    },
   },
 
   // Async without await (fire and forget)

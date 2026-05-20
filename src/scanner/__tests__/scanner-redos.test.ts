@@ -141,6 +141,104 @@ describe("RaceConditionScanner — race-go-goroutine ReDoS guard", () => {
 });
 
 // ---------------------------------------------------------------------------
+// RaceConditionScanner — race-double-spend
+// ---------------------------------------------------------------------------
+describe("RaceConditionScanner — race-double-spend ReDoS guard", () => {
+  it("completes in <1500 ms on adversarial input (no idempotency keywords)", async () => {
+    // 50 KB of repeated payment/charge trigger lines — no idempotency keyword anywhere.
+    // With the old (?![\s\S]{0,300}...) lookahead this would retry the forward
+    // scan at every position, O(n^2) in input length.
+    const lines: string[] = [];
+    for (let i = 0; i < 1250; i++) {
+      lines.push(`async function payment(amount) { return charge(amount); }`);
+      lines.push(`async function transfer(from, to) { return withdraw(from, amount); }`);
+    }
+    const adversarial = lines.join("\n"); // ~50 KB
+    const dir = createFixture({ "payments.ts": adversarial });
+
+    const start = Date.now();
+    const scanner = new RaceConditionScanner();
+    await scanner.scan(dir);
+    const elapsed = Date.now() - start;
+
+    expect(elapsed).toBeLessThan(1500);
+    cleanup(dir);
+  });
+
+  it("still fires race-double-spend when no idempotency check is present", async () => {
+    const dir = createFixture({
+      "payments.ts": [
+        "async function payment(amount, userId) {",
+        "  const result = await stripe.charge({ amount, currency: 'usd' });",
+        "  await db.save(result);",
+        "  return result;",
+        "}",
+      ].join("\n"),
+    });
+    const { findings } = await new RaceConditionScanner().scan(dir);
+    expect(findings.some((f) => f.rule.includes("race-double-spend"))).toBe(true);
+    cleanup(dir);
+  });
+
+  it("suppresses race-double-spend when 'idempotency' is present in the window", async () => {
+    const dir = createFixture({
+      "payments.ts": [
+        "async function payment(amount, idempotencyKey) {",
+        "  const result = await stripe.charge({ amount, idempotency_key: idempotencyKey });",
+        "  return result;",
+        "}",
+      ].join("\n"),
+    });
+    const { findings } = await new RaceConditionScanner().scan(dir);
+    expect(findings.some((f) => f.rule.includes("race-double-spend"))).toBe(false);
+    cleanup(dir);
+  });
+
+  it("suppresses race-double-spend when 'deduplicate' is present in the window", async () => {
+    const dir = createFixture({
+      "payments.ts": [
+        "async function transfer(from, to, amount) {",
+        "  if (await deduplicate(requestId)) return;",
+        "  await db.transfer(from, to, amount);",
+        "}",
+      ].join("\n"),
+    });
+    const { findings } = await new RaceConditionScanner().scan(dir);
+    expect(findings.some((f) => f.rule.includes("race-double-spend"))).toBe(false);
+    cleanup(dir);
+  });
+
+  it("suppresses race-double-spend when 'nonce' is present in the window", async () => {
+    const dir = createFixture({
+      "payments.ts": [
+        "async function withdraw(account, amount) {",
+        "  const nonce = generateNonce();",
+        "  await db.withdraw(account, amount, nonce);",
+        "}",
+      ].join("\n"),
+    });
+    const { findings } = await new RaceConditionScanner().scan(dir);
+    expect(findings.some((f) => f.rule.includes("race-double-spend"))).toBe(false);
+    cleanup(dir);
+  });
+
+  it("suppresses race-double-spend when 'requestId' is present in the window", async () => {
+    const dir = createFixture({
+      "payments.ts": [
+        "async function charge(userId, amount, requestId) {",
+        "  await idempotentOp(requestId, async () => {",
+        "    await billing.charge(userId, amount);",
+        "  });",
+        "}",
+      ].join("\n"),
+    });
+    const { findings } = await new RaceConditionScanner().scan(dir);
+    expect(findings.some((f) => f.rule.includes("race-double-spend"))).toBe(false);
+    cleanup(dir);
+  });
+});
+
+// ---------------------------------------------------------------------------
 // JwtScanner — jwt-no-expiry
 // ---------------------------------------------------------------------------
 describe("JwtScanner — jwt-no-expiry ReDoS guard", () => {
