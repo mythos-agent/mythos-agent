@@ -3,6 +3,8 @@ import path from "node:path";
 import { glob } from "glob";
 import type { Vulnerability, Severity } from "../types/index.js";
 
+type Confidence = "high" | "medium" | "low";
+
 const DESER_RULES: Array<{
   id: string;
   title: string;
@@ -10,6 +12,19 @@ const DESER_RULES: Array<{
   severity: Severity;
   cwe: string;
   patterns: RegExp[];
+  /**
+   * Per-rule confidence override. When absent the scanner defaults to "high".
+   * Rules with known false-positive sources (e.g. single-line window scan that
+   * can miss nearby mitigations) must set this to "medium" or "low".
+   */
+  confidence?: Confidence;
+  /**
+   * Optional post-match mitigation check. Called after a pattern fires.
+   * Receives the file's lines array and the 1-based line number of the match.
+   * Return true when a mitigation is detected — suppresses the finding.
+   * Use this instead of negative lookaheads to avoid missing next-line guards.
+   */
+  mitigationCheck?: (lines: string[], lineNum: number) => boolean;
 }> = [
   {
     id: "deser-json-parse-untrusted",
@@ -18,9 +33,20 @@ const DESER_RULES: Array<{
       "JSON.parse on user input without try/catch. Malformed JSON crashes the process. Also check for __proto__ pollution.",
     severity: "medium",
     cwe: "CWE-502",
-    patterns: [
-      /JSON\.parse\s*\(\s*(?:req\.body|req\.query|data|input|message|payload)(?![\s\S]{0,50}catch)/gi,
-    ],
+    // Confidence is "medium" — even with the window check below, a try/catch
+    // wrapping JSON.parse might exist outside the 5-line scan window (e.g. a
+    // top-level handler). Avoid a "high" false-positive storm.
+    confidence: "medium",
+    // Removed (?![\s\S]{0,50}catch) — that lookahead only scanned the current
+    // line and missed try/catch blocks that wrap the call on adjacent lines.
+    // The mitigationCheck below inspects a 5-line window instead.
+    patterns: [/JSON\.parse\s*\(\s*(?:req\.body|req\.query|data|input|message|payload)/gi],
+    mitigationCheck(lines: string[], lineNum: number): boolean {
+      // Look back 2 lines (for try { on the line before) and forward 3 lines
+      // (for } catch on the lines after) — total window of ~5 lines.
+      const window = lines.slice(Math.max(0, lineNum - 3), lineNum - 1 + 3).join("\n");
+      return window.includes("catch");
+    },
   },
   {
     id: "deser-pickle-loads",
@@ -120,6 +146,9 @@ export class DeserializationScanner {
           for (let i = 0; i < lines.length; i++) {
             p.lastIndex = 0;
             if (p.test(lines[i])) {
+              // Bounded-window mitigation check (replaces single-line negative
+              // lookaheads that could not see mitigations on adjacent lines).
+              if (rule.mitigationCheck && rule.mitigationCheck(lines, i + 1)) continue;
               findings.push({
                 id: `DESER-${String(id++).padStart(4, "0")}`,
                 rule: `deser:${rule.id}`,
@@ -128,7 +157,7 @@ export class DeserializationScanner {
                 severity: rule.severity,
                 category: "deserialization",
                 cwe: rule.cwe,
-                confidence: "high",
+                confidence: rule.confidence ?? "high",
                 location: { file: rel, line: i + 1, snippet: lines[i].trim() },
               });
             }
