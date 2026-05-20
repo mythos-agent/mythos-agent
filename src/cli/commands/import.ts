@@ -13,16 +13,21 @@ export async function importCommand(filePath: string, options: ImportOptions) {
   const absPath = path.resolve(filePath);
   const projectPath = path.resolve(options.path || ".");
 
-  if (!fs.existsSync(absPath)) {
-    console.log(chalk.yellow(`\n⚠️  File not found: ${absPath}\n`));
-    return;
+  // Open, stat-and-read on the same fd to avoid TOCTOU. We do NOT pre-check
+  // with `existsSync` — that introduces a check-then-use race between the
+  // exists check and the open. Instead, let `openSync` fail naturally and
+  // translate ENOENT into the friendly user message.
+  let fd: number;
+  try {
+    fd = fs.openSync(absPath, "r");
+  } catch (err) {
+    if ((err as NodeJS.ErrnoException).code === "ENOENT") {
+      console.log(chalk.yellow(`\n⚠️  File not found: ${absPath}\n`));
+      return;
+    }
+    throw err;
   }
 
-  // Open once, stat-and-read on the same fd to close the TOCTOU window
-  // between size check and contents read. A swap of the on-disk file after
-  // open does not affect the bytes we read here — they come from the inode
-  // the fd is bound to.
-  const fd = fs.openSync(absPath, "r");
   let content: string;
   try {
     const st = fs.fstatSync(fd);
