@@ -1,8 +1,9 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import type { ScanResult, Vulnerability, VulnChain, Severity } from "../types/index.js";
+import type { ScanResult, Vulnerability, VulnChain } from "../types/index.js";
 import { BRAND, SEVERITY_HEX } from "./brand.js";
+import { calculateTrustScore } from "./trust-score.js";
 
 const HERO_SVG_DATA_URI = loadAssetAsDataUri("cerby-hero.svg", "image/svg+xml");
 const FAVICON_SVG_DATA_URI = loadAssetAsDataUri("favicon.svg", "image/svg+xml");
@@ -218,37 +219,4 @@ function escapeHtml(str: string): string {
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;");
-}
-
-function calculateTrustScore(vulns: Vulnerability[], chains: VulnChain[]): number {
-  let score = 10;
-  for (const v of vulns) {
-    switch (v.severity) {
-      case "critical":
-        score -= 2.0;
-        break;
-      case "high":
-        score -= 1.0;
-        break;
-      case "medium":
-        score -= 0.5;
-        break;
-      case "low":
-        score -= 0.2;
-        break;
-    }
-  }
-  for (const chain of chains) {
-    switch (chain.severity) {
-      case "critical":
-        score -= 1.5;
-        break;
-      case "high":
-        score -= 1.0;
-        break;
-      default:
-        score -= 0.5;
-    }
-  }
-  return Math.max(0, Math.min(10, score));
 }

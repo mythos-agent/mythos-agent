@@ -1,5 +1,6 @@
 import chalk from "chalk";
 import type { ScanResult, Severity, Vulnerability, VulnChain } from "../types/index.js";
+import { calculateTrustScore } from "./trust-score.js";
 
 const SEVERITY_COLORS: Record<Severity, (s: string) => string> = {
   critical: chalk.bgRed.white.bold,
@@ -139,43 +140,6 @@ function renderSummary(result: ScanResult): void {
   );
 
   console.log();
-}
-
-function calculateTrustScore(vulns: Vulnerability[], chains: VulnChain[]): number {
-  let score = 10;
-
-  for (const v of vulns) {
-    switch (v.severity) {
-      case "critical":
-        score -= 2.0;
-        break;
-      case "high":
-        score -= 1.0;
-        break;
-      case "medium":
-        score -= 0.5;
-        break;
-      case "low":
-        score -= 0.2;
-        break;
-    }
-  }
-
-  // Chains are extra bad
-  for (const chain of chains) {
-    switch (chain.severity) {
-      case "critical":
-        score -= 1.5;
-        break;
-      case "high":
-        score -= 1.0;
-        break;
-      default:
-        score -= 0.5;
-    }
-  }
-
-  return Math.max(0, Math.min(10, score));
 }
 
 function groupBySeverity(vulns: Vulnerability[]): Map<Severity, Vulnerability[]> {

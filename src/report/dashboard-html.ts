@@ -1,6 +1,7 @@
 import path from "node:path";
-import type { ScanResult, Vulnerability, VulnChain } from "../types/index.js";
+import type { ScanResult, Vulnerability } from "../types/index.js";
 import { BRAND, SEVERITY_HEX } from "./brand.js";
+import { calculateTrustScore } from "./trust-score.js";
 
 export function buildDashboardHtml(result: ScanResult | null, projectPath: string): string {
   const projectName = path.basename(projectPath);
@@ -14,7 +15,7 @@ export function buildDashboardHtml(result: ScanResult | null, projectPath: strin
     low: vulns.filter((v) => v.severity === "low").length,
   };
 
-  const trustScore = result ? calcTrustScore(vulns, chains) : 10;
+  const trustScore = result ? calculateTrustScore(vulns, chains) : 10;
   const categories = getCategoryCounts(vulns);
   const timestamp = result?.timestamp ? new Date(result.timestamp).toLocaleString() : "No scan yet";
 
@@ -222,39 +223,6 @@ function esc(str: string): string {
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;");
-}
-
-function calcTrustScore(vulns: Vulnerability[], chains: VulnChain[]): number {
-  let score = 10;
-  for (const v of vulns) {
-    switch (v.severity) {
-      case "critical":
-        score -= 2;
-        break;
-      case "high":
-        score -= 1;
-        break;
-      case "medium":
-        score -= 0.5;
-        break;
-      case "low":
-        score -= 0.2;
-        break;
-    }
-  }
-  for (const c of chains) {
-    switch (c.severity) {
-      case "critical":
-        score -= 1.5;
-        break;
-      case "high":
-        score -= 1;
-        break;
-      default:
-        score -= 0.5;
-    }
-  }
-  return Math.max(0, Math.min(10, score));
 }
 
 function getCategoryCounts(
