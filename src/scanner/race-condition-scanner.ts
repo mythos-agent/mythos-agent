@@ -10,6 +10,13 @@ interface RaceRule {
   severity: Severity;
   cwe: string;
   patterns: RegExp[];
+  /**
+   * Optional post-match mitigation check. Called after a pattern fires.
+   * Receives the file's lines array and the 1-based line number of the match.
+   * Return true when a mitigation is detected — suppresses the finding.
+   * Use this instead of negative lookaheads to avoid ReDoS.
+   */
+  mitigationCheck?: (lines: string[], lineNum: number) => boolean;
 }
 
 const RACE_RULES: RaceRule[] = [
@@ -52,8 +59,13 @@ const RACE_RULES: RaceRule[] = [
     severity: "high",
     cwe: "CWE-362",
     patterns: [
-      /await\s+\w+\.(?:create|update|delete|destroy|save)\s*\([^)]*\)\s*;\s*\n\s*await\s+\w+\.(?:create|update|delete|destroy|save)(?![\s\S]{0,500}transaction)/gi,
+      /await\s+\w+\.(?:create|update|delete|destroy|save)\s*\([^)]*\)\s*;\s*\n\s*await\s+\w+\.(?:create|update|delete|destroy|save)/gi,
     ],
+    // ~500 chars ≈ 20 lines; check that window for a "transaction" keyword.
+    mitigationCheck(lines: string[], lineNum: number): boolean {
+      const window = lines.slice(Math.max(0, lineNum - 1), lineNum - 1 + 20).join("\n");
+      return window.includes("transaction");
+    },
   },
 
   // Shared mutable state without lock
@@ -103,7 +115,18 @@ const RACE_RULES: RaceRule[] = [
       "Variable accessed inside a goroutine without mutex or channel. Use sync.Mutex or pass by value.",
     severity: "high",
     cwe: "CWE-362",
-    patterns: [/go\s+func\s*\(.*\)\s*\{[\s\S]{0,200}(?!.*(?:mu\.|Lock|Mutex|sync\.|chan\s))/gi],
+    patterns: [/go\s+func\s*\(.*\)\s*\{/gi],
+    // ~200 chars ≈ 8 lines; check the goroutine body for synchronization primitives.
+    mitigationCheck(lines: string[], lineNum: number): boolean {
+      const window = lines.slice(Math.max(0, lineNum - 1), lineNum - 1 + 8).join("\n");
+      return (
+        window.includes("mu.") ||
+        window.includes("Lock") ||
+        window.includes("Mutex") ||
+        window.includes("sync.") ||
+        window.includes("chan ")
+      );
+    },
   },
 ];
 
@@ -144,6 +167,9 @@ export class RaceConditionScanner {
           const match = pattern.exec(content);
           if (match) {
             const lineNum = content.slice(0, match.index).split("\n").length;
+            // Bounded-window mitigation check (replaces wide negative lookaheads
+            // that caused quadratic backtracking on adversarial input).
+            if (rule.mitigationCheck && rule.mitigationCheck(lines, lineNum)) continue;
             findings.push({
               id: `RACE-${String(idCounter++).padStart(4, "0")}`,
               rule: `race:${rule.id}`,
