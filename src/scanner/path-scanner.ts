@@ -59,8 +59,6 @@ const PATH_RULES: Array<{
       const window = lines.slice(Math.max(0, lineNum - 1), lineNum - 1 + 5).join("\n");
       return (
         window.includes("startsWith") ||
-        window.includes(`includes("..")`) ||
-        window.includes("includes('..') ") ||
         /includes\s*\(\s*['"]\.\.['"]/.test(window) ||
         window.includes("sanitize") ||
         window.includes("normalize")

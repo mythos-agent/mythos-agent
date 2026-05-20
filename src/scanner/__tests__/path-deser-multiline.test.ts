@@ -239,7 +239,7 @@ describe("DeserializationScanner — deser-json-parse-untrusted", () => {
     expect(findings.some((f) => f.rule.includes("deser-json-parse-untrusted"))).toBe(false);
   });
 
-  it("does NOT fire when catch is present within 5 lines after JSON.parse (false-positive fix)", async () => {
+  it("still fires when no catch is in the window (a comment mentioning catch does not count)", async () => {
     const dir = fixture({
       "ws.ts": [
         "ws.on('message', (message) => {",
@@ -250,7 +250,7 @@ describe("DeserializationScanner — deser-json-parse-untrusted", () => {
         "// catch handled externally",
       ].join("\n"),
     });
-    // Without a try/catch in window this SHOULD still fire — it's a true positive
+    // The trailing comment is outside the 5-line window, so this remains a true positive.
     const { findings } = await new DeserializationScanner().scan(dir);
     expect(findings.some((f) => f.rule.includes("deser-json-parse-untrusted"))).toBe(true);
   });

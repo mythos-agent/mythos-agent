@@ -42,8 +42,9 @@ const DESER_RULES: Array<{
     // The mitigationCheck below inspects a 5-line window instead.
     patterns: [/JSON\.parse\s*\(\s*(?:req\.body|req\.query|data|input|message|payload)/gi],
     mitigationCheck(lines: string[], lineNum: number): boolean {
-      // Look back 2 lines (for try { on the line before) and forward 3 lines
-      // (for } catch on the lines after) — total window of ~5 lines.
+      // Look back 2 lines (for `try {` on the line before) and forward 2 lines
+      // (for `} catch` on the lines after) — total window of 5 lines including
+      // the match line itself.
       const window = lines.slice(Math.max(0, lineNum - 3), lineNum - 1 + 3).join("\n");
       return window.includes("catch");
     },
