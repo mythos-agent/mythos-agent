@@ -18,14 +18,25 @@ export async function importCommand(filePath: string, options: ImportOptions) {
     return;
   }
 
-  const stats = fs.statSync(absPath);
-  if (stats.size > 50 * 1024 * 1024) {
-    throw new Error(
-      `Import file too large (${(stats.size / 1024 / 1024).toFixed(1)} MB). Maximum allowed size is 50 MB.`
-    );
+  // Open once, stat-and-read on the same fd to close the TOCTOU window
+  // between size check and contents read. A swap of the on-disk file after
+  // open does not affect the bytes we read here — they come from the inode
+  // the fd is bound to.
+  const fd = fs.openSync(absPath, "r");
+  let content: string;
+  try {
+    const st = fs.fstatSync(fd);
+    if (st.size > 50 * 1024 * 1024) {
+      throw new Error(
+        `Import file too large (${(st.size / 1024 / 1024).toFixed(1)} MB). Maximum allowed size is 50 MB.`
+      );
+    }
+    const buf = Buffer.alloc(st.size);
+    fs.readSync(fd, buf, 0, st.size, 0);
+    content = buf.toString("utf-8");
+  } finally {
+    fs.closeSync(fd);
   }
-
-  const content = fs.readFileSync(absPath, "utf-8");
   let findings: Vulnerability[] = [];
 
   switch (options.format) {

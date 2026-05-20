@@ -21,12 +21,21 @@ const CACHE_FILE = "scan-cache.json";
 /**
  * Compute a short hash of the active rule configuration so that a change in
  * enabled/disabled rules automatically busts all stale cache entries.
+ *
+ * The input here is two arrays of rule IDs (e.g. `["sqli", "xss-deep"]`) — not
+ * a credential. SHA-256 is the right tool for a content-addressable cache
+ * key: deterministic, collision-resistant, fast. CodeQL's
+ * `js/insufficient-password-hash` query traces config objects whose other
+ * fields include `apiKey` and flags the hashing as a password-hash, which is
+ * a false positive: `apiKey` does not flow into `update()`.
  */
+// lgtm[js/insufficient-password-hash]
 export function hashRuleConfig(rules: { enabled: string[]; disabled: string[] }): string {
   const canonical = JSON.stringify({
     enabled: [...rules.enabled].sort(),
     disabled: [...rules.disabled].sort(),
   });
+  // lgtm[js/insufficient-password-hash] — see JSDoc above; input is a rule-id list, not a credential.
   return crypto.createHash("sha256").update(canonical).digest("hex").slice(0, 16);
 }
 
