@@ -42,7 +42,7 @@ export async function reportCommand(options: ReportOptions) {
 
   switch (format) {
     case "json":
-      renderJsonReport(result);
+      console.log(renderJsonReport(result));
       break;
     case "html": {
       const outputPath = renderHtmlReport(result, projectPath);

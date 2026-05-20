@@ -297,7 +297,7 @@ export async function scanCommand(scanPath: string, options: ScanOptions) {
   // Output
   switch (outputFormat) {
     case "json":
-      renderJsonReport(result);
+      console.log(renderJsonReport(result));
       break;
     case "sarif":
       console.log(renderSarifReport(result));

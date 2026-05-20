@@ -1,5 +1,9 @@
 import { describe, it, expect, vi } from "vitest";
 import { renderSarifReport } from "../sarif-reporter.js";
+import { renderMarkdownReport } from "../markdown-reporter.js";
+import { renderComplianceMarkdown } from "../compliance-reporter.js";
+import { renderJsonReport } from "../json-reporter.js";
+import { VERSION } from "../../version.js";
 import type { ScanResult, Vulnerability } from "../../types/index.js";
 
 function mockResult(vulns: Vulnerability[] = []): ScanResult {
@@ -31,6 +35,49 @@ function mockVuln(overrides: Partial<Vulnerability> = {}): Vulnerability {
     ...overrides,
   };
 }
+
+describe("Markdown Reporter", () => {
+  it("contains the real VERSION and not the stale literal", () => {
+    const output = renderMarkdownReport(mockResult([]), "/some/project");
+    expect(output).toContain(`mythos-agent v${VERSION}`);
+    expect(output).not.toContain("v1.0.0");
+  });
+});
+
+describe("Compliance Reporter", () => {
+  it("contains the real VERSION and not the stale literal", () => {
+    const output = renderComplianceMarkdown(mockResult([]), [], "/some/project");
+    expect(output).toContain(`mythos-agent v${VERSION}`);
+    expect(output).not.toContain("v1.0.0");
+  });
+});
+
+describe("JSON Reporter", () => {
+  it("returns a string (does not print to stdout)", () => {
+    const consoleSpy = vi.spyOn(console, "log");
+    const output = renderJsonReport(mockResult([]));
+    expect(typeof output).toBe("string");
+    expect(consoleSpy).not.toHaveBeenCalled();
+    consoleSpy.mockRestore();
+  });
+
+  it("contains the real VERSION and not the stale literal", () => {
+    const output = renderJsonReport(mockResult([]));
+    const parsed = JSON.parse(output);
+    expect(parsed.version).toBe(VERSION);
+    expect(parsed.version).not.toBe("0.1.0");
+  });
+
+  it("preserves expected JSON structure", () => {
+    const output = renderJsonReport(mockResult([mockVuln()]));
+    const parsed = JSON.parse(output);
+    expect(parsed).toHaveProperty("timestamp");
+    expect(parsed).toHaveProperty("project");
+    expect(parsed).toHaveProperty("summary");
+    expect(parsed).toHaveProperty("vulnerabilities");
+    expect(parsed.vulnerabilities).toHaveLength(1);
+  });
+});
 
 describe("SARIF Reporter", () => {
   it("produces valid SARIF 2.1.0 structure", () => {
