@@ -5,8 +5,18 @@ name: Sigstore Release Signing
 # Triggered by release-please when a new release is created.
 
 on:
+  # release: events created via GITHUB_TOKEN don't fire downstream workflows
+  # (GitHub anti-recursion safeguard), so release-please calls this workflow
+  # via workflow_call instead. The release trigger remains as a safety net
+  # for releases created outside release-please (e.g. manual GitHub UI).
   release:
     types: [published]
+  workflow_call:
+    inputs:
+      tag:
+        description: "Release tag to sign (e.g. v2.1.0)"
+        required: true
+        type: string
   workflow_dispatch:
     inputs:
       tag:
