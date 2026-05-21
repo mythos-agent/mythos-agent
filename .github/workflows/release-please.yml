@@ -62,3 +62,20 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.NPM }}
           PROVENANCE_FLAG: ${{ github.event.repository.visibility == 'public' && '--provenance' || '' }}
         run: npm publish --access public $PROVENANCE_FLAG
+
+  # Sign-and-attest the release inline. The `release: published` event
+  # created by release-please's GITHUB_TOKEN does not fire downstream
+  # workflows (anti-recursion safeguard), so sigstore-release.yml's
+  # release-triggered run never executes. Calling it here as a reusable
+  # workflow bypasses that limitation and removes the need for manual
+  # workflow_dispatch after each release.
+  sign-release:
+    needs: release-please
+    if: needs.release-please.outputs.released == 'true'
+    permissions:
+      contents: write
+      id-token: write
+      attestations: write
+    uses: ./.github/workflows/sigstore-release.yml
+    with:
+      tag: ${{ needs.release-please.outputs.tag_name }}
