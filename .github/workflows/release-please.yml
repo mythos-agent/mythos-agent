@@ -20,6 +20,14 @@ jobs:
         id: release
         uses: googleapis/release-please-action@8b8fd2cc23b2e18957157a9d923d75aa0c6f6ad5 # v4
         with:
+          # When RELEASE_PLEASE_TOKEN is set as a repo secret (fine-grained
+          # PAT with contents:write + pull-requests:write on this repo),
+          # release-please uses it instead of GITHUB_TOKEN. PRs and releases
+          # then carry a user identity, so they fire downstream workflows —
+          # ci.yml on the release PR, sigstore-release on the release event.
+          # Falls back to GITHUB_TOKEN if the secret is unset, preserving
+          # current behavior.
+          token: ${{ secrets.RELEASE_PLEASE_TOKEN || secrets.GITHUB_TOKEN }}
           config-file: .release-please-config.json
           manifest-file: .release-please-manifest.json
 
