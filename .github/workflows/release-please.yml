@@ -16,18 +16,33 @@ jobs:
       released: ${{ steps.release.outputs.release_created }}
       tag_name: ${{ steps.release.outputs.tag_name }}
     steps:
+      # Mint a GitHub App installation token if the App is configured for
+      # this repo. Skipped when RELEASE_PLEASE_APP_ID is unset, so the
+      # workflow falls through to the PAT or GITHUB_TOKEN tier below.
+      - name: Generate GitHub App token (if configured)
+        id: app-token
+        if: ${{ vars.RELEASE_PLEASE_APP_ID != '' }}
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        with:
+          app-id: ${{ vars.RELEASE_PLEASE_APP_ID }}
+          private-key: ${{ secrets.RELEASE_PLEASE_APP_PRIVATE_KEY }}
+
       - name: Run release-please
         id: release
         uses: googleapis/release-please-action@8b8fd2cc23b2e18957157a9d923d75aa0c6f6ad5 # v4
         with:
-          # When RELEASE_PLEASE_TOKEN is set as a repo secret (fine-grained
-          # PAT with contents:write + pull-requests:write on this repo),
-          # release-please uses it instead of GITHUB_TOKEN. PRs and releases
-          # then carry a user identity, so they fire downstream workflows —
-          # ci.yml on the release PR, sigstore-release on the release event.
-          # Falls back to GITHUB_TOKEN if the secret is unset, preserving
-          # current behavior.
-          token: ${{ secrets.RELEASE_PLEASE_TOKEN || secrets.GITHUB_TOKEN }}
+          # Three-tier token resolution, in order of preference:
+          #   1. GitHub App installation token — no expiration to rotate,
+          #      scoped via App installation, audit trail shows the App.
+          #      Set vars.RELEASE_PLEASE_APP_ID + secrets.RELEASE_PLEASE_APP_PRIVATE_KEY.
+          #   2. Fine-grained PAT — simpler setup but expires on a schedule.
+          #      Set secrets.RELEASE_PLEASE_TOKEN.
+          #   3. GITHUB_TOKEN — workflow default; degraded mode. Release
+          #      PRs created with it don't fire ci.yml's pull_request
+          #      trigger, so merges require close+reopen; sigstore-release
+          #      is still signed because release-please.yml invokes it as
+          #      a reusable workflow inline (sign-release job below).
+          token: ${{ steps.app-token.outputs.token || secrets.RELEASE_PLEASE_TOKEN || secrets.GITHUB_TOKEN }}
           config-file: .release-please-config.json
           manifest-file: .release-please-manifest.json
 
