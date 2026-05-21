@@ -96,6 +96,12 @@ export class AnthropicProvider implements AIProvider {
             id: tc.id,
             name: tc.name,
             input: tc.input,
+            // SDK 0.97+ added a required caller field to ToolUseBlock that
+            // distinguishes assistant-initiated tool calls (direct) from
+            // server-initiated nested calls (ServerToolCaller variants).
+            // The blocks we synthesise here always represent a direct
+            // assistant invocation.
+            caller: { type: "direct" } as const,
           }));
           result.push({ role: "assistant", content: blocks });
         }

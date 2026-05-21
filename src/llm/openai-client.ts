@@ -248,6 +248,11 @@ export function translateResponse(
     content,
     stop_reason: translateStopReason(choice.finish_reason),
     stop_sequence: null,
+    // SDK 0.97+ added container and stop_details to Message. Neither is
+    // produced by the OpenAI provider we're translating from, so default
+    // both to null.
+    container: null,
+    stop_details: null,
     usage: {
       input_tokens: response.usage?.prompt_tokens ?? 0,
       output_tokens: response.usage?.completion_tokens ?? 0,

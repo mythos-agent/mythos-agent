@@ -64,7 +64,7 @@
     "node": ">=20.0.0"
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.52.0",
+    "@anthropic-ai/sdk": "^0.97.1",
     "chalk": "^5.4.0",
     "commander": "^14.0.3",
     "glob": "^13.0.6",
