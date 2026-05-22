@@ -220,6 +220,36 @@ const SEEDS: RootCausePattern[] = [
     summary:
       "systeminformation builds OS command lines (`ping`, `ps`, service queries) by concatenating caller-supplied parameters and runs them through `child_process.exec`; the parameter was sanitized per-character but never required to be a string, so passing an array bypassed the sanitizer and let an attacker inject arbitrary shell commands.",
   },
+  {
+    cveId: "CVE-2018-1002204",
+    ghsaId: "GHSA-3v6h-hqm4-2rg6",
+    bugClass: "path-traversal-archive-extraction",
+    cwe: "CWE-22",
+    languages: ["javascript", "typescript"],
+    astShape: {
+      // The vulnerable code for CVE-2018-1002204 (adm-zip "Zip-Slip",
+      // fix commit 62f6400) is the `pth.resolve(targetPath, entryName)`
+      // call that computes an extraction target from an archive-
+      // controlled entry name. The fix added a
+      // `target.startsWith(targetPath)` containment check; the seed
+      // pins the unchecked `call_expression` itself.
+      kind: "call_expression",
+      constraints: [
+        "callee resolves to `path.resolve` / `path.join` (member expression `path.resolve` or named import)",
+        "one argument is an archive/upload entry name (`entry.entryName`, `entryName`, `zipEntry.name` — a value the attacker controls)",
+        "the resolved path is passed to a filesystem write/mkdir (`fs.writeFileSync`, `fs.createWriteStream`, `makeDir`) without a containment check that the result `startsWith` the extraction root",
+      ],
+    },
+    dataFlow: {
+      source:
+        "the `entryName` field of an entry inside an attacker-supplied zip/tar archive (may contain `../` traversal segments)",
+      sink: "`fs.writeFileSync(target, ...)` / `fs.createWriteStream(target)` where `target` resolves outside the intended extraction directory",
+      propagation:
+        "`path.resolve(targetPath, entryName)` collapses the `../` segments and yields a path above `targetPath`; with no `startsWith(targetPath)` guard the write lands at the attacker-chosen location",
+    },
+    summary:
+      "adm-zip's archive-extraction routines build each output path with `path.resolve(targetPath, entryName)` from the archive's own entry names and write to it without verifying the result stays inside the extraction directory; a zip entry named `../../foo` (the \"Zip-Slip\" pattern) lets an attacker create or overwrite files anywhere the process can write.",
+  },
 ];
 
 /**
