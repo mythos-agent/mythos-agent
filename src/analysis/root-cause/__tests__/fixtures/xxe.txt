@@ -1,0 +1,16 @@
+// Vulnerable-shaped snippet for CVE-2022-39353 (@xmldom/xmldom).
+// xmldom's DOMParser accepted XML that is NOT well-formed — e.g. a
+// document with multiple top-level elements — and silently attached
+// every root to `Document.childNodes` instead of rejecting it. A
+// consumer that parses attacker-supplied XML and then trusts the DOM
+// shape (searching the whole document, reading `documentElement`)
+// can be fed a smuggled extra root node that bypasses validation.
+// The fix made the parser reject / text-encode the not-well-formed
+// part instead of adding extra roots.
+const { DOMParser } = require('@xmldom/xmldom');
+
+function verifySignedXml(untrustedXml) {
+  const doc = new DOMParser().parseFromString(untrustedXml, 'text/xml');
+  const assertion = doc.getElementsByTagName('Assertion')[0];
+  return checkSignature(assertion);
+}

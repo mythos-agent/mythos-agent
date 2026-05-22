@@ -314,6 +314,38 @@ const SEEDS: RootCausePattern[] = [
     summary:
       "sequelize's `sequelize.json()` helper builds MySQL/MariaDB/SQLite JSON-path queries by interpolating the caller-supplied sub-path into the SQL string through a template literal without escaping the path segments as identifiers; a crafted path closes the quoted JSON-path literal and appends arbitrary SQL, yielding SQL injection.",
   },
+  {
+    cveId: "CVE-2022-39353",
+    ghsaId: "GHSA-crh6-fp67-6883",
+    bugClass: "xxe-malformed-xml-trusted-dom",
+    cwe: "CWE-611",
+    languages: ["javascript", "typescript"],
+    astShape: {
+      // CVE-2022-39353 (@xmldom/xmldom, fix commit 7ff7c10) is a
+      // parser-internal bug: xmldom accepted not-well-formed XML
+      // (multiple top-level elements) and attached every root to the
+      // Document instead of rejecting it. The exploitable surface in
+      // *caller* code is the `parser.parseFromString(xml, ...)` call
+      // that parses untrusted XML and whose resulting DOM is then
+      // trusted (searched whole-document, `documentElement` read)
+      // without rejecting a multi-root document. A2's matcher fires
+      // on that `call_expression`.
+      kind: "call_expression",
+      constraints: [
+        "callee resolves to an XML parser entry point (`DOMParser().parseFromString`, `parseFromString`, `parseXml`, `parseXmlString`)",
+        "the parsed input is attacker-controlled XML (a request body, uploaded file, or signed-XML/SAML blob)",
+        "the resulting document is consumed structurally (`getElementsByTagName`, `documentElement`, child iteration) with no check that the document is well-formed / has a single root, and no parser hardening (`onError`/throwing config, single-root assertion)",
+      ],
+    },
+    dataFlow: {
+      source: "an attacker-supplied XML document parsed with `DOMParser.parseFromString`",
+      sink: "DOM-tree consumers (`getElementsByTagName`, `documentElement`) that assume a single, well-formed root element",
+      propagation:
+        "xmldom silently appends every top-level element of a multi-root document to `Document.childNodes`; a consumer that searches the whole document or reads `documentElement` can be steered to a smuggled extra root, bypassing signature/structure checks",
+    },
+    summary:
+      "@xmldom/xmldom's DOMParser parsed XML that is not well-formed — notably documents with multiple top-level elements — and attached every root node to the Document without throwing; dependents that parse untrusted XML and then trust the DOM shape (whole-document searches, `documentElement`) can be fed a smuggled extra root, an XML-external-entity-class (CWE-611) input-validation flaw with security impact on signed-XML/SAML consumers.",
+  },
 ];
 
 /**
