@@ -33,6 +33,7 @@
     "test:coverage": "vitest run --coverage",
     "benchmark:cve-replay": "tsc -p tsconfig.benchmarks.json && node dist-benchmarks/benchmarks/cve-replay/run.js",
     "benchmark:variants-calibration": "tsc -p tsconfig.benchmarks.json && node dist-benchmarks/benchmarks/variants-calibration/run.js",
+    "benchmark:differential-fuzz": "tsc -p tsconfig.benchmarks.json && node dist-benchmarks/benchmarks/differential-fuzz/run.js",
     "prepare": "husky || true",
     "prepublishOnly": "npm run build"
   },
