@@ -13,7 +13,8 @@
  *
  * Exit codes:
  *   0 — run completed (report written)
- *   1 — missing credentials or runtime error
+ *   1 — runtime error
+ *   2 — setup/usage error (missing credentials, bad args)
  */
 
 import fs from "node:fs";
@@ -73,6 +74,14 @@ function parseArgs(argv: string[]): CliOptions {
       process.exit(0);
     }
   }
+  if (!Number.isFinite(opts.count) || !Number.isInteger(opts.count) || opts.count < 1) {
+    console.error("--count must be a positive integer");
+    process.exit(2);
+  }
+  if (!Number.isFinite(opts.seed)) {
+    console.error("--seed must be a number");
+    process.exit(2);
+  }
   return opts;
 }
 
@@ -107,7 +116,7 @@ async function main(): Promise<void> {
     console.error(
       "Error: set ANTHROPIC_API_KEY, OPENAI_API_KEY, or DASHSCOPE_API_KEY before running this benchmark. See --help for examples."
     );
-    process.exit(1);
+    process.exit(2);
   }
 
   const config = buildConfig(opts);
