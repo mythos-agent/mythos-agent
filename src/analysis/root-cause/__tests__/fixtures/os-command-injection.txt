@@ -1,0 +1,17 @@
+// Vulnerable-shaped snippet modeled on systeminformation's inetLatency
+// path at the CVE-2021-21315 vulnerable version (lib/internet.js).
+// The `host` parameter is meant to be a string, but the function never
+// rejects non-string input (an attacker passes an array to slip past
+// the per-character `sanitizeShellString` scan); the value is then
+// concatenated straight into a `ping` command line and handed to the
+// shell via `exec`.
+const { exec } = require('child_process');
+
+function inetLatency(host, callback) {
+  host = host || '8.8.8.8';
+  let params = '-c 2 -w 3 ' + host;
+  let cmd = 'ping ' + params;
+  exec(cmd, { maxBuffer: 1024 * 20000 }, function (error, stdout) {
+    callback(stdout);
+  });
+}

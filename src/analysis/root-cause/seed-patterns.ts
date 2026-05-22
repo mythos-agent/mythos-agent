@@ -189,6 +189,37 @@ const SEEDS: RootCausePattern[] = [
     summary:
       "lodash's `defaultsDeep` (and the shared `baseMerge` path) recursively copies source keys through a `safeGet` helper that rejected `__proto__` but not `constructor`; a crafted `{ constructor: { prototype: {...} } }` source pollutes `Object.prototype`, letting an attacker add or override properties on every object in the program.",
   },
+  {
+    cveId: "CVE-2021-21315",
+    ghsaId: "GHSA-2m8v-572m-ff2v",
+    bugClass: "os-command-injection-shell-exec",
+    cwe: "CWE-78",
+    languages: ["javascript", "typescript"],
+    astShape: {
+      // The sink for CVE-2021-21315 (systeminformation, fix commit
+      // 07daa05) is the `child_process.exec`/`execSync` call that runs
+      // a command line built from a caller-supplied parameter
+      // (`host`/`proc`/`srv`). The fix added strict `typeof === 'string'`
+      // checks so an attacker can't pass an array that slips past the
+      // per-character shell sanitizer. A2's matcher fires on the
+      // `call_expression` that invokes the shell exec.
+      kind: "call_expression",
+      constraints: [
+        "callee resolves to `child_process.exec` / `execSync` (or a bare `exec` imported from `child_process`)",
+        "first argument is a command-line string built by `+` concatenation or a template literal from a function parameter",
+        "the interpolated parameter is not constrained to a string before it reaches the call (no `typeof param === 'string'` guard, no argv-array form like `execFile(cmd, [args])`)",
+      ],
+    },
+    dataFlow: {
+      source:
+        "caller-supplied `host` / `proc` / `srv` argument (a value an attacker can pass as an array to bypass the string sanitizer)",
+      sink: "`exec(commandLine)` — a shell command line passed to `/bin/sh -c`",
+      propagation:
+        "the parameter is concatenated into a `ping`/`ps` command string; because non-string input is never rejected, an array argument evades the per-character `sanitizeShellString` scan and shell metacharacters survive into the spawned shell",
+    },
+    summary:
+      "systeminformation builds OS command lines (`ping`, `ps`, service queries) by concatenating caller-supplied parameters and runs them through `child_process.exec`; the parameter was sanitized per-character but never required to be a string, so passing an array bypassed the sanitizer and let an attacker inject arbitrary shell commands.",
+  },
 ];
 
 /**
