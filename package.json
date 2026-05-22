@@ -83,7 +83,7 @@
     "@types/url-parse": "^1.4.11",
     "@typescript-eslint/eslint-plugin": "^8.58.2",
     "@typescript-eslint/parser": "^8.58.2",
-    "@vitest/coverage-v8": "^3.0.0",
+    "@vitest/coverage-v8": "^4.1.7",
     "ajv": "^8.18.0",
     "ajv-draft-04": "^1.0.0",
     "eslint": "^10.2.0",
