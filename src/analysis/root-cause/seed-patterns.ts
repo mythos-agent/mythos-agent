@@ -1,28 +1,43 @@
 import type { RootCausePattern } from "./types.js";
 
 /**
- * Hand-curated root-cause patterns for the 5 CVEs in the existing
- * CVE Replay corpus (`benchmarks/cve-replay/cases/`).
+ * Hand-curated root-cause patterns for variants v2.
+ *
+ * The corpus has two tiers:
+ *
+ *  - **Tier 1 — the 5 calibration-corpus seeds.** These cover the 5
+ *    CVEs in the CVE Replay corpus (`benchmarks/cve-replay/cases/`)
+ *    and are the calibration ground truth for sub-PR A3 of Track A.
+ *  - **Tier 2 — the 6 bug-class-coverage seeds.** Six additional
+ *    seeds (prototype pollution, OS command injection, path
+ *    traversal, SSRF, SQL injection, XXE) broaden the variant-hunt
+ *    seed corpus beyond the CVE Replay cases. They are not paired
+ *    with a CVE Replay case file, so the calibration runner skips
+ *    them (no `calibration_target`); their correctness is gated by
+ *    the offline matcher checks in
+ *    `__tests__/seed-patterns.test.ts` instead.
  *
  * These serve three roles:
  *
  *  1. **LLM-prior / few-shot examples.** When the extractor is asked
  *     about a non-seeded CVE it prepends a subset of these to the
  *     prompt as concrete examples of the schema.
- *  2. **Calibration ground truth.** Sub-PR A3 of Track A uses these
- *     as the targets the AST matcher must hit. If A2's matcher can
- *     produce any of these patterns and find the actual fix-commit
- *     code, the design is working. If not, A3's kill criterion
- *     fires (see docs/path-forward.md).
+ *  2. **Calibration ground truth.** Sub-PR A3 of Track A uses the
+ *     Tier 1 seeds as the targets the AST matcher must hit. If A2's
+ *     matcher can produce any of these patterns and find the actual
+ *     fix-commit code, the design is working. If not, A3's kill
+ *     criterion fires (see docs/path-forward.md).
  *  3. **Deterministic fallback.** If the LLM is unavailable or
- *     returns malformed output for one of these 5, the extractor
+ *     returns malformed output for one of these CVEs, the extractor
  *     returns the seed instead of `null`. Keeps the calibration
  *     corpus reproducible across model swaps.
  *
  * Authority: each entry below was hand-derived by reading the
- * upstream fix commit (or a CVE write-up linking to it) and the case
- * file's `notes` field. Do not regenerate these from an LLM — they
- * are the ground truth the LLM is being calibrated against.
+ * upstream fix commit (or a CVE write-up linking to it) and, for
+ * Tier 1, the case file's `notes` field. Do not regenerate these
+ * from an LLM — they are the ground truth the LLM is being
+ * calibrated against. Every `cveId`/`ghsaId` was verified against
+ * the OSV database.
  *
  * Lookup is keyed by both CVE id and GHSA id; either works.
  */
