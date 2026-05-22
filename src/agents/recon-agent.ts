@@ -100,18 +100,18 @@ export class ReconAgent {
   }
 
   private parseRecon(text: string): ReconReport {
-    const data = extractJson<Record<string, unknown>>(text);
+    const data = extractJson<Partial<ReconReport>>(text);
     if (data === null) {
       console.warn("[recon] no parseable JSON in model response — using fallback");
       return this.fallbackRecon();
     }
     return {
       type: "recon",
-      entryPoints: (data.entryPoints as ReconReport["entryPoints"]) || [],
-      techStack: (data.techStack as string[]) || [],
-      authBoundaries: (data.authBoundaries as ReconReport["authBoundaries"]) || [],
-      dataStores: (data.dataStores as ReconReport["dataStores"]) || [],
-      attackSurface: (data.attackSurface as string) || "Unknown",
+      entryPoints: data.entryPoints || [],
+      techStack: data.techStack || [],
+      authBoundaries: data.authBoundaries || [],
+      dataStores: data.dataStores || [],
+      attackSurface: data.attackSurface || "Unknown",
     };
   }
 
