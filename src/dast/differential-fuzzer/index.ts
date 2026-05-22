@@ -36,6 +36,8 @@ const CATEGORY_RANK: Record<string, number> = {
   "spec-ambiguity": 1,
 };
 
+const PARSER_IDS: ParserId[] = ["native-url", "url-parse", "legacy-url"];
+
 /** Sort comparator: exploitable first, then by field severity, then by count. */
 function rankClasses(a: TriagedDivergenceClass, b: TriagedDivergenceClass): number {
   const ca = CATEGORY_RANK[a.category ?? ""] ?? 0;
@@ -65,13 +67,11 @@ export async function runDifferentialFuzz(opts: DifferentialFuzzOptions): Promis
   const divergences: Divergence[] = [];
   try {
     for (const input of inputs) {
-      const ids: ParserId[] = ["native-url", "url-parse", "legacy-url"];
-      const parsed = await Promise.all(ids.map((id) => pool.runParse(id, input)));
-      const results: Record<ParserId, ParserResult> = {
-        "native-url": parsed[0],
-        "url-parse": parsed[1],
-        "legacy-url": parsed[2],
-      };
+      const parsed = await Promise.all(PARSER_IDS.map((id) => pool.runParse(id, input)));
+      const results = Object.fromEntries(PARSER_IDS.map((id, i) => [id, parsed[i]])) as Record<
+        ParserId,
+        ParserResult
+      >;
       divergences.push(...compare(input, results));
     }
   } finally {

@@ -54,18 +54,33 @@ describe("runDifferentialFuzz", () => {
   });
 
   it("ranks likely-exploitable classes above spec-ambiguity", async () => {
+    let call = 0;
+    const cyclingClient = {
+      messages: {
+        create: vi.fn().mockImplementation(() => {
+          const category = call++ === 0 ? "likely-exploitable" : "spec-ambiguity";
+          return Promise.resolve({
+            content: [{ type: "text", text: `{"category":"${category}","rationale":"ok"}` }],
+            stop_reason: "end_turn",
+          });
+        }),
+      },
+    } as unknown as LLMClient;
+
     const report = await runDifferentialFuzz({
       count: 60,
       seed: 5,
       model: "claude-sonnet-4-6",
-      client: mockClient(),
+      client: cyclingClient,
       spawnWorker: inProcessWorker,
     });
+
     const cats = report.classes.map((c) => c.category);
-    const firstAmbiguity = cats.indexOf("spec-ambiguity");
+    // Guard: both categories must actually appear, or the ordering check is vacuous.
+    expect(cats).toContain("likely-exploitable");
+    expect(cats).toContain("spec-ambiguity");
     const lastExploit = cats.lastIndexOf("likely-exploitable");
-    if (firstAmbiguity !== -1 && lastExploit !== -1) {
-      expect(lastExploit).toBeLessThan(firstAmbiguity);
-    }
+    const firstAmbiguity = cats.indexOf("spec-ambiguity");
+    expect(lastExploit).toBeLessThan(firstAmbiguity);
   });
 });
