@@ -1,7 +1,7 @@
 import type Anthropic from "@anthropic-ai/sdk";
 import type { MythosConfig, Vulnerability, Severity } from "../types/index.js";
 import { type LLMClient, createLLMClient } from "../llm/index.js";
-import { createAgentTools, executeToolCall } from "../agent/tools.js";
+import { createHuntAgentTools, executeHuntToolCall } from "../agent/hunt-tools.js";
 import type { ReconReport } from "./agent-protocol.js";
 import { extractJson } from "../agent/json-extract.js";
 import { escapeForSentinel } from "../agent/prompts.js";
@@ -94,7 +94,7 @@ export class HypothesisAgent {
       return { type: "hypothesis", hypotheses: [] };
     }
 
-    const tools = createAgentTools(this.projectPath);
+    const tools = createHuntAgentTools(this.projectPath);
 
     // Build a focused prompt based on recon results
     const entryPointsList = recon.entryPoints
@@ -156,7 +156,7 @@ ${authInfo}
         const toolResults: Anthropic.ToolResultBlockParam[] = [];
         for (const block of response.content) {
           if (block.type === "tool_use") {
-            const result = await executeToolCall(
+            const result = await executeHuntToolCall(
               this.projectPath,
               block.name,
               block.input as Record<string, unknown>

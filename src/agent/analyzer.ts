@@ -2,7 +2,7 @@ import type Anthropic from "@anthropic-ai/sdk";
 import type { MythosConfig, Vulnerability, Severity } from "../types/index.js";
 import { type LLMClient, createLLMClient } from "../llm/index.js";
 import { SYSTEM_PROMPT, buildAnalysisPrompt } from "./prompts.js";
-import { createAgentTools, executeToolCall } from "./tools.js";
+import { createHuntAgentTools, executeHuntToolCall } from "./hunt-tools.js";
 import { extractJson } from "./json-extract.js";
 
 interface AnalysisResult {
@@ -55,7 +55,7 @@ export class AIAnalyzer {
   }
 
   async analyze(projectPath: string, phase1Findings: Vulnerability[]): Promise<AnalysisResult> {
-    const tools = createAgentTools(projectPath);
+    const tools = createHuntAgentTools(projectPath);
     const userPrompt = buildAnalysisPrompt(phase1Findings, projectPath);
 
     const messages: Anthropic.MessageParam[] = [{ role: "user", content: userPrompt }];
@@ -82,7 +82,7 @@ export class AIAnalyzer {
         const toolResults: Anthropic.ToolResultBlockParam[] = [];
         for (const block of assistantContent) {
           if (block.type === "tool_use") {
-            const result = await executeToolCall(
+            const result = await executeHuntToolCall(
               projectPath,
               block.name,
               block.input as Record<string, unknown>
