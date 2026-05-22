@@ -22,7 +22,8 @@ export function createHuntAgentTools(projectPath: string): Anthropic.Tool[] {
 /**
  * Dispatch a tool call to the correct executor by tool name: advanced
  * tool names route to `executeAdvancedToolCall`, everything else to the
- * basic `executeToolCall`.
+ * basic `executeToolCall`. An unrecognized tool name also falls through
+ * to `executeToolCall`, which returns an `"Unknown tool: <name>"` error string.
  */
 export function executeHuntToolCall(
   projectPath: string,
