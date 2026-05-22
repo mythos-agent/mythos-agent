@@ -282,6 +282,38 @@ const SEEDS: RootCausePattern[] = [
     summary:
       "axios applies proxy settings to the initial outbound request but not to requests issued while following an HTTP redirect; a server the caller is pointed at can answer with a redirect to an internal host or IP, and axios connects to it directly, bypassing the proxy and enabling server-side request forgery against the application's internal network.",
   },
+  {
+    cveId: "CVE-2019-10752",
+    ghsaId: "GHSA-m9jw-237r-gvfv",
+    bugClass: "sql-injection-json-path-interpolation",
+    cwe: "CWE-89",
+    languages: ["javascript", "typescript"],
+    astShape: {
+      // The vulnerable code for CVE-2019-10752 (sequelize, fix commit
+      // 9bd0bc1) is the template literal that builds a SQL fragment by
+      // interpolating an attacker-supplied JSON sub-path
+      // (`path.join('.')`) directly into the query string with no
+      // identifier escaping. The fix routed paths through an escaping
+      // `jsonPathExtractionQuery` helper. Like CVE-2022-25883, the
+      // matchable node is the `template_string` that assembles the SQL
+      // text — the compiled query is built at call time.
+      kind: "template_string",
+      constraints: [
+        "template literal whose text is a fragment of SQL (contains an operator/path syntax such as `->>`, `json_extract`, `WHERE`, or a quoted `'$'` JSON-path marker)",
+        "a `${}` interpolation slot carries a caller-derived path/column value (e.g. `path.join('.')`, `smth.path`, a split user string)",
+        "the interpolated value is NOT passed through an identifier-quoting / escaping helper (`escape`, `quoteIdentifier`, `addTicks`) before landing in the template",
+      ],
+    },
+    dataFlow: {
+      source:
+        "a JSON sub-path string passed by the caller to `sequelize.json(path)` (often built from a request field)",
+      sink: "the SQL query string sent to the database driver, into which the path segments were interpolated verbatim",
+      propagation:
+        "`smth.path` is split on `.` and the segments are joined back into a template literal that becomes part of a `json_extract` / `->>` clause; with no escaping a segment containing `')) ... --` breaks out of the JSON-path literal and injects SQL",
+    },
+    summary:
+      "sequelize's `sequelize.json()` helper builds MySQL/MariaDB/SQLite JSON-path queries by interpolating the caller-supplied sub-path into the SQL string through a template literal without escaping the path segments as identifiers; a crafted path closes the quoted JSON-path literal and appends arbitrary SQL, yielding SQL injection.",
+  },
 ];
 
 /**
