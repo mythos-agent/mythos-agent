@@ -32,6 +32,35 @@ describe("compare", () => {
     const d = compare("http://x", results({ "legacy-url": { error: "bad" } }));
     expect(d.some((x) => x.kind === "throw")).toBe(true);
   });
+
+  it("emits no divergence when all parsers hung", () => {
+    const d = compare(
+      "http://x",
+      results({
+        "native-url": { hang: true },
+        "url-parse": { hang: true },
+        "legacy-url": { hang: true },
+      })
+    );
+    expect(d.some((x) => x.kind === "hang")).toBe(false);
+  });
+
+  it("emits no divergence when all parsers threw", () => {
+    const d = compare(
+      "http://x",
+      results({
+        "native-url": { error: "e" },
+        "url-parse": { error: "e" },
+        "legacy-url": { error: "e" },
+      })
+    );
+    expect(d.some((x) => x.kind === "throw")).toBe(false);
+  });
+
+  it("emits exactly 2 hang divergences when one of three parsers hung", () => {
+    const d = compare("http://x", results({ "legacy-url": { hang: true } }));
+    expect(d.filter((x) => x.kind === "hang").length).toBe(2);
+  });
 });
 
 describe("classify", () => {
@@ -42,5 +71,6 @@ describe("classify", () => {
     const hostClass = classes.find((c) => c.field === "hostname");
     expect(hostClass).toBeDefined();
     expect(hostClass!.count).toBe(2);
+    expect(hostClass!.representativeInput).toBe("http://1");
   });
 });
