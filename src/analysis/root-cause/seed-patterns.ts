@@ -158,6 +158,37 @@ const SEEDS: RootCausePattern[] = [
     summary:
       "jsonwebtoken's verify path accepts a public key as the HMAC secret when the JWT header advertises an HMAC algorithm; an attacker who knows the verifier's public key (often distributed openly for asymmetric verification) can forge HS256-signed tokens and pass authentication.",
   },
+  {
+    cveId: "CVE-2019-10744",
+    ghsaId: "GHSA-jf85-cpcp-j695",
+    bugClass: "prototype-pollution-recursive-merge",
+    cwe: "CWE-1321",
+    languages: ["javascript", "typescript"],
+    astShape: {
+      // The vulnerable code in lodash's CVE-2019-10744 fix commit
+      // (a01e4fa, lodash.js ~6589) is the `safeGet` helper — a
+      // `function_declaration`. The recursive `defaultsDeep` /
+      // `baseMerge` path reads every source key through this guard;
+      // the fix added a `constructor` check alongside the existing
+      // `__proto__` one. A2's matcher fires on the function node;
+      // the key-guard omission is the discriminating constraint.
+      kind: "function_declaration",
+      constraints: [
+        "function is a key-access helper used by a recursive merge/clone path (name contains `get`, `merge`, `set`, or `assign`)",
+        "function body guards the `__proto__` key (early-returns or skips when `key === '__proto__'`)",
+        "function body does NOT guard the `constructor` key — a `{ constructor: { prototype: {...} } }` payload walks through unfiltered",
+      ],
+    },
+    dataFlow: {
+      source:
+        "attacker-controlled `source` object passed to `_.defaultsDeep` / `_.merge` (e.g. a parsed JSON request body)",
+      sink: "`Object.prototype` — a property assigned onto the global object prototype, polluting every object in the process",
+      propagation:
+        "the recursive merge walks the source's `constructor` → `prototype` keys; because the key-access guard only rejects `__proto__`, the walk descends into and writes onto the prototype chain",
+    },
+    summary:
+      "lodash's `defaultsDeep` (and the shared `baseMerge` path) recursively copies source keys through a `safeGet` helper that rejected `__proto__` but not `constructor`; a crafted `{ constructor: { prototype: {...} } }` source pollutes `Object.prototype`, letting an attacker add or override properties on every object in the program.",
+  },
 ];
 
 /**
