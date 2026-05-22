@@ -40,11 +40,12 @@ describe("triage", () => {
     } as unknown as LLMClient;
     const out = await triage([CLASS], client, "claude-sonnet-4-6");
     expect(out[0].category).toBeUndefined();
-    expect(out[0].signature).toBe(CLASS.signature);
+    expect(out[0]).toMatchObject(CLASS);
   });
 
   it("returns the class un-triaged when the LLM returns unparseable output", async () => {
     const out = await triage([CLASS], mockClient("no json here"), "claude-sonnet-4-6");
     expect(out[0].category).toBeUndefined();
+    expect(out[0]).toMatchObject(CLASS);
   });
 });
