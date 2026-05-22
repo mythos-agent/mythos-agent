@@ -250,6 +250,38 @@ const SEEDS: RootCausePattern[] = [
     summary:
       "adm-zip's archive-extraction routines build each output path with `path.resolve(targetPath, entryName)` from the archive's own entry names and write to it without verifying the result stays inside the extraction directory; a zip entry named `../../foo` (the \"Zip-Slip\" pattern) lets an attacker create or overwrite files anywhere the process can write.",
   },
+  {
+    cveId: "CVE-2020-28168",
+    ghsaId: "GHSA-4w2v-q235-vp99",
+    bugClass: "ssrf-redirect-proxy-bypass",
+    cwe: "CWE-918",
+    languages: ["javascript", "typescript"],
+    astShape: {
+      // The vulnerable code for CVE-2020-28168 (axios, fix commit
+      // 8a90bcf) is the `transport.request(options, ...)` call that
+      // issues an outbound HTTP request: the proxy/destination is
+      // applied to the FIRST request only, and the call site has no
+      // `options.beforeRedirect` re-validation hook. The fix inserted
+      // a `beforeRedirect` handler that re-pins the proxy on every
+      // hop. A2's matcher fires on the `call_expression` that issues
+      // the request.
+      kind: "call_expression",
+      constraints: [
+        "callee is an HTTP request issuer (`http.request` / `https.request` / `transport.request` / `request(...)`)",
+        "the request `options` object is built from a caller-supplied URL or proxy config (`config.url`, `parsed.hostname`, `proxy.host`)",
+        "no per-redirect re-validation is wired before the call — no `options.beforeRedirect` handler and no allowlist check applied to the redirected hop",
+      ],
+    },
+    dataFlow: {
+      source:
+        "a caller-supplied request URL pointing at an attacker-controlled server that answers with a 3xx redirect",
+      sink: "`transport.request(options, ...)` — the follow-up request issued directly to the redirect's `Location`, reaching a restricted internal host or IP",
+      propagation:
+        "proxy host/port are written into `options` for the initial request only; the redirect-follow logic reuses the underlying transport without re-applying the proxy, so the redirected request escapes the proxy boundary and hits internal infrastructure",
+    },
+    summary:
+      "axios applies proxy settings to the initial outbound request but not to requests issued while following an HTTP redirect; a server the caller is pointed at can answer with a redirect to an internal host or IP, and axios connects to it directly, bypassing the proxy and enabling server-side request forgery against the application's internal network.",
+  },
 ];
 
 /**
