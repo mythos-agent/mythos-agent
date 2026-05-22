@@ -9,9 +9,9 @@ function nativeUrl(input: string): ParserResult {
     return {
       protocol: u.protocol,
       hostname: u.hostname,
-      port: u.port,
-      username: u.username,
-      password: u.password,
+      port: u.port || undefined,
+      username: u.username || undefined,
+      password: u.password || undefined,
       pathname: u.pathname,
     };
   } catch (e) {
@@ -26,9 +26,9 @@ function urlParseAdapter(input: string): ParserResult {
     return {
       protocol: u.protocol,
       hostname: u.hostname,
-      port: u.port,
-      username: u.username,
-      password: u.password,
+      port: u.port || undefined,
+      username: u.username || undefined,
+      password: u.password || undefined,
       pathname: u.pathname,
     };
   } catch (e) {
@@ -60,7 +60,10 @@ function legacyUrl(input: string): ParserResult {
   }
 }
 
-/** The three URL parsers under differential test, keyed by id. */
+/**
+ * The three URL parsers under differential test, keyed by id.
+ * Each adapter normalizes an absent port/username/password to `undefined` (never `""`) so cross-parser comparison does not flag spurious divergences.
+ */
 export const PARSERS: Record<ParserId, (input: string) => ParserResult> = {
   "native-url": nativeUrl,
   "url-parse": urlParseAdapter,

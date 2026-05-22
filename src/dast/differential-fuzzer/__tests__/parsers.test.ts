@@ -31,4 +31,30 @@ describe("PARSERS", () => {
     expect(r.username).toBe("user");
     expect(r.password).toBe("pw");
   });
+
+  it("url-parse normalizes absent port/username/password to undefined", () => {
+    const r = PARSERS["url-parse"]("http://example.com/path");
+    expect(r.port).toBeUndefined();
+    expect(r.username).toBeUndefined();
+    expect(r.password).toBeUndefined();
+  });
+
+  it("native-url normalizes absent port/username/password to undefined", () => {
+    const r = PARSERS["native-url"]("http://example.com/path");
+    expect(r.port).toBeUndefined();
+    expect(r.username).toBeUndefined();
+    expect(r.password).toBeUndefined();
+  });
+
+  it("legacy-url handles user-only auth (no colon)", () => {
+    const r = PARSERS["legacy-url"]("http://user@example.com/");
+    expect(r.username).toBe("user");
+    expect(r.password).toBeUndefined();
+  });
+
+  it("legacy-url handles empty-user auth (:pass)", () => {
+    const r = PARSERS["legacy-url"]("http://:pass@example.com/");
+    expect(r.username).toBe("");
+    expect(r.password).toBe("pass");
+  });
 });
