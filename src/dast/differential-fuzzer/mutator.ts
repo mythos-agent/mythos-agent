@@ -53,10 +53,12 @@ function applyMutation(url: string, rand: () => number, pick: <T>(a: T[]) => T):
 }
 
 /**
- * Expand the corpus into `count` fuzzing inputs. The raw seed URLs are
- * always included first; the remainder are produced by applying 1-3
- * random mutations to a randomly-picked seed. Fully deterministic given
- * `(seeds, count, seed)`.
+ * Expand the corpus into `count` fuzzing inputs. Intended for
+ * `count >= seeds.length` — the raw seed URLs come first, then the
+ * remainder are produced by applying 1-3 random mutations to a
+ * randomly-picked seed. When `count < seeds.length` only the first
+ * `count` seed URLs are returned (no mutations). Fully deterministic
+ * given `(seeds, count, seed)`.
  */
 export function mutate(seeds: CorpusEntry[], count: number, seed: number): string[] {
   const rand = mulberry32(seed);
