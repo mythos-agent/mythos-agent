@@ -26,4 +26,12 @@ describe("extractJson", () => {
   it("returns null when there is no object", () => {
     expect(extractJson("no json here")).toBeNull();
   });
+  it("handles an escaped backslash before a closing quote", () => {
+    // JS source '{"a":"x\\\\"}' is the text  {"a":"x\\"}  whose JSON
+    // string value decodes to  x\  (one backslash).
+    expect(extractJson('{"a":"x\\\\"}')).toEqual({ a: "x\\" });
+  });
+  it("returns null for an unterminated string literal", () => {
+    expect(extractJson('{"a":"oops')).toBeNull();
+  });
 });
