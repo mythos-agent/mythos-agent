@@ -19,6 +19,12 @@ function spawnRealWorker(): WorkerLike {
 }
 
 export interface WorkerPoolOptions {
+  /**
+   * Initial number of workers. Does NOT cap concurrency — if more
+   * `runParse` calls are in flight than there are pooled workers, extra
+   * workers are spawned on demand and returned to the pool on completion.
+   * Default 4.
+   */
   size?: number;
   timeoutMs?: number;
   /** Override worker creation — used by tests to inject fakes. */
@@ -65,6 +71,11 @@ export class WorkerPool {
     });
   }
 
+  /**
+   * Terminate all pooled workers. Precondition: call only after every
+   * in-flight `runParse` promise has settled — a worker that is mid-parse
+   * is not in the pool and would not be terminated here.
+   */
   async destroy(): Promise<void> {
     for (const w of this.available) w.terminate();
     this.available.length = 0;
