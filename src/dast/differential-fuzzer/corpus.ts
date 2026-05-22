@@ -39,7 +39,7 @@ export const CORPUS: CorpusEntry[] = [
   { family: "unicode-idn", url: "http://ｅｖｉｌ.com/" },
   { family: "unicode-idn", url: "http://good.com․evil.com/" },
   { family: "unicode-idn", url: "http://xn--80ak6aa92e.com/" },
-  { family: "unicode-idn", url: "http://evil .com/" },
+  { family: "unicode-idn", url: "http://evil\u00a0.com/" },
   // control-char — NUL and other control bytes (escape sequences, not literal bytes)
   { family: "control-char", url: "http://evil.com\x00.good.com/" },
   { family: "control-char", url: "http://good.com\x01@evil.com/" },

@@ -3,7 +3,7 @@ import { loadCorpus } from "../corpus.js";
 
 describe("loadCorpus", () => {
   it("returns a non-empty corpus", () => {
-    expect(loadCorpus().length).toBeGreaterThan(20);
+    expect(loadCorpus().length).toBeGreaterThan(35);
   });
 
   it("every entry has a non-empty family and url", () => {
@@ -26,6 +26,7 @@ describe("loadCorpus", () => {
       "ip-oddity",
     ]) {
       expect(families.has(f)).toBe(true);
+      expect(loadCorpus().filter((e) => e.family === f).length).toBeGreaterThanOrEqual(3);
     }
   });
 
