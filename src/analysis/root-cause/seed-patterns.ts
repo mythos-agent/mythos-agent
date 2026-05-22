@@ -383,9 +383,10 @@ export function getSeedPattern(id: string): RootCausePattern | null {
 }
 
 /**
- * All seed patterns. Iteration order follows the CVE Replay case
- * filenames (alphabetical by GHSA id) so the test assertion below
- * stays diff-stable.
+ * All seed patterns. The first 5 entries are the Tier-1 calibration
+ * seeds (Tier-2 seeds are appended after them) so the test assertions
+ * in root-cause.test.ts stay diff-stable when new Tier-2 seeds are
+ * added.
  */
 export const SEED_PATTERNS: readonly RootCausePattern[] = SEEDS;
 

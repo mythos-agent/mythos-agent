@@ -22,7 +22,7 @@ import type { RootCausePattern } from "../types.js";
 //
 // The 6 new seeds are intentionally NOT paired with CVE Replay case
 // files, so root-cause.test.ts's "seed has a matching case" assertion
-// is scoped to the original 5 corpus seeds (see CALIBRATION_CVES there).
+// is scoped to the original 5 corpus seeds (see TIER2_BUG_CLASS_COVERAGE_CVES there).
 // ---------------------------------------------------------------------------
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
