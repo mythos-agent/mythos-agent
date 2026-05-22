@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import Anthropic from "@anthropic-ai/sdk";
+import type Anthropic from "@anthropic-ai/sdk";
 import { withPromptCache } from "../anthropic-client.js";
 
 describe("withPromptCache", () => {
