@@ -88,7 +88,7 @@
     "ajv-draft-04": "^1.0.0",
     "eslint": "^10.2.0",
     "husky": "^9.1.0",
-    "lint-staged": "^16.4.0",
+    "lint-staged": "^17.0.5",
     "prettier": "^3.4.0",
     "typescript": "^6.0.3",
     "url-parse": "^1.5.10",
