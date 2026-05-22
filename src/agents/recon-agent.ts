@@ -3,6 +3,7 @@ import type { MythosConfig } from "../types/index.js";
 import type { ReconReport } from "./agent-protocol.js";
 import { type LLMClient, createLLMClient } from "../llm/index.js";
 import { createAgentTools, executeToolCall } from "../agent/tools.js";
+import { extractJson } from "../agent/json-extract.js";
 
 const RECON_SYSTEM = `You are a security reconnaissance agent. Your job is to map the attack surface of a codebase.
 
@@ -94,26 +95,24 @@ export class ReconAgent {
       break;
     }
 
+    console.warn("[recon] agent loop exhausted MAX_TURNS without a final answer");
     return this.fallbackRecon();
   }
 
   private parseRecon(text: string): ReconReport {
-    const jsonMatch = text.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) return this.fallbackRecon();
-
-    try {
-      const data = JSON.parse(jsonMatch[0]);
-      return {
-        type: "recon",
-        entryPoints: data.entryPoints || [],
-        techStack: data.techStack || [],
-        authBoundaries: data.authBoundaries || [],
-        dataStores: data.dataStores || [],
-        attackSurface: data.attackSurface || "Unknown",
-      };
-    } catch {
+    const data = extractJson<Record<string, unknown>>(text);
+    if (data === null) {
+      console.warn("[recon] no parseable JSON in model response — using fallback");
       return this.fallbackRecon();
     }
+    return {
+      type: "recon",
+      entryPoints: (data.entryPoints as ReconReport["entryPoints"]) || [],
+      techStack: (data.techStack as string[]) || [],
+      authBoundaries: (data.authBoundaries as ReconReport["authBoundaries"]) || [],
+      dataStores: (data.dataStores as ReconReport["dataStores"]) || [],
+      attackSurface: (data.attackSurface as string) || "Unknown",
+    };
   }
 
   private fallbackRecon(): ReconReport {
