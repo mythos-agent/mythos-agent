@@ -54,11 +54,9 @@ export class WorkerPool {
         clearTimeout(timer);
         worker.removeAllListeners();
         if (dead) {
+          // Hung/crashed worker is terminated and dropped from the pool;
+          // the next runParse spawns a fresh one on demand (lazy replacement).
           worker.terminate();
-          // Spawn the replacement lazily (on next pop) so the spawn factory
-          // is called after the caller has a chance to change its state.
-          // We push a deferred sentinel by simply not returning the dead
-          // worker — the pool will spawn fresh on next runParse if empty.
         } else {
           this.available.push(worker);
         }
