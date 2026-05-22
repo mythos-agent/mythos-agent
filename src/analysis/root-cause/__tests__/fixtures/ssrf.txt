@@ -1,0 +1,20 @@
+// Vulnerable-shaped snippet modeled on axios's http adapter at the
+// CVE-2020-28168 vulnerable version (lib/adapters/http.js ~line 175).
+// The request URL comes from caller config and the proxy is applied
+// only to the INITIAL request; `transport.request(options, ...)` is
+// issued with no `options.beforeRedirect` handler, so a server that
+// answers with a 3xx redirect to a restricted host/IP makes the
+// follow-up request connect directly, bypassing the proxy. The fix
+// added a `beforeRedirect` that re-pins the proxy on every hop.
+function httpAdapter(config) {
+  var parsed = url.parse(config.url);
+  var options = { hostname: parsed.hostname, path: parsed.path };
+  if (proxy) {
+    options.hostname = proxy.host;
+    options.port = proxy.port;
+  }
+  var req = transport.request(options, function handleResponse(res) {
+    settle(resolve, reject, res);
+  });
+  req.end();
+}

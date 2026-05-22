@@ -1,0 +1,18 @@
+// Vulnerable-shaped snippet modeled on lodash's `safeGet` helper at
+// the CVE-2019-10744 vulnerable commit (lodash.js ~line 6589). The
+// recursive `defaultsDeep`/`baseMerge` path reads each key through
+// this guard; the guard rejects `__proto__` but NOT `constructor`,
+// so a `{ constructor: { prototype: {...} } }` payload walks straight
+// through into `Object.prototype`.
+function safeGet(object, key) {
+  if (key == '__proto__') {
+    return;
+  }
+  return object[key];
+}
+
+function baseMergeDeep(object, source, key) {
+  var newValue = safeGet(source, key);
+  var objValue = safeGet(object, key);
+  assignMergeValue(object, key, baseMerge(objValue, newValue));
+}

@@ -1,0 +1,16 @@
+// Vulnerable-shaped snippet modeled on sequelize's MySQL query
+// generator at the CVE-2019-10752 vulnerable commit
+// (lib/dialects/mysql/query-generator.js handleSequelizeMethod).
+// `smth.path` is a caller-supplied JSON sub-path passed to
+// `sequelize.json(...)`; its dot-separated segments are split and
+// interpolated straight into a SQL fragment via a template literal
+// with NO identifier escaping, so a crafted path closes the quote and
+// appends arbitrary SQL. The fix routed paths through an escaping
+// `jsonPathExtractionQuery` helper.
+function buildJsonQuery(smth) {
+  let path = smth.path;
+  path = path.split('.');
+  let columnName = path.shift();
+  const str = `${this.quoteIdentifier(columnName)}->>'$.${path.join('.')}'`;
+  return str;
+}

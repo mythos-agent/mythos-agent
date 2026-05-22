@@ -1,0 +1,15 @@
+// Vulnerable-shaped snippet modeled on adm-zip's extractEntryTo /
+// extractAllTo path at the CVE-2018-1002204 ("Zip-Slip") vulnerable
+// commit (adm-zip.js ~line 354). The archive entry name is attacker-
+// controlled and may contain `../` segments; the extraction target is
+// built with `path.resolve(targetPath, entryName)` and written to
+// WITHOUT any `target.startsWith(targetPath)` containment check, so a
+// crafted `../../etc/cron.d/x` entry escapes the extraction directory.
+const pth = require('path');
+const fs = require('fs');
+
+function extractEntryTo(entry, targetPath) {
+  var entryName = entry.entryName.toString();
+  var target = pth.resolve(targetPath, entryName);
+  fs.writeFileSync(target, entry.getData());
+}

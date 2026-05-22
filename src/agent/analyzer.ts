@@ -2,7 +2,8 @@ import type Anthropic from "@anthropic-ai/sdk";
 import type { MythosConfig, Vulnerability, Severity } from "../types/index.js";
 import { type LLMClient, createLLMClient } from "../llm/index.js";
 import { SYSTEM_PROMPT, buildAnalysisPrompt } from "./prompts.js";
-import { createAgentTools, executeToolCall } from "./tools.js";
+import { createHuntAgentTools, executeHuntToolCall } from "./hunt-tools.js";
+import { extractJson } from "./json-extract.js";
 
 interface AnalysisResult {
   confirmed: Vulnerability[];
@@ -54,7 +55,7 @@ export class AIAnalyzer {
   }
 
   async analyze(projectPath: string, phase1Findings: Vulnerability[]): Promise<AnalysisResult> {
-    const tools = createAgentTools(projectPath);
+    const tools = createHuntAgentTools(projectPath);
     const userPrompt = buildAnalysisPrompt(phase1Findings, projectPath);
 
     const messages: Anthropic.MessageParam[] = [{ role: "user", content: userPrompt }];
@@ -81,7 +82,7 @@ export class AIAnalyzer {
         const toolResults: Anthropic.ToolResultBlockParam[] = [];
         for (const block of assistantContent) {
           if (block.type === "tool_use") {
-            const result = await executeToolCall(
+            const result = await executeHuntToolCall(
               projectPath,
               block.name,
               block.input as Record<string, unknown>
@@ -107,6 +108,7 @@ export class AIAnalyzer {
     }
 
     // Fallback: return all phase1 findings as-is
+    console.warn("[analyzer] agent loop exhausted MAX_TURNS — passing phase-1 findings through");
     return {
       confirmed: phase1Findings,
       discovered: [],
@@ -142,24 +144,12 @@ export function parseAnalysisResponse(
   text: string,
   phase1Findings: Vulnerability[]
 ): AnalysisResult {
-  const jsonMatch = text.match(/\{[\s\S]*\}/);
-  if (!jsonMatch) {
-    return {
-      confirmed: phase1Findings,
-      discovered: [],
-      dismissedCount: 0,
-    };
-  }
-
-  let output: AIAnalysisOutput;
-  try {
-    output = JSON.parse(jsonMatch[0]);
-  } catch {
-    return {
-      confirmed: phase1Findings,
-      discovered: [],
-      dismissedCount: 0,
-    };
+  const output = extractJson<AIAnalysisOutput>(text);
+  if (output === null) {
+    console.warn(
+      "[analyzer] no parseable JSON in model response — passing phase-1 findings through"
+    );
+    return { confirmed: phase1Findings, discovered: [], dismissedCount: 0 };
   }
 
   const confirmed: Vulnerability[] = [];

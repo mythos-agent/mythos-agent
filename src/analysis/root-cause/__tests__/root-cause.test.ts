@@ -100,10 +100,28 @@ describe("seed corpus — completeness vs CVE Replay cases", () => {
     }
   });
 
-  it("does not contain seeds for CVEs absent from the corpus", () => {
-    // Inverse direction: if a seed exists, the CVE Replay case should
-    // also exist. Stops the seed corpus from accumulating untested
-    // patterns that A3's calibration can't validate against.
+  it("every Tier-1 calibration seed has a matching CVE Replay case", () => {
+    // Inverse direction, scoped to the Tier-1 calibration corpus: if a
+    // calibration seed exists, the CVE Replay case it calibrates
+    // against must also exist. Stops the calibration corpus from
+    // drifting from the seeds that A3 validates against.
+    //
+    // Tier-2 bug-class-coverage seeds (Task 6 — prototype pollution,
+    // OS command injection, path traversal, SSRF, SQL injection, XXE)
+    // are deliberately NOT paired with CVE Replay case files; the
+    // calibration runner skips them and their correctness is gated by
+    // the offline matcher checks in seed-patterns.test.ts. They are
+    // excluded here so this assertion stays anchored to the
+    // calibration corpus.
+    const TIER2_BUG_CLASS_COVERAGE_CVES = new Set([
+      "CVE-2019-10744", // prototype pollution
+      "CVE-2021-21315", // OS command injection
+      "CVE-2018-1002204", // path traversal
+      "CVE-2020-28168", // SSRF
+      "CVE-2019-10752", // SQL injection
+      "CVE-2022-39353", // XXE
+    ]);
+
     const caseFiles = fs
       .readdirSync(CVE_REPLAY_CASES)
       .filter((f) => f.endsWith(".json") && !f.startsWith("_"));
@@ -116,10 +134,15 @@ describe("seed corpus — completeness vs CVE Replay cases", () => {
       })
     );
 
-    for (const seed of SEED_PATTERNS) {
+    const calibrationSeeds = SEED_PATTERNS.filter(
+      (s) => !TIER2_BUG_CLASS_COVERAGE_CVES.has(s.cveId)
+    );
+    expect(calibrationSeeds.length).toBe(corpusCveIds.size);
+
+    for (const seed of calibrationSeeds) {
       expect(
         corpusCveIds.has(seed.cveId),
-        `seed for ${seed.cveId} has no matching CVE Replay case`
+        `Tier-1 seed for ${seed.cveId} has no matching CVE Replay case`
       ).toBe(true);
     }
   });

@@ -1,28 +1,43 @@
 import type { RootCausePattern } from "./types.js";
 
 /**
- * Hand-curated root-cause patterns for the 5 CVEs in the existing
- * CVE Replay corpus (`benchmarks/cve-replay/cases/`).
+ * Hand-curated root-cause patterns for variants v2.
+ *
+ * The corpus has two tiers:
+ *
+ *  - **Tier 1 — the 5 calibration-corpus seeds.** These cover the 5
+ *    CVEs in the CVE Replay corpus (`benchmarks/cve-replay/cases/`)
+ *    and are the calibration ground truth for sub-PR A3 of Track A.
+ *  - **Tier 2 — the 6 bug-class-coverage seeds.** Six additional
+ *    seeds (prototype pollution, OS command injection, path
+ *    traversal, SSRF, SQL injection, XXE) broaden the variant-hunt
+ *    seed corpus beyond the CVE Replay cases. They are not paired
+ *    with a CVE Replay case file, so the calibration runner skips
+ *    them (no `calibration_target`); their correctness is gated by
+ *    the offline matcher checks in
+ *    `__tests__/seed-patterns.test.ts` instead.
  *
  * These serve three roles:
  *
  *  1. **LLM-prior / few-shot examples.** When the extractor is asked
  *     about a non-seeded CVE it prepends a subset of these to the
  *     prompt as concrete examples of the schema.
- *  2. **Calibration ground truth.** Sub-PR A3 of Track A uses these
- *     as the targets the AST matcher must hit. If A2's matcher can
- *     produce any of these patterns and find the actual fix-commit
- *     code, the design is working. If not, A3's kill criterion
- *     fires (see docs/path-forward.md).
+ *  2. **Calibration ground truth.** Sub-PR A3 of Track A uses the
+ *     Tier 1 seeds as the targets the AST matcher must hit. If A2's
+ *     matcher can produce any of these patterns and find the actual
+ *     fix-commit code, the design is working. If not, A3's kill
+ *     criterion fires (see docs/path-forward.md).
  *  3. **Deterministic fallback.** If the LLM is unavailable or
- *     returns malformed output for one of these 5, the extractor
+ *     returns malformed output for one of these CVEs, the extractor
  *     returns the seed instead of `null`. Keeps the calibration
  *     corpus reproducible across model swaps.
  *
  * Authority: each entry below was hand-derived by reading the
- * upstream fix commit (or a CVE write-up linking to it) and the case
- * file's `notes` field. Do not regenerate these from an LLM — they
- * are the ground truth the LLM is being calibrated against.
+ * upstream fix commit (or a CVE write-up linking to it) and, for
+ * Tier 1, the case file's `notes` field. Do not regenerate these
+ * from an LLM — they are the ground truth the LLM is being
+ * calibrated against. Every `cveId`/`ghsaId` was verified against
+ * the OSV database.
  *
  * Lookup is keyed by both CVE id and GHSA id; either works.
  */
@@ -158,6 +173,194 @@ const SEEDS: RootCausePattern[] = [
     summary:
       "jsonwebtoken's verify path accepts a public key as the HMAC secret when the JWT header advertises an HMAC algorithm; an attacker who knows the verifier's public key (often distributed openly for asymmetric verification) can forge HS256-signed tokens and pass authentication.",
   },
+  {
+    cveId: "CVE-2019-10744",
+    ghsaId: "GHSA-jf85-cpcp-j695",
+    bugClass: "prototype-pollution-recursive-merge",
+    cwe: "CWE-1321",
+    languages: ["javascript", "typescript"],
+    astShape: {
+      // The vulnerable code in lodash's CVE-2019-10744 fix commit
+      // (a01e4fa, lodash.js ~6589) is the `safeGet` helper — a
+      // `function_declaration`. The recursive `defaultsDeep` /
+      // `baseMerge` path reads every source key through this guard;
+      // the fix added a `constructor` check alongside the existing
+      // `__proto__` one. A2's matcher fires on the function node;
+      // the key-guard omission is the discriminating constraint.
+      kind: "function_declaration",
+      constraints: [
+        "function is a key-access helper used by a recursive merge/clone path (name contains `get`, `merge`, `set`, or `assign`)",
+        "function body guards the `__proto__` key (early-returns or skips when `key === '__proto__'`)",
+        "function body does NOT guard the `constructor` key — a `{ constructor: { prototype: {...} } }` payload walks through unfiltered",
+      ],
+    },
+    dataFlow: {
+      source:
+        "attacker-controlled `source` object passed to `_.defaultsDeep` / `_.merge` (e.g. a parsed JSON request body)",
+      sink: "`Object.prototype` — a property assigned onto the global object prototype, polluting every object in the process",
+      propagation:
+        "the recursive merge walks the source's `constructor` → `prototype` keys; because the key-access guard only rejects `__proto__`, the walk descends into and writes onto the prototype chain",
+    },
+    summary:
+      "lodash's `defaultsDeep` (and the shared `baseMerge` path) recursively copies source keys through a `safeGet` helper that rejected `__proto__` but not `constructor`; a crafted `{ constructor: { prototype: {...} } }` source pollutes `Object.prototype`, letting an attacker add or override properties on every object in the program.",
+  },
+  {
+    cveId: "CVE-2021-21315",
+    ghsaId: "GHSA-2m8v-572m-ff2v",
+    bugClass: "os-command-injection-shell-exec",
+    cwe: "CWE-78",
+    languages: ["javascript", "typescript"],
+    astShape: {
+      // The sink for CVE-2021-21315 (systeminformation, fix commit
+      // 07daa05) is the `child_process.exec`/`execSync` call that runs
+      // a command line built from a caller-supplied parameter
+      // (`host`/`proc`/`srv`). The fix added strict `typeof === 'string'`
+      // checks so an attacker can't pass an array that slips past the
+      // per-character shell sanitizer. A2's matcher fires on the
+      // `call_expression` that invokes the shell exec.
+      kind: "call_expression",
+      constraints: [
+        "callee resolves to `child_process.exec` / `execSync` (or a bare `exec` imported from `child_process`)",
+        "first argument is a command-line string built by `+` concatenation or a template literal from a function parameter",
+        "the interpolated parameter is not constrained to a string before it reaches the call (no `typeof param === 'string'` guard, no argv-array form like `execFile(cmd, [args])`)",
+      ],
+    },
+    dataFlow: {
+      source:
+        "caller-supplied `host` / `proc` / `srv` argument (a value an attacker can pass as an array to bypass the string sanitizer)",
+      sink: "`exec(commandLine)` — a shell command line passed to `/bin/sh -c`",
+      propagation:
+        "the parameter is concatenated into a `ping`/`ps` command string; because non-string input is never rejected, an array argument evades the per-character `sanitizeShellString` scan and shell metacharacters survive into the spawned shell",
+    },
+    summary:
+      "systeminformation builds OS command lines (`ping`, `ps`, service queries) by concatenating caller-supplied parameters and runs them through `child_process.exec`; the parameter was sanitized per-character but never required to be a string, so passing an array bypassed the sanitizer and let an attacker inject arbitrary shell commands.",
+  },
+  {
+    cveId: "CVE-2018-1002204",
+    ghsaId: "GHSA-3v6h-hqm4-2rg6",
+    bugClass: "path-traversal-archive-extraction",
+    cwe: "CWE-22",
+    languages: ["javascript", "typescript"],
+    astShape: {
+      // The vulnerable code for CVE-2018-1002204 (adm-zip "Zip-Slip",
+      // fix commit 62f6400) is the `pth.resolve(targetPath, entryName)`
+      // call that computes an extraction target from an archive-
+      // controlled entry name. The fix added a
+      // `target.startsWith(targetPath)` containment check; the seed
+      // pins the unchecked `call_expression` itself.
+      kind: "call_expression",
+      constraints: [
+        "callee resolves to `path.resolve` / `path.join` (member expression `path.resolve` or named import)",
+        "one argument is an archive/upload entry name (`entry.entryName`, `entryName`, `zipEntry.name` — a value the attacker controls)",
+        "the resolved path is passed to a filesystem write/mkdir (`fs.writeFileSync`, `fs.createWriteStream`, `makeDir`) without a containment check that the result `startsWith` the extraction root",
+      ],
+    },
+    dataFlow: {
+      source:
+        "the `entryName` field of an entry inside an attacker-supplied zip/tar archive (may contain `../` traversal segments)",
+      sink: "`fs.writeFileSync(target, ...)` / `fs.createWriteStream(target)` where `target` resolves outside the intended extraction directory",
+      propagation:
+        "`path.resolve(targetPath, entryName)` collapses the `../` segments and yields a path above `targetPath`; with no `startsWith(targetPath)` guard the write lands at the attacker-chosen location",
+    },
+    summary:
+      "adm-zip's archive-extraction routines build each output path with `path.resolve(targetPath, entryName)` from the archive's own entry names and write to it without verifying the result stays inside the extraction directory; a zip entry named `../../foo` (the \"Zip-Slip\" pattern) lets an attacker create or overwrite files anywhere the process can write.",
+  },
+  {
+    cveId: "CVE-2020-28168",
+    ghsaId: "GHSA-4w2v-q235-vp99",
+    bugClass: "ssrf-redirect-proxy-bypass",
+    cwe: "CWE-918",
+    languages: ["javascript", "typescript"],
+    astShape: {
+      // The vulnerable code for CVE-2020-28168 (axios, fix commit
+      // 8a90bcf) is the `transport.request(options, ...)` call that
+      // issues an outbound HTTP request: the proxy/destination is
+      // applied to the FIRST request only, and the call site has no
+      // `options.beforeRedirect` re-validation hook. The fix inserted
+      // a `beforeRedirect` handler that re-pins the proxy on every
+      // hop. A2's matcher fires on the `call_expression` that issues
+      // the request.
+      kind: "call_expression",
+      constraints: [
+        "callee is an HTTP request issuer (`http.request` / `https.request` / `transport.request` / `request(...)`)",
+        "the request `options` object is built from a caller-supplied URL or proxy config (`config.url`, `parsed.hostname`, `proxy.host`)",
+        "no per-redirect re-validation is wired before the call — no `options.beforeRedirect` handler and no allowlist check applied to the redirected hop",
+      ],
+    },
+    dataFlow: {
+      source:
+        "a caller-supplied request URL pointing at an attacker-controlled server that answers with a 3xx redirect",
+      sink: "`transport.request(options, ...)` — the follow-up request issued directly to the redirect's `Location`, reaching a restricted internal host or IP",
+      propagation:
+        "proxy host/port are written into `options` for the initial request only; the redirect-follow logic reuses the underlying transport without re-applying the proxy, so the redirected request escapes the proxy boundary and hits internal infrastructure",
+    },
+    summary:
+      "axios applies proxy settings to the initial outbound request but not to requests issued while following an HTTP redirect; a server the caller is pointed at can answer with a redirect to an internal host or IP, and axios connects to it directly, bypassing the proxy and enabling server-side request forgery against the application's internal network.",
+  },
+  {
+    cveId: "CVE-2019-10752",
+    ghsaId: "GHSA-m9jw-237r-gvfv",
+    bugClass: "sql-injection-json-path-interpolation",
+    cwe: "CWE-89",
+    languages: ["javascript", "typescript"],
+    astShape: {
+      // The vulnerable code for CVE-2019-10752 (sequelize, fix commit
+      // 9bd0bc1) is the template literal that builds a SQL fragment by
+      // interpolating an attacker-supplied JSON sub-path
+      // (`path.join('.')`) directly into the query string with no
+      // identifier escaping. The fix routed paths through an escaping
+      // `jsonPathExtractionQuery` helper. Like CVE-2022-25883, the
+      // matchable node is the `template_string` that assembles the SQL
+      // text — the compiled query is built at call time.
+      kind: "template_string",
+      constraints: [
+        "template literal whose text is a fragment of SQL (contains an operator/path syntax such as `->>`, `json_extract`, `WHERE`, or a quoted `'$'` JSON-path marker)",
+        "a `${}` interpolation slot carries a caller-derived path/column value (e.g. `path.join('.')`, `smth.path`, a split user string)",
+        "the interpolated value is NOT passed through an identifier-quoting / escaping helper (`escape`, `quoteIdentifier`, `addTicks`) before landing in the template",
+      ],
+    },
+    dataFlow: {
+      source:
+        "a JSON sub-path string passed by the caller to `sequelize.json(path)` (often built from a request field)",
+      sink: "the SQL query string sent to the database driver, into which the path segments were interpolated verbatim",
+      propagation:
+        "`smth.path` is split on `.` and the segments are joined back into a template literal that becomes part of a `json_extract` / `->>` clause; with no escaping a segment containing `')) ... --` breaks out of the JSON-path literal and injects SQL",
+    },
+    summary:
+      "sequelize's `sequelize.json()` helper builds MySQL/MariaDB/SQLite JSON-path queries by interpolating the caller-supplied sub-path into the SQL string through a template literal without escaping the path segments as identifiers; a crafted path closes the quoted JSON-path literal and appends arbitrary SQL, yielding SQL injection.",
+  },
+  {
+    cveId: "CVE-2022-39353",
+    ghsaId: "GHSA-crh6-fp67-6883",
+    bugClass: "xxe-malformed-xml-trusted-dom",
+    cwe: "CWE-611",
+    languages: ["javascript", "typescript"],
+    astShape: {
+      // CVE-2022-39353 (@xmldom/xmldom, fix commit 7ff7c10) is a
+      // parser-internal bug: xmldom accepted not-well-formed XML
+      // (multiple top-level elements) and attached every root to the
+      // Document instead of rejecting it. The exploitable surface in
+      // *caller* code is the `parser.parseFromString(xml, ...)` call
+      // that parses untrusted XML and whose resulting DOM is then
+      // trusted (searched whole-document, `documentElement` read)
+      // without rejecting a multi-root document. A2's matcher fires
+      // on that `call_expression`.
+      kind: "call_expression",
+      constraints: [
+        "callee resolves to an XML parser entry point (`DOMParser().parseFromString`, `parseFromString`, `parseXml`, `parseXmlString`)",
+        "the parsed input is attacker-controlled XML (a request body, uploaded file, or signed-XML/SAML blob)",
+        "the resulting document is consumed structurally (`getElementsByTagName`, `documentElement`, child iteration) with no check that the document is well-formed / has a single root, and no parser hardening (`onError`/throwing config, single-root assertion)",
+      ],
+    },
+    dataFlow: {
+      source: "an attacker-supplied XML document parsed with `DOMParser.parseFromString`",
+      sink: "DOM-tree consumers (`getElementsByTagName`, `documentElement`) that assume a single, well-formed root element",
+      propagation:
+        "xmldom silently appends every top-level element of a multi-root document to `Document.childNodes`; a consumer that searches the whole document or reads `documentElement` can be steered to a smuggled extra root, bypassing signature/structure checks",
+    },
+    summary:
+      "@xmldom/xmldom's DOMParser parsed XML that is not well-formed — notably documents with multiple top-level elements — and attached every root node to the Document without throwing; dependents that parse untrusted XML and then trust the DOM shape (whole-document searches, `documentElement`) can be fed a smuggled extra root, an XML-external-entity-class (CWE-611) input-validation flaw with security impact on signed-XML/SAML consumers.",
+  },
 ];
 
 /**
@@ -180,9 +383,10 @@ export function getSeedPattern(id: string): RootCausePattern | null {
 }
 
 /**
- * All seed patterns. Iteration order follows the CVE Replay case
- * filenames (alphabetical by GHSA id) so the test assertion below
- * stays diff-stable.
+ * All seed patterns. The first 5 entries are the Tier-1 calibration
+ * seeds (Tier-2 seeds are appended after them) so the test assertions
+ * in root-cause.test.ts stay diff-stable when new Tier-2 seeds are
+ * added.
  */
 export const SEED_PATTERNS: readonly RootCausePattern[] = SEEDS;
 
