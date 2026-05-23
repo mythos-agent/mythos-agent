@@ -124,6 +124,37 @@ For each candidate package:
 - **Idna/punycode edge cases (`xn--`).** The fuzzer surfaced fullwidth
   homoglyphs but didn't push raw punycode. Worth a focused secondary corpus.
 
+## Ranked shortlist (pulled 2026-05-23)
+
+Weekly NPM downloads from `api.npmjs.org/downloads/point/last-week`.
+**Higher download count = higher blast radius if exploitable, but also more
+likely already hardened.** Mid-tier (~10k-200k/wk) is the highest-EV bucket:
+big enough to matter, small enough that nobody's done a focused audit.
+
+| Pkg | Cat | wk DLs | Why it's a candidate |
+|---|---|---:|---|
+| `is-localhost-ip` | SSRF helper | 475k | Resolves IPv4 → "is this localhost?". If it does string match on the input, exploitable; if it does `net.isIP`+canonicalization, hardened |
+| `link-preview-js` | Link preview | 255k | Fetches arbitrary user URLs; SSRF-class consumer |
+| `private-ip` | SSRF helper | 200k | Same pattern as `is-localhost-ip`, broader (all RFC1918) |
+| `blocked-at` | SSRF helper | 194k | Resolves+checks if address is on a blocklist; pre/post canonicalization matters |
+| `request-filtering-agent` | SSRF allowlist | 185k | Sindre's lib — likely hardened, but worth confirming behavior on `0x7f000001` |
+| `open-graph-scraper` | Link preview | 155k | Fetches arbitrary user URLs |
+| `metascraper` | Link preview | 107k | Same |
+| `ssrf-req-filter` | SSRF allowlist | 57k | Smaller, less-audited |
+| `unfurl.js` | Link preview | 34k | Same |
+| `ssrfcheck` | SSRF allowlist | 9k | Smallest in the SSRF bucket — most likely to have the bug |
+| `sanitize-html` | XSS sanitizer | 8.6M | Different exploit class (link-scheme XSS via tab-in-scheme), not SSRF |
+
+**Suggested hunt order (best EV first):**
+
+1. `ssrfcheck`, `ssrf-req-filter` — they exist *specifically* to do the
+   thing we're testing; mid-popularity = under-audited
+2. `is-localhost-ip`, `private-ip`, `blocked-at` — same logic, broader use
+3. `link-preview-js`, `unfurl.js` — high-blast-radius consumers
+4. `request-filtering-agent` — sanity check (likely hardened, but confirm)
+5. `open-graph-scraper`, `metascraper` — high-blast-radius but likely
+   already hardened given the dominant use case
+
 ## Estimate
 
 A motivated hunter probably needs 3–10 days of focused work to find one
