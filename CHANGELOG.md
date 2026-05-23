@@ -2,6 +2,19 @@
 
 All notable changes to sphinx-agent are documented here. The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). Starting with the next release, entries are generated automatically by [release-please](https://github.com/googleapis/release-please) from [Conventional Commits](https://www.conventionalcommits.org/).
 
+## [4.4.0](https://github.com/mythos-agent/mythos-agent/compare/v4.3.0...v4.4.0) (2026-05-23)
+
+
+### Added
+
+* tier 0 capability quick-wins (caching, parsing, advanced tools, +6 seeds) ([f096be9](https://github.com/mythos-agent/mythos-agent/commit/f096be97b1bfe94f192e52ac9b313b9ffd77d859))
+
+
+### Documentation
+
+* **research:** consumer-hunt prep — PoC harness, ranked shortlist, log ([#95](https://github.com/mythos-agent/mythos-agent/issues/95)) ([a14abd1](https://github.com/mythos-agent/mythos-agent/commit/a14abd1c2b63615476b6fef5f1e362c706e2a84b))
+* **research:** write up differential-fuzz first run + consumer hunt scope ([#94](https://github.com/mythos-agent/mythos-agent/issues/94)) ([f65f9bd](https://github.com/mythos-agent/mythos-agent/commit/f65f9bd5e5d6a90dd285642f97260c83bfe4bbac))
+
 ## [4.3.0](https://github.com/mythos-agent/mythos-agent/compare/v4.2.0...v4.3.0) (2026-05-20)
 
 
