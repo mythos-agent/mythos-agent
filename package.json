@@ -92,7 +92,7 @@
     "prettier": "^3.4.0",
     "typescript": "^6.0.3",
     "url-parse": "^1.5.10",
-    "vitest": "^3.0.0"
+    "vitest": "^4.1.7"
   },
   "lint-staged": {
     "src/**/*.ts": [
