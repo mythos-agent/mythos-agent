@@ -1,5 +1,5 @@
 import type { MythosConfig, Vulnerability, VulnChain, Severity } from "../types/index.js";
-import { type LLMClient, createLLMClient } from "../llm/index.js";
+import { type LLMClient, createLLMClient, resolveModelForProvider } from "../llm/index.js";
 
 const CHAIN_PROMPT = `You are a security expert analyzing confirmed vulnerabilities in a codebase. Your job is to identify **vulnerability chains** — sequences of individually exploitable (or seemingly minor) vulnerabilities that, when combined, create a more severe attack path.
 
@@ -42,7 +42,7 @@ export class ChainAnalyzer {
 
   constructor(private config: MythosConfig) {
     this.client = createLLMClient(config);
-    this.model = config.model;
+    this.model = resolveModelForProvider(config);
   }
 
   async analyzeChains(vulnerabilities: Vulnerability[], projectPath: string): Promise<VulnChain[]> {

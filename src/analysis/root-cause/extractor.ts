@@ -1,6 +1,6 @@
 import type Anthropic from "@anthropic-ai/sdk";
 import type { MythosConfig } from "../../types/index.js";
-import { type LLMClient, createLLMClient } from "../../llm/index.js";
+import { type LLMClient, createLLMClient, resolveModelForProvider } from "../../llm/index.js";
 import type { CveInput, RootCausePattern } from "./types.js";
 import { SEED_PATTERNS, getSeedPattern } from "./seed-patterns.js";
 import { collectJsonCandidates } from "../variant-analyzer.js";
@@ -101,7 +101,7 @@ export class RootCauseExtractor {
 
     const prompt = buildExtractionPrompt(input);
     const response = await this.client.messages.create({
-      model: this.config.model,
+      model: resolveModelForProvider(this.config),
       max_tokens: MAX_TOKENS,
       system: ROOT_CAUSE_SYSTEM,
       messages: [{ role: "user", content: prompt }],

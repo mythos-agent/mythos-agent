@@ -90,6 +90,29 @@ No LiteLLM in the loop. The translation happens inside `OpenAILLMClient` between
 
 **Live verification.** Unit tests cover the translation logic with mocked responses (`src/llm/__tests__/openai-client.test.ts`, 25 tests). Live verification requires a real Tier 2 provider key; no live API in CI. Recommended sequence after each sub-PR lands: set `provider: openai` + `baseURL` + `apiKey` + `model`, run `npx mythos-agent@latest hunt ./demo-vulnerable-app --json`, confirm all 4 phases complete and entry-point recon is non-empty, compare to a Tier 1 (Anthropic) run for catch-rate sanity.
 
+## Named providers: OrcaRouter Cyber Inference
+
+Beyond the `baseURL` escape hatch, one Tier 2 provider is registered by name:
+**OrcaRouter Cyber Inference** (`provider: orcarouter`). OrcaRouter is an
+OpenAI-compatible AI gateway that routes many providers behind one endpoint;
+the cyber-tier entry targets security teams running authorized, scoped
+red/blue-team work.
+
+- `createLLMClient` pins the OpenAI adapter to `https://api.orcarouter.ai/v1`
+  (an explicit `baseURL` selects a self-hosted deployment; HTTPS is enforced
+  for any non-loopback host).
+- `resolveModelForProvider` replaces the Anthropic-shaped default model with
+  `orcarouter/auto` when the config still carries it, and otherwise forwards
+  the `vendor/model` id verbatim.
+- `mythos-agent init` lists the key's real chat models from
+  `GET /v1/models?capability=chat` (embedding / image / video / rerank routes
+  filtered out), with a verified seed as an explicitly-labelled fallback.
+- `mythos-agent doctor` validates the key with a non-billing catalog read.
+- Recommended models after OrcaRouter business verification:
+  `orcacyber-ultra-1.0`, `orcacyber-zero-1.5`; general fallback
+  `orcarouter/fusion`. From <https://www.orcarouter.ai/cyber> and
+  <https://www.orcarouter.ai/models?tier=cyber>.
+
 ## Stage 3: cross-provider scoreboard + tier docs (planned)
 
 **Trigger to start:** stage 2 ships AND at least one Tier 2 provider's catch rate is measured.

@@ -1,6 +1,6 @@
 import type Anthropic from "@anthropic-ai/sdk";
 import type { MythosConfig, Vulnerability, Severity } from "../types/index.js";
-import { type LLMClient, createLLMClient } from "../llm/index.js";
+import { type LLMClient, createLLMClient, resolveModelForProvider } from "../llm/index.js";
 import { createHuntAgentTools, executeHuntToolCall } from "../agent/hunt-tools.js";
 import type { ReconReport } from "./agent-protocol.js";
 import { extractJson } from "../agent/json-extract.js";
@@ -144,7 +144,7 @@ ${authInfo}
       turns++;
 
       const response = await this.client.messages.create({
-        model: this.config.model,
+        model: resolveModelForProvider(this.config),
         max_tokens: 8192,
         system: HYPOTHESIS_SYSTEM,
         tools,

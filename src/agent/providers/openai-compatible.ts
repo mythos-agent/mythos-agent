@@ -119,6 +119,9 @@ export class OpenAICompatibleProvider implements AIProvider {
       const safe = text
         .replace(/Bearer\s+[A-Za-z0-9._\-+/=]+/gi, "Bearer ***")
         .replace(/"(api[_-]?key|authorization)"\s*:\s*"[^"]*"/gi, '"$1":"***"')
+        // The key itself can appear unquoted in a gateway error message.
+        .split(this.apiKey.length > 4 ? this.apiKey : "\u0000")
+        .join("***")
         .slice(0, 500);
       throw new Error(`${this.name} API error (${response.status}): ${safe}`);
     }

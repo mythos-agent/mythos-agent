@@ -3,7 +3,9 @@ import path from "node:path";
 import chalk from "chalk";
 import { loadConfig } from "../../config/config.js";
 import { checkAllTools } from "../../tools/index.js";
+import { resolveOrcaRouterBaseUrl } from "../../llm/orcarouter.js";
 import { findConfigFile } from "../../config/config.js";
+import { discoverOrcaRouterModels } from "../../llm/orcarouter-models.js";
 import { discoverLockfiles } from "../../scanner/lockfile-parsers.js";
 
 interface DoctorOptions {
@@ -41,35 +43,50 @@ export async function doctorCommand(options: DoctorOptions) {
     // Test the API key
     maxScore += 1;
     try {
-      const testResponse = await fetch(
-        config.provider === "anthropic"
-          ? "https://api.anthropic.com/v1/messages"
-          : "https://api.openai.com/v1/models",
-        {
-          method: config.provider === "anthropic" ? "POST" : "GET",
+      if (config.provider !== "anthropic") {
+        // GET /models is a non-billing catalog read. Use the provider's own
+        // catalog rule: reject only on an explicit auth rejection, so a key
+        // whose catalog scope is limited is not reported as invalid.
+        const catalog = await discoverOrcaRouterModels({
+          apiKey: config.apiKey,
+          baseURL: resolveOrcaRouterBaseUrl({ baseURL: config.baseURL }),
+        });
+        if (catalog.status !== "auth_error") {
+          score += 1;
+          console.log(
+            chalk.green("  ✓ API key accepted by the model catalog") +
+              chalk.dim(` (${config.provider})`)
+          );
+        } else {
+          console.log(
+            chalk.yellow("  ✗ API key may be invalid") +
+              chalk.dim(" — check your key or model scope")
+          );
+        }
+      } else {
+        const testResponse = await fetch("https://api.anthropic.com/v1/messages", {
+          method: "POST",
           headers: {
             "Content-Type": "application/json",
-            ...(config.provider === "anthropic"
-              ? { "x-api-key": config.apiKey, "anthropic-version": "2023-06-01" }
-              : { Authorization: `Bearer ${config.apiKey}` }),
+            "x-api-key": config.apiKey,
+            "anthropic-version": "2023-06-01",
           },
-          body:
-            config.provider === "anthropic"
-              ? JSON.stringify({
-                  model: config.model,
-                  max_tokens: 1,
-                  messages: [{ role: "user", content: "hi" }],
-                })
-              : undefined,
-        }
-      );
-      if (testResponse.status === 200 || testResponse.status === 401) {
-        // 401 means key format is right but might be expired/invalid
-        if (testResponse.ok) {
-          score += 1;
-          console.log(chalk.green("  ✓ API key valid") + chalk.dim(` (model: ${config.model})`));
-        } else {
-          console.log(chalk.yellow("  ✗ API key may be invalid") + chalk.dim(" — check your key"));
+          body: JSON.stringify({
+            model: config.model,
+            max_tokens: 1,
+            messages: [{ role: "user", content: "hi" }],
+          }),
+        });
+        if (testResponse.status === 200 || testResponse.status === 401) {
+          // 401 means key format is right but might be expired/invalid
+          if (testResponse.ok) {
+            score += 1;
+            console.log(chalk.green("  ✓ API key valid") + chalk.dim(` (model: ${config.model})`));
+          } else {
+            console.log(
+              chalk.yellow("  ✗ API key may be invalid") + chalk.dim(" — check your key")
+            );
+          }
         }
       }
     } catch {

@@ -1,6 +1,6 @@
 import type Anthropic from "@anthropic-ai/sdk";
 import type { MythosConfig } from "../types/index.js";
-import { type LLMClient, createLLMClient } from "../llm/index.js";
+import { type LLMClient, createLLMClient, resolveModelForProvider } from "../llm/index.js";
 import { createAgentTools, executeToolCall } from "./tools.js";
 
 const QUERY_SYSTEM_PROMPT = `You are mythos-agent, an expert AI security analyst. The user is asking security questions about their codebase. You have access to tools to read files, search code, and list files.
@@ -39,7 +39,7 @@ export class QueryEngine {
     private projectPath: string
   ) {
     this.client = createLLMClient(config);
-    this.model = config.model;
+    this.model = resolveModelForProvider(config);
   }
 
   async query(question: string): Promise<string> {

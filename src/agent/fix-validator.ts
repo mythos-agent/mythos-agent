@@ -4,6 +4,7 @@ import { spawnSync } from "node:child_process";
 import Anthropic from "@anthropic-ai/sdk";
 import type { MythosConfig, Vulnerability } from "../types/index.js";
 import { type Patch, applyPatch } from "./fixer.js";
+import { resolveModelForProvider } from "../llm/index.js";
 
 export interface ValidatedFix {
   vulnerability: Vulnerability;
@@ -185,7 +186,7 @@ export class FixValidator {
 
     try {
       const response = await this.client.messages.create({
-        model: this.config.model,
+        model: resolveModelForProvider(this.config),
         max_tokens: 2048,
         temperature: 0,
         system: TEST_GEN_PROMPT,

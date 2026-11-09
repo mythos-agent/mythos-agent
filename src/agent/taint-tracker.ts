@@ -1,6 +1,6 @@
 import type Anthropic from "@anthropic-ai/sdk";
 import type { MythosConfig, Vulnerability, Severity } from "../types/index.js";
-import { type LLMClient, createLLMClient } from "../llm/index.js";
+import { type LLMClient, createLLMClient, resolveModelForProvider } from "../llm/index.js";
 import { createAgentTools, executeToolCall } from "./tools.js";
 
 export interface TaintFlow {
@@ -92,7 +92,7 @@ export class TaintTracker {
 
   constructor(private config: MythosConfig) {
     this.client = createLLMClient(config);
-    this.model = config.model;
+    this.model = resolveModelForProvider(config);
   }
 
   async analyze(projectPath: string): Promise<TaintFlow[]> {

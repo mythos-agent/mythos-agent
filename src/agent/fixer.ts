@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import type { MythosConfig, Vulnerability } from "../types/index.js";
-import { type LLMClient, createLLMClient } from "../llm/index.js";
+import { type LLMClient, createLLMClient, resolveModelForProvider } from "../llm/index.js";
 
 export interface Patch {
   vulnerabilityId: string;
@@ -45,7 +45,7 @@ export class AIFixer {
 
   constructor(private config: MythosConfig) {
     this.client = createLLMClient(config);
-    this.model = config.model;
+    this.model = resolveModelForProvider(config);
   }
 
   async generatePatches(vulnerabilities: Vulnerability[], projectPath: string): Promise<Patch[]> {
