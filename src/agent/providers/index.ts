@@ -2,6 +2,12 @@ import type { AIProvider } from "./base.js";
 import { AnthropicProvider } from "./anthropic.js";
 import { OpenAICompatibleProvider } from "./openai-compatible.js";
 import type { MythosConfig } from "../../types/index.js";
+import { resolveModelForProvider } from "../../llm/index.js";
+import {
+  ORCAROUTER_PROVIDER_ID,
+  ORCAROUTER_PROVIDER_LABEL,
+  resolveOrcaRouterBaseUrl,
+} from "../../llm/orcarouter.js";
 
 export type { AIProvider, UsageTracker } from "./base.js";
 export { createUsageTracker, trackUsage } from "./base.js";
@@ -15,6 +21,19 @@ export function createProvider(config: MythosConfig): AIProvider {
   switch (config.provider) {
     case "anthropic":
       return new AnthropicProvider(apiKey, config.model);
+
+    case ORCAROUTER_PROVIDER_ID:
+      // Named OrcaRouter Cyber Inference provider. Cyber-tier cost is not
+      // published in a stable per-model table, so usage is tracked at zero
+      // rather than guessed.
+      return new OpenAICompatibleProvider({
+        name: ORCAROUTER_PROVIDER_LABEL,
+        apiKey,
+        model: resolveModelForProvider(config),
+        baseUrl: resolveOrcaRouterBaseUrl(config),
+        inputCostPer1M: 0,
+        outputCostPer1M: 0,
+      });
 
     case "openai":
       return new OpenAICompatibleProvider({

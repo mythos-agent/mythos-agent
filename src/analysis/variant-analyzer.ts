@@ -1,6 +1,6 @@
 import type Anthropic from "@anthropic-ai/sdk";
 import type { MythosConfig, Vulnerability, Severity } from "../types/index.js";
-import { type LLMClient, createLLMClient } from "../llm/index.js";
+import { type LLMClient, createLLMClient, resolveModelForProvider } from "../llm/index.js";
 import { createAgentTools, executeToolCall } from "../agent/tools.js";
 import { buildVariantSystem, resolvePromptVariant } from "./variant-prompt.js";
 
@@ -97,7 +97,7 @@ Output JSON with the same format as variant analysis.`,
       turns++;
 
       const response = await this.client.messages.create({
-        model: this.config.model,
+        model: resolveModelForProvider(this.config),
         max_tokens: 8192,
         system: VARIANT_SYSTEM,
         tools,
@@ -178,7 +178,7 @@ Instructions:
       turns++;
 
       const response = await this.client.messages.create({
-        model: this.config.model,
+        model: resolveModelForProvider(this.config),
         max_tokens: 8192,
         system: VARIANT_SYSTEM,
         tools,

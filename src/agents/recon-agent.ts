@@ -1,7 +1,7 @@
 import type Anthropic from "@anthropic-ai/sdk";
 import type { MythosConfig } from "../types/index.js";
 import type { ReconReport } from "./agent-protocol.js";
-import { type LLMClient, createLLMClient } from "../llm/index.js";
+import { type LLMClient, createLLMClient, resolveModelForProvider } from "../llm/index.js";
 import { createHuntAgentTools, executeHuntToolCall } from "../agent/hunt-tools.js";
 import { extractJson } from "../agent/json-extract.js";
 
@@ -60,7 +60,7 @@ export class ReconAgent {
     while (turns < MAX_TURNS) {
       turns++;
       const response = await this.client.messages.create({
-        model: this.config.model,
+        model: resolveModelForProvider(this.config),
         max_tokens: 4096,
         system: RECON_SYSTEM,
         tools,

@@ -1,6 +1,6 @@
 import type Anthropic from "@anthropic-ai/sdk";
 import type { MythosConfig, Vulnerability, Severity } from "../types/index.js";
-import { type LLMClient, createLLMClient } from "../llm/index.js";
+import { type LLMClient, createLLMClient, resolveModelForProvider } from "../llm/index.js";
 import { SYSTEM_PROMPT, buildAnalysisPrompt } from "./prompts.js";
 import { createHuntAgentTools, executeHuntToolCall } from "./hunt-tools.js";
 import { extractJson } from "./json-extract.js";
@@ -51,7 +51,7 @@ export class AIAnalyzer {
   // working without modification.
   constructor(config: MythosConfig, client?: LLMClient | Anthropic) {
     this.client = (client as LLMClient | undefined) ?? createLLMClient(config);
-    this.model = config.model;
+    this.model = resolveModelForProvider(config);
   }
 
   async analyze(projectPath: string, phase1Findings: Vulnerability[]): Promise<AnalysisResult> {

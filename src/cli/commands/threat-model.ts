@@ -3,6 +3,8 @@ import fs from "node:fs";
 import chalk from "chalk";
 import ora from "ora";
 import Anthropic from "@anthropic-ai/sdk";
+import { isOrcaRouterProvider, resolveOrcaRouterBaseUrl } from "../../llm/orcarouter.js";
+import { resolveModelForProvider } from "../../llm/index.js";
 import { loadConfig } from "../../config/config.js";
 import { parseCodebase } from "../../analysis/code-parser.js";
 import { mapEndpoints, assessEndpointSecurity } from "../../analysis/endpoint-mapper.js";
@@ -101,9 +103,12 @@ export async function threatModelCommand(options: ThreatModelOptions) {
   }
 
   try {
-    const client = new Anthropic({ apiKey: config.apiKey });
+    const client = new Anthropic({
+      apiKey: config.apiKey,
+      baseURL: isOrcaRouterProvider(config.provider) ? resolveOrcaRouterBaseUrl(config) : undefined,
+    });
     const response = await client.messages.create({
-      model: config.model,
+      model: resolveModelForProvider(config),
       max_tokens: 8192,
       system: STRIDE_SYSTEM,
       messages: [

@@ -241,6 +241,28 @@ Beyond the scanners above, mythos-agent ships complementary analyses (not counte
 | **2 — Compatible (proxy today, native in stage 2)** | Anything OpenAI-compatible — OpenAI, Qwen via DashScope/OpenRouter, Gemini, Mistral, vLLM, Ollama, LM Studio, Bedrock, etc. | Today: route through any Anthropic-compatible proxy (LiteLLM, OpenRouter, Vercel AI Gateway, Bedrock) by setting `baseURL` in `.mythos.yml` or `ANTHROPIC_BASE_URL` env. Native OpenAI SDK support lands in stage 2. |
 | **3 — Local / community** | Local Ollama / LM Studio / vLLM | Same code path as Tier 2; called out separately because privacy and cost-of-zero are the use case. Best-effort; agentic tool-use quality depends on local model size. |
 
+### OrcaRouter Cyber Inference (named provider)
+
+`provider: orcarouter` routes every AI call (scan analysis, hypothesis, exploit chaining, fix generation, NL queries, remediation plans, threat models) through [OrcaRouter](https://www.orcarouter.ai), an OpenAI-compatible AI gateway that routes many providers behind one endpoint. The entry is aimed at security teams running **authorized, scoped** red- and blue-team work: cyber-tier models for offensive analysis, and the same endpoint's gateway controls (agent firewall, guardrails, code-review merge gates) for defenders. Provider page: <https://www.orcarouter.ai/cyber> · cyber-tier catalog: <https://www.orcarouter.ai/models?tier=cyber>.
+
+```bash
+mythos-agent init        # choose "OrcaRouter Cyber Inference", paste your sk-orca-… key
+```
+
+```yaml
+# .mythos.yml
+provider: orcarouter
+apiKey: sk-orca-…                              # or export MYTHOS_API_KEY
+model: orcarouter/auto                          # default: auto-routing, any key
+# baseURL: https://your-self-hosted-orca/v1    # optional self-hosted override
+```
+
+- **Default** — `orcarouter/auto` (auto-routing; works with any key).
+- **Recommended for security teams** (after OrcaRouter business verification) — `orcacyber-ultra-1.0` (security code scanning, large-repo multi-step reasoning) and `orcacyber-zero-1.5` / `orcacyber-zero-1.0` (OrcaCyber harness-driven).
+- **General fallback** — `orcarouter/fusion`.
+
+The model picker in `mythos-agent init` lists the key's real chat models from `GET https://api.orcarouter.ai/v1/models`; if that catalog is unreachable it shows a small verified fallback list and says so. `mythos-agent doctor` checks the key against the catalog (a non-billing read). Your key is stored wherever mythos-agent already stores provider keys (`.mythos.yml`, git-ignored, or `MYTHOS_API_KEY`) and is never printed.
+
 Pattern scanning, secrets, deps, and IaC work without any API key.
 
 See [`docs/multi-model.md`](docs/multi-model.md) for the full tier-system policy + the staged rollout (this README is the summary; that doc is the canonical reference).

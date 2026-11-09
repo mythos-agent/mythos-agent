@@ -36,7 +36,10 @@ import type { LLMClient } from "./llm-client.js";
 export class OpenAILLMClient implements LLMClient {
   private readonly inner: OpenAI;
 
+  private readonly apiKey: string;
+
   constructor(opts: { apiKey?: string; baseURL?: string }) {
+    this.apiKey = opts.apiKey ?? "";
     // OpenAI SDK requires a string apiKey; Anthropic accepts undefined
     // (and reads from env). For non-Anthropic compatibility the user
     // SHOULD set MYTHOS_API_KEY explicitly, but we tolerate empty
@@ -55,10 +58,38 @@ export class OpenAILLMClient implements LLMClient {
         );
       }
       const openaiRequest = translateRequest(params);
-      const openaiResponse = await this.inner.chat.completions.create(openaiRequest);
+      let openaiResponse;
+      try {
+        openaiResponse = await this.inner.chat.completions.create(openaiRequest);
+      } catch (err) {
+        throw sanitizeSdkError(err, this.apiKey);
+      }
       return translateResponse(openaiResponse, params.model);
     },
   };
+}
+
+/**
+ * SDK errors embed up to 1 KB of the upstream response body, and a gateway
+ * that echoes the request back would put the Bearer key into the message.
+ * Rewrite the message so the key can never surface in a stack trace, report,
+ * or terminal.
+ */
+export function sanitizeSdkError(err: unknown, apiKey?: string): Error {
+  const original = err instanceof Error ? err : new Error(String(err));
+  const status =
+    typeof (err as { status?: unknown })?.status === "number"
+      ? ` (${(err as { status: number }).status})`
+      : "";
+  let message =
+    typeof (err as { message?: unknown })?.message === "string"
+      ? (err as { message: string }).message
+      : original.message;
+  if (apiKey && apiKey.length > 4) message = message.split(apiKey).join("***");
+  message = message.replace(/Bearer\s+[A-Za-z0-9._\-+/=]+/gi, "Bearer ***");
+  const sanitized = new Error(`${original.name || "Error"}${status}: ${message.slice(0, 500)}`);
+  sanitized.name = original.name || "Error";
+  return sanitized;
 }
 
 // ---------------------------------------------------------------------------

@@ -71,7 +71,7 @@ export interface MythosConfig {
   // SDK support lands in stage 2 once Tier 2 demand is verified.
   baseURL?: string;
   model: string;
-  provider: string; // "anthropic" | "openai" | "ollama" | "lmstudio" | "vllm" | custom
+  provider: string; // "anthropic" | "openai" | "orcarouter" | "ollama" | "lmstudio" | "vllm" | custom
   rules: {
     enabled: string[];
     disabled: string[];

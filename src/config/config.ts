@@ -8,7 +8,7 @@ import { DEFAULT_CONFIG, type MythosConfig } from "../types/index.js";
 // 3.x. When both exist in the same directory, .mythos.yml wins — that's
 // the migration path: copy sphinx → mythos, next run picks up the new file.
 // 4.0 drops .sphinx.yml support entirely.
-const CANONICAL_CONFIG_FILENAME = ".mythos.yml";
+export const CANONICAL_CONFIG_FILENAME = ".mythos.yml";
 const LEGACY_CONFIG_FILENAME = ".sphinx.yml";
 
 export function findConfigFile(startDir: string): string | null {

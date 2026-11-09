@@ -2,6 +2,8 @@ import path from "node:path";
 import chalk from "chalk";
 import ora from "ora";
 import Anthropic from "@anthropic-ai/sdk";
+import { isOrcaRouterProvider, resolveOrcaRouterBaseUrl } from "../../llm/orcarouter.js";
+import { resolveModelForProvider } from "../../llm/index.js";
 import { loadConfig } from "../../config/config.js";
 import { loadResults } from "../../store/results-store.js";
 import type { Vulnerability } from "../../types/index.js";
@@ -66,7 +68,13 @@ export async function planCommand(options: PlanOptions) {
   const spinner = ora("Generating AI remediation plan...").start();
 
   try {
-    const client = new Anthropic({ apiKey: config.apiKey });
+    const client = new Anthropic({
+      apiKey: config.apiKey,
+      // OrcaRouter speaks Anthropic's wire format natively at the same base
+      // URL (alongside OpenAI `chat/completions`), so the Anthropic SDK path
+      // is kept here and only the base URL changes.
+      baseURL: isOrcaRouterProvider(config.provider) ? resolveOrcaRouterBaseUrl(config) : undefined,
+    });
     const vulnList = result.confirmedVulnerabilities
       .slice(0, 30)
       .map(
@@ -81,7 +89,7 @@ export async function planCommand(options: PlanOptions) {
         : "";
 
     const response = await client.messages.create({
-      model: config.model,
+      model: resolveModelForProvider(config),
       max_tokens: 4096,
       system: PLAN_PROMPT,
       messages: [
